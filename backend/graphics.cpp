@@ -27,9 +27,10 @@ Texture Graphics::loadTexture(const std::string& path) {
 }
 
 void Graphics::renderSprite(Transform transform, Texture texture, Transform source_rect) {
-    SDL_Rect dst_rect = {transform.position.x, transform.position.y, transform.scale.x, transform.scale.y};
-    SDL_Point center = {transform.origin.x * transform.scale.x, transform.origin.y * transform.scale.x};
-
+    int actual_width = transform.scale.x * texture.width;
+    int actual_height = transform.scale.y * texture.height;
+    SDL_Rect dst_rect = {(int)transform.position.x, (int)transform.position.y, actual_width, actual_height};
+    SDL_Point center = {(int)(transform.origin.x * actual_width), (int)(transform.origin.y * actual_height)};
     SDL_RenderCopyEx(this->renderer, (SDL_Texture*)texture.handle, NULL, &dst_rect, transform.angle, &center, SDL_FLIP_NONE);
 }
 

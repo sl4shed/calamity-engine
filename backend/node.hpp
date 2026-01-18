@@ -1,10 +1,12 @@
 #include "definitions.hpp"
 #include "graphics.hpp"
+#include "utils.hpp"
 
 class Node {
     public:
         std::string name;
         Transform transform;
+        Transform globalTransform;
 
         Node* parent;
         std::vector<Node*> children;
@@ -21,4 +23,5 @@ class Node {
         template<typename T>
         T* getComponent();
         void render(Graphics& graphics);
+        void update();
 };

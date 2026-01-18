@@ -2,30 +2,49 @@
 #include "backend/definitions.hpp"
 #include "backend/graphics.hpp"
 #include "backend/node.hpp"
+#include "backend/utils.hpp"
 #include <iostream>
 
 int main(int argc, char *argv[]) {
-    Node node = Node();
     Graphics graphics = Graphics();
 
-    Sprite* component = new Sprite();
-    component->texture = graphics.loadTexture(std::string("assets/flappy.png"));
-    component->visible = true;
-    component->z_index = 1;
-    node.addComponent(component);
+    // Bird
+    Node bird = Node();
+    bird.name = std::string("Bird");
 
-    // Initialize node transform
-    node.transform.position = {100, 100};
-    node.transform.scale = {150, 150};
-    node.transform.origin = {0.5, 0.5};
-    node.transform.angle = 0.0f;
+    Sprite* birdSprite = new Sprite();
+    birdSprite->texture = graphics.loadTexture(std::string("assets/flappy.png"));
+    birdSprite->visible = true;
+    birdSprite->z_index = 1;
+    bird.addComponent(birdSprite);
+
+    bird.transform.position = {200, 100};
+    bird.transform.scale = {0.6, 0.6};
+    bird.transform.origin = {0.5, 0.5};
+    bird.transform.angle = 0.0f;
+
+    // second sprite
+    Node bird2 = Node();
+    bird2.name = std::string("Bird 2");
+    Sprite* fireSprite = new Sprite();
+    fireSprite->texture = graphics.loadTexture(std::string("assets/flappy.png"));
+    fireSprite->visible = true;
+    fireSprite->z_index = 1;
+    bird2.addComponent(fireSprite);
+
+    bird2.transform.position = {60, 0};
+    bird2.transform.scale = {0.8, 0.8};
+    bird2.transform.origin = {0.5, 0.5};
+    bird2.transform.angle = 0.0f;
+    bird.addChild(&bird2);
 
     SDL_Event event;
     bool running = true;
     while (running) {
         graphics.preRender();
-        node.transform.angle += 0.1f;
-        node.render(graphics);
+        bird.transform.angle += 0.05f;
+        bird.update();
+        bird.render(graphics);
 
         while (SDL_PollEvent(&event)) {
             if (event.type == SDL_QUIT) {

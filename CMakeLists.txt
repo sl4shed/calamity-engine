@@ -7,7 +7,10 @@ add_executable(${PROJECT_NAME}
     backend/node.cpp
     backend/graphics.cpp
     backend/engine.cpp
+    backend/utils.cpp
 )
+
+#configure_file(assets build/assets COPYONLY)
 
 include(FindPkgConfig)
 pkg_search_module(SDL2 REQUIRED sdl2)

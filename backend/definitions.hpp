@@ -12,7 +12,7 @@ struct Vector2D {
 
 struct Component {
     virtual ~Component() = default;
-    void update();
+    void update() {};
 };
 
 struct Transform : public Component {

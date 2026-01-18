@@ -1,5 +1,7 @@
 #include "node.hpp"
+#include "utils.hpp"
 #include <iostream>
+#include <cmath>
 
 Node::Node()
     : parent(0)
@@ -63,13 +65,14 @@ T* Node::getComponent() {
 void Node::render(Graphics& graphics) {
     for (size_t i = 0; i < this->components.size(); i++) {
         Sprite* sprite = dynamic_cast<Sprite*>(components[i]);
-        if (sprite && sprite->visible) {
-            std::cout << "Rendering node" << std::endl;
-            graphics.renderSprite(
-                this->transform,
-                sprite->texture,
-                sprite->source_transform
-            );
+        if (sprite) {
+            if (sprite && sprite->visible) {
+                graphics.renderSprite(
+                    globalTransform,
+                    sprite->texture,
+                    sprite->source_transform
+                );
+            }
         }
     }
 
@@ -78,16 +81,17 @@ void Node::render(Graphics& graphics) {
     }
 }
 
-void Node::update(float dt) {
-    for (size_t i = 0; i < this->components.size(); i++) {
-        components[i]->update(dt);
+void Node::update() {
+    globalTransform = transform;
+    if (parent) {
+        globalTransform = addTransforms(parent->globalTransform, transform);
     }
 
-    for(size_t i = 0; i < this->children.size(); i++) {
-        children[i]->update(dt);
+    for (size_t i = 0; i < components.size(); i++) {
+        components[i]->update();
     }
-    
-    if (this->parent) {
-        
+
+    for(size_t i = 0; i < children.size(); i++) {
+        children[i]->update();
     }
 }
