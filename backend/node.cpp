@@ -1,0 +1,93 @@
+#include "node.hpp"
+#include <iostream>
+
+Node::Node()
+    : parent(0)
+{
+}
+
+Node::~Node() {
+    // delete children
+    for (size_t i = 0; i < children.size(); ++i) {
+        delete children[i];
+    }
+
+    // delete components
+    for (size_t i = 0; i < components.size(); ++i) {
+        delete components[i];
+    }
+}
+
+Node* Node::addChild(Node* child) {
+    if (!child) return 0;
+
+    child->parent = this;
+    children.push_back(child);
+    return child;
+}
+
+void Node::removeChild(Node* child) {
+    for (size_t i = 0; i < children.size(); ++i) {
+        if (children[i] == child) {
+            delete children[i];
+            children.erase(children.begin() + i);
+            return;
+        }
+    }
+}
+
+void Node::addComponent(Component* component) {
+    if (!component) return;
+    components.push_back(component);
+}
+
+void Node::removeComponent(Component* component) {
+    for (size_t i = 0; i < components.size(); ++i) {
+        if (components[i] == component) {
+            delete components[i];
+            components.erase(components.begin() + i);
+            return;
+        }
+    }
+}
+
+template<typename T>
+T* Node::getComponent() {
+    for (size_t i = 0; i < components.size(); ++i) {
+        T* c = dynamic_cast<T*>(components[i]);
+        if (c) return c;
+    }
+    return 0;
+}
+
+void Node::render(Graphics& graphics) {
+    for (size_t i = 0; i < this->components.size(); i++) {
+        Sprite* sprite = dynamic_cast<Sprite*>(components[i]);
+        if (sprite && sprite->visible) {
+            std::cout << "Rendering node" << std::endl;
+            graphics.renderSprite(
+                this->transform,
+                sprite->texture,
+                sprite->source_transform
+            );
+        }
+    }
+
+    for(size_t i = 0; i < this->children.size(); i++) {
+        children[i]->render(graphics);
+    }
+}
+
+void Node::update(float dt) {
+    for (size_t i = 0; i < this->components.size(); i++) {
+        components[i]->update(dt);
+    }
+
+    for(size_t i = 0; i < this->children.size(); i++) {
+        children[i]->update(dt);
+    }
+    
+    if (this->parent) {
+        
+    }
+}
