@@ -10,11 +10,21 @@ add_executable(${PROJECT_NAME}
     backend/utils.cpp
 )
 
-#configure_file(assets build/assets COPYONLY)
+set(BUILD_TARGET "NATIVE" CACHE STRING "Build target: NATIVE or PSP")
+set_property(CACHE BUILD_TARGET PROPERTY STRINGS NATIVE PSP)
+
+if(BUILD_TARGET STREQUAL "PSP")
+    message(STATUS "Building for PSP")
+elseif(BUILD_TARGET STREQUAL "NATIVE")
+    message(STATUS "Building for native")
+else()
+    message(FATAL_ERROR "Unknown BUILD_TARGET: ${BUILD_TARGET}")
+endif()
 
 include(FindPkgConfig)
 pkg_search_module(SDL2 REQUIRED sdl2)
 pkg_search_module(SDL2_IMAGE REQUIRED SDL2_image)
+set(CMAKE_BUILD_TYPE Debug)
 
 target_include_directories(${PROJECT_NAME} PRIVATE
     ${SDL2_INCLUDE_DIRS}
@@ -25,12 +35,13 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     ${SDL2_IMAGE_LIBRARIES}
 )
 
-# Create an EBOOT.PBP file
-create_pbp_file(
-    TARGET ${PROJECT_NAME}
-    ICON_PATH NULL
-    BACKGROUND_PATH NULL
-    PREVIEW_PATH NULL
-    TITLE ${PROJECT_NAME}
-    VERSION 01.00
-)
+if(BUILD_TARGET STREQUAL "PSP")
+    create_pbp_file(
+        TARGET ${PROJECT_NAME}
+        ICON_PATH NULL
+        BACKGROUND_PATH NULL
+        PREVIEW_PATH NULL
+        TITLE ${PROJECT_NAME}
+        VERSION 01.00
+    )
+endif()
