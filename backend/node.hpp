@@ -1,3 +1,6 @@
+#ifndef NODE_HPP
+#define NODE_HPP
+
 #include "definitions.hpp"
 #include "graphics.hpp"
 #include "utils.hpp"
@@ -25,3 +28,5 @@ class Node {
         void render(Graphics& graphics);
         void update();
 };
+
+#endif

@@ -3,10 +3,12 @@
 #include "backend/graphics.hpp"
 #include "backend/node.hpp"
 #include "backend/utils.hpp"
+#include "backend/engine.hpp"
 #include <iostream>
 
 int main(int argc, char *argv[]) {
     Graphics graphics = Graphics();
+    Engine engine = Engine();
 
     // Bird
     Node bird = Node();
@@ -22,6 +24,7 @@ int main(int argc, char *argv[]) {
     bird.transform.scale = {0.6, 0.6};
     bird.transform.origin = {0.5, 0.5};
     bird.transform.angle = 0.0f;
+    engine.root.addChild(&bird);
 
     // second sprite
     Node bird2 = Node();
@@ -41,18 +44,15 @@ int main(int argc, char *argv[]) {
     SDL_Event event;
     bool running = true;
     while (running) {
-        graphics.preRender();
         bird.transform.angle += 0.05f;
-        bird.update();
-        bird.render(graphics);
+        engine.update();
+        engine.render(graphics);
 
         while (SDL_PollEvent(&event)) {
             if (event.type == SDL_QUIT) {
                 running = false;
             }
         }
-
-        graphics.postRender();
     }
 
     return 0;

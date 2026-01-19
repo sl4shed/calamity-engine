@@ -9,12 +9,10 @@ Node::Node()
 }
 
 Node::~Node() {
-    // delete children
     for (size_t i = 0; i < children.size(); ++i) {
         delete children[i];
     }
 
-    // delete components
     for (size_t i = 0; i < components.size(); ++i) {
         delete components[i];
     }
@@ -67,6 +65,9 @@ void Node::render(Graphics& graphics) {
         Sprite* sprite = dynamic_cast<Sprite*>(components[i]);
         if (sprite) {
             if (sprite && sprite->visible) {
+                //std::cout << "rendering sprite: " << name << std::endl;
+                //std::cout << "texture: " << sprite->texture.path << std::endl;
+
                 graphics.renderSprite(
                     globalTransform,
                     sprite->texture,
