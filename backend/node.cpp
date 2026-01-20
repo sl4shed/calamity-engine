@@ -8,27 +8,34 @@ Node::Node()
 {
 }
 
-Node::~Node() {
-    for (size_t i = 0; i < children.size(); ++i) {
+Node::~Node()
+{
+    for (size_t i = 0; i < children.size(); ++i)
+    {
         delete children[i];
     }
 
-    for (size_t i = 0; i < components.size(); ++i) {
+    for (size_t i = 0; i < components.size(); ++i)
+    {
         delete components[i];
     }
 }
 
-Node* Node::addChild(Node* child) {
-    if (!child) return 0;
+void Node::addChild(Node *child)
+{
+    if (!child)
+        return;
 
     child->parent = this;
     children.push_back(child);
-    return child;
 }
 
-void Node::removeChild(Node* child) {
-    for (size_t i = 0; i < children.size(); ++i) {
-        if (children[i] == child) {
+void Node::removeChild(Node *child)
+{
+    for (size_t i = 0; i < children.size(); ++i)
+    {
+        if (children[i] == child)
+        {
             delete children[i];
             children.erase(children.begin() + i);
             return;
@@ -36,14 +43,19 @@ void Node::removeChild(Node* child) {
     }
 }
 
-void Node::addComponent(Component* component) {
-    if (!component) return;
+void Node::addComponent(Component *component)
+{
+    if (!component)
+        return;
     components.push_back(component);
 }
 
-void Node::removeComponent(Component* component) {
-    for (size_t i = 0; i < components.size(); ++i) {
-        if (components[i] == component) {
+void Node::removeComponent(Component *component)
+{
+    for (size_t i = 0; i < components.size(); ++i)
+    {
+        if (components[i] == component)
+        {
             delete components[i];
             components.erase(components.begin() + i);
             return;
@@ -51,48 +63,89 @@ void Node::removeComponent(Component* component) {
     }
 }
 
-template<typename T>
-T* Node::getComponent() {
-    for (size_t i = 0; i < components.size(); ++i) {
-        T* c = dynamic_cast<T*>(components[i]);
-        if (c) return c;
+template <typename T>
+T *Node::getComponent()
+{
+    for (size_t i = 0; i < components.size(); ++i)
+    {
+        T *c = dynamic_cast<T *>(components[i]);
+        if (c)
+            return c;
     }
     return 0;
 }
 
-void Node::render(Graphics& graphics) {
-    for (size_t i = 0; i < this->components.size(); i++) {
-        Sprite* sprite = dynamic_cast<Sprite*>(components[i]);
-        if (sprite) {
-            if (sprite && sprite->visible) {
-                //std::cout << "rendering sprite: " << name << std::endl;
-                //std::cout << "texture: " << sprite->texture.path << std::endl;
+void Node::render(Graphics &graphics)
+{
+    for (size_t i = 0; i < this->components.size(); i++)
+    {
+        Sprite *sprite = dynamic_cast<Sprite *>(components[i]);
+        if (sprite)
+        {
+            if (sprite && sprite->visible)
+            {
+                // std::cout << "rendering sprite: " << name << std::endl;
+                // std::cout << "texture: " << sprite->texture.path << std::endl;
 
                 graphics.renderSprite(
                     globalTransform,
                     sprite->texture,
-                    sprite->source_transform
-                );
+                    sprite->source_transform);
             }
         }
     }
 
-    for(size_t i = 0; i < this->children.size(); i++) {
+    for (size_t i = 0; i < this->children.size(); i++)
+    {
         children[i]->render(graphics);
     }
 }
 
-void Node::update() {
+void Node::update()
+{
     globalTransform = transform;
-    if (parent) {
+    if (parent)
+    {
         globalTransform = addTransforms(parent->globalTransform, transform);
     }
 
-    for (size_t i = 0; i < components.size(); i++) {
+    for (size_t i = 0; i < components.size(); i++)
+    {
         components[i]->update();
     }
 
-    for(size_t i = 0; i < children.size(); i++) {
+    for (size_t i = 0; i < children.size(); i++)
+    {
         children[i]->update();
     }
+}
+
+Node *Node::getChild(std::string name)
+{
+    for (size_t i = 0; i < children.size(); ++i)
+    {
+        if (children[i]->name == name)
+        {
+            return children[i];
+        }
+    }
+    return nullptr;
+}
+
+Node *Node::getChildByIndex(int index)
+{
+    if (index < 0 || index >= children.size())
+    {
+        return nullptr;
+    }
+    return children[index];
+}
+
+Component *Node::getComponentByIndex(int index)
+{
+    if (index < 0 || index >= components.size())
+    {
+        return nullptr;
+    }
+    return components[index];
 }

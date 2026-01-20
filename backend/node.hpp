@@ -5,28 +5,35 @@
 #include "graphics.hpp"
 #include "utils.hpp"
 
-class Node {
-    public:
-        std::string name;
-        Transform transform;
-        Transform globalTransform;
+class Node
+{
+public:
+	std::string name;
+	Transform transform;
+	Transform globalTransform;
 
-        Node* parent;
-        std::vector<Node*> children;
-        std::vector<Component*> components;
+	Node *parent;
+	std::vector<Node *> children;
+	std::vector<Component *> components;
 
-        Node();
-        ~Node();
+	Node();
+	~Node();
 
-        // Functions
-        Node* addChild(Node* child);
-        void removeChild(Node* child);
-        void addComponent(Component* component);
-        void removeComponent(Component* component);
-        template<typename T>
-        T* getComponent();
-        void render(Graphics& graphics);
-        void update();
+	// children
+	void addChild(Node *child);
+	void removeChild(Node *child);
+	Node *getChild(std::string name);
+	Node *getChildByIndex(int index);
+
+	// components
+	void addComponent(Component *component);
+	void removeComponent(Component *component);
+	template <typename T>
+	T *getComponent();
+	Component *getComponentByIndex(int index);
+
+	void render(Graphics &graphics);
+	void update();
 };
 
 #endif
