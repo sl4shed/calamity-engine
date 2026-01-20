@@ -4,6 +4,7 @@
 #include "definitions.hpp"
 #include "graphics.hpp"
 #include "utils.hpp"
+#include "components.hpp"
 
 class Node
 {
@@ -34,6 +35,8 @@ public:
 
 	void render(Graphics &graphics);
 	void update();
+
+	std::vector<Script *> activeScripts;
 };
 
 #endif

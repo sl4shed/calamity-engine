@@ -4,6 +4,9 @@
 #include "backend/node.hpp"
 #include "backend/utils.hpp"
 #include "backend/engine.hpp"
+#include "backend/components.hpp"
+
+#include "scripts/BirdScript.hpp"
 #include <iostream>
 
 int loop(Graphics &graphics, Engine &engine, bool &running)
@@ -41,6 +44,9 @@ int main(int argc, char *argv[])
     bird->transform.scale = {0.6, 0.6};
     bird->transform.origin = {0.5, 0.5};
     bird->transform.angle = 0.0f;
+
+    BirdScript *birdScript = new BirdScript();
+    bird->addComponent(birdScript);
     engine.root.addChild(bird);
 
     Node *bird2 = new Node();
@@ -57,6 +63,7 @@ int main(int argc, char *argv[])
     bird2->transform.angle = 0.0f;
     bird->addChild(bird2);
 
+    birdScript->start();
     bool running = true;
     while (running)
     {

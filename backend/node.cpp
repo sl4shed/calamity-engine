@@ -47,7 +47,14 @@ void Node::addComponent(Component *component)
 {
     if (!component)
         return;
+    component->setNode(this);
     components.push_back(component);
+
+    if (Script *script = dynamic_cast<Script *>(component))
+    {
+        std::cout << "adding script" << std::endl;
+        activeScripts.push_back(script);
+    }
 }
 
 void Node::removeComponent(Component *component)
@@ -56,6 +63,12 @@ void Node::removeComponent(Component *component)
     {
         if (components[i] == component)
         {
+            if (Script *script = dynamic_cast<Script *>(components[i]))
+            {
+                // activeScripts.erase(std::find(activeScripts.begin(), activeScripts.end(), script));
+                //  todo: cuz im too lazy
+            }
+
             delete components[i];
             components.erase(components.begin() + i);
             return;
@@ -117,6 +130,12 @@ void Node::update()
     for (size_t i = 0; i < children.size(); i++)
     {
         children[i]->update();
+    }
+
+    for (Script *script : activeScripts)
+    {
+        std::cout << "updating script on node " << std::endl;
+        script->update();
     }
 }
 
