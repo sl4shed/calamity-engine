@@ -6,11 +6,19 @@
 #include "backend/engine.hpp"
 #include <iostream>
 
-int loop(Graphics &graphics, Engine &engine, bool running, Node &bird)
+int loop(Graphics &graphics, Engine &engine, bool &running)
 {
-    bird.transform.angle += 0.05f;
     engine.update();
     engine.render(graphics);
+
+    SDL_Event event;
+    while (SDL_PollEvent(&event))
+    {
+        if (event.type == SDL_QUIT)
+        {
+            running = false;
+        }
+    }
 
     return 1;
 }
@@ -52,7 +60,7 @@ int main(int argc, char *argv[])
     bool running = true;
     while (running)
     {
-        loop(graphics, engine, running, *bird);
+        loop(graphics, engine, running);
     }
 
     return 0;
