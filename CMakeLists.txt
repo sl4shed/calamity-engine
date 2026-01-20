@@ -9,6 +9,7 @@ add_executable(${PROJECT_NAME}
     backend/engine.cpp
     backend/utils.cpp
     backend/components.cpp
+    backend/file.cpp
 )
 
 set(BUILD_TARGET "NATIVE" CACHE STRING "Build target: NATIVE or PSP")

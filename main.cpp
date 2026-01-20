@@ -5,6 +5,7 @@
 #include "backend/utils.hpp"
 #include "backend/engine.hpp"
 #include "backend/components.hpp"
+#include "backend/file.hpp"
 
 #include "scripts/BirdScript.hpp"
 #include <iostream>
@@ -63,7 +64,12 @@ int main(int argc, char *argv[])
     bird2->transform.angle = 0.0f;
     bird->addChild(bird2);
 
+    // script start functions
     birdScript->start();
+
+    exportNodeTree(&engine.root);
+
+    // main loop
     bool running = true;
     while (running)
     {
