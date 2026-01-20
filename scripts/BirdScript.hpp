@@ -10,14 +10,15 @@ class BirdScript : public Script
     Node *bird;
 
 public:
-    void Start()
+    void start()
     {
         std::cout << "start" << std::endl;
         bird = this->getNode();
     }
 
-    void Update()
+    void update()
     {
+        std::cout << "update" << std::endl;
         bird->transform.angle += 0.1f;
     }
 };

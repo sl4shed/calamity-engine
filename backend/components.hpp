@@ -35,6 +35,7 @@ public:
 
 class Script : public Component
 {
+public:
     void update() {};
     void start() {};
     void physicsUpdate() {}; // todo

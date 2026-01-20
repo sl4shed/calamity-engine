@@ -134,7 +134,7 @@ void Node::update()
 
     for (Script *script : activeScripts)
     {
-        std::cout << "updating script on node " << std::endl;
+
         script->update();
     }
 }
