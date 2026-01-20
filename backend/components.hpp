@@ -1,6 +1,4 @@
-#ifndef HPP_COMPONENTS
-#define HPP_COMPONENTS
-
+#pragma once
 #include "definitions.hpp"
 
 class Node; // Forward declaration
@@ -8,9 +6,9 @@ class Node; // Forward declaration
 struct Component
 {
     virtual ~Component() = default;
-    void update() {};
+    virtual void update() {};
     Node *getNode();
-    void setNode(Node *node);
+    void setNode(Node *n);
 
 private:
     Node *node;
@@ -36,9 +34,7 @@ public:
 class Script : public Component
 {
 public:
-    void update() {};
-    void start() {};
-    void physicsUpdate() {}; // todo
+    virtual void update() {};
+    virtual void start() {};
+    virtual void physicsUpdate() {}; // todo
 };
-
-#endif

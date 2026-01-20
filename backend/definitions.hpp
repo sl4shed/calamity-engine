@@ -1,6 +1,4 @@
-#ifndef DEFINITIONS_HPP
-#define DEFINITIONS_HPP
-
+#pragma once
 #include <string>
 #include <vector>
 #include <string>
@@ -18,5 +16,3 @@ struct Texture
     int height;
     std::string path;
 };
-
-#endif

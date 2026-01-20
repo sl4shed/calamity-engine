@@ -12,13 +12,11 @@ class BirdScript : public Script
 public:
     void start()
     {
-        std::cout << "start" << std::endl;
         bird = this->getNode();
     }
 
     void update()
     {
-        std::cout << "update" << std::endl;
         bird->transform.angle += 0.1f;
     }
 };

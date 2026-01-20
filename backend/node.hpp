@@ -1,6 +1,4 @@
-#ifndef NODE_HPP
-#define NODE_HPP
-
+#pragma once
 #include "definitions.hpp"
 #include "graphics.hpp"
 #include "utils.hpp"
@@ -38,5 +36,3 @@ public:
 
 	std::vector<Script *> activeScripts;
 };
-
-#endif

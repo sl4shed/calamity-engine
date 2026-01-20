@@ -1,6 +1,4 @@
-#ifndef GRAPHICS_HPP
-#define GRAPHICS_HPP
-
+#pragma once
 #include <SDL.h>
 #include <SDL_image.h>
 #include <string>
@@ -18,5 +16,3 @@ public:
     SDL_Window *window;
     SDL_Renderer *renderer;
 };
-
-#endif

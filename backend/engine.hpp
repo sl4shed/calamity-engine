@@ -1,6 +1,4 @@
-#ifndef ENGINE_HPP
-#define ENGINE_HPP
-
+#pragma once
 #include "definitions.hpp"
 #include "node.hpp"
 #include "components.hpp"
@@ -14,5 +12,3 @@ public:
     void update();
     void render(Graphics &graphics);
 };
-
-#endif
