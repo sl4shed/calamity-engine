@@ -10,8 +10,8 @@ Graphics::Graphics()
         "window",
         SDL_WINDOWPOS_UNDEFINED,
         SDL_WINDOWPOS_UNDEFINED,
-        480,
-        272,
+        1200,
+        900,
         0);
 
     this->renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
@@ -29,8 +29,8 @@ Texture Graphics::loadTexture(const std::string &path)
 
 void Graphics::renderSprite(Transform transform, Texture texture, Transform source_rect)
 {
-    int actual_width = transform.scale.x * texture.width;
-    int actual_height = transform.scale.y * texture.height;
+    int actual_width = transform.scale.x;
+    int actual_height = transform.scale.y;
     SDL_Rect dst_rect = {(int)transform.position.x, (int)transform.position.y, actual_width, actual_height};
     SDL_Point center = {(int)(transform.origin.x * actual_width), (int)(transform.origin.y * actual_height)};
     // SDL_Point center = {(int)actual_width * 0.5, (int)actual_height * 0.5};

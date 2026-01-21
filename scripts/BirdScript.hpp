@@ -15,7 +15,7 @@ public:
         bird = this->getNode();
     }
 
-    void update()
+    void update(float deltaTime)
     {
         bird->transform.angle += 0.01f;
     }

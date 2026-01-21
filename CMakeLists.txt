@@ -10,6 +10,8 @@ add_executable(${PROJECT_NAME}
     backend/utils.cpp
     backend/components.cpp
     backend/file.cpp
+    backend/audio.cpp
+    backend/definitions.cpp
 )
 
 set(BUILD_TARGET "NATIVE" CACHE STRING "Build target: NATIVE or PSP")

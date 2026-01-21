@@ -1,6 +1,6 @@
 #pragma once
 #include "definitions.hpp"
-
+class Engine; // Forward declaration to avoid circular include
 class Node; // Forward declaration
 
 struct Component
@@ -12,14 +12,6 @@ struct Component
 
 private:
     Node *node;
-};
-
-struct Transform : public Component
-{
-    Vector2D position;
-    Vector2D scale;
-    Vector2D origin;
-    float angle;
 };
 
 class Sprite : public Component
@@ -34,7 +26,14 @@ public:
 class Script : public Component
 {
 public:
-    virtual void update() {};
+    virtual void update(float deltaTime) {};
     virtual void start() {};
     virtual void physicsUpdate() {}; // todo
+};
+
+class Camera : public Component
+{
+public:
+    void setActive(Engine &engine);
+    bool active;
 };

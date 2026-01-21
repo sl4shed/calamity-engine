@@ -1,7 +1,6 @@
 #pragma once
 #include "definitions.hpp"
 #include "node.hpp"
-#include "components.hpp"
 
 class Engine
 {
@@ -11,4 +10,10 @@ public:
     Node root;
     void update();
     void render(Graphics &graphics);
+
+    void setActiveCamera(Camera *camera);
+    Camera *getActiveCamera();
+
+private:
+    Camera *activeCamera;
 };

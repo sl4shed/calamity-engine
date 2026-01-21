@@ -3,9 +3,10 @@
 #include <iostream>
 #include <cmath>
 
-Node::Node()
+Node::Node(std::string name)
     : parent(0)
 {
+    this->name = name;
 }
 
 Node::~Node()
@@ -113,13 +114,15 @@ void Node::render(Graphics &graphics)
         children[i]->render(graphics);
     }
 }
-
 void Node::update()
 {
-    globalTransform = transform;
     if (parent)
     {
-        globalTransform = addTransforms(parent->globalTransform, transform);
+        globalTransform = combineTransforms(parent->globalTransform, transform);
+    }
+    else
+    {
+        globalTransform = transform;
     }
 
     for (size_t i = 0; i < components.size(); i++)
@@ -135,7 +138,7 @@ void Node::update()
     for (Script *script : activeScripts)
     {
 
-        script->update();
+        script->update(1.0f); // todo change
     }
 }
 

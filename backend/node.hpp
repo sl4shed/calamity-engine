@@ -15,7 +15,7 @@ public:
 	std::vector<Node *> children;
 	std::vector<Component *> components;
 
-	Node();
+	Node(std::string name = "Node");
 	~Node();
 
 	// children
