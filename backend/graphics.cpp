@@ -1,7 +1,8 @@
 #include "graphics.hpp"
 #include "definitions.hpp"
 
-Graphics::Graphics() {
+Graphics::Graphics()
+{
     SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMECONTROLLER);
     IMG_Init(IMG_INIT_PNG);
 
@@ -11,34 +12,38 @@ Graphics::Graphics() {
         SDL_WINDOWPOS_UNDEFINED,
         480,
         272,
-        0
-    );
+        0);
 
     this->renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
 }
 
-Texture Graphics::loadTexture(const std::string& path) {
-    SDL_Surface * pixels = IMG_Load(path.c_str());
-    SDL_Texture * sprite = SDL_CreateTextureFromSurface(renderer, pixels);
+Texture Graphics::loadTexture(const std::string &path)
+{
+    SDL_Surface *pixels = IMG_Load(path.c_str());
+    SDL_Texture *sprite = SDL_CreateTextureFromSurface(renderer, pixels);
     int w = pixels->w;
     int h = pixels->h;
     SDL_FreeSurface(pixels);
     return Texture{sprite, w, h, path};
 }
 
-void Graphics::renderSprite(Transform transform, Texture texture, Transform source_rect) {
+void Graphics::renderSprite(Transform transform, Texture texture, Transform source_rect)
+{
     int actual_width = transform.scale.x * texture.width;
     int actual_height = transform.scale.y * texture.height;
     SDL_Rect dst_rect = {(int)transform.position.x, (int)transform.position.y, actual_width, actual_height};
     SDL_Point center = {(int)(transform.origin.x * actual_width), (int)(transform.origin.y * actual_height)};
-    SDL_RenderCopyEx(this->renderer, (SDL_Texture*)texture.handle, NULL, &dst_rect, transform.angle, &center, SDL_FLIP_NONE);
+    // SDL_Point center = {(int)actual_width * 0.5, (int)actual_height * 0.5};
+    SDL_RenderCopyEx(this->renderer, (SDL_Texture *)texture.handle, NULL, &dst_rect, transform.angle, &center, SDL_FLIP_NONE);
 }
 
-void Graphics::preRender() {
+void Graphics::preRender()
+{
     SDL_SetRenderDrawColor(this->renderer, 0, 0, 0, 255);
     SDL_RenderClear(this->renderer);
 }
 
-void Graphics::postRender() {
+void Graphics::postRender()
+{
     SDL_RenderPresent(this->renderer);
 }

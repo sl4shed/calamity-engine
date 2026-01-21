@@ -60,14 +60,15 @@ int main(int argc, char *argv[])
 
     bird2->transform.position = {60, 0};
     bird2->transform.scale = {0.8, 0.8};
-    bird2->transform.origin = {0.5, 0.5};
+    bird2->transform.origin = {0, 0};
     bird2->transform.angle = 0.0f;
     bird->addChild(bird2);
 
     // script start functions
     birdScript->start();
 
-    exportNodeTree(&engine.root);
+    // exportNodeTree(&engine.root);
+    // std::cout << readFileText("assets/clug.txt") << std::endl;
 
     // main loop
     bool running = true;

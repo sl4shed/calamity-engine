@@ -17,6 +17,6 @@ public:
 
     void update()
     {
-        bird->transform.angle += 0.1f;
+        bird->transform.angle += 0.01f;
     }
 };

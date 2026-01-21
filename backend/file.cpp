@@ -28,7 +28,7 @@ std::string readFileText(std::string path)
     return out;
 }
 
-std::string exportNodeTree(Engine *engine)
+std::string exportNodeTree(Node *node)
 {
     json tree;
     tree[0] = "test";
@@ -36,7 +36,7 @@ std::string exportNodeTree(Engine *engine)
     return std::string("");
 }
 
-void loadNodeTree(Engine *engine, std::string jsonText)
+void loadNodeTree(Node *parent, std::string jsonText)
 {
     // nothing yet
 }

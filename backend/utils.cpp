@@ -1,7 +1,8 @@
 #include "utils.hpp"
 #include <cmath>
 
-Transform addTransforms(Transform parent, Transform child) {
+Transform addTransforms(Transform parent, Transform child)
+{
     Transform result;
     result.angle = parent.angle + child.angle;
     result.scale = multiplyVectors(parent.scale, child.scale);
@@ -26,14 +27,16 @@ Transform addTransforms(Transform parent, Transform child) {
     return result;
 }
 
-Vector2D multiplyVectors(Vector2D a, Vector2D b) {
+Vector2D multiplyVectors(Vector2D a, Vector2D b)
+{
     Vector2D result;
     result.x = a.x * b.x;
     result.y = a.y * b.y;
     return result;
 }
 
-Vector2D addVectors(Vector2D a, Vector2D b) {
+Vector2D addVectors(Vector2D a, Vector2D b)
+{
     Vector2D result;
     result.x = a.x + b.x;
     result.y = a.y + b.y;

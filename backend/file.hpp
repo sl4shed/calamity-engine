@@ -7,5 +7,5 @@
 #include "components.hpp"
 
 std::string readFileText(std::string path);
-std::string exportNodeTree(Engine *engine);
-void loadNodeTree(Engine *engine, std::string jsonText);
+std::string exportNodeTree(Node *node);
+void loadNodeTree(Node *parent, std::string jsonText);
