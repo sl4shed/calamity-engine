@@ -2,6 +2,6 @@
 #include "definitions.hpp"
 #include "components.hpp"
 
-Vector2D addVectors(Vector2D a, Vector2D b);
-Vector2D multiplyVectors(Vector2D a, Vector2D b);
+Vector2 addVectors(Vector2 a, Vector2 b);
+Vector2 multiplyVectors(Vector2 a, Vector2 b);
 Transform combineTransforms(const Transform &parent, const Transform &child);

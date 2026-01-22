@@ -64,7 +64,7 @@ int main(int argc, char *argv[])
     bird3->name = std::string("Bird 3");
     bird3->addComponent(birdSprite);
 
-    bird3->transform.position = {180, 0};
+    bird3->transform.position = {80, 0};
     bird3->transform.scale = {60, 60};
     bird3->transform.origin = {0.5, 0.5};
     bird3->transform.angle = 0.0f;
