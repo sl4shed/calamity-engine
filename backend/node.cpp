@@ -116,9 +116,13 @@ void Node::render(Graphics &graphics)
 }
 void Node::update()
 {
+    transform.calculateMatrix();
     if (parent)
     {
-        globalTransform = combineTransforms(parent->globalTransform, transform);
+        globalTransform = transform;
+        globalTransform.transformation = parent->transform.transformation + transform.transformation;
+        globalTransform.position = parent->globalTransform.position + transform.position;
+        globalTransform.updateVectorFromMatrix();
     }
     else
     {

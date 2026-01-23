@@ -21,26 +21,27 @@ struct Texture
     std::string path;
 };
 
+struct Matrix2
+{
+    float m[2][2];
+
+    Matrix2 operator*(const Matrix2 &other) const;
+    Matrix2 operator+(const Matrix2 &other) const;
+    Matrix2 operator-(const Matrix2 &other) const;
+    Matrix2 operator/(float scalar) const;
+
+    static Matrix2 rotation(float angle);
+    static Matrix2 scale(Vector2 s);
+};
+
 struct Transform
 {
-    Vector2 position;
     Vector2 scale;
     Vector2 origin;
     float angle;
 
-    Matrix3 transformation;
+    Vector2 position;
+    Matrix2 transformation;
+    void calculateMatrix();
+    void updateVectorFromMatrix();
 };
-
-struct Matrix3
-{
-    float m[3][3];
-
-    Matrix3 operator*(const Matrix3 &other) const;
-    Matrix3 operator+(const Matrix3 &other) const;
-    Matrix3 operator-(const Matrix3 &other) const;
-    Matrix3 operator/(float scalar) const;
-
-    static Matrix3 translation(Vector2 t);
-    static Matrix3 rotation(float angle);
-    static Matrix3 scale(Vector2 s);
-}

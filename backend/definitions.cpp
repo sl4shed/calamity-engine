@@ -5,15 +5,15 @@
 // matrix /////////////////////////////////
 ///////////////////////////////////////////
 
-Matrix3 Matrix3::operator*(const Matrix3 &other) const
+Matrix2 Matrix2::operator*(const Matrix2 &other) const
 {
-    Matrix3 result;
-    for (int i = 0; i < 3; i++)
+    Matrix2 result;
+    for (int i = 0; i < 2; i++)
     {
-        for (int j = 0; j < 3; j++)
+        for (int j = 0; j < 2; j++)
         {
             result.m[i][j] = 0.0f;
-            for (int k = 0; k < 3; k++)
+            for (int k = 0; k < 2; k++)
             {
                 result.m[i][j] += m[i][k] * other.m[k][j];
             }
@@ -22,12 +22,12 @@ Matrix3 Matrix3::operator*(const Matrix3 &other) const
     return result;
 }
 
-Matrix3 Matrix3::operator+(const Matrix3 &other) const
+Matrix2 Matrix2::operator+(const Matrix2 &other) const
 {
-    Matrix3 result;
-    for (int i = 0; i < 3; i++)
+    Matrix2 result;
+    for (int i = 0; i < 2; i++)
     {
-        for (int j = 0; j < 3; j++)
+        for (int j = 0; j < 2; j++)
         {
             result.m[i][j] = m[i][j] + other.m[i][j];
         }
@@ -35,12 +35,12 @@ Matrix3 Matrix3::operator+(const Matrix3 &other) const
     return result;
 }
 
-Matrix3 Matrix3::operator-(const Matrix3 &other) const
+Matrix2 Matrix2::operator-(const Matrix2 &other) const
 {
-    Matrix3 result;
-    for (int i = 0; i < 3; i++)
+    Matrix2 result;
+    for (int i = 0; i < 2; i++)
     {
-        for (int j = 0; j < 3; j++)
+        for (int j = 0; j < 2; j++)
         {
             result.m[i][j] = m[i][j] - other.m[i][j];
         }
@@ -48,12 +48,12 @@ Matrix3 Matrix3::operator-(const Matrix3 &other) const
     return result;
 }
 
-Matrix3 Matrix3::operator/(float scalar) const
+Matrix2 Matrix2::operator/(float scalar) const
 {
-    Matrix3 result;
-    for (int i = 0; i < 3; i++)
+    Matrix2 result;
+    for (int i = 0; i < 2; i++)
     {
-        for (int j = 0; j < 3; j++)
+        for (int j = 0; j < 2; j++)
         {
             result.m[i][j] = m[i][j] / scalar;
         }
@@ -61,50 +61,58 @@ Matrix3 Matrix3::operator/(float scalar) const
     return result;
 }
 
-Matrix3 Matrix3::translation(Vector2 t)
+Matrix2 Matrix2::translation(Vector2 t)
 {
-    Matrix3 result;
+    Matrix2 result;
     result.m[0][0] = 1.0f;
-    result.m[0][1] = 0.0f;
-    result.m[0][2] = t.x;
+    result.m[0][1] = t.x;
     result.m[1][0] = 0.0f;
-    result.m[1][1] = 1.0f;
-    result.m[1][2] = t.y;
-    result.m[2][0] = 0.0f;
-    result.m[2][1] = 0.0f;
-    result.m[2][2] = 1.0f;
+    result.m[1][1] = t.y;
     return result;
 }
 
-Matrix3 Matrix3::rotation(float angle)
+Matrix2 Matrix2::rotation(float angle)
 {
     float cos = std::cos(angle);
     float sin = std::sin(angle);
 
-    Matrix3 result;
+    Matrix2 result;
     result.m[0][0] = cos;
     result.m[0][1] = -sin;
-    result.m[0][2] = 0.0f;
     result.m[1][0] = sin;
     result.m[1][1] = cos;
-    result.m[1][2] = 0.0f;
-    result.m[2][0] = 0.0f;
-    result.m[2][1] = 0.0f;
-    result.m[2][2] = 1.0f;
     return result;
 }
 
-Matrix3 Matrix3::scale(Vector2 s)
+Matrix2 Matrix2::scale(Vector2 s)
 {
-    Matrix3 result;
+    Matrix2 result;
     result.m[0][0] = s.x;
     result.m[0][1] = 0.0f;
-    result.m[0][2] = 0.0f;
     result.m[1][0] = 0.0f;
     result.m[1][1] = s.y;
-    result.m[1][2] = 0.0f;
-    result.m[2][0] = 0.0f;
-    result.m[2][1] = 0.0f;
-    result.m[2][2] = 1.0f;
     return result;
+}
+///////////////////////////////////////////
+// transform /////////////////////////////
+///////////////////////////////////////////`
+
+void Transform::calculateMatrix()
+{
+    transformation = Matrix2::rotation(angle) * Matrix2::scale(scale);
+}
+
+void Transform::updateVectorFromMatrix()
+{
+    // Extract rotation from transformation matrix
+    // rotation = atan2(t.x.y, t.x.x) where t.x is the first column
+    angle = std::atan2(transformation.m[1][0], transformation.m[0][0]);
+
+    // Extract scale from transformation matrix
+    // scale.x = length of first column vector
+    // scale.y = length of second column vector
+    scale.x = std::sqrt(transformation.m[0][0] * transformation.m[0][0] +
+                        transformation.m[1][0] * transformation.m[1][0]);
+    scale.y = std::sqrt(transformation.m[0][1] * transformation.m[0][1] +
+                        transformation.m[1][1] * transformation.m[1][1]);
 }
