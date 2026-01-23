@@ -120,7 +120,8 @@ void Node::update()
     if (parent)
     {
         globalTransform = transform;
-        globalTransform.transformation = parent->transform.transformation + transform.transformation;
+        globalTransform.transformation = transform.transformation * parent->globalTransform.transformation;
+
         globalTransform.position = parent->globalTransform.position + transform.position;
         globalTransform.updateVectorFromMatrix();
     }

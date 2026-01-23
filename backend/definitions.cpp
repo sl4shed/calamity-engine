@@ -8,17 +8,11 @@
 Matrix2 Matrix2::operator*(const Matrix2 &other) const
 {
     Matrix2 result;
-    for (int i = 0; i < 2; i++)
-    {
-        for (int j = 0; j < 2; j++)
-        {
-            result.m[i][j] = 0.0f;
-            for (int k = 0; k < 2; k++)
-            {
-                result.m[i][j] += m[i][k] * other.m[k][j];
-            }
-        }
-    }
+
+    result.m[0][0] = m[0][0] * other.m[0][0] + m[0][1] * other.m[1][0];
+    result.m[0][1] = m[0][0] * other.m[0][1] + m[0][1] * other.m[1][1];
+    result.m[1][0] = m[1][0] * other.m[0][0] + m[1][1] * other.m[1][0];
+    result.m[1][1] = m[1][0] * other.m[0][1] + m[1][1] * other.m[1][1];
     return result;
 }
 
@@ -61,15 +55,15 @@ Matrix2 Matrix2::operator/(float scalar) const
     return result;
 }
 
-Matrix2 Matrix2::translation(Vector2 t)
-{
-    Matrix2 result;
-    result.m[0][0] = 1.0f;
-    result.m[0][1] = t.x;
-    result.m[1][0] = 0.0f;
-    result.m[1][1] = t.y;
-    return result;
-}
+// Matrix2 Matrix2::translation(Vector2 t)
+// {
+//     Matrix2 result;
+//     result.m[0][0] = 1.0f;
+//     result.m[0][1] = t.x;
+//     result.m[1][0] = 0.0f;
+//     result.m[1][1] = t.y;
+//     return result;
+// }
 
 Matrix2 Matrix2::rotation(float angle)
 {

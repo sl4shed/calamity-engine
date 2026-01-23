@@ -17,6 +17,6 @@ public:
 
     void update(float deltaTime)
     {
-        bird->transform.angle += 0.01f;
+        // bird->transform.angle += 0.01f;
     }
 };
