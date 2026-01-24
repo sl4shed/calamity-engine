@@ -18,5 +18,5 @@ public:
     Uint64 last = 0;
 
 private:
-    Camera *activeCamera;
+    Camera *activeCamera = nullptr;
 };

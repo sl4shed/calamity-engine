@@ -37,4 +37,5 @@ class Camera : public Component
 public:
     void setActive(Engine &engine);
     bool active;
+    Vector2 origin = {0.5f, 0.5f};
 };

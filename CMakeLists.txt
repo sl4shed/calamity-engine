@@ -25,9 +25,9 @@ else()
     message(FATAL_ERROR "Unknown BUILD_TARGET: ${BUILD_TARGET}")
 endif()
 
-include(FindPkgConfig)
-pkg_search_module(SDL2 REQUIRED sdl2)
-pkg_search_module(SDL2_IMAGE REQUIRED SDL2_image)
+find_package(SDL3 REQUIRED CONFIG REQUIRED COMPONENTS SDL3-shared)
+find_package(SDL3_image REQUIRED CONFIG)
+
 set(CMAKE_BUILD_TYPE Debug)
 
 # assets directory
@@ -37,13 +37,9 @@ add_custom_target(copy_assets
 add_dependencies(${PROJECT_NAME} copy_assets)
 
 
-target_include_directories(${PROJECT_NAME} PRIVATE
-    ${SDL2_INCLUDE_DIRS}
-    ${SDL2_IMAGE_INCLUDE_DIRS}
-)
 target_link_libraries(${PROJECT_NAME} PRIVATE
-    ${SDL2_LIBRARIES}
-    ${SDL2_IMAGE_LIBRARIES}
+    SDL3::SDL3
+    SDL3_image::SDL3_image
 )
 
 if(BUILD_TARGET STREQUAL "PSP")

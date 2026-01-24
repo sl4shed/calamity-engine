@@ -32,7 +32,7 @@ public:
 	T *getComponent();
 	Component *getComponentByIndex(int index);
 
-	void render(Graphics &graphics);
+	void render(Graphics &graphics, Engine *engine);
 	void update(float deltaTime);
 
 	std::vector<Script *> activeScripts;

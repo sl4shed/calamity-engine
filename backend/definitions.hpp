@@ -43,6 +43,9 @@ struct Transform
     void rotate(float angle);
     void scale(Vector2 scale);
 
+    Vector2 applyTo(const Vector2 &point) const;
+    Transform applyTo(const Transform &other) const;
+    Transform inverse() const;
     float getAngle();
     float getDegrees();
     Vector2 getScale();

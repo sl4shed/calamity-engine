@@ -128,3 +128,36 @@ Vector2 Transform::getScale()
                         transformation.m[1][1] * transformation.m[1][1]);
     return scale;
 }
+
+Vector2 Transform::applyTo(const Vector2 &point) const
+{
+    return transformation * point + position;
+}
+
+Transform Transform::applyTo(const Transform &other) const
+{
+    Transform result;
+    result.transformation = transformation * other.transformation;
+    result.position = position + (transformation * other.position);
+    return result;
+}
+
+Transform Transform::inverse() const
+{
+    Transform result;
+    // Inverse of rotation/scale matrix is its transpose divided by determinant
+    float det = transformation.m[0][0] * transformation.m[1][1] - transformation.m[0][1] * transformation.m[1][0];
+    if (det == 0)
+    {
+        // Handle non-invertible case (could throw an error or return identity)
+        return Transform();
+    }
+    Matrix2 invTrans;
+    invTrans.m[0][0] = transformation.m[1][1] / det;
+    invTrans.m[0][1] = -transformation.m[0][1] / det;
+    invTrans.m[1][0] = -transformation.m[1][0] / det;
+    invTrans.m[1][1] = transformation.m[0][0] / det;
+    result.transformation = invTrans;
+    result.position = invTrans * (Vector2{-position.x, -position.y});
+    return result;
+}

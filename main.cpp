@@ -1,4 +1,5 @@
-#include <SDL.h>
+#include <SDL3/SDL.h>
+#include <SDL3_image/SDL_image.h>
 #include "backend/definitions.hpp"
 #include "backend/graphics.hpp"
 #include "backend/node.hpp"
@@ -8,6 +9,7 @@
 #include "backend/file.hpp"
 
 #include "scripts/BirdScript.hpp"
+#include "scripts/CameraScript.hpp"
 #include <iostream>
 
 int loop(Graphics &graphics, Engine &engine, bool &running)
@@ -18,7 +20,7 @@ int loop(Graphics &graphics, Engine &engine, bool &running)
     SDL_Event event;
     while (SDL_PollEvent(&event))
     {
-        if (event.type == SDL_QUIT)
+        if (event.type == SDL_EVENT_QUIT)
         {
             running = false;
         }
@@ -29,10 +31,11 @@ int loop(Graphics &graphics, Engine &engine, bool &running)
 
 int main(int argc, char *argv[])
 {
-    printf("hello world\n");
+    printf("hello worlsd\n");
     Graphics graphics = Graphics();
     Engine engine = Engine();
 
+    // bird 1
     Node *bird = new Node();
     bird->name = std::string("Bird");
 
@@ -41,7 +44,7 @@ int main(int argc, char *argv[])
     printf("penis\n");
     birdSprite->visible = true;
     birdSprite->zIndex = 1;
-    birdSprite->origin = {0.5f, 0.5f};
+    birdSprite->origin = {0, 0};
     bird->addComponent(birdSprite);
 
     bird->transform.position = {200, 100};
@@ -50,6 +53,17 @@ int main(int argc, char *argv[])
     bird->addComponent(birdScript);
     engine.root.addChild(bird);
 
+    // camera node
+    Node *cameraNode = new Node();
+    cameraNode->name = std::string("Main Camera");
+    Camera *cameraComponent = new Camera();
+    cameraNode->addComponent(cameraComponent);
+    engine.root.addChild(cameraNode);
+    CameraScript *cameraScript = new CameraScript();
+    cameraNode->addComponent(cameraScript);
+    cameraComponent->setActive(engine);
+
+    // bird 2
     Node *bird2 = new Node();
     bird2->name = std::string("Bird 2");
     bird2->addComponent(birdSprite);
@@ -58,6 +72,7 @@ int main(int argc, char *argv[])
     bird2->transform.scale({0.8, 0.8});
     bird->addChild(bird2);
 
+    // bird 3
     Node *bird3 = new Node();
     bird3->name = std::string("Bird 3");
     bird3->addComponent(birdSprite);
@@ -67,6 +82,7 @@ int main(int argc, char *argv[])
     bird2->addChild(bird3);
 
     // script start functions
+    cameraScript->start();
     birdScript->start();
 
     // exportNodeTree(&engine.root);

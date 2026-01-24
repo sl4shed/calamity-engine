@@ -23,13 +23,13 @@ void Engine::update()
 void Engine::render(Graphics &graphics)
 {
     graphics.preRender();
-    root.render(graphics);
+    root.render(graphics, this);
     graphics.postRender();
 }
 
 void Engine::setActiveCamera(Camera *camera)
 {
-    if (activeCamera)
+    if (activeCamera != nullptr)
     {
         activeCamera->active = false;
     }

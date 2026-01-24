@@ -1,21 +1,22 @@
+#include <SDL3/SDL.h>
 #include "graphics.hpp"
 #include "definitions.hpp"
 #include "node.hpp"
+#include "engine.hpp"
 
-Graphics::Graphics()
+Graphics::Graphics(Vector2 s)
+    : screenSize(s)
 {
-    SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMECONTROLLER);
-    IMG_Init(IMG_INIT_PNG);
+    screenSize = s;
+    SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMEPAD);
 
     this->window = SDL_CreateWindow(
         "window",
-        SDL_WINDOWPOS_UNDEFINED,
-        SDL_WINDOWPOS_UNDEFINED,
-        1200,
-        900,
+        screenSize.x,
+        screenSize.y,
         0);
 
-    this->renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+    this->renderer = SDL_CreateRenderer(window, NULL);
 }
 
 Texture Graphics::loadTexture(const std::string &path)
@@ -24,33 +25,43 @@ Texture Graphics::loadTexture(const std::string &path)
     SDL_Texture *sprite = SDL_CreateTextureFromSurface(renderer, pixels);
     int w = pixels->w;
     int h = pixels->h;
-    SDL_FreeSurface(pixels);
+    SDL_DestroySurface(pixels);
     return Texture{sprite, w, h, path};
 }
 
-void Graphics::renderSprite(Node &node)
+void Graphics::renderSprite(Node &node, Engine *engine)
 {
     if (!node.currentSprite)
         return;
-    Sprite *sprite = node.currentSprite;
 
+    Camera *activeCamera = engine->getActiveCamera();
+    Transform cameraTransform = activeCamera->getNode()->globalTransform;
+    Sprite *sprite = node.currentSprite;
     SDL_Vertex vertices[4];
-    vertices[0] = {{-(sprite->texture.width * sprite->origin.x), -(sprite->texture.height * sprite->origin.y)}, {255, 255, 255, 100}, {0, 0}};
-    vertices[1] = {{sprite->texture.width * (1 - sprite->origin.x), -(sprite->texture.height * sprite->origin.y)}, {255, 255, 255, 255}, {1, 0}};
-    vertices[2] = {{sprite->texture.width * (1 - sprite->origin.x), sprite->texture.height * (1 - sprite->origin.y)}, {255, 255, 255, 255}, {1, 1}};
-    vertices[3] = {{-(sprite->texture.width * sprite->origin.x), sprite->texture.height * (1 - sprite->origin.y)}, {255, 255, 255, 255}, {0, 1}};
+    vertices[0] = {{-(sprite->texture.width * sprite->origin.x), -(sprite->texture.height * sprite->origin.y)}, {1, 1, 1, 1}, {0, 0}};
+    vertices[1] = {{sprite->texture.width * (1 - sprite->origin.x), -(sprite->texture.height * sprite->origin.y)}, {1, 1, 1, 1}, {1, 0}};
+    vertices[2] = {{sprite->texture.width * (1 - sprite->origin.x), sprite->texture.height * (1 - sprite->origin.y)}, {1, 1, 1, 1}, {1, 1}};
+    vertices[3] = {{-(sprite->texture.width * sprite->origin.x), sprite->texture.height * (1 - sprite->origin.y)}, {1, 1, 1, 1}, {0, 1}};
 
     for (int i = 0; i < 4; i++)
     {
+        // for camera origin copy transform and offset by screen size
+        Transform newCameraTransform = cameraTransform;
+        newCameraTransform.position = newCameraTransform.position - Vector2{screenSize.x * activeCamera->origin.x, screenSize.y * activeCamera->origin.y};
+
         Vector2 pos = {vertices[i].position.x, vertices[i].position.y};
-        pos = node.globalTransform.transformation * pos;
-        vertices[i].position.x = pos.x + node.globalTransform.position.x;
-        vertices[i].position.y = pos.y + node.globalTransform.position.y;
+        pos = node.globalTransform.applyTo(pos);
+        pos = cameraTransform.inverse().applyTo(pos);
+        // pos = newCameraTransform.inverse().applyTo(pos);
+        // Transform inverse = newCameraTransform.inverse();
+
+        vertices[i].position.x = pos.x;
+        vertices[i].position.y = pos.y;
 
         Vector2 texturePos = {vertices[i].tex_coord.x, vertices[i].tex_coord.y};
-        texturePos = sprite->sourceTransform.transformation * texturePos;
-        vertices[i].tex_coord.x = texturePos.x + sprite->sourceTransform.position.x;
-        vertices[i].tex_coord.y = texturePos.y + sprite->sourceTransform.position.y;
+        texturePos = sprite->sourceTransform.applyTo(texturePos);
+        vertices[i].tex_coord.x = texturePos.x;
+        vertices[i].tex_coord.y = texturePos.y;
     }
 
     int indices[6] = {0, 1, 2, 2, 3, 0};

@@ -98,7 +98,7 @@ T *Node::getComponent()
     return 0;
 }
 
-void Node::render(Graphics &graphics)
+void Node::render(Graphics &graphics, Engine *engine)
 {
     for (size_t i = 0; i < this->components.size(); i++)
     {
@@ -110,22 +110,23 @@ void Node::render(Graphics &graphics)
                 // std::cout << "rendering sprite: " << name << std::endl;
                 // std::cout << "texture: " << sprite->texture.path << std::endl;
 
-                graphics.renderSprite(*this);
+                graphics.renderSprite(*this, engine);
             }
         }
     }
 
     for (size_t i = 0; i < this->children.size(); i++)
     {
-        children[i]->render(graphics);
+        children[i]->render(graphics, engine);
     }
 }
 void Node::update(float deltaTime)
 {
     if (parent)
     {
-        globalTransform.transformation = transform.transformation * parent->globalTransform.transformation;
-        globalTransform.position = parent->globalTransform.position + (parent->globalTransform.transformation * transform.position);
+        globalTransform = parent->globalTransform.applyTo(transform);
+        // globalTransform.transformation = transform.transformation * parent->globalTransform.transformation;
+        // globalTransform.position = parent->globalTransform.position + (parent->globalTransform.transformation * transform.position);
     }
     else
     {

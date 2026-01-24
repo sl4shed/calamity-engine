@@ -9,23 +9,23 @@ using json = nlohmann::json;
 
 std::string readFileText(std::string path)
 {
-    const char *cpath = path.c_str();
-    SDL_RWops *rw = SDL_RWFromFile(cpath, "rb");
-    if (!rw)
-        return {};
-    Sint64 size = SDL_RWsize(rw);
-    if (size <= 0)
-    {
-        SDL_RWclose(rw);
-        return {};
-    }
-    std::string out;
-    out.resize((size_t)size);
-    size_t read = SDL_RWread(rw, out.data(), 1, (size_t)size);
-    SDL_RWclose(rw);
-    if (read != (size_t)size)
-        return {}; // handle partial reads if needed
-    return out;
+    // const char *cpath = path.c_str();
+    // SDL_RWops *rw = SDL_RWFromFile(cpath, "rb");
+    // if (!rw)
+    //     return {};
+    // Sint64 size = SDL_RWsize(rw);
+    // if (size <= 0)
+    // {
+    //     SDL_RWclose(rw);
+    //     return {};
+    // }
+    // std::string out;
+    // out.resize((size_t)size);
+    // size_t read = SDL_RWread(rw, out.data(), 1, (size_t)size);
+    // SDL_RWclose(rw);
+    // if (read != (size_t)size)
+    //     return {}; // handle partial reads if needed
+    // return out;
 }
 
 std::string exportNodeTree(Node *node)
