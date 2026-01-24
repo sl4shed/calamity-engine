@@ -14,6 +14,9 @@ public:
     void setActiveCamera(Camera *camera);
     Camera *getActiveCamera();
 
+    Uint64 now = SDL_GetPerformanceCounter();
+    Uint64 last = 0;
+
 private:
     Camera *activeCamera;
 };

@@ -33,7 +33,7 @@ public:
 	Component *getComponentByIndex(int index);
 
 	void render(Graphics &graphics);
-	void update();
+	void update(float deltaTime);
 
 	std::vector<Script *> activeScripts;
 };

@@ -4,9 +4,6 @@ Engine::Engine()
 {
     root = Node();
     root.transform.position = {0, 0};
-    root.transform.scale = {1, 1};
-    root.transform.angle = 0;
-    root.transform.origin = {0, 0};
 }
 
 Engine::~Engine()
@@ -16,7 +13,11 @@ Engine::~Engine()
 
 void Engine::update()
 {
-    root.update();
+    last = now;
+    now = SDL_GetPerformanceCounter();
+    float deltaTime = (float)(now - last) * 1000 / SDL_GetPerformanceFrequency();
+
+    root.update(deltaTime);
 }
 
 void Engine::render(Graphics &graphics)

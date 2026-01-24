@@ -33,12 +33,30 @@ void Graphics::renderSprite(Node &node)
     if (!node.currentSprite)
         return;
     Sprite *sprite = node.currentSprite;
-    int actual_width = node.transform.scale.x * sprite->texture.width;
-    int actual_height = node.transform.scale.y * sprite->texture.height;
-    SDL_Rect dst_rect = {node.transform.position.x, node.transform.position.y, actual_width, actual_height};
-    SDL_Point center = {node.transform.origin.x * actual_width, node.transform.origin.y * actual_height};
-    // SDL_Point center = {(int)actual_width * 0.5, (int)actual_height * 0.5};
-    SDL_RenderCopyEx(this->renderer, (SDL_Texture *)sprite->texture.handle, NULL, &dst_rect, node.transform.angle, &center, SDL_FLIP_NONE);
+
+    SDL_Vertex vertices[4];
+    vertices[0] = {{-(sprite->texture.width * sprite->origin.x), -(sprite->texture.height * sprite->origin.y)}, {255, 255, 255, 100}, {0, 0}};
+    vertices[1] = {{sprite->texture.width * (1 - sprite->origin.x), -(sprite->texture.height * sprite->origin.y)}, {255, 255, 255, 255}, {1, 0}};
+    vertices[2] = {{sprite->texture.width * (1 - sprite->origin.x), sprite->texture.height * (1 - sprite->origin.y)}, {255, 255, 255, 255}, {1, 1}};
+    vertices[3] = {{-(sprite->texture.width * sprite->origin.x), sprite->texture.height * (1 - sprite->origin.y)}, {255, 255, 255, 255}, {0, 1}};
+
+    for (int i = 0; i < 4; i++)
+    {
+        Vector2 pos = {vertices[i].position.x, vertices[i].position.y};
+        pos = node.globalTransform.transformation * pos;
+        vertices[i].position.x = pos.x + node.globalTransform.position.x;
+        vertices[i].position.y = pos.y + node.globalTransform.position.y;
+
+        Vector2 texturePos = {vertices[i].tex_coord.x, vertices[i].tex_coord.y};
+        texturePos = sprite->sourceTransform.transformation * texturePos;
+        vertices[i].tex_coord.x = texturePos.x + sprite->sourceTransform.position.x;
+        vertices[i].tex_coord.y = texturePos.y + sprite->sourceTransform.position.y;
+    }
+
+    int indices[6] = {0, 1, 2, 2, 3, 0};
+
+    int status = SDL_RenderGeometry(this->renderer, (SDL_Texture *)sprite->texture.handle, vertices, 4, indices, 6);
+    // printf("RenderGeometry status: %d\n", status);
 }
 
 void Graphics::preRender()

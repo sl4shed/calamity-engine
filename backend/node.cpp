@@ -120,20 +120,17 @@ void Node::render(Graphics &graphics)
         children[i]->render(graphics);
     }
 }
-void Node::update()
+void Node::update(float deltaTime)
 {
-    transform.calculateMatrix();
     if (parent)
     {
-        globalTransform = transform;
         globalTransform.transformation = transform.transformation * parent->globalTransform.transformation;
-
-        globalTransform.position = parent->globalTransform.position + transform.position;
-        globalTransform.updateVectorFromMatrix();
+        globalTransform.position = parent->globalTransform.position + (parent->globalTransform.transformation * transform.position);
     }
     else
     {
-        globalTransform = transform;
+        globalTransform.transformation = transform.transformation;
+        globalTransform.position = transform.position;
     }
 
     for (size_t i = 0; i < components.size(); i++)
@@ -143,13 +140,13 @@ void Node::update()
 
     for (size_t i = 0; i < children.size(); i++)
     {
-        children[i]->update();
+        children[i]->update(deltaTime);
     }
 
     for (Script *script : activeScripts)
     {
 
-        script->update(1.0f); // todo change
+        script->update(deltaTime); // todo change
     }
 }
 

@@ -55,6 +55,14 @@ Matrix2 Matrix2::operator/(float scalar) const
     return result;
 }
 
+Vector2 Matrix2::operator*(const Vector2 &other) const
+{
+    Vector2 result;
+    result.x = m[0][0] * other.x + m[0][1] * other.y;
+    result.y = m[1][0] * other.x + m[1][1] * other.y;
+    return result;
+}
+
 // Matrix2 Matrix2::translation(Vector2 t)
 // {
 //     Matrix2 result;
@@ -91,22 +99,32 @@ Matrix2 Matrix2::scale(Vector2 s)
 // transform /////////////////////////////
 ///////////////////////////////////////////`
 
-void Transform::calculateMatrix()
+void Transform::rotate(float angle)
 {
-    transformation = Matrix2::rotation(angle) * Matrix2::scale(scale);
+    transformation = Matrix2::rotation(angle) * transformation;
 }
 
-void Transform::updateVectorFromMatrix()
+void Transform::scale(Vector2 scale)
 {
-    // Extract rotation from transformation matrix
-    // rotation = atan2(t.x.y, t.x.x) where t.x is the first column
-    angle = std::atan2(transformation.m[1][0], transformation.m[0][0]);
+    transformation = Matrix2::scale(scale) * transformation;
+}
 
-    // Extract scale from transformation matrix
-    // scale.x = length of first column vector
-    // scale.y = length of second column vector
+float Transform::getAngle()
+{
+    return std::atan2(transformation.m[1][0], transformation.m[0][0]);
+}
+
+float Transform::getDegrees()
+{
+    return getAngle() * (180.0f / 3.14159265f);
+}
+
+Vector2 Transform::getScale()
+{
+    Vector2 scale;
     scale.x = std::sqrt(transformation.m[0][0] * transformation.m[0][0] +
                         transformation.m[1][0] * transformation.m[1][0]);
     scale.y = std::sqrt(transformation.m[0][1] * transformation.m[0][1] +
                         transformation.m[1][1] * transformation.m[1][1]);
+    return scale;
 }

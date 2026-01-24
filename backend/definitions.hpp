@@ -26,6 +26,7 @@ struct Matrix2
     float m[2][2];
 
     Matrix2 operator*(const Matrix2 &other) const;
+    Vector2 operator*(const Vector2 &other) const;
     Matrix2 operator+(const Matrix2 &other) const;
     Matrix2 operator-(const Matrix2 &other) const;
     Matrix2 operator/(float scalar) const;
@@ -36,12 +37,13 @@ struct Matrix2
 
 struct Transform
 {
-    Vector2 scale;
-    Vector2 origin;
-    float angle;
+    Vector2 position = {0, 0};
+    Matrix2 transformation = {{{1, 0}, {0, 1}}};
 
-    Vector2 position;
-    Matrix2 transformation;
-    void calculateMatrix();
-    void updateVectorFromMatrix();
+    void rotate(float angle);
+    void scale(Vector2 scale);
+
+    float getAngle();
+    float getDegrees();
+    Vector2 getScale();
 };

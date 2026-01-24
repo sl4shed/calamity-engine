@@ -1,7 +1,7 @@
 #pragma once
 #include "definitions.hpp"
 class Engine; // Forward declaration to avoid circular include
-class Node; // Forward declaration
+class Node;   // Forward declaration
 
 struct Component
 {
@@ -17,10 +17,11 @@ private:
 class Sprite : public Component
 {
 public:
+    Vector2 origin;
     Texture texture;
-    Transform source_transform;
+    Transform sourceTransform;
     bool visible;
-    int z_index;
+    int zIndex;
 };
 
 class Script : public Component

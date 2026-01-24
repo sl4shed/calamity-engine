@@ -29,6 +29,7 @@ int loop(Graphics &graphics, Engine &engine, bool &running)
 
 int main(int argc, char *argv[])
 {
+    printf("hello world\n");
     Graphics graphics = Graphics();
     Engine engine = Engine();
 
@@ -37,14 +38,13 @@ int main(int argc, char *argv[])
 
     Sprite *birdSprite = new Sprite();
     birdSprite->texture = graphics.loadTexture(std::string("assets/flappy.png"));
+    printf("penis\n");
     birdSprite->visible = true;
-    birdSprite->z_index = 1;
+    birdSprite->zIndex = 1;
+    birdSprite->origin = {0.5f, 0.5f};
     bird->addComponent(birdSprite);
 
     bird->transform.position = {200, 100};
-    bird->transform.scale = {1, 1};
-    bird->transform.origin = {0.5, 0.5};
-    bird->transform.angle = 0.0f;
 
     BirdScript *birdScript = new BirdScript();
     bird->addComponent(birdScript);
@@ -54,20 +54,16 @@ int main(int argc, char *argv[])
     bird2->name = std::string("Bird 2");
     bird2->addComponent(birdSprite);
 
-    bird2->transform.position = {100, 0};
-    bird2->transform.scale = {0.8, 0.8};
-    bird2->transform.origin = {0, 0};
-    bird2->transform.angle = 0.0f;
+    bird2->transform.position = {200, 0};
+    bird2->transform.scale({0.8, 0.8});
     bird->addChild(bird2);
 
     Node *bird3 = new Node();
     bird3->name = std::string("Bird 3");
     bird3->addComponent(birdSprite);
 
-    bird3->transform.position = {80, 0};
-    bird3->transform.scale = {0.6, 0.6};
-    bird3->transform.origin = {0.5, 0.5};
-    bird3->transform.angle = 0.0f;
+    bird3->transform.position = {120, 0};
+    bird3->transform.scale({0.6, 0.6});
     bird2->addChild(bird3);
 
     // script start functions

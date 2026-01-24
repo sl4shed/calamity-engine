@@ -17,6 +17,9 @@ public:
 
     void update(float deltaTime)
     {
-        // bird->transform.angle += 0.01f;
+        float angle = bird->transform.getAngle();
+        // printf("angle: %f\n", angle);
+        bird->transform.rotate(0.001f * deltaTime);
+        // printf("new angle: %f\n", bird->transform.getAngle());
     }
 };
