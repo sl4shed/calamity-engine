@@ -1,5 +1,6 @@
 #include "graphics.hpp"
 #include "definitions.hpp"
+#include "node.hpp"
 
 Graphics::Graphics()
 {
@@ -27,14 +28,17 @@ Texture Graphics::loadTexture(const std::string &path)
     return Texture{sprite, w, h, path};
 }
 
-void Graphics::renderSprite(Transform transform, Texture texture, Transform source_rect)
+void Graphics::renderSprite(Node &node)
 {
-    int actual_width = transform.scale.x;
-    int actual_height = transform.scale.y;
-    SDL_Rect dst_rect = {(int)transform.position.x, (int)transform.position.y, actual_width, actual_height};
-    SDL_Point center = {(int)(transform.origin.x * actual_width), (int)(transform.origin.y * actual_height)};
+    if (!node.currentSprite)
+        return;
+    Sprite *sprite = node.currentSprite;
+    int actual_width = node.transform.scale.x * sprite->texture.width;
+    int actual_height = node.transform.scale.y * sprite->texture.height;
+    SDL_Rect dst_rect = {node.transform.position.x, node.transform.position.y, actual_width, actual_height};
+    SDL_Point center = {node.transform.origin.x * actual_width, node.transform.origin.y * actual_height};
     // SDL_Point center = {(int)actual_width * 0.5, (int)actual_height * 0.5};
-    SDL_RenderCopyEx(this->renderer, (SDL_Texture *)texture.handle, NULL, &dst_rect, transform.angle, &center, SDL_FLIP_NONE);
+    SDL_RenderCopyEx(this->renderer, (SDL_Texture *)sprite->texture.handle, NULL, &dst_rect, node.transform.angle, &center, SDL_FLIP_NONE);
 }
 
 void Graphics::preRender()

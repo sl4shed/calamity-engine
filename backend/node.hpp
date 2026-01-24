@@ -12,6 +12,7 @@ public:
 	Transform globalTransform;
 
 	Node *parent;
+	Sprite *currentSprite = nullptr;
 	std::vector<Node *> children;
 	std::vector<Component *> components;
 

@@ -10,7 +10,7 @@ class Graphics
 public:
     Graphics();
     Texture loadTexture(const std::string &path);
-    void renderSprite(Transform rect, Texture texture, Transform source_rect = {});
+    void renderSprite(Node &node);
     void preRender();
     void postRender();
     SDL_Window *window;

@@ -56,6 +56,15 @@ void Node::addComponent(Component *component)
         std::cout << "adding script" << std::endl;
         activeScripts.push_back(script);
     }
+
+    if (Sprite *sprite = dynamic_cast<Sprite *>(component))
+    {
+        if (currentSprite)
+        {
+            // todo throw an error here...
+        }
+        currentSprite = sprite;
+    }
 }
 
 void Node::removeComponent(Component *component)
@@ -101,10 +110,7 @@ void Node::render(Graphics &graphics)
                 // std::cout << "rendering sprite: " << name << std::endl;
                 // std::cout << "texture: " << sprite->texture.path << std::endl;
 
-                graphics.renderSprite(
-                    globalTransform,
-                    sprite->texture,
-                    sprite->source_transform);
+                graphics.renderSprite(*this);
             }
         }
     }

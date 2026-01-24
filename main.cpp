@@ -42,7 +42,7 @@ int main(int argc, char *argv[])
     bird->addComponent(birdSprite);
 
     bird->transform.position = {200, 100};
-    bird->transform.scale = {100, 100};
+    bird->transform.scale = {1, 1};
     bird->transform.origin = {0.5, 0.5};
     bird->transform.angle = 0.0f;
 
@@ -55,7 +55,7 @@ int main(int argc, char *argv[])
     bird2->addComponent(birdSprite);
 
     bird2->transform.position = {100, 0};
-    bird2->transform.scale = {80, 80};
+    bird2->transform.scale = {0.8, 0.8};
     bird2->transform.origin = {0, 0};
     bird2->transform.angle = 0.0f;
     bird->addChild(bird2);
@@ -65,7 +65,7 @@ int main(int argc, char *argv[])
     bird3->addComponent(birdSprite);
 
     bird3->transform.position = {80, 0};
-    bird3->transform.scale = {60, 60};
+    bird3->transform.scale = {0.6, 0.6};
     bird3->transform.origin = {0.5, 0.5};
     bird3->transform.angle = 0.0f;
     bird2->addChild(bird3);
