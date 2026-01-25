@@ -1,4 +1,5 @@
 #include <SDL3/SDL.h>
+#include <SDL3_image/SDL_image.h>
 #include "graphics.hpp"
 #include "definitions.hpp"
 #include "node.hpp"
@@ -43,18 +44,18 @@ void Graphics::renderSprite(Node &node, Engine *engine)
     vertices[2] = {{sprite->texture.width * (1 - sprite->origin.x), sprite->texture.height * (1 - sprite->origin.y)}, {1, 1, 1, 1}, {1, 1}};
     vertices[3] = {{-(sprite->texture.width * sprite->origin.x), sprite->texture.height * (1 - sprite->origin.y)}, {1, 1, 1, 1}, {0, 1}};
 
+    Vector2 originOffset = Vector2{screenSize.x * activeCamera->origin.x, screenSize.y * activeCamera->origin.y};
+
     for (int i = 0; i < 4; i++)
     {
-        // for camera origin copy transform and offset by screen size
-        Transform newCameraTransform = cameraTransform;
-        newCameraTransform.position = newCameraTransform.position - Vector2{screenSize.x * activeCamera->origin.x, screenSize.y * activeCamera->origin.y};
-
         Vector2 pos = {vertices[i].position.x, vertices[i].position.y};
         pos = node.globalTransform.applyTo(pos);
-        pos = cameraTransform.inverse().applyTo(pos);
-        // pos = newCameraTransform.inverse().applyTo(pos);
-        // Transform inverse = newCameraTransform.inverse();
 
+        // translate to camera space or wtv
+        pos = pos - cameraTransform.position;
+        Transform cameraInverse = cameraTransform.inverse();
+        pos = cameraInverse.transformation * pos;
+        pos = pos + originOffset;
         vertices[i].position.x = pos.x;
         vertices[i].position.y = pos.y;
 

@@ -14,7 +14,7 @@ public:
     void start()
     {
         bird = this->getNode();
-        sprite = bird->getComponent<Sprite>();
+        sprite = bird->currentSprite;
     }
 
     void update(float deltaTime)
@@ -23,7 +23,7 @@ public:
         //  printf("angle: %f\n", angle);
         // bird->transform.rotate(0.001f * deltaTime);
         //  printf("new angle: %f\n", bird->transform.getAngle());
-        sprite->origin.y += 0.0005f * deltaTime;
-        sprite->origin.x += 0.0005f * deltaTime;
+        // sprite->origin.y += 0.0005f * deltaTime;
+        // sprite->origin.x += 0.0005f * deltaTime;
     }
 };

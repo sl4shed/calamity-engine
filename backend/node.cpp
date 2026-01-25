@@ -53,7 +53,6 @@ void Node::addComponent(Component *component)
 
     if (Script *script = dynamic_cast<Script *>(component))
     {
-        std::cout << "adding script" << std::endl;
         activeScripts.push_back(script);
     }
 

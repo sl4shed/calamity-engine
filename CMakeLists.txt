@@ -14,19 +14,42 @@ add_executable(${PROJECT_NAME}
     backend/definitions.cpp
 )
 
-set(BUILD_TARGET "NATIVE" CACHE STRING "Build target: NATIVE or PSP")
-set_property(CACHE BUILD_TARGET PROPERTY STRINGS NATIVE PSP)
+set(BUILD_TARGET "NATIVE" CACHE STRING "Build target: NATIVE | PSP | EMSCRIPTEN")
+set_property(CACHE BUILD_TARGET PROPERTY STRINGS NATIVE PSP EMSCRIPTEN)
 
 if(BUILD_TARGET STREQUAL "PSP")
     message(STATUS "Building for PSP")
+    find_package(SDL3 REQUIRED CONFIG REQUIRED COMPONENTS SDL3-static)
+    find_package(SDL3_image REQUIRED CONFIG)
+
+    target_link_libraries(${PROJECT_NAME} PRIVATE
+        SDL3::SDL3
+        SDL3_image::SDL3_image
+    )
 elseif(BUILD_TARGET STREQUAL "NATIVE")
     message(STATUS "Building for native")
+    find_package(SDL3 REQUIRED CONFIG REQUIRED COMPONENTS SDL3-shared)
+    find_package(SDL3_image REQUIRED CONFIG)
+
+    target_link_libraries(${PROJECT_NAME} PRIVATE
+        SDL3::SDL3
+        SDL3_image::SDL3_image
+    )
+elseif(BUILD_TARGET STREQUAL "EMSCRIPTEN")
+    message(STATUS "Building for Emscripten")
+    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/$<CONFIGURATION>")
+    set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/$<CONFIGURATION>")
+    add_subdirectory(vendored/SDL EXCLUDE_FROM_ALL)
+    add_subdirectory(vendored/SDL_image EXCLUDE_FROM_ALL)
+    set(CMAKE_EXECUTABLE_SUFFIX ".html" CACHE INTERNAL "")
+
+    target_link_libraries(${PROJECT_NAME} PRIVATE SDL3::SDL3 SDL3_image::SDL3_image)
+    target_compile_definitions(${PROJECT_NAME} PRIVATE __EMSCRIPTEN__)
+    target_compile_options(${PROJECT_NAME} PRIVATE -sUSE_SDL=3 -sUSE_SDL_IMAGE=3)
+    target_link_options(${PROJECT_NAME} PRIVATE -sUSE_SDL=3 -sUSE_SDL_IMAGE=3 -sALLOW_MEMORY_GROWTH=1 --embed-file ./assets/)
 else()
     message(FATAL_ERROR "Unknown BUILD_TARGET: ${BUILD_TARGET}")
 endif()
-
-find_package(SDL3 REQUIRED CONFIG REQUIRED COMPONENTS SDL3-shared)
-find_package(SDL3_image REQUIRED CONFIG)
 
 set(CMAKE_BUILD_TYPE Debug)
 
@@ -36,12 +59,6 @@ add_custom_target(copy_assets
 )
 add_dependencies(${PROJECT_NAME} copy_assets)
 
-
-target_link_libraries(${PROJECT_NAME} PRIVATE
-    SDL3::SDL3
-    SDL3_image::SDL3_image
-)
-
 if(BUILD_TARGET STREQUAL "PSP")
     create_pbp_file(
         TARGET ${PROJECT_NAME}
@@ -50,5 +67,12 @@ if(BUILD_TARGET STREQUAL "PSP")
         PREVIEW_PATH NULL
         TITLE ${PROJECT_NAME}
         VERSION 01.00
+    )
+endif()
+
+if(BUILD_TARGET STREQUAL "EMSCRIPTEN")
+    set_target_properties(${PROJECT_NAME} PROPERTIES
+        OUTPUT_NAME "index"
+        SUFFIX ".html"
     )
 endif()

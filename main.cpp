@@ -12,6 +12,19 @@
 #include "scripts/CameraScript.hpp"
 #include <iostream>
 
+#ifdef __EMSCRIPTEN__
+#include <emscripten.h>
+#endif
+
+#ifdef __psp__
+#include <pspkernel.h>
+#include <pspdebug.h>
+
+PSP_MODULE_INFO("calamity-engine", 0, 1, 0);
+PSP_MAIN_THREAD_ATTR(THREAD_ATTR_USER | THREAD_ATTR_VFPU);
+PSP_HEAP_SIZE_KB(20480);
+#endif
+
 int loop(Graphics &graphics, Engine &engine, bool &running)
 {
     engine.update();
@@ -22,7 +35,12 @@ int loop(Graphics &graphics, Engine &engine, bool &running)
     {
         if (event.type == SDL_EVENT_QUIT)
         {
+#ifdef __EMSCRIPTEN
+            emscripten_cancel_main_loop();
+#else
             running = false;
+            return 0;
+#endif
         }
     }
 
@@ -31,7 +49,6 @@ int loop(Graphics &graphics, Engine &engine, bool &running)
 
 int main(int argc, char *argv[])
 {
-    printf("hello worlsd\n");
     Graphics graphics = Graphics();
     Engine engine = Engine();
 
@@ -41,13 +58,12 @@ int main(int argc, char *argv[])
 
     Sprite *birdSprite = new Sprite();
     birdSprite->texture = graphics.loadTexture(std::string("assets/flappy.png"));
-    printf("penis\n");
     birdSprite->visible = true;
     birdSprite->zIndex = 1;
-    birdSprite->origin = {0, 0};
+    birdSprite->origin = {0.5, 0.5};
     bird->addComponent(birdSprite);
 
-    bird->transform.position = {200, 100};
+    bird->transform.position = {240, 136};
 
     BirdScript *birdScript = new BirdScript();
     bird->addComponent(birdScript);
@@ -56,6 +72,7 @@ int main(int argc, char *argv[])
     // camera node
     Node *cameraNode = new Node();
     cameraNode->name = std::string("Main Camera");
+    cameraNode->transform.position = {240, 136};
     Camera *cameraComponent = new Camera();
     cameraNode->addComponent(cameraComponent);
     engine.root.addChild(cameraNode);
@@ -85,15 +102,31 @@ int main(int argc, char *argv[])
     cameraScript->start();
     birdScript->start();
 
-    // exportNodeTree(&engine.root);
-    // std::cout << readFileText("assets/clug.txt") << std::endl;
+// exportNodeTree(&engine.root);
+// std::cout << readFileText("assets/clug.txt") << std::endl;
 
-    // main loop
+// main loop
+#ifdef __EMSCRIPTEN__
+    emscripten_set_main_loop_arg(
+        [](void *arg)
+        {
+            auto params = static_cast<std::pair<Graphics *, Engine *> *>(arg);
+            Graphics &graphics = *(params->first);
+            Engine &engine = *(params->second);
+            bool running = true;
+            loop(graphics, engine, running);
+        },
+        new std::pair<Graphics *, Engine *>(&graphics, &engine),
+        0,
+        1);
+    // emscripten_set_main_loop(loop, 0, 1);
+#else
     bool running = true;
     while (running)
     {
         loop(graphics, engine, running);
     }
+#endif
 
     return 0;
 }
