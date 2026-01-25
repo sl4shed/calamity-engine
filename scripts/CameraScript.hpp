@@ -19,6 +19,6 @@ public:
     {
         // camera->transform.position.x += 0.05f * deltaTime;
         camera->transform.rotate(0.001f * deltaTime);
-        // camera->transform.scale({1.0f + 0.0001f * deltaTime, 1.0f + 0.0001f * deltaTime});
+        camera->transform.scale({1.0f + 0.0001f * deltaTime, 1.0f + 0.0001f * deltaTime});
     }
 };
