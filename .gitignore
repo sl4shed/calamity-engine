@@ -68,7 +68,7 @@ vcpkg_installed/
 Testing/
 .cache/
 
-vendored/
+#vendored/
 docs/
 build-emscripten/
 build-psp/

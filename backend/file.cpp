@@ -1,7 +1,7 @@
 #include "file.hpp"
-#include "json.hpp"
 #include <iostream>
 #include <iomanip>
+#include <nlohmann/json.hpp>
 using json = nlohmann::json;
 
 // this is a separate library because i will be implementing the save system here too, so it's open for expansion
@@ -26,6 +26,7 @@ std::string readFileText(std::string path)
     // if (read != (size_t)size)
     //     return {}; // handle partial reads if needed
     // return out;
+    return "peepeepoopoo";
 }
 
 std::string exportNodeTree(Node *node)

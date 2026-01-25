@@ -59,6 +59,13 @@ add_custom_target(copy_assets
 )
 add_dependencies(${PROJECT_NAME} copy_assets)
 
+# json.hpp
+set(JSON_BuildTests OFF CACHE INTERNAL "")
+add_subdirectory(vendored/json EXCLUDE_FROM_ALL)
+#add_library(nlohmann_json::nlohmann_json ALIAS nlohmann_json::nlohmann_json)
+target_link_libraries(${PROJECT_NAME} PRIVATE nlohmann_json::nlohmann_json)
+
+# output stuff
 if(BUILD_TARGET STREQUAL "PSP")
     create_pbp_file(
         TARGET ${PROJECT_NAME}

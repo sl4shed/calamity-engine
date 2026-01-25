@@ -1,29 +1,51 @@
+#!/bin/bash
+
+cd_build_dir() {
+    if [ ! -d "$1" ]; then
+        mkdir "$1"
+    fi
+    cd "$1"
+}
+
+
+
 read -p "build emscripten psp or native? [e/p/n]: " buildType
 
 if [ "$buildType" == "p" ]; then
-    cd build-psp
+    cd_build_dir build-psp
     psp-cmake -DBUILD_TARGET=PSP ..
-    make -j6
+    cmake --build . -j$(nproc)
     read -p "run? [y/n]: " answer
     if [ "$answer" == "y" ]; then
         PPSSPPSDL /home/andrew/Projects/calamity-engine/build
     fi
 elif [ "$buildType" == "n" ]; then
-    cd build
+    cd_build_dir build
     cmake -DBUILD_TARGET=NATIVE ..
-    make -j6
+    cmake --build . -j$(nproc)
+
     read -p "run? [y/n]: " answer
     if [ "$answer" == "y" ]; then
         ./calamity-engine
     fi
 elif [ "$buildType" == "e" ]; then
-    emcmake cmake -S . -B build-emscripten -DBUILD_TARGET=EMSCRIPTEN ..
-    cd build-emscripten
-    emmake make -j6
+    cd_build_dir build-emscripten
+    emcmake cmake -DBUILD_TARGET=EMSCRIPTEN ..
+    emmake make -j$(nproc)
     read -p "run? [y/n]: " answer
     if [ "$answer" == "y" ]; then
         emrun --no_browser --port 8080 .
     fi
 else
-    echo "unknown build type: $buildType"
+    echo "please pick an option. $buildType isnt on the list."
+    echo "building native..."
+
+        cd_build_dir build
+    cmake -DBUILD_TARGET=NATIVE ..
+    cmake --build . -j$(nproc)
+
+    read -p "run? [y/n]: " answer
+    if [ "$answer" == "y" ]; then
+        ./calamity-engine
+    fi
 fi

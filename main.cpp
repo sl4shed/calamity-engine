@@ -102,8 +102,8 @@ int main(int argc, char *argv[])
     cameraScript->start();
     birdScript->start();
 
-// exportNodeTree(&engine.root);
-// std::cout << readFileText("assets/clug.txt") << std::endl;
+    exportNodeTree(&engine.root);
+    std::cout << readFileText("assets/clug.txt") << std::endl;
 
 // main loop
 #ifdef __EMSCRIPTEN__
@@ -119,7 +119,6 @@ int main(int argc, char *argv[])
         new std::pair<Graphics *, Engine *>(&graphics, &engine),
         0,
         1);
-    // emscripten_set_main_loop(loop, 0, 1);
 #else
     bool running = true;
     while (running)

@@ -106,8 +106,9 @@ void Node::render(Graphics &graphics, Engine *engine)
         {
             if (sprite && sprite->visible)
             {
-                // std::cout << "rendering sprite: " << name << std::endl;
-                // std::cout << "texture: " << sprite->texture.path << std::endl;
+                std::cout << "rendering sprite: " << name << std::endl;
+                printf("origin: %f, %f\n", sprite->origin.x, sprite->origin.y);
+                printf("position: %f, %f\n", globalTransform.position.x, globalTransform.position.y);
 
                 graphics.renderSprite(*this, engine);
             }
@@ -124,8 +125,6 @@ void Node::update(float deltaTime)
     if (parent)
     {
         globalTransform = parent->globalTransform.applyTo(transform);
-        // globalTransform.transformation = transform.transformation * parent->globalTransform.transformation;
-        // globalTransform.position = parent->globalTransform.position + (parent->globalTransform.transformation * transform.position);
     }
     else
     {

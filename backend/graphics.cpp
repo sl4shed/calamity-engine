@@ -59,6 +59,8 @@ void Graphics::renderSprite(Node &node, Engine *engine)
         vertices[i].position.x = pos.x;
         vertices[i].position.y = pos.y;
 
+        printf("vertex %d pos: %f, %f\n", i, vertices[i].position.x, vertices[i].position.y);
+
         Vector2 texturePos = {vertices[i].tex_coord.x, vertices[i].tex_coord.y};
         texturePos = sprite->sourceTransform.applyTo(texturePos);
         vertices[i].tex_coord.x = texturePos.x;
@@ -73,7 +75,7 @@ void Graphics::renderSprite(Node &node, Engine *engine)
 
 void Graphics::preRender()
 {
-    SDL_SetRenderDrawColor(this->renderer, 0, 0, 0, 255);
+    SDL_SetRenderDrawColor(this->renderer, 23, 23, 23, 255);
     SDL_RenderClear(this->renderer);
 }
 

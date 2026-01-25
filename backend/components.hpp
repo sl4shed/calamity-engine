@@ -24,6 +24,40 @@ public:
     int zIndex;
 };
 
+/**
+ * A base class for all scripts attached to nodes to inherit from. It provides the necessary api's like update and start.
+ *
+ * To create a script and attach it to a node, create a header file somewhere like `scripts/ExampleScripy.hpp`:
+ * ```cpp
+ *
+ * #pragma once
+ *
+ * #include "../backend/definitions.hpp"
+ * // and any other includes here based on where you put this file
+ *
+ * class ExampleScript : public Script
+ * {
+ *
+ * public:
+ *     void start()
+ *     {
+ *         // start logic here
+ *     }
+ *
+ *     void update(float deltaTime)
+ *     {
+ *         // update logic here
+ *     }
+ * };
+ * ```
+ *
+ * and do this to your node:
+ * ```cpp
+ * Node *exampleNode = new Node();
+ * ExampleScript *exampleScript = new ExampleScript();
+ * exampleNode->addComponent(exampleScript);
+ * ```
+ */
 class Script : public Component
 {
 public:

@@ -3,9 +3,23 @@
 #include "node.hpp"
 
 /**
+ * This class is mostly used to abstract stuff like the root node and obtaining deltaTime.
  *
- * test for doxygen
- * # text for doxygen
+ * It should be initialized in the main function and have its update and render functions called in the main loop:
+ * ```cpp
+ * int main() {
+ *  Graphics graphics = Graphics({480, 272}); // screen size vector2
+ *  Engine engine = Engine();
+ *
+ *  // setup nodes, components, etc here
+ *
+ *  while (running) {
+ *   engine.update();
+ *   engine.render(graphics);
+ *  }
+ *  return 0;
+ * }
+ * ```
  *
  */
 class Engine
