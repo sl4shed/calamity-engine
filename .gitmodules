@@ -1,0 +1,9 @@
+[submodule "vendored/SDL"]
+	path = vendored/SDL
+	url = https://github.com/libsdl-org/SDL
+[submodule "vendored/SDL_image"]
+	path = vendored/SDL_image
+	url = https://github.com/libsdl-org/SDL_image
+[submodule "vendored/doxygen-awesome-css"]
+	path = vendored/doxygen-awesome-css
+	url = https://github.com/jothepro/doxygen-awesome-css.git
