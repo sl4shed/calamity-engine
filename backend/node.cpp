@@ -106,10 +106,6 @@ void Node::render(Graphics &graphics, Engine *engine)
         {
             if (sprite && sprite->visible)
             {
-                std::cout << "rendering sprite: " << name << std::endl;
-                printf("origin: %f, %f\n", sprite->origin.x, sprite->origin.y);
-                printf("position: %f, %f\n", globalTransform.position.x, globalTransform.position.y);
-
                 graphics.renderSprite(*this, engine);
             }
         }

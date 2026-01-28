@@ -16,7 +16,7 @@ if [ "$buildType" == "p" ]; then
     psp-cmake -DBUILD_TARGET=PSP ..
     cmake --build . -j$(nproc)
     read -p "run? [y/n]: " answer
-    if [ "$answer" == "y" ]; then
+    if [ "$answer" != "n" ]; then
         PPSSPPSDL /home/andrew/Projects/calamity-engine/build
     fi
 elif [ "$buildType" == "n" ]; then
@@ -25,7 +25,7 @@ elif [ "$buildType" == "n" ]; then
     cmake --build . -j$(nproc)
 
     read -p "run? [y/n]: " answer
-    if [ "$answer" == "y" ]; then
+    if [ "$answer" != "n" ]; then
         ./calamity-engine
     fi
 elif [ "$buildType" == "e" ]; then
@@ -33,7 +33,7 @@ elif [ "$buildType" == "e" ]; then
     emcmake cmake -DBUILD_TARGET=EMSCRIPTEN ..
     emmake make -j$(nproc)
     read -p "run? [y/n]: " answer
-    if [ "$answer" == "y" ]; then
+    if [ "$answer" != "n" ]; then
         emrun --no_browser --port 8080 .
     fi
 else
@@ -45,7 +45,7 @@ else
     cmake --build . -j$(nproc)
 
     read -p "run? [y/n]: " answer
-    if [ "$answer" == "y" ]; then
+    if [ "$answer" != "n" ]; then
         ./calamity-engine
     fi
 fi

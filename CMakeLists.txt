@@ -12,6 +12,7 @@ add_executable(${PROJECT_NAME}
     backend/file.cpp
     backend/audio.cpp
     backend/definitions.cpp
+    backend/logger.cpp
 )
 
 set(BUILD_TARGET "NATIVE" CACHE STRING "Build target: NATIVE | PSP | EMSCRIPTEN")
@@ -27,6 +28,7 @@ if(BUILD_TARGET STREQUAL "PSP")
         SDL3_image::SDL3_image
     )
 elseif(BUILD_TARGET STREQUAL "NATIVE")
+    target_compile_definitions(${PROJECT_NAME} PRIVATE PLATFORM_NATIVE)
     message(STATUS "Building for native")
     find_package(SDL3 REQUIRED CONFIG REQUIRED COMPONENTS SDL3-shared)
     find_package(SDL3_image REQUIRED CONFIG)
@@ -64,6 +66,17 @@ set(JSON_BuildTests OFF CACHE INTERNAL "")
 add_subdirectory(vendored/json EXCLUDE_FROM_ALL)
 #add_library(nlohmann_json::nlohmann_json ALIAS nlohmann_json::nlohmann_json)
 target_link_libraries(${PROJECT_NAME} PRIVATE nlohmann_json::nlohmann_json)
+
+if (BUILD_TARGET STREQUAL "NATIVE")
+    #fmt
+    add_subdirectory(vendored/fmt)
+    target_link_libraries(${PROJECT_NAME} PRIVATE fmt::fmt)
+
+    # spdlog
+    find_package(spdlog REQUIRED)
+    target_link_libraries(${PROJECT_NAME} PRIVATE spdlog::spdlog)
+    #target_link_libraries(${PROJECT_NAME} PUBLIC ${STAGING_DIR}/include/) # spdlog
+endif()
 
 # output stuff
 if(BUILD_TARGET STREQUAL "PSP")

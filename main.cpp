@@ -7,6 +7,7 @@
 #include "backend/engine.hpp"
 #include "backend/components.hpp"
 #include "backend/file.hpp"
+#include "backend/logger.hpp"
 
 #include "scripts/BirdScript.hpp"
 #include "scripts/CameraScript.hpp"
@@ -49,8 +50,11 @@ int loop(Graphics &graphics, Engine &engine, bool &running)
 
 int main(int argc, char *argv[])
 {
+    Logger::init();
     Graphics graphics = Graphics();
     Engine engine = Engine();
+
+    Logger::info("Calamity Engine v1.0");
 
     // bird 1
     Node *bird = new Node();
@@ -103,7 +107,7 @@ int main(int argc, char *argv[])
     birdScript->start();
 
     exportNodeTree(&engine.root);
-    std::cout << readFileText("assets/clug.txt") << std::endl;
+    Logger::debug("{}", readFileText("assets/clug.txt"));
 
 // main loop
 #ifdef __EMSCRIPTEN__

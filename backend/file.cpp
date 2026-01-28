@@ -2,6 +2,7 @@
 #include <iostream>
 #include <iomanip>
 #include <nlohmann/json.hpp>
+#include "logger.hpp"
 using json = nlohmann::json;
 
 // this is a separate library because i will be implementing the save system here too, so it's open for expansion
@@ -33,7 +34,7 @@ std::string exportNodeTree(Node *node)
 {
     json tree;
     tree[0] = "test";
-    std::cout << std::setw(4) << tree << std::endl;
+    Logger::debug("{}", tree.dump());
     return std::string("");
 }
 

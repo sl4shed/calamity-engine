@@ -59,8 +59,6 @@ void Graphics::renderSprite(Node &node, Engine *engine)
         vertices[i].position.x = pos.x;
         vertices[i].position.y = pos.y;
 
-        printf("vertex %d pos: %f, %f\n", i, vertices[i].position.x, vertices[i].position.y);
-
         Vector2 texturePos = {vertices[i].tex_coord.x, vertices[i].tex_coord.y};
         texturePos = sprite->sourceTransform.applyTo(texturePos);
         vertices[i].tex_coord.x = texturePos.x;
