@@ -10,3 +10,9 @@
 [submodule "vendored/json"]
 	path = vendored/json
 	url = https://github.com/nlohmann/json
+[submodule "vendored/fmt"]
+	path = vendored/fmt
+	url = https://github.com/fmtlib/fmt
+[submodule "vendored/spdlog"]
+	path = vendored/spdlog
+	url = https://github.com/gabime/spdlog
