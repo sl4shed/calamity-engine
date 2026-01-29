@@ -4,8 +4,6 @@
 #include <memory>
 #include <string>
 
-#if defined(PLATFORM_NATIVE)
-// fancy spdlog logger
 class Logger
 {
 public:
@@ -39,6 +37,3 @@ public:
 private:
     static std::shared_ptr<spdlog::logger> s_Logger;
 };
-#endif
-
-// shitty non-native logger

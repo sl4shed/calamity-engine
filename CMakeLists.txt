@@ -67,15 +67,22 @@ add_subdirectory(vendored/json EXCLUDE_FROM_ALL)
 #add_library(nlohmann_json::nlohmann_json ALIAS nlohmann_json::nlohmann_json)
 target_link_libraries(${PROJECT_NAME} PRIVATE nlohmann_json::nlohmann_json)
 
-if (BUILD_TARGET STREQUAL "NATIVE")
+if(BUILD_TARGET STREQUAL "EMSCRIPTEN")
     #fmt
     add_subdirectory(vendored/fmt)
     target_link_libraries(${PROJECT_NAME} PRIVATE fmt::fmt)
 
     # spdlog
-    find_package(spdlog REQUIRED)
+    find_package(spdlog CONFIG REQUIRED)
     target_link_libraries(${PROJECT_NAME} PRIVATE spdlog::spdlog)
-    #target_link_libraries(${PROJECT_NAME} PUBLIC ${STAGING_DIR}/include/) # spdlog
+else()
+    #fmt
+    find_package(fmt REQUIRED)
+    target_link_libraries(${PROJECT_NAME} PRIVATE fmt::fmt)
+
+    # spdlog
+    find_package(spdlog CONFIG REQUIRED)
+    target_link_libraries(${PROJECT_NAME} PRIVATE spdlog::spdlog)
 endif()
 
 # output stuff
