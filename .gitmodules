@@ -13,3 +13,6 @@
 [submodule "vendored/fmt"]
 	path = vendored/fmt
 	url = https://github.com/fmtlib/fmt
+[submodule "vendored/spdlog"]
+	path = vendored/spdlog
+	url = https://github.com/gabime/spdlog
