@@ -61,7 +61,7 @@ int main(int argc, char *argv[])
     bird->name = std::string("Bird");
 
     Sprite *birdSprite = new Sprite();
-    birdSprite->texture = graphics.loadTexture(std::string("assets/flappy.png"));
+    birdSprite->texture = Texture(graphics, std::string("assets/flappy.png"));
     birdSprite->visible = true;
     birdSprite->zIndex = 1;
     birdSprite->origin = {0.5, 0.5};
@@ -131,5 +131,6 @@ int main(int argc, char *argv[])
     }
 #endif
 
+    Logger::shutdown();
     return 0;
 }

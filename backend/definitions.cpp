@@ -1,5 +1,6 @@
 #include "definitions.hpp"
 #include <cmath>
+#include "graphics.hpp"
 
 ////////////////////////////////////////////
 // matrix /////////////////////////////////
@@ -160,4 +161,14 @@ Transform Transform::inverse() const
     result.transformation = invTrans;
     result.position = invTrans * (Vector2{-position.x, -position.y});
     return result;
+}
+
+// texture
+Texture::Texture(Graphics *graphics, std::string p)
+{
+    this->path = p;
+    this->handle = graphics->loadTexture(this->path);
+    this->width = this->handle.pixels.w;
+    this->height = this->handle.pixels.h;
+    SDL_DestroySurface(pixels);
 }

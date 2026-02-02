@@ -30,7 +30,7 @@ class Graphics
 {
 public:
     Graphics(Vector2 screenSize = {480, 272});
-    Texture loadTexture(const std::string &path);
+    void *loadTexture(const std::string &path);
     void renderSprite(Node &node, Engine *engine);
     void preRender();
     void postRender();

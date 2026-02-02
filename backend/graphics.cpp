@@ -20,14 +20,11 @@ Graphics::Graphics(Vector2 s)
     this->renderer = SDL_CreateRenderer(window, NULL);
 }
 
-Texture Graphics::loadTexture(const std::string &path)
+// this is intentionally ambiguous as to allow for modularity
+void *Graphics::loadTexture(const std::string &path)
 {
     SDL_Surface *pixels = IMG_Load(path.c_str());
-    SDL_Texture *sprite = SDL_CreateTextureFromSurface(renderer, pixels);
-    int w = pixels->w;
-    int h = pixels->h;
-    SDL_DestroySurface(pixels);
-    return Texture{sprite, w, h, path};
+    return SDL_CreateTextureFromSurface(renderer, pixels);
 }
 
 void Graphics::renderSprite(Node &node, Engine *engine)

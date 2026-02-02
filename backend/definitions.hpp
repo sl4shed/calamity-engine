@@ -13,8 +13,11 @@ struct Vector2
     Vector2 operator-(const Vector2 &v) const { return {x - v.x, y - v.y}; }
 };
 
-struct Texture
+class Texture
 {
+public:
+    Texture(Graphics *graphics, std::string path);
+
     void *handle;
     int width;
     int height;
