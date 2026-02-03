@@ -73,7 +73,8 @@ if(BUILD_TARGET STREQUAL "EMSCRIPTEN")
     target_link_libraries(${PROJECT_NAME} PRIVATE fmt::fmt)
 
     # spdlog
-    find_package(spdlog CONFIG REQUIRED)
+    #find_package(spdlog CONFIG REQUIRED)
+    add_subdirectory(vendored/spdlog)
     target_link_libraries(${PROJECT_NAME} PRIVATE spdlog::spdlog)
 else()
     #fmt
@@ -83,6 +84,10 @@ else()
     # spdlog
     find_package(spdlog CONFIG REQUIRED)
     target_link_libraries(${PROJECT_NAME} PRIVATE spdlog::spdlog)
+
+    # cereal
+    find_package(cereal REQUIRED)
+    target_link_libraries(${PROJECT_NAME} PRIVATE cereal::cereal)
 endif()
 
 # output stuff

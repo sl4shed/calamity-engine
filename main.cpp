@@ -61,7 +61,7 @@ int main(int argc, char *argv[])
     bird->name = std::string("Bird");
 
     Sprite *birdSprite = new Sprite();
-    birdSprite->texture = Texture(graphics, std::string("assets/flappy.png"));
+    birdSprite->texture = Texture(&graphics, std::string("assets/flappy.png"));
     birdSprite->visible = true;
     birdSprite->zIndex = 1;
     birdSprite->origin = {0.5, 0.5};
@@ -106,8 +106,8 @@ int main(int argc, char *argv[])
     cameraScript->start();
     birdScript->start();
 
-    exportNodeTree(&engine.root);
-    Logger::debug("{}", readFileText("assets/clug.txt"));
+    // exportNodeTree(&engine.root);
+    // Logger::debug("{}", readFileText("assets/clug.txt"));
 
 // main loop
 #ifdef __EMSCRIPTEN__

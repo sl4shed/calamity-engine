@@ -1,6 +1,10 @@
 #include "definitions.hpp"
 #include <cmath>
+#include <SDL3/SDL.h>
+#include <SDL3_image/SDL_image.h>
 #include "graphics.hpp"
+#include <cereal/archives/json.hpp>
+#include <fstream>
 
 ////////////////////////////////////////////
 // matrix /////////////////////////////////
@@ -168,7 +172,21 @@ Texture::Texture(Graphics *graphics, std::string p)
 {
     this->path = p;
     this->handle = graphics->loadTexture(this->path);
-    this->width = this->handle.pixels.w;
-    this->height = this->handle.pixels.h;
-    SDL_DestroySurface(pixels);
+    this->width = static_cast<SDL_Texture *>(handle)->w;
+    this->height = static_cast<SDL_Texture *>(handle)->h;
+}
+
+template <class Archive>
+void Texture::save(Archive &ar) const
+{
+    ar(path);
+}
+
+template <class Archive>
+void Texture::load(Graphics *graphics, Archive &ar)
+{
+    ar(path);
+    this->handle = graphics->loadTexture(this->path);
+    this->width = static_cast<SDL_Texture *>(handle)->w;
+    this->height = static_cast<SDL_Texture *>(handle)->h;
 }

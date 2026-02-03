@@ -2,6 +2,10 @@
 #include <string>
 #include <vector>
 #include <string>
+#include <SDL3/SDL.h>
+#include <SDL3_image/SDL_image.h>
+// Forward declaration
+class Graphics;
 
 struct Vector2
 {
@@ -16,7 +20,12 @@ struct Vector2
 class Texture
 {
 public:
+    Texture() : handle(nullptr), width(0), height(0) {}
     Texture(Graphics *graphics, std::string path);
+    template <class Archive>
+    void save(Archive &ar) const;
+    template <class Archive>
+    void load(Graphics *graphics, Archive &ar);
 
     void *handle;
     int width;
