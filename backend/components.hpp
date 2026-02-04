@@ -22,6 +22,12 @@ public:
     Transform sourceTransform;
     bool visible;
     int zIndex;
+
+    template <class Archive>
+    void serialize(Archive &ar)
+    {
+        ar(origin, texture, sourceTransform, visible, zIndex, node);
+    }
 };
 
 /**
@@ -72,4 +78,10 @@ public:
     void setActive(Engine &engine);
     bool active;
     Vector2 origin = {0.5f, 0.5f};
+
+    template <class Archive>
+    void serialize(Archive &ar)
+    {
+        ar(active, origin);
+    }
 };

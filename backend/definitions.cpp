@@ -171,21 +171,11 @@ Transform Transform::inverse() const
 Texture::Texture(Graphics *graphics, std::string p)
 {
     this->path = p;
-    this->handle = graphics->loadTexture(this->path);
-    this->width = static_cast<SDL_Texture *>(handle)->w;
-    this->height = static_cast<SDL_Texture *>(handle)->h;
+    this->initialize(graphics);
 }
 
-template <class Archive>
-void Texture::save(Archive &ar) const
+void Texture::initialize(Graphics *graphics)
 {
-    ar(path);
-}
-
-template <class Archive>
-void Texture::load(Graphics *graphics, Archive &ar)
-{
-    ar(path);
     this->handle = graphics->loadTexture(this->path);
     this->width = static_cast<SDL_Texture *>(handle)->w;
     this->height = static_cast<SDL_Texture *>(handle)->h;

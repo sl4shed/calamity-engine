@@ -36,4 +36,11 @@ public:
 	void update(float deltaTime);
 
 	std::vector<Script *> activeScripts;
+
+	template <class Archive>
+	void serialize(Archive &ar)
+	{
+		// ar(name, transform, children, components, activeScripts, parent, currentSprite);
+		ar(name, transform, children);
+	}
 };

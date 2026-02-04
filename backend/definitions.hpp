@@ -4,6 +4,7 @@
 #include <string>
 #include <SDL3/SDL.h>
 #include <SDL3_image/SDL_image.h>
+#include <cereal/archives/json.hpp>
 // Forward declaration
 class Graphics;
 
@@ -15,6 +16,12 @@ struct Vector2
     Vector2 operator*(float s) const { return {x * s, y * s}; }
     Vector2 operator+(const Vector2 &v) const { return {x + v.x, y + v.y}; }
     Vector2 operator-(const Vector2 &v) const { return {x - v.x, y - v.y}; }
+
+    template <class Archive>
+    void serialize(Archive &ar)
+    {
+        ar(x, y);
+    }
 };
 
 class Texture
@@ -23,9 +30,11 @@ public:
     Texture() : handle(nullptr), width(0), height(0) {}
     Texture(Graphics *graphics, std::string path);
     template <class Archive>
-    void save(Archive &ar) const;
-    template <class Archive>
-    void load(Graphics *graphics, Archive &ar);
+    void serialize(Archive &ar)
+    {
+        ar(path);
+    }
+    void initialize(Graphics *graphics);
 
     void *handle;
     int width;
@@ -45,6 +54,12 @@ struct Matrix2
 
     static Matrix2 rotation(float angle);
     static Matrix2 scale(Vector2 s);
+
+    template <class Archive>
+    void serialize(Archive &ar)
+    {
+        ar(m);
+    }
 };
 
 struct Transform
@@ -61,4 +76,10 @@ struct Transform
     float getAngle();
     float getDegrees();
     Vector2 getScale();
+
+    template <class Archive>
+    void serialize(Archive &ar)
+    {
+        ar(position, transformation);
+    }
 };

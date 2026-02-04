@@ -8,6 +8,7 @@
 #include "backend/components.hpp"
 #include "backend/file.hpp"
 #include "backend/logger.hpp"
+#include <cereal/archives/json.hpp>
 
 #include "scripts/BirdScript.hpp"
 #include "scripts/CameraScript.hpp"
@@ -62,6 +63,11 @@ int main(int argc, char *argv[])
 
     Sprite *birdSprite = new Sprite();
     birdSprite->texture = Texture(&graphics, std::string("assets/flappy.png"));
+
+    cereal::JSONOutputArchive archive(std::cout);
+    archive(bird);
+    archive(birdSprite->texture);
+
     birdSprite->visible = true;
     birdSprite->zIndex = 1;
     birdSprite->origin = {0.5, 0.5};
