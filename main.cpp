@@ -9,6 +9,9 @@
 #include "backend/file.hpp"
 #include "backend/logger.hpp"
 #include <cereal/archives/json.hpp>
+#include <cereal/types/memory.hpp>
+#include <cereal/types/vector.hpp>
+#include <cereal/types/polymorphic.hpp>
 
 #include "scripts/BirdScript.hpp"
 #include "scripts/CameraScript.hpp"
@@ -58,15 +61,27 @@ int main(int argc, char *argv[])
     Logger::info("Calamity Engine v1.0");
 
     // bird 1
-    Node *bird = new Node();
+    std::shared_ptr<Node> bird = std::make_shared<Node>();
     bird->name = std::string("Bird");
 
-    Sprite *birdSprite = new Sprite();
+    std::shared_ptr<Sprite> birdSprite = std::make_shared<Sprite>();
     birdSprite->texture = Texture(&graphics, std::string("assets/flappy.png"));
 
     cereal::JSONOutputArchive archive(std::cout);
+    std::cout << "Components count: " << bird->components.size() << std::endl;
+    for (size_t i = 0; i < bird->components.size(); i++)
+    {
+        auto &comp = bird->components[i];
+        std::cout << "Component " << i << ": " << (comp ? "valid" : "null") << std::endl;
+        if (comp)
+        {
+            std::cout << "  Type: " << typeid(*comp).name() << std::endl;
+        }
+    }
     archive(bird);
-    archive(birdSprite->texture);
+
+    archive(bird);
+    // archive(birdSprite->texture);
 
     birdSprite->visible = true;
     birdSprite->zIndex = 1;
@@ -74,24 +89,23 @@ int main(int argc, char *argv[])
     bird->addComponent(birdSprite);
 
     bird->transform.position = {240, 136};
-
-    BirdScript *birdScript = new BirdScript();
+    std::shared_ptr<BirdScript> birdScript = std::make_shared<BirdScript>();
     bird->addComponent(birdScript);
     engine.root.addChild(bird);
 
     // camera node
-    Node *cameraNode = new Node();
+    std::shared_ptr<Node> cameraNode = std::make_shared<Node>();
     cameraNode->name = std::string("Main Camera");
     cameraNode->transform.position = {240, 136};
-    Camera *cameraComponent = new Camera();
+    std::shared_ptr<Camera> cameraComponent = std::make_shared<Camera>();
     cameraNode->addComponent(cameraComponent);
     engine.root.addChild(cameraNode);
-    CameraScript *cameraScript = new CameraScript();
+    std::shared_ptr<CameraScript> cameraScript = std::make_shared<CameraScript>();
     cameraNode->addComponent(cameraScript);
     cameraComponent->setActive(engine);
 
     // bird 2
-    Node *bird2 = new Node();
+    std::shared_ptr<Node> bird2 = std::make_shared<Node>();
     bird2->name = std::string("Bird 2");
     bird2->addComponent(birdSprite);
 
@@ -100,7 +114,7 @@ int main(int argc, char *argv[])
     bird->addChild(bird2);
 
     // bird 3
-    Node *bird3 = new Node();
+    std::shared_ptr<Node> bird3 = std::make_shared<Node>();
     bird3->name = std::string("Bird 3");
     bird3->addComponent(birdSprite);
 

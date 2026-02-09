@@ -26,7 +26,8 @@ public:
     template <class Archive>
     void serialize(Archive &ar)
     {
-        ar(origin, texture, sourceTransform, visible, zIndex, node);
+        // ar(origin, texture, sourceTransform, visible, zIndex, node);
+        // ar(origin, sourceTransform, zIndex);
     }
 };
 
@@ -70,6 +71,12 @@ public:
     virtual void update(float deltaTime) {};
     virtual void start() {};
     virtual void physicsUpdate() {}; // todo
+
+    template <class Archive>
+    void save(Archive ar) const {};
+
+    template <class Archive>
+    void load(Archive ar) {};
 };
 
 class Camera : public Component

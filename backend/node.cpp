@@ -13,16 +13,18 @@ Node::~Node()
 {
     for (size_t i = 0; i < children.size(); ++i)
     {
-        delete children[i];
+        // delete children[i];
+        //  todo fix
     }
 
     for (size_t i = 0; i < components.size(); ++i)
     {
-        delete components[i];
+        // delete components[i];
+        //  todo fix
     }
 }
 
-void Node::addChild(Node *child)
+void Node::addChild(std::shared_ptr<Node> child)
 {
     if (!child)
         return;
@@ -31,32 +33,35 @@ void Node::addChild(Node *child)
     children.push_back(child);
 }
 
-void Node::removeChild(Node *child)
+void Node::removeChild(std::shared_ptr<Node> child)
 {
     for (size_t i = 0; i < children.size(); ++i)
     {
         if (children[i] == child)
         {
-            delete children[i];
-            children.erase(children.begin() + i);
+            // todo fix
+
+            // delete children[i];
+            // children.erase(children.begin() + i);
             return;
         }
     }
 }
 
-void Node::addComponent(Component *component)
+void Node::addComponent(std::shared_ptr<Component> component)
 {
     if (!component)
         return;
     component->setNode(this);
     components.push_back(component);
 
-    if (Script *script = dynamic_cast<Script *>(component))
+    if (Script *script = dynamic_cast<Script *>(component.get()))
     {
+        // i need to update ts
         activeScripts.push_back(script);
     }
 
-    if (Sprite *sprite = dynamic_cast<Sprite *>(component))
+    if (Sprite *sprite = dynamic_cast<Sprite *>(component.get()))
     {
         if (currentSprite)
         {
@@ -66,20 +71,26 @@ void Node::addComponent(Component *component)
     }
 }
 
-void Node::removeComponent(Component *component)
+void Node::removeComponent(std::shared_ptr<Component> component)
 {
     for (size_t i = 0; i < components.size(); ++i)
     {
         if (components[i] == component)
         {
-            if (Script *script = dynamic_cast<Script *>(components[i]))
+            if (Script *script = dynamic_cast<Script *>(components[i].get()))
             {
                 // activeScripts.erase(std::find(activeScripts.begin(), activeScripts.end(), script));
                 //  todo: cuz im too lazy
             }
 
-            delete components[i];
-            components.erase(components.begin() + i);
+            if (Sprite *sprite = dynamic_cast<Sprite *>(components[i].get()))
+            {
+                // todo: lazy
+            }
+
+            // delete components[i];
+            // components.erase(components.begin() + i);
+            // todo
             return;
         }
     }
@@ -88,9 +99,10 @@ void Node::removeComponent(Component *component)
 template <typename T>
 T *Node::getComponent()
 {
+    // todo make this return a shared pointer
     for (size_t i = 0; i < components.size(); ++i)
     {
-        T *c = dynamic_cast<T *>(components[i]);
+        T *c = dynamic_cast<T *>(components[i].get());
         if (c)
             return c;
     }
@@ -101,7 +113,7 @@ void Node::render(Graphics &graphics, Engine *engine)
 {
     for (size_t i = 0; i < this->components.size(); i++)
     {
-        Sprite *sprite = dynamic_cast<Sprite *>(components[i]);
+        Sprite *sprite = dynamic_cast<Sprite *>(components[i].get());
         if (sprite)
         {
             if (sprite && sprite->visible)
@@ -151,7 +163,7 @@ Node *Node::getChild(std::string name)
     {
         if (children[i]->name == name)
         {
-            return children[i];
+            return children[i].get();
         }
     }
     return nullptr;
@@ -163,7 +175,7 @@ Node *Node::getChildByIndex(int index)
     {
         return nullptr;
     }
-    return children[index];
+    return children[index].get();
 }
 
 Component *Node::getComponentByIndex(int index)
@@ -172,5 +184,5 @@ Component *Node::getComponentByIndex(int index)
     {
         return nullptr;
     }
-    return components[index];
+    return components[index].get();
 }

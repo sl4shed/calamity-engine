@@ -1,6 +1,7 @@
 #pragma once
 
 #include <iostream>
+#include <cereal/types/polymorphic.hpp>
 #include "../backend/definitions.hpp"
 #include "../backend/node.hpp"
 #include "../backend/components.hpp"
@@ -11,6 +12,16 @@ class BirdScript : public Script
     Sprite *sprite;
 
 public:
+    template <class Archive>
+    void save(Archive &ar) const
+    {
+    }
+
+    template <class Archive>
+    void load(Archive &ar)
+    {
+    }
+
     void start()
     {
         bird = this->getNode();
@@ -27,3 +38,5 @@ public:
         // sprite->origin.x += 0.0005f * deltaTime;
     }
 };
+
+CEREAL_REGISTER_TYPE(BirdScript);
