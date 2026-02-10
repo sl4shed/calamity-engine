@@ -1,5 +1,6 @@
 #pragma once
 #include "definitions.hpp"
+#include <cereal/types/polymorphic.hpp>
 class Engine; // Forward declaration to avoid circular include
 class Node;   // Forward declaration
 
@@ -9,6 +10,12 @@ struct Component
     virtual void update() {};
     Node *getNode();
     void setNode(Node *n);
+
+    template <class Archive>
+    void serialize(Archive &ar)
+    {
+        // ar(node);
+    }
 
 private:
     Node *node;
@@ -27,7 +34,7 @@ public:
     void serialize(Archive &ar)
     {
         // ar(origin, texture, sourceTransform, visible, zIndex, node);
-        // ar(origin, sourceTransform, zIndex);
+        ar(cereal::base_class<Component>(this), origin, sourceTransform, zIndex, visible, texture);
     }
 };
 
@@ -73,10 +80,16 @@ public:
     virtual void physicsUpdate() {}; // todo
 
     template <class Archive>
-    void save(Archive ar) const {};
+    void save(Archive ar) const
+    {
+        ar(cereal::base_class<Component>(this));
+    };
 
     template <class Archive>
-    void load(Archive ar) {};
+    void load(Archive ar)
+    {
+        ar(cereal::base_class<Component>(this));
+    };
 };
 
 class Camera : public Component
@@ -89,6 +102,10 @@ public:
     template <class Archive>
     void serialize(Archive &ar)
     {
-        ar(active, origin);
+        ar(cereal::base_class<Component>(this), active, origin);
     }
 };
+
+CEREAL_REGISTER_TYPE(Sprite);
+CEREAL_REGISTER_TYPE(Script);
+CEREAL_REGISTER_TYPE(Camera);

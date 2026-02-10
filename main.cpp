@@ -66,27 +66,13 @@ int main(int argc, char *argv[])
 
     std::shared_ptr<Sprite> birdSprite = std::make_shared<Sprite>();
     birdSprite->texture = Texture(&graphics, std::string("assets/flappy.png"));
-
-    cereal::JSONOutputArchive archive(std::cout);
-    std::cout << "Components count: " << bird->components.size() << std::endl;
-    for (size_t i = 0; i < bird->components.size(); i++)
-    {
-        auto &comp = bird->components[i];
-        std::cout << "Component " << i << ": " << (comp ? "valid" : "null") << std::endl;
-        if (comp)
-        {
-            std::cout << "  Type: " << typeid(*comp).name() << std::endl;
-        }
-    }
-    archive(bird);
-
-    archive(bird);
-    // archive(birdSprite->texture);
-
     birdSprite->visible = true;
     birdSprite->zIndex = 1;
     birdSprite->origin = {0.5, 0.5};
     bird->addComponent(birdSprite);
+
+    cereal::JSONOutputArchive archive(std::cout);
+    archive(bird);
 
     bird->transform.position = {240, 136};
     std::shared_ptr<BirdScript> birdScript = std::make_shared<BirdScript>();
