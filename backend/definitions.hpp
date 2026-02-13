@@ -5,8 +5,9 @@
 #include <SDL3/SDL.h>
 #include <SDL3_image/SDL_image.h>
 #include <cereal/archives/json.hpp>
-// Forward declaration
+// Forward declarations
 class Graphics;
+class Services;
 
 struct Vector2
 {
@@ -28,6 +29,7 @@ class Texture
 {
 public:
     Texture() : handle(nullptr), width(0), height(0) {}
+    Texture(std::string path);
     Texture(Graphics *graphics, std::string path);
     template <class Archive>
     void serialize(Archive &ar)

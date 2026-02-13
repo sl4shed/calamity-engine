@@ -3,6 +3,7 @@
 #include <SDL3/SDL.h>
 #include <SDL3_image/SDL_image.h>
 #include "graphics.hpp"
+#include "services.hpp"
 #include <cereal/archives/json.hpp>
 #include <fstream>
 
@@ -168,6 +169,12 @@ Transform Transform::inverse() const
 }
 
 // texture
+Texture::Texture(std::string p)
+{
+    this->path = p;
+    this->initialize(Services::graphics());
+}
+
 Texture::Texture(Graphics *graphics, std::string p)
 {
     this->path = p;

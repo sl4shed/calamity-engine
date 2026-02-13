@@ -8,6 +8,7 @@
 #include "backend/components.hpp"
 #include "backend/file.hpp"
 #include "backend/logger.hpp"
+#include "backend/services.hpp"
 #include <cereal/archives/json.hpp>
 #include <cereal/types/memory.hpp>
 #include <cereal/types/vector.hpp>
@@ -57,6 +58,7 @@ int main(int argc, char *argv[])
     Logger::init();
     Graphics graphics = Graphics();
     Engine engine = Engine();
+    Services::init(&graphics, &engine);
 
     Logger::info("Calamity Engine v1.0");
 
@@ -65,7 +67,7 @@ int main(int argc, char *argv[])
     bird->name = std::string("Bird");
 
     std::shared_ptr<Sprite> birdSprite = std::make_shared<Sprite>();
-    birdSprite->texture = Texture(&graphics, std::string("assets/flappy.png"));
+    birdSprite->texture = Texture("assets/flappy.png");
     birdSprite->visible = true;
     birdSprite->zIndex = 1;
     birdSprite->origin = {0.5, 0.5};
