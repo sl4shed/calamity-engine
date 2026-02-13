@@ -39,4 +39,5 @@ public:
     }
 };
 
+CEREAL_REGISTER_DYNAMIC_INIT(BirdScript);
 CEREAL_REGISTER_TYPE(BirdScript);

@@ -34,4 +34,5 @@ public:
     }
 };
 
+CEREAL_REGISTER_DYNAMIC_INIT(CameraScript);
 CEREAL_REGISTER_TYPE(CameraScript);
