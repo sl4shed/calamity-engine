@@ -21,7 +21,7 @@ struct Vector2
     template <class Archive>
     void serialize(Archive &ar)
     {
-        ar(x, y);
+        ar(CEREAL_NVP(x), CEREAL_NVP(y));
     }
 };
 
@@ -30,13 +30,19 @@ class Texture
 public:
     Texture() : handle(nullptr), width(0), height(0) {}
     Texture(std::string path);
-    Texture(Graphics *graphics, std::string path);
     template <class Archive>
-    void serialize(Archive &ar)
+    void load(Archive &ar)
     {
-        ar(path);
+        ar(CEREAL_NVP(path));
+        this->initialize();
     }
-    void initialize(Graphics *graphics);
+
+    template <class Archive>
+    void save(Archive &ar) const
+    {
+        ar(CEREAL_NVP(path));
+    }
+    void initialize();
 
     void *handle;
     int width;
@@ -60,7 +66,7 @@ struct Matrix2
     template <class Archive>
     void serialize(Archive &ar)
     {
-        ar(m);
+        ar(cereal::make_nvp("matrix", m));
     }
 };
 
@@ -82,6 +88,6 @@ struct Transform
     template <class Archive>
     void serialize(Archive &ar)
     {
-        ar(position, transformation);
+        ar(CEREAL_NVP(position), CEREAL_NVP(transformation));
     }
 };

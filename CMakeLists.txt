@@ -13,6 +13,7 @@ add_executable(${PROJECT_NAME}
     backend/audio.cpp
     backend/definitions.cpp
     backend/logger.cpp
+    backend/services.cpp
 )
 
 set(BUILD_TARGET "NATIVE" CACHE STRING "Build target: NATIVE | PSP | EMSCRIPTEN")

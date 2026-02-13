@@ -17,6 +17,7 @@
 #include "scripts/BirdScript.hpp"
 #include "scripts/CameraScript.hpp"
 #include <iostream>
+#include <fstream>
 
 #ifdef __EMSCRIPTEN__
 #include <emscripten.h>
@@ -73,9 +74,6 @@ int main(int argc, char *argv[])
     birdSprite->origin = {0.5, 0.5};
     bird->addComponent(birdSprite);
 
-    cereal::JSONOutputArchive archive(std::cout);
-    archive(bird);
-
     bird->transform.position = {240, 136};
     std::shared_ptr<BirdScript> birdScript = std::make_shared<BirdScript>();
     bird->addComponent(birdScript);
@@ -90,7 +88,7 @@ int main(int argc, char *argv[])
     engine.root.addChild(cameraNode);
     std::shared_ptr<CameraScript> cameraScript = std::make_shared<CameraScript>();
     cameraNode->addComponent(cameraScript);
-    cameraComponent->setActive(engine);
+    cameraComponent->setActive();
 
     // bird 2
     std::shared_ptr<Node> bird2 = std::make_shared<Node>();
@@ -113,6 +111,10 @@ int main(int argc, char *argv[])
     // script start functions
     cameraScript->start();
     birdScript->start();
+
+    std::ofstream file("out.json");
+    cereal::JSONOutputArchive archive(file);
+    archive(engine.root);
 
     // exportNodeTree(&engine.root);
     // Logger::debug("{}", readFileText("assets/clug.txt"));

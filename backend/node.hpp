@@ -41,10 +41,26 @@ public:
 	template <class Archive>
 	void save(Archive &ar) const
 	{
-		// ar(name, transform, children, components, activeScripts, parent, currentSprite);
-		ar(name, transform, components);
+		// ar(name, transform, children, components, parent, currentSprite);
+		ar(CEREAL_NVP(name), CEREAL_NVP(transform), CEREAL_NVP(components), CEREAL_NVP(children));
 	}
 
 	template <class Archive>
-	void load(Archive &ar) {}
+	void load(Archive &ar)
+	{
+		ar(CEREAL_NVP(name), CEREAL_NVP(transform), CEREAL_NVP(components), CEREAL_NVP(children));
+
+		// go through and update activeScripts and currentSprite
+		for (auto &comp : components)
+		{
+			if (auto script = std::dynamic_pointer_cast<Script>(comp))
+			{
+				activeScripts.push_back(script.get());
+			}
+			if (auto sprite = std::dynamic_pointer_cast<Sprite>(comp))
+			{
+				currentSprite = sprite.get();
+			}
+		}
+	}
 };

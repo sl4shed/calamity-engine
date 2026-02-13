@@ -37,6 +37,12 @@ public:
     Uint64 now = SDL_GetPerformanceCounter();
     Uint64 last = 0;
 
+    template <class Archive>
+    void serialize(Archive &ar)
+    {
+        ar(CEREAL_NVP(root));
+    }
+
 private:
     Camera *activeCamera = nullptr;
 };

@@ -172,18 +172,12 @@ Transform Transform::inverse() const
 Texture::Texture(std::string p)
 {
     this->path = p;
-    this->initialize(Services::graphics());
+    this->initialize();
 }
 
-Texture::Texture(Graphics *graphics, std::string p)
+void Texture::initialize()
 {
-    this->path = p;
-    this->initialize(graphics);
-}
-
-void Texture::initialize(Graphics *graphics)
-{
-    this->handle = graphics->loadTexture(this->path);
+    this->handle = Services::graphics()->loadTexture(this->path);
     this->width = static_cast<SDL_Texture *>(handle)->w;
     this->height = static_cast<SDL_Texture *>(handle)->h;
 }

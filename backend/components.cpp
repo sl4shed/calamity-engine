@@ -1,6 +1,8 @@
 #include "components.hpp"
 #include "node.hpp"
 #include "engine.hpp"
+#include "services.hpp"
+#include <cereal/archives/json.hpp>
 
 Node *Component::getNode()
 {
@@ -13,8 +15,12 @@ void Component::setNode(Node *n)
     this->node = n;
 }
 
-void Camera::setActive(Engine &engine)
+void Camera::setActive()
 {
-    engine.setActiveCamera(this);
+    Services::engine()->setActiveCamera(this);
     this->active = true;
 }
+
+// Explicit template instantiation for Camera::load
+template void Camera::load<cereal::JSONInputArchive>(cereal::JSONInputArchive &ar);
+template void Camera::load<cereal::JSONOutputArchive>(cereal::JSONOutputArchive &ar);
