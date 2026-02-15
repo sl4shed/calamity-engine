@@ -81,13 +81,13 @@ public:
     virtual void physicsUpdate() {}; // todo
 
     template <class Archive>
-    void save(Archive ar) const
+    void save(Archive &ar) const
     {
         ar(cereal::base_class<Component>(this));
     };
 
     template <class Archive>
-    void load(Archive ar)
+    void load(Archive &ar)
     {
         ar(cereal::base_class<Component>(this));
     };
@@ -118,5 +118,4 @@ public:
 };
 
 CEREAL_REGISTER_TYPE(Sprite);
-CEREAL_REGISTER_TYPE(Script);
 CEREAL_REGISTER_TYPE(Camera);

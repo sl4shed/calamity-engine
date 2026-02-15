@@ -32,6 +32,15 @@ PSP_MAIN_THREAD_ATTR(THREAD_ATTR_USER | THREAD_ATTR_VFPU);
 PSP_HEAP_SIZE_KB(20480);
 #endif
 
+CEREAL_REGISTER_ARCHIVE(cereal::JSONOutputArchive)
+CEREAL_REGISTER_ARCHIVE(cereal::JSONInputArchive)
+CEREAL_REGISTER_TYPE(BirdScript);
+CEREAL_REGISTER_TYPE(CameraScript);
+CEREAL_REGISTER_TYPE(Script);
+CEREAL_REGISTER_DYNAMIC_INIT(BirdScript);
+CEREAL_REGISTER_DYNAMIC_INIT(CameraScript);
+CEREAL_REGISTER_DYNAMIC_INIT(Script);
+
 int loop(Graphics &graphics, Engine &engine, bool &running)
 {
     engine.update();
@@ -114,7 +123,14 @@ int main(int argc, char *argv[])
 
     std::ofstream file("out.json");
     cereal::JSONOutputArchive archive(file);
-    archive(engine.root);
+    try
+    {
+        archive(engine.root);
+    }
+    catch (const cereal::Exception &e)
+    {
+        Logger::error("Cereal error: {}", e.what());
+    }
 
     // exportNodeTree(&engine.root);
     // Logger::debug("{}", readFileText("assets/clug.txt"));

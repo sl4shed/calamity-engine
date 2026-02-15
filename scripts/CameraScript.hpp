@@ -33,6 +33,3 @@ public:
         // camera->transform.scale({1.0f + 0.0001f * deltaTime, 1.0f + 0.0001f * deltaTime});
     }
 };
-
-CEREAL_REGISTER_DYNAMIC_INIT(CameraScript);
-CEREAL_REGISTER_TYPE(CameraScript);
