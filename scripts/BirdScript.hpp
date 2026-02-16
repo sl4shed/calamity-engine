@@ -41,3 +41,7 @@ public:
         // sprite->origin.x += 0.0005f * deltaTime;
     }
 };
+
+CEREAL_REGISTER_TYPE(BirdScript);
+// CEREAL_REGISTER_DYNAMIC_INIT(BirdScript);
+CEREAL_REGISTER_POLYMORPHIC_RELATION(Script, BirdScript);

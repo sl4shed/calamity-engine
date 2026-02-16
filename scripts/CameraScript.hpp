@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <cereal/types/polymorphic.hpp>
+#include <cereal/archives/json.hpp>
 #include "../backend/definitions.hpp"
 #include "../backend/node.hpp"
 #include "../backend/components.hpp"
@@ -14,11 +15,13 @@ public:
     template <class Archive>
     void save(Archive &ar) const
     {
+        ar(cereal::base_class<Script>(this));
     }
 
     template <class Archive>
     void load(Archive &ar)
     {
+        ar(cereal::base_class<Script>(this));
     }
 
     void start()
@@ -33,3 +36,7 @@ public:
         // camera->transform.scale({1.0f + 0.0001f * deltaTime, 1.0f + 0.0001f * deltaTime});
     }
 };
+
+CEREAL_REGISTER_TYPE(CameraScript);
+// CEREAL_REGISTER_DYNAMIC_INIT(CameraScript);
+CEREAL_REGISTER_POLYMORPHIC_RELATION(Script, CameraScript);

@@ -2,6 +2,7 @@
 #include "definitions.hpp"
 #include "services.hpp"
 #include <cereal/types/polymorphic.hpp>
+#include <cereal/archives/json.hpp>
 // class Engine; // Forward declaration to avoid circular include
 class Node; // Forward declaration
 
@@ -117,5 +118,6 @@ public:
     }
 };
 
-CEREAL_REGISTER_TYPE(Sprite);
-CEREAL_REGISTER_TYPE(Camera);
+CEREAL_REGISTER_TYPE(Sprite)
+CEREAL_REGISTER_TYPE(Camera)
+CEREAL_REGISTER_TYPE(Script)
