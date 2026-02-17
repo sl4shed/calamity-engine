@@ -1,5 +1,13 @@
 #include <SDL3/SDL.h>
 #include <SDL3_image/SDL_image.h>
+#include <cereal/archives/json.hpp>
+#include <cereal/types/memory.hpp>
+#include <cereal/types/vector.hpp>
+#include <cereal/types/polymorphic.hpp>
+
+CEREAL_REGISTER_ARCHIVE(cereal::JSONOutputArchive)
+CEREAL_REGISTER_ARCHIVE(cereal::JSONInputArchive)
+
 #include "backend/definitions.hpp"
 #include "backend/graphics.hpp"
 #include "backend/node.hpp"
@@ -9,10 +17,6 @@
 #include "backend/file.hpp"
 #include "backend/logger.hpp"
 #include "backend/services.hpp"
-#include <cereal/archives/json.hpp>
-#include <cereal/types/memory.hpp>
-#include <cereal/types/vector.hpp>
-#include <cereal/types/polymorphic.hpp>
 
 #include "scripts/BirdScript.hpp"
 #include "scripts/CameraScript.hpp"
@@ -32,8 +36,6 @@ PSP_MAIN_THREAD_ATTR(THREAD_ATTR_USER | THREAD_ATTR_VFPU);
 PSP_HEAP_SIZE_KB(20480);
 #endif
 
-CEREAL_REGISTER_ARCHIVE(cereal::JSONOutputArchive)
-CEREAL_REGISTER_ARCHIVE(cereal::JSONInputArchive)
 CEREAL_REGISTER_POLYMORPHIC_RELATION(Component, Script)
 CEREAL_REGISTER_POLYMORPHIC_RELATION(Component, Sprite)
 CEREAL_REGISTER_POLYMORPHIC_RELATION(Component, Camera)
@@ -60,8 +62,10 @@ int loop(Graphics &graphics, Engine &engine, bool &running)
     return 1;
 }
 
+void forceScriptRegistration();
 int main(int argc, char *argv[])
 {
+    forceScriptRegistration();
     Logger::init();
     Graphics graphics = Graphics();
     Engine engine = Engine();

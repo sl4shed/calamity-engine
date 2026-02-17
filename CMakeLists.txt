@@ -4,6 +4,7 @@ project(calamity-engine)
 
 add_executable(${PROJECT_NAME}
     main.cpp
+    scripts/scripts.cpp
     backend/node.cpp
     backend/graphics.cpp
     backend/engine.cpp
@@ -37,6 +38,12 @@ elseif(BUILD_TARGET STREQUAL "NATIVE")
     target_link_libraries(${PROJECT_NAME} PRIVATE
         SDL3::SDL3
         SDL3_image::SDL3_image
+    )
+    
+    # temporary
+    target_link_options(${PROJECT_NAME} PRIVATE 
+        -Wl,--whole-archive
+        -Wl,--no-whole-archive
     )
 elseif(BUILD_TARGET STREQUAL "EMSCRIPTEN")
     message(STATUS "Building for Emscripten")
