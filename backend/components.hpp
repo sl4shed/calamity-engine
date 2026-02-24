@@ -1,23 +1,22 @@
 #pragma once
 #include "definitions.hpp"
 #include "services.hpp"
-#include <cereal/types/polymorphic.hpp>
-#include <cereal/archives/json.hpp>
-// class Engine; // Forward declaration to avoid circular include
+
 class Node; // Forward declaration
 
 struct Component
 {
     virtual ~Component() = default;
     virtual void update() {};
+    virtual void initialize() {};
     Node *getNode();
     void setNode(Node *n);
 
     template <class Archive>
-    void serialize(Archive &ar)
-    {
-        // ar(node);
-    }
+    void save(Archive &ar) const {}
+
+    template <class Archive>
+    void load(Archive &ar) {}
 
 private:
     Node *node;
@@ -33,10 +32,15 @@ public:
     int zIndex;
 
     template <class Archive>
-    void serialize(Archive &ar)
+    void save(Archive &ar) const
     {
-        // ar(origin, texture, sourceTransform, visible, zIndex, node);
-        ar(cereal::base_class<Component>(this), CEREAL_NVP(origin), CEREAL_NVP(sourceTransform), CEREAL_NVP(zIndex), CEREAL_NVP(visible), CEREAL_NVP(texture));
+        ar(CEREAL_NVP(origin), CEREAL_NVP(sourceTransform), CEREAL_NVP(zIndex), CEREAL_NVP(visible), CEREAL_NVP(texture));
+    }
+
+    template <class Archive>
+    void load(Archive &ar)
+    {
+        ar(CEREAL_NVP(origin), CEREAL_NVP(sourceTransform), CEREAL_NVP(zIndex), CEREAL_NVP(visible), CEREAL_NVP(texture));
     }
 };
 
@@ -82,16 +86,10 @@ public:
     virtual void physicsUpdate() {}; // todo
 
     template <class Archive>
-    void save(Archive &ar) const
-    {
-        ar(cereal::base_class<Component>(this));
-    };
+    void save(Archive &ar) const {};
 
     template <class Archive>
-    void load(Archive &ar)
-    {
-        ar(cereal::base_class<Component>(this));
-    };
+    void load(Archive &ar) {};
 };
 
 class Camera : public Component
@@ -101,23 +99,27 @@ public:
     bool active;
     Vector2 origin = {0.5f, 0.5f};
 
+    void initialize();
+
     template <class Archive>
     void save(Archive &ar) const
     {
-        ar(cereal::base_class<Component>(this), CEREAL_NVP(active), CEREAL_NVP(origin));
+        ar(CEREAL_NVP(active), CEREAL_NVP(origin));
     }
 
     template <class Archive>
     void load(Archive &ar)
     {
-        ar(cereal::base_class<Component>(this), CEREAL_NVP(active), CEREAL_NVP(origin));
-        if (this->active)
-        {
-            setActive();
-        }
+        ar(CEREAL_NVP(active), CEREAL_NVP(origin));
     }
 };
+
+#include <cereal/archives/json.hpp>
+#include <cereal/types/polymorphic.hpp>
 
 CEREAL_REGISTER_TYPE(Sprite)
 CEREAL_REGISTER_TYPE(Camera)
 CEREAL_REGISTER_TYPE(Script)
+CEREAL_REGISTER_POLYMORPHIC_RELATION(Component, Sprite)
+CEREAL_REGISTER_POLYMORPHIC_RELATION(Component, Camera)
+CEREAL_REGISTER_POLYMORPHIC_RELATION(Component, Script)

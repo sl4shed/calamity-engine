@@ -14,16 +14,10 @@ class BirdScript : public Script
 
 public:
     template <class Archive>
-    void save(Archive &ar) const
-    {
-        ar(cereal::base_class<Script>(this));
-    }
+    void save(Archive &ar) const {}
 
     template <class Archive>
-    void load(Archive &ar)
-    {
-        ar(cereal::base_class<Script>(this));
-    }
+    void load(Archive &ar) {}
 
     void start()
     {
@@ -34,8 +28,8 @@ public:
     void update(float deltaTime)
     {
         // float angle = bird->transform.getAngle();
-        //  printf("angle: %f\n", angle);
-        // bird->transform.rotate(0.001f * deltaTime);
+        // printf("angle: %f\n", angle);
+        bird->transform.rotate(0.001f * deltaTime);
         //  printf("new angle: %f\n", bird->transform.getAngle());
         // sprite->origin.y += 0.0005f * deltaTime;
         // sprite->origin.x += 0.0005f * deltaTime;
@@ -43,5 +37,4 @@ public:
 };
 
 CEREAL_REGISTER_TYPE(BirdScript);
-// CEREAL_REGISTER_DYNAMIC_INIT(BirdScript);
 CEREAL_REGISTER_POLYMORPHIC_RELATION(Script, BirdScript);

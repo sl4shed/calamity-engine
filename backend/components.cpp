@@ -21,6 +21,10 @@ void Camera::setActive()
     this->active = true;
 }
 
-// Explicit template instantiation for Camera::load
-// template void Camera::load<cereal::JSONInputArchive>(cereal::JSONInputArchive &ar);
-// template void Camera::load<cereal::JSONOutputArchive>(cereal::JSONOutputArchive &ar);
+void Camera::initialize()
+{
+    if (this->active)
+    {
+        setActive();
+    }
+}

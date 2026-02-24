@@ -35,6 +35,7 @@ public:
 
 	void render(Graphics &graphics, Engine *engine);
 	void update(float deltaTime);
+	void initialize();
 
 	std::vector<Script *> activeScripts;
 
@@ -50,17 +51,18 @@ public:
 	{
 		ar(CEREAL_NVP(name), CEREAL_NVP(transform), CEREAL_NVP(components), CEREAL_NVP(children));
 
-		// go through and update activeScripts and currentSprite
-		for (auto &comp : components)
+		// rewire component back-pointers
+		for (auto &c : components)
 		{
-			if (auto script = std::dynamic_pointer_cast<Script>(comp))
-			{
-				activeScripts.push_back(script.get());
-			}
-			if (auto sprite = std::dynamic_pointer_cast<Sprite>(comp))
-			{
-				currentSprite = sprite.get();
-			}
+			c->setNode(this);
+			if (Script *s = dynamic_cast<Script *>(c.get()))
+				activeScripts.push_back(s);
+			if (Sprite *s = dynamic_cast<Sprite *>(c.get()))
+				currentSprite = s;
 		}
+
+		// rewire child parent pointers
+		for (auto &child : children)
+			child->parent = this;
 	}
 };

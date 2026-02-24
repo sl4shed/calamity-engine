@@ -2,11 +2,13 @@
 
 Graphics *Services::s_graphics = nullptr;
 Engine *Services::s_engine = nullptr;
+Input *Services::s_input = nullptr;
 
-void Services::init(Graphics *graphics, Engine *engine)
+void Services::init(Graphics *graphics, Engine *engine, Input *input)
 {
     s_graphics = graphics;
     s_engine = engine;
+    s_input = input;
 }
 
 Graphics *Services::graphics()

@@ -157,6 +157,24 @@ void Node::update(float deltaTime)
     }
 }
 
+void Node::initialize()
+{
+    for (Script *script : activeScripts)
+    {
+        script->start();
+    }
+
+    for (size_t i = 0; i < children.size(); i++)
+    {
+        children[i]->initialize();
+    }
+
+    for (size_t i = 0; i < components.size(); i++)
+    {
+        components[i]->initialize();
+    }
+}
+
 Node *Node::getChild(std::string name)
 {
     for (size_t i = 0; i < children.size(); ++i)

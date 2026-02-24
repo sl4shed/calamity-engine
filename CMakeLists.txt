@@ -4,7 +4,6 @@ project(calamity-engine)
 
 add_executable(${PROJECT_NAME}
     main.cpp
-    scripts/scripts.cpp
     backend/node.cpp
     backend/graphics.cpp
     backend/engine.cpp
@@ -15,6 +14,7 @@ add_executable(${PROJECT_NAME}
     backend/definitions.cpp
     backend/logger.cpp
     backend/services.cpp
+    backend/input.cpp
 )
 
 set(BUILD_TARGET "NATIVE" CACHE STRING "Build target: NATIVE | PSP | EMSCRIPTEN")

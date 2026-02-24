@@ -13,16 +13,10 @@ class CameraScript : public Script
 
 public:
     template <class Archive>
-    void save(Archive &ar) const
-    {
-        ar(cereal::base_class<Script>(this));
-    }
+    void save(Archive &ar) const {}
 
     template <class Archive>
-    void load(Archive &ar)
-    {
-        ar(cereal::base_class<Script>(this));
-    }
+    void load(Archive &ar) {}
 
     void start()
     {
@@ -38,5 +32,4 @@ public:
 };
 
 CEREAL_REGISTER_TYPE(CameraScript);
-// CEREAL_REGISTER_DYNAMIC_INIT(CameraScript);
 CEREAL_REGISTER_POLYMORPHIC_RELATION(Script, CameraScript);

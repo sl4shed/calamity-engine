@@ -17,6 +17,7 @@ CEREAL_REGISTER_ARCHIVE(cereal::JSONInputArchive)
 #include "backend/file.hpp"
 #include "backend/logger.hpp"
 #include "backend/services.hpp"
+#include "backend/input.hpp"
 
 #include "scripts/BirdScript.hpp"
 #include "scripts/CameraScript.hpp"
@@ -35,10 +36,6 @@ PSP_MODULE_INFO("calamity-engine", 0, 1, 0);
 PSP_MAIN_THREAD_ATTR(THREAD_ATTR_USER | THREAD_ATTR_VFPU);
 PSP_HEAP_SIZE_KB(20480);
 #endif
-
-CEREAL_REGISTER_POLYMORPHIC_RELATION(Component, Script)
-CEREAL_REGISTER_POLYMORPHIC_RELATION(Component, Sprite)
-CEREAL_REGISTER_POLYMORPHIC_RELATION(Component, Camera)
 
 int loop(Graphics &graphics, Engine &engine, bool &running)
 {
@@ -62,17 +59,17 @@ int loop(Graphics &graphics, Engine &engine, bool &running)
     return 1;
 }
 
-void forceScriptRegistration();
 int main(int argc, char *argv[])
 {
-    forceScriptRegistration();
     Logger::init();
     Graphics graphics = Graphics();
     Engine engine = Engine();
-    Services::init(&graphics, &engine);
+    Input input = Input();
+    Services::init(&graphics, &engine, &input);
 
     Logger::info("Calamity Engine v1.0");
 
+    /*
     // bird 1
     std::shared_ptr<Node> bird = std::make_shared<Node>();
     bird->name = std::string("Bird");
@@ -117,21 +114,21 @@ int main(int argc, char *argv[])
     bird3->transform.position = {120, 0};
     bird3->transform.scale({0.6, 0.6});
     bird2->addChild(bird3);
+    */
 
-    // script start functions
-    cameraScript->start();
-    birdScript->start();
+    std::ifstream file("out.json");
+    cereal::JSONInputArchive archive(file);
+    archive(engine.root);
+    engine.root.initialize();
 
-    std::ofstream file("out.json");
-    cereal::JSONOutputArchive archive(file);
-    try
-    {
-        archive(engine.root);
-    }
-    catch (const cereal::Exception &e)
-    {
-        Logger::error("Cereal error: {}", e.what());
-    }
+    // try
+    // {
+    //     archive(engine.root);
+    // }
+    // catch (const cereal::Exception &e)
+    // {
+    //     Logger::error("Cereal error: {}", e.what());
+    // }
 
     // exportNodeTree(&engine.root);
     // Logger::debug("{}", readFileText("assets/clug.txt"));
