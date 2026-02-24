@@ -4,6 +4,17 @@
 #include <memory>
 #include <string>
 
+/**
+ * # Logger class
+ * Simple wrapper around spdlog for logging messages. For now and because I'm lazy you can't switch logging levels.
+ * Example usage:
+ *
+ * ```
+ * Logger::init("Test logger");
+ *
+ * Logger::info("Hello, {}!", "World"); // You can use fmt formatted strings. For further insight look at spdlog and fmt docs
+ * ```
+ */
 class Logger
 {
 public:

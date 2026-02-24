@@ -3,6 +3,11 @@
 #include "definitions.hpp"
 #include "components.hpp"
 
+/**
+ * # Input class
+ *
+ * yo phone ringing
+ */
 class Input
 {
 public:

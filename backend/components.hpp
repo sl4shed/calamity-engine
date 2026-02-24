@@ -4,6 +4,12 @@
 
 class Node; // Forward declaration
 
+/**
+ * # Component class
+ * Kinda self-explanatory. You have the ``update()`` and ``initialize()`` methods which should be ran by the parent node correspondingly.
+ *
+ * For serialization of any class that is based on Component, you need to implement the ``save()`` and ``load()`` methods, which are used by cereal for serialization.
+ */
 struct Component
 {
     virtual ~Component() = default;
@@ -22,14 +28,25 @@ private:
     Node *node;
 };
 
+/**
+ * # Sprite component
+ * You add this to nodes that you want to have textures, pretty simple if you ask me.
+ * Example usage:
+ * ```
+ * std::shared_ptr<Node> spriteNode = std::make_shared<Node>();
+ * Sprite *sprite = new Sprite();
+ * sprite->texture = Texture("path/to/texture.png");
+ * spriteNode->addComponent(sprite);
+ * ```
+ */
 class Sprite : public Component
 {
 public:
-    Vector2 origin;
+    Vector2 origin = {0.5f, 0.5f};
     Texture texture;
     Transform sourceTransform;
-    bool visible;
-    int zIndex;
+    bool visible = true;
+    int zIndex = 1;
 
     template <class Archive>
     void save(Archive &ar) const
@@ -45,6 +62,7 @@ public:
 };
 
 /**
+ * # Script component
  * A base class for all scripts attached to nodes to inherit from. It provides the necessary api's like update and start.
  *
  * To create a script and attach it to a node, create a header file somewhere like `scripts/ExampleScripy.hpp`:
@@ -53,12 +71,23 @@ public:
  * #pragma once
  *
  * #include "../backend/definitions.hpp"
+ * #include <cereal/types/polymorphic.hpp>
+ * #include <cereal/archives/json.hpp>
  * // and any other includes here based on where you put this file
  *
  * class ExampleScript : public Script
  * {
  *
  * public:
+ *     // serialization functions to make cereal happy.
+ *     // you can leave these empty if you don't need to serialize any data in your script, but they need to be here for cereal to work.
+ *     // to serialize something, call ``ar(variable1, variable2, variable3)`` in both functions, but make sure to call it in the same order in both functions.
+ *     template <class Archive>
+ *     void save(Archive &ar) const {};
+ *
+ *     template <class Archive>
+ *     void load(Archive &ar) {};
+ *
  *     void start()
  *     {
  *         // start logic here
@@ -69,11 +98,15 @@ public:
  *         // update logic here
  *     }
  * };
+ *
+ * // you also have to do this for your game to compile
+ * CEREAL_REGISTER_TYPE(ExampleScript);
+ * CEREAL_REGISTER_POLYMORPHIC_RELATION(Script, ExampleScript);
  * ```
  *
  * and do this to your node:
  * ```cpp
- * Node *exampleNode = new Node();
+ * std::shared_ptr<Node> exampleNode = std::make_shared<Node>();
  * ExampleScript *exampleScript = new ExampleScript();
  * exampleNode->addComponent(exampleScript);
  * ```
@@ -92,6 +125,9 @@ public:
     void load(Archive &ar) {};
 };
 
+/**
+ * # Camera component
+ */
 class Camera : public Component
 {
 public:

@@ -7,17 +7,16 @@
  *
  * It should be initialized in the main function and have its update and render functions called in the main loop:
  * ```cpp
- * int main() {
- *  Graphics graphics = Graphics({480, 272}); // screen size vector2
- *  Engine engine = Engine();
+ * Graphics graphics = Graphics({480, 272}); // screen size vector2
+ * Engine engine = Engine();
+ * Services::init(&graphics, &engine, ...); // imagine every other core class in here aswell
  *
- *  // setup nodes, components, etc here
+ * // setup nodes, components, etc here
  *
- *  while (running) {
- *   engine.update();
- *   engine.render(graphics);
- *  }
- *  return 0;
+ * engine->initialize(); // VERY IMPORTANT
+ * while (running) {
+ *  engine.update();
+ *  engine.render(Services::graphics());
  * }
  * ```
  *

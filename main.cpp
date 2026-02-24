@@ -69,7 +69,6 @@ int main(int argc, char *argv[])
 
     Logger::info("Calamity Engine v1.0");
 
-    /*
     // bird 1
     std::shared_ptr<Node> bird = std::make_shared<Node>();
     bird->name = std::string("Bird");
@@ -114,12 +113,12 @@ int main(int argc, char *argv[])
     bird3->transform.position = {120, 0};
     bird3->transform.scale({0.6, 0.6});
     bird2->addChild(bird3);
-    */
 
-    std::ifstream file("out.json");
-    cereal::JSONInputArchive archive(file);
-    archive(engine.root);
     engine.root.initialize();
+
+    std::string tree = exportNodeTree();
+    std::ofstream out("node_tree.json");
+    out << tree;
 
     // try
     // {

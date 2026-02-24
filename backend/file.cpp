@@ -1,44 +1,66 @@
 #include "file.hpp"
 #include <iostream>
 #include <iomanip>
-#include <nlohmann/json.hpp>
 #include "logger.hpp"
-using json = nlohmann::json;
+#include "services.hpp"
 
-// this is a separate library because i will be implementing the save system here too, so it's open for expansion
-// right now it only serves the purpose of loading json node trees
+// std::string readFileText(std::string path)
+// {
+//     // const char *cpath = path.c_str();
+//     // SDL_RWops *rw = SDL_RWFromFile(cpath, "rb");
+//     // if (!rw)
+//     //     return {};
+//     // Sint64 size = SDL_RWsize(rw);
+//     // if (size <= 0)
+//     // {
+//     //     SDL_RWclose(rw);
+//     //     return {};
+//     // }
+//     // std::string out;
+//     // out.resize((size_t)size);
+//     // size_t read = SDL_RWread(rw, out.data(), 1, (size_t)size);
+//     // SDL_RWclose(rw);
+//     // if (read != (size_t)size)
+//     //     return {}; // handle partial reads if needed
+//     // return out;
+//     return "peepeepoopoo";
+// }
 
-std::string readFileText(std::string path)
+std::string exportNodeTree(std::shared_ptr<Node> node)
 {
-    // const char *cpath = path.c_str();
-    // SDL_RWops *rw = SDL_RWFromFile(cpath, "rb");
-    // if (!rw)
-    //     return {};
-    // Sint64 size = SDL_RWsize(rw);
-    // if (size <= 0)
-    // {
-    //     SDL_RWclose(rw);
-    //     return {};
-    // }
-    // std::string out;
-    // out.resize((size_t)size);
-    // size_t read = SDL_RWread(rw, out.data(), 1, (size_t)size);
-    // SDL_RWclose(rw);
-    // if (read != (size_t)size)
-    //     return {}; // handle partial reads if needed
-    // return out;
-    return "peepeepoopoo";
+    std::stringstream o;
+    cereal::JSONOutputArchive archive(o);
+    archive(node);
+    return o.str();
 }
 
-std::string exportNodeTree(Node *node)
+/**
+ * This function is specifically for exporting the root node of the engine.
+ */
+std::string exportNodeTree()
 {
-    json tree;
-    tree[0] = "test";
-    Logger::debug("{}", tree.dump());
-    return std::string("");
+    std::stringstream o;
+    cereal::JSONOutputArchive archive(o);
+    archive(Services::engine()->root);
+    return o.str();
 }
 
-void loadNodeTree(Node *parent, std::string jsonText)
+void loadNodeTree(std::shared_ptr<Node> parent, std::string jsonText)
 {
-    // nothing yet
+    std::stringstream i(jsonText);
+    cereal::JSONInputArchive archive(i);
+    std::shared_ptr<Node> node = std::make_shared<Node>();
+    archive(node);
+    parent->addChild(node);
+}
+
+/**
+ * This function is specifically for loading the root node of the engine.
+ */
+void loadNodeTree(std::string jsonText)
+{
+    std::stringstream i(jsonText);
+    cereal::JSONInputArchive archive(i);
+    Services::engine()->root = Node();
+    archive(Services::engine()->root);
 }

@@ -6,8 +6,19 @@ class Engine;
 class Input;
 
 /**
- * Global services singleton for accessing engine classes.
- * Initialize in main() before creating any game objects.
+ * # Services class
+ * Singleton for accessing core services basically anywhere. Use as follows:
+ * ```
+ * // Example for getting the graphics services
+ * #include "backend/services.hpp"
+ * #include "backend/graphics.hpp"
+ * Graphics graphics = Services::graphics();
+ * ```
+ *
+ * For now, you can get the following services:
+ *  - Graphics
+ *  - Engine
+ *  - Input
  */
 class Services
 {
