@@ -69,7 +69,7 @@ Testing/
 .cache/
 
 #vendored/
-docs/
 build-emscripten/
 build-psp/
 .vscode/
+docs-out/

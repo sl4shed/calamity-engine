@@ -12,5 +12,5 @@ cd calamity-engine
 # install cereal, spdlog, sdl3, sdl3-image, sdl3-mixer and fmt
 sudo pacman S spdlog sdl sdl3-image sdl3-mixer fmt
 
-./run.sh # build for the platform you want
+./build.sh
 ```

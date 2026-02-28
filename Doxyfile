@@ -27,6 +27,8 @@ FULL_SIDEBAR = NO
 HTML_EXTRA_STYLESHEET  = vendored/doxygen-awesome-css/doxygen-awesome.css
 HTML_COLORSTYLE        = DARK # required with Doxygen >= 1.9.5
 
+INPUT += docs/
+USE_MDFILE_AS_MAINPAGE = docs/mainpage.md
 EXCLUDE_SYSTEM_HEADERS = YES
 # end of my stuff
 
@@ -70,7 +72,7 @@ PROJECT_ICON           = "./assets/Icon.png"
 # entered, it will be relative to the location where Doxygen was started. If
 # left blank the current directory will be used.
 
-OUTPUT_DIRECTORY       = "./docs"
+OUTPUT_DIRECTORY       = "./docs-out"
 
 # If the CREATE_SUBDIRS tag is set to YES then Doxygen will create up to 4096
 # sub-directories (in 2 levels) under the output directory of each output format

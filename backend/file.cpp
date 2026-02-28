@@ -4,33 +4,13 @@
 #include "logger.hpp"
 #include "services.hpp"
 
-// std::string readFileText(std::string path)
-// {
-//     // const char *cpath = path.c_str();
-//     // SDL_RWops *rw = SDL_RWFromFile(cpath, "rb");
-//     // if (!rw)
-//     //     return {};
-//     // Sint64 size = SDL_RWsize(rw);
-//     // if (size <= 0)
-//     // {
-//     //     SDL_RWclose(rw);
-//     //     return {};
-//     // }
-//     // std::string out;
-//     // out.resize((size_t)size);
-//     // size_t read = SDL_RWread(rw, out.data(), 1, (size_t)size);
-//     // SDL_RWclose(rw);
-//     // if (read != (size_t)size)
-//     //     return {}; // handle partial reads if needed
-//     // return out;
-//     return "peepeepoopoo";
-// }
-
 std::string exportNodeTree(std::shared_ptr<Node> node)
 {
     std::stringstream o;
-    cereal::JSONOutputArchive archive(o);
-    archive(node);
+    {
+        cereal::JSONOutputArchive archive(o);
+        archive(node);
+    }
     return o.str();
 }
 
@@ -40,8 +20,10 @@ std::string exportNodeTree(std::shared_ptr<Node> node)
 std::string exportNodeTree()
 {
     std::stringstream o;
-    cereal::JSONOutputArchive archive(o);
-    archive(Services::engine()->root);
+    {
+        cereal::JSONOutputArchive archive(o);
+        archive(Services::engine()->root);
+    }
     return o.str();
 }
 

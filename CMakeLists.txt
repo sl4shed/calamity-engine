@@ -2,8 +2,10 @@ cmake_minimum_required(VERSION 3.11)
 
 project(calamity-engine)
 
-add_executable(${PROJECT_NAME}
-    main.cpp
+set(BUILD_TARGET "NATIVE" CACHE STRING "Build target: NATIVE | PSP | EMSCRIPTEN")
+set_property(CACHE BUILD_TARGET PROPERTY STRINGS NATIVE PSP EMSCRIPTEN)
+
+add_library(calamity STATIC
     backend/node.cpp
     backend/graphics.cpp
     backend/engine.cpp
@@ -17,31 +19,32 @@ add_executable(${PROJECT_NAME}
     backend/input.cpp
 )
 
-set(BUILD_TARGET "NATIVE" CACHE STRING "Build target: NATIVE | PSP | EMSCRIPTEN")
-set_property(CACHE BUILD_TARGET PROPERTY STRINGS NATIVE PSP EMSCRIPTEN)
+target_include_directories(calamity PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+    $<INSTALL_INTERFACE:include>
+)
 
 if(BUILD_TARGET STREQUAL "PSP")
     message(STATUS "Building for PSP")
     find_package(SDL3 REQUIRED CONFIG REQUIRED COMPONENTS SDL3-static)
     find_package(SDL3_image REQUIRED CONFIG)
 
-    target_link_libraries(${PROJECT_NAME} PRIVATE
+    target_link_libraries(calamity PUBLIC
         SDL3::SDL3
         SDL3_image::SDL3_image
     )
 elseif(BUILD_TARGET STREQUAL "NATIVE")
-    target_compile_definitions(${PROJECT_NAME} PRIVATE PLATFORM_NATIVE)
+    target_compile_definitions(calamity PUBLIC PLATFORM_NATIVE)
     message(STATUS "Building for native")
     find_package(SDL3 REQUIRED CONFIG REQUIRED COMPONENTS SDL3-shared)
     find_package(SDL3_image REQUIRED CONFIG)
 
-    target_link_libraries(${PROJECT_NAME} PRIVATE
+    target_link_libraries(calamity PUBLIC
         SDL3::SDL3
         SDL3_image::SDL3_image
     )
-    
-    # temporary
-    target_link_options(${PROJECT_NAME} PRIVATE 
+
+    target_link_options(calamity PUBLIC
         -Wl,--whole-archive
         -Wl,--no-whole-archive
     )
@@ -51,68 +54,35 @@ elseif(BUILD_TARGET STREQUAL "EMSCRIPTEN")
     set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/$<CONFIGURATION>")
     add_subdirectory(vendored/SDL EXCLUDE_FROM_ALL)
     add_subdirectory(vendored/SDL_image EXCLUDE_FROM_ALL)
-    set(CMAKE_EXECUTABLE_SUFFIX ".html" CACHE INTERNAL "")
 
-    target_link_libraries(${PROJECT_NAME} PRIVATE SDL3::SDL3 SDL3_image::SDL3_image)
-    target_compile_definitions(${PROJECT_NAME} PRIVATE __EMSCRIPTEN__)
-    target_compile_options(${PROJECT_NAME} PRIVATE -sUSE_SDL=3 -sUSE_SDL_IMAGE=3)
-    target_link_options(${PROJECT_NAME} PRIVATE -sUSE_SDL=3 -sUSE_SDL_IMAGE=3 -sALLOW_MEMORY_GROWTH=1 --embed-file ./assets/)
+    target_link_libraries(calamity PUBLIC SDL3::SDL3 SDL3_image::SDL3_image)
+    target_compile_definitions(calamity PUBLIC __EMSCRIPTEN__)
+    target_compile_options(calamity PUBLIC -sUSE_SDL=3 -sUSE_SDL_IMAGE=3)
+    target_link_options(calamity PUBLIC -sUSE_SDL=3 -sUSE_SDL_IMAGE=3 -sALLOW_MEMORY_GROWTH=1)
 else()
     message(FATAL_ERROR "Unknown BUILD_TARGET: ${BUILD_TARGET}")
 endif()
 
 set(CMAKE_BUILD_TYPE Debug)
 
-# assets directory
-add_custom_target(copy_assets
-    COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_LIST_DIR}/assets ${CMAKE_CURRENT_BINARY_DIR}/assets
-)
-add_dependencies(${PROJECT_NAME} copy_assets)
-
 # json.hpp
 set(JSON_BuildTests OFF CACHE INTERNAL "")
 add_subdirectory(vendored/json EXCLUDE_FROM_ALL)
-#add_library(nlohmann_json::nlohmann_json ALIAS nlohmann_json::nlohmann_json)
-target_link_libraries(${PROJECT_NAME} PRIVATE nlohmann_json::nlohmann_json)
+target_link_libraries(calamity PUBLIC nlohmann_json::nlohmann_json)
 
 if(BUILD_TARGET STREQUAL "EMSCRIPTEN")
-    #fmt
     add_subdirectory(vendored/fmt)
-    target_link_libraries(${PROJECT_NAME} PRIVATE fmt::fmt)
+    target_link_libraries(calamity PUBLIC fmt::fmt)
 
-    # spdlog
-    #find_package(spdlog CONFIG REQUIRED)
     add_subdirectory(vendored/spdlog)
-    target_link_libraries(${PROJECT_NAME} PRIVATE spdlog::spdlog)
+    target_link_libraries(calamity PUBLIC spdlog::spdlog)
 else()
-    #fmt
     find_package(fmt REQUIRED)
-    target_link_libraries(${PROJECT_NAME} PRIVATE fmt::fmt)
+    target_link_libraries(calamity PUBLIC fmt::fmt)
 
-    # spdlog
     find_package(spdlog CONFIG REQUIRED)
-    target_link_libraries(${PROJECT_NAME} PRIVATE spdlog::spdlog)
+    target_link_libraries(calamity PUBLIC spdlog::spdlog)
 
-    # cereal
     find_package(cereal REQUIRED)
-    target_link_libraries(${PROJECT_NAME} PRIVATE cereal::cereal)
-endif()
-
-# output stuff
-if(BUILD_TARGET STREQUAL "PSP")
-    create_pbp_file(
-        TARGET ${PROJECT_NAME}
-        ICON_PATH NULL
-        BACKGROUND_PATH NULL
-        PREVIEW_PATH NULL
-        TITLE ${PROJECT_NAME}
-        VERSION 01.00
-    )
-endif()
-
-if(BUILD_TARGET STREQUAL "EMSCRIPTEN")
-    set_target_properties(${PROJECT_NAME} PROPERTIES
-        OUTPUT_NAME "index"
-        SUFFIX ".html"
-    )
+    target_link_libraries(calamity PUBLIC cereal::cereal)
 endif()
