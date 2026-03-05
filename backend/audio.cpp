@@ -73,3 +73,7 @@ AudioSource::~AudioSource()
     SDL_DestroyAudioStream(this->handle.stream);
     SDL_free(this->handle.wav_data);
 }
+
+void AudioSource::initialize() {
+    this->loadAudio();
+}
