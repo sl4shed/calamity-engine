@@ -9,16 +9,17 @@ AudioSource::AudioSource(std::string path, float volume)
 
 bool AudioSource::loadAudio()
 {
+    Logger::debug("Loading audio");
     char *wav_path = NULL;
 
-    if (this->handle.stream == nullptr)
+    if (this->handle.stream != nullptr)
     {
         Logger::warn("Can't load audiosource twice type shi");
         return false;
     }
 
     SDL_AudioSpec spec;
-    SDL_AudioDeviceID audio_device = 0; // todo do something else w this
+    audio_device = SDL_OpenAudioDevice(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, NULL);
     SDL_asprintf(&wav_path, "%s%s", SDL_GetBasePath(), path.c_str());
     if (!SDL_LoadWAV(wav_path, &spec, &this->handle.wav_data, &this->handle.wav_data_len))
     {
@@ -39,6 +40,7 @@ bool AudioSource::loadAudio()
     }
     else
     {
+        Logger::debug("Loaded successfully.");
         SDL_free(wav_path);
         // pause shi by default
         this->pause();

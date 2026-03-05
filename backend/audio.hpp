@@ -6,6 +6,8 @@
 #include "components.hpp"
 #include "logger.hpp"
 
+static SDL_AudioDeviceID audio_device = 0;
+
 typedef struct Sound
 {
     Uint8 *wav_data;
