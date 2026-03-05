@@ -9,7 +9,7 @@ Graphics::Graphics(Vector2 s)
     : screenSize(s)
 {
     screenSize = s;
-    SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMEPAD);
+    SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMEPAD | SDL_INIT_AUDIO);
 
     this->window = SDL_CreateWindow(
         "window",

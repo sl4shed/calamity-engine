@@ -1,0 +1,75 @@
+#include "audio.hpp"
+#include <SDL3/SDL_audio.h>
+
+AudioSource::AudioSource(std::string path, float volume)
+{
+    this->path = path;
+    this->volume = volume;
+}
+
+bool AudioSource::loadAudio()
+{
+    char *wav_path = NULL;
+
+    if (this->handle.stream == nullptr)
+    {
+        Logger::warn("Can't load audiosource twice type shi");
+        return false;
+    }
+
+    SDL_AudioSpec spec;
+    SDL_AudioDeviceID audio_device = 0; // todo do something else w this
+    SDL_asprintf(&wav_path, "%s%s", SDL_GetBasePath(), path.c_str());
+    if (!SDL_LoadWAV(wav_path, &spec, &this->handle.wav_data, &this->handle.wav_data_len))
+    {
+        Logger::error("Couldn't load audio file: {}", SDL_GetError());
+        return false;
+    }
+
+    this->handle.stream = SDL_CreateAudioStream(&spec, NULL);
+    if (!this->handle.stream)
+    {
+        Logger::error("Couldn't create audio stream: {}", SDL_GetError());
+        return false;
+    }
+    else if (!SDL_BindAudioStream(audio_device, this->handle.stream))
+    {
+        Logger::error("Failed to bind {} stream to device: {}", this->path, SDL_GetError());
+        return false;
+    }
+    else
+    {
+        SDL_free(wav_path);
+        // pause shi by default
+        this->pause();
+        return true;
+    }
+
+    SDL_free(wav_path);
+    return false;
+}
+
+void AudioSource::update()
+{
+    // update stream data if needed
+    if (SDL_GetAudioStreamQueued(this->handle.stream) < (int)this->handle.wav_data_len)
+    {
+        SDL_PutAudioStreamData(this->handle.stream, this->handle.wav_data, (int)this->handle.wav_data_len);
+    }
+}
+
+void AudioSource::pause()
+{
+    SDL_PauseAudioStreamDevice(this->handle.stream);
+}
+
+void AudioSource::play()
+{
+    SDL_ResumeAudioStreamDevice(this->handle.stream);
+}
+
+AudioSource::~AudioSource()
+{
+    SDL_DestroyAudioStream(this->handle.stream);
+    SDL_free(this->handle.wav_data);
+}
