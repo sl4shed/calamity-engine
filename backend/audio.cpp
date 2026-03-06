@@ -1,10 +1,9 @@
 #include "audio.hpp"
 #include <SDL3/SDL_audio.h>
 
-AudioSource::AudioSource(std::string path, float volume)
+AudioSource::AudioSource(std::string path)
 {
     this->path = path;
-    this->volume = volume;
 }
 
 bool AudioSource::loadAudio()
@@ -42,8 +41,6 @@ bool AudioSource::loadAudio()
     {
         Logger::debug("Loaded successfully.");
         SDL_free(wav_path);
-        // pause shi by default
-        this->pause();
         return true;
     }
 
@@ -58,16 +55,24 @@ void AudioSource::update()
     {
         SDL_PutAudioStreamData(this->handle.stream, this->handle.wav_data, (int)this->handle.wav_data_len);
     }
-}
 
-void AudioSource::pause()
-{
-    SDL_PauseAudioStreamDevice(this->handle.stream);
-}
+    if (this->volume != this->prevVolume)
+    {
+        SDL_SetAudioStreamGain(this->handle.stream, this->volume);
+        this->prevVolume = this->volume;
+    }
 
-void AudioSource::play()
-{
-    SDL_ResumeAudioStreamDevice(this->handle.stream);
+    if (this->playing != this->prevPlaying)
+    {
+        if (this->playing == false)
+        {
+            SDL_PauseAudioStreamDevice(this->handle.stream);
+        }
+        else
+        {
+            SDL_ResumeAudioStreamDevice(this->handle.stream);
+        }
+    }
 }
 
 AudioSource::~AudioSource()
@@ -76,6 +81,7 @@ AudioSource::~AudioSource()
     SDL_free(this->handle.wav_data);
 }
 
-void AudioSource::initialize() {
+void AudioSource::initialize()
+{
     this->loadAudio();
 }

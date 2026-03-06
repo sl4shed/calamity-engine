@@ -18,13 +18,11 @@ typedef struct Sound
 class AudioSource : public Component
 {
 public:
-    AudioSource(std::string path, float volume);
+    AudioSource(std::string path);
     ~AudioSource();
     std::string path;
-    float volume;
-
-    void pause();
-    void play();
+    float volume = 1.0f;
+    bool playing = false;
 
     bool loadAudio();
     void initialize();
@@ -32,4 +30,6 @@ public:
 
 private:
     Sound handle;
+    float prevVolume = 0.0f;
+    bool prevPlaying = true;
 };
