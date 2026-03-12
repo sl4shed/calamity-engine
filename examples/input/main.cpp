@@ -6,6 +6,9 @@
 #include "backend/graphics.hpp"
 #include "backend/logger.hpp"
 #include "backend/services.hpp"
+#include "backend/components.hpp"
+
+#include "inputScript.hpp"
 
 int main() {
     Logger::init();
@@ -14,8 +17,14 @@ int main() {
     Graphics graphics = Graphics();
     Services::init(&graphics, &engine, &input);
 
+    std::shared_ptr<Node> node = std::make_shared<Node>();
+    std::shared_ptr<Sprite> sprite = std::make_shared<Sprite>();
+    sprite->texture = Texture("assets/glass.png");
+    node->addComponent(sprite);
 
-
+    node->addComponent(std::make_shared<InputScript>());
+    engine.root.addChild(node);
+    engine.root.initialize();
 
     bool running = true;
     while(running) {
