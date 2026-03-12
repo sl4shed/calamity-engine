@@ -21,8 +21,14 @@ Engine *Services::engine()
     return s_engine;
 }
 
+Input *Services::input()
+{
+    return s_input;
+}
+
 void Services::shutdown()
 {
     s_graphics = nullptr;
     s_engine = nullptr;
+    s_input = nullptr;
 }

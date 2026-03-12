@@ -1,6 +1,7 @@
 #pragma once
 #include "definitions.hpp"
 #include "services.hpp"
+#include "keycode.hpp"
 
 class Node; // Forward declaration
 

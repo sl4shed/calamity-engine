@@ -1,4 +1,6 @@
 #include "engine.hpp"
+#include "services.hpp"
+#include "input.hpp"
 
 Engine::Engine()
 {
@@ -17,6 +19,7 @@ void Engine::update()
     now = SDL_GetPerformanceCounter();
     float deltaTime = (float)(now - last) * 1000 / SDL_GetPerformanceFrequency();
 
+    Services::input()->update(deltaTime);
     root.update(deltaTime);
 }
 
