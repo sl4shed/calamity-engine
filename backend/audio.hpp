@@ -22,6 +22,7 @@ public:
     ~AudioSource();
     std::string path;
     float volume = 1.0f;
+    float pitch = 1.0f;
     bool playing = false;
 
     bool loadAudio();
@@ -31,5 +32,6 @@ public:
 private:
     Sound handle;
     float prevVolume = 0.0f;
+    float prevPitch = 0.0f;
     bool prevPlaying = true;
 };

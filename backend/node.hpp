@@ -3,6 +3,7 @@
 #include "graphics.hpp"
 #include "utils.hpp"
 #include "components.hpp"
+#include "keycode.hpp"
 #include <iostream>
 #include <cereal/types/vector.hpp>
 #include <cereal/types/memory.hpp>
@@ -53,9 +54,11 @@ public:
 	T *getComponent();
 	Component *getComponentByIndex(int index);
 
+	// state functions
 	void render(Graphics &graphics, Engine *engine);
 	void update(float deltaTime);
 	void initialize();
+	void input(Keycode keycode);
 
 	std::vector<Script *> activeScripts;
 

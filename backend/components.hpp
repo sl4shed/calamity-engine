@@ -15,6 +15,7 @@ struct Component
     virtual ~Component() = default;
     virtual void update() {};
     virtual void initialize() {};
+    virtual void input(Keycode keycode) {};
     Node *getNode();
     void setNode(Node *n);
 

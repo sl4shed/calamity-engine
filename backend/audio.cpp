@@ -50,12 +50,6 @@ bool AudioSource::loadAudio()
 
 void AudioSource::update()
 {
-    // update stream data if needed
-    if (SDL_GetAudioStreamQueued(this->handle.stream) < (int)this->handle.wav_data_len)
-    {
-        SDL_PutAudioStreamData(this->handle.stream, this->handle.wav_data, (int)this->handle.wav_data_len);
-    }
-
     if (this->volume != this->prevVolume)
     {
         SDL_SetAudioStreamGain(this->handle.stream, this->volume);
@@ -72,6 +66,17 @@ void AudioSource::update()
         {
             SDL_ResumeAudioStreamDevice(this->handle.stream);
         }
+    }
+
+    if(this->pitch != this->prevPitch) {
+        SDL_SetAudioStreamFrequencyRatio(this->handle.stream, this->pitch);
+        this->prevPitch = this->pitch;
+    }
+
+    // update stream data if needed
+    if (SDL_GetAudioStreamQueued(this->handle.stream) < (int)this->handle.wav_data_len)
+    {
+        SDL_PutAudioStreamData(this->handle.stream, this->handle.wav_data, (int)this->handle.wav_data_len);
     }
 }
 

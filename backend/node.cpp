@@ -175,6 +175,18 @@ void Node::initialize()
     }
 }
 
+void Node::input(Keycode keycode) {
+    for (size_t i = 0; i < children.size(); i++)
+    {
+        children[i]->input(keycode);
+    }
+
+    for (size_t i = 0; i < components.size(); i++)
+    {
+        components[i]->input(keycode);
+    }
+}
+
 Node *Node::getChild(std::string name)
 {
     for (size_t i = 0; i < children.size(); ++i)
