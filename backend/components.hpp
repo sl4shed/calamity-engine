@@ -36,7 +36,7 @@ private:
  * Example usage:
  * ```
  * std::shared_ptr<Node> spriteNode = std::make_shared<Node>();
- * Sprite *sprite = new Sprite();
+ * std::shared_ptr<Sprite> sprite = std::make_shared<Sprite>();
  * sprite->texture = Texture("path/to/texture.png");
  * spriteNode->addComponent(sprite);
  * ```
@@ -134,7 +134,7 @@ class Camera : public Component
 {
 public:
     void setActive();
-    bool active;
+    bool active = true;
     Vector2 origin = {0.5f, 0.5f};
 
     void initialize();

@@ -17,7 +17,13 @@ int main() {
     Graphics graphics = Graphics();
     Services::init(&graphics, &engine, &input);
 
+    std::shared_ptr<Node> cameraNode = std::make_shared<Node>();
+    std::shared_ptr<Camera> camera = std::make_shared<Camera>();
+    cameraNode->addComponent(camera);
+    engine.root.addChild(cameraNode);
+
     std::shared_ptr<Node> node = std::make_shared<Node>();
+    node->transform.scale({4, 4});
     std::shared_ptr<Sprite> sprite = std::make_shared<Sprite>();
     sprite->texture = Texture("assets/glass.png");
     node->addComponent(sprite);

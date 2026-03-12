@@ -25,10 +25,10 @@ public:
     void start() {
         node = this->getNode();
     }
-
+    
     void input(Keycode keycode) {
         if(keycode == Keycode::W) {
-            node->transform.position.x += 1;
+            node->transform.rotate(0.001f);
         }
     }
 };
