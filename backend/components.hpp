@@ -2,8 +2,9 @@
 #include "definitions.hpp"
 #include "services.hpp"
 #include "keycode.hpp"
+#include "input.hpp"
 
-class Node; // Forward declaration
+class Node; // Forward declaration'
 
 /**
  * # Component class
@@ -16,7 +17,7 @@ struct Component
     virtual ~Component() = default;
     virtual void update() {};
     virtual void initialize() {};
-    virtual void input(Keycode keycode) {};
+    virtual void input(InputEvent event) {};
     Node *getNode();
     void setNode(Node *n);
 

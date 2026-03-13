@@ -1,5 +1,6 @@
 #include "node.hpp"
 #include "utils.hpp"
+#include "input.hpp"
 #include <iostream>
 #include <cmath>
 
@@ -175,15 +176,15 @@ void Node::initialize()
     }
 }
 
-void Node::input(Keycode keycode) {
+void Node::input(InputEvent event) {
     for (size_t i = 0; i < children.size(); i++)
     {
-        children[i]->input(keycode);
+        children[i]->input(event);
     }
 
     for (size_t i = 0; i < components.size(); i++)
     {
-        components[i]->input(keycode);
+        components[i]->input(event);
     }
 }
 

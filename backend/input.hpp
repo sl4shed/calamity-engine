@@ -1,7 +1,20 @@
 #pragma once
 
 #include "definitions.hpp"
+
+// multiple per frame
+class InputEvent
+{
+public:
+    InputEvent(Keycode keycode);
+
+    bool isKeycode(Keycode compare);
+private:
+    Keycode keycode;
+};
+
 #include "components.hpp"
+
 
 /**
  * # Input class
@@ -12,13 +25,7 @@ class Input
 {
 public:
     void update(float deltaTime);
-
-    // bool isKeyDown(KeyCode key);
-    // bool isKeyPressed(KeyCode key);
-    // bool isKeyReleased(KeyCode key);
-    // bool isMouseButtonDown(MouseButton button);
-    // bool isMouseButtonPressed(MouseButton button);
-    // bool isMouseButtonReleased(MouseButton button);
-
-    //     float getAxis();
+private:
+    std::vector<InputEvent> inputs;
+    std::vector<InputEvent> prevInputs;
 };

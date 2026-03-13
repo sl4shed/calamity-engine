@@ -26,8 +26,8 @@ public:
         node = this->getNode();
     }
     
-    void input(Keycode keycode) {
-        if(keycode == Keycode::W) {
+    void input(InputEvent event) {
+        if(event.isKeycode(Keycode::W)) {
             node->transform.rotate(0.001f);
         }
     }
