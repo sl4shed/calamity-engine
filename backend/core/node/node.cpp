@@ -1,6 +1,7 @@
 #include "node.hpp"
-#include "utils.hpp"
-#include "input.hpp"
+#include "../../utils/utils.hpp"
+#include "../../services/input/input.hpp"
+#include "../../services/graphics.hpp"
 #include <iostream>
 #include <cmath>
 

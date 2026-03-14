@@ -1,8 +1,8 @@
 #include "components.hpp"
 #include "node.hpp"
-#include "engine.hpp"
-#include "services.hpp"
-#include "logger.hpp"
+#include "../../services/engine.hpp"
+#include "../../services/services.hpp"
+#include "../../utils/logger.hpp"
 #include <cereal/archives/json.hpp>
 
 Node* Component::getNode()

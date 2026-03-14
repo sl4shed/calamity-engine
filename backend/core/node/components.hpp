@@ -1,8 +1,8 @@
 #pragma once
-#include "definitions.hpp"
-#include "services.hpp"
-#include "keycode.hpp"
-#include "input.hpp"
+#include "../definitions.hpp"
+#include "../../services/services.hpp"
+#include "../../services/input/keycode.hpp"
+#include "../../services/input/input.hpp"
 
 class Node; // Forward declaration'
 

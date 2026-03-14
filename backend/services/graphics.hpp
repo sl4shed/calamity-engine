@@ -2,8 +2,8 @@
 #include <SDL3/SDL.h>
 #include <SDL3_image/SDL_image.h>
 #include <string>
-#include "definitions.hpp"
-#include "components.hpp"
+#include "../core/definitions.hpp"
+#include "../core/node/components.hpp"
 
 /**
  * Here is your modular graphics class, which you should technically be able to change out for another implementation

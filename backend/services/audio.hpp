@@ -1,10 +1,10 @@
 #pragma once
 
 #include <SDL3/SDL_audio.h>
-#include "definitions.hpp"
-#include "node.hpp"
-#include "components.hpp"
-#include "logger.hpp"
+#include "../core/definitions.hpp"
+#include "../core/node/node.hpp"
+#include "../core/node/components.hpp"
+#include "../utils/logger.hpp"
 
 static SDL_AudioDeviceID audio_device = 0;
 

@@ -1,8 +1,8 @@
 #include <SDL3/SDL.h>
 #include <SDL3_image/SDL_image.h>
 #include "graphics.hpp"
-#include "definitions.hpp"
-#include "node.hpp"
+#include "../core/definitions.hpp"
+#include "../core/node/node.hpp"
 #include "engine.hpp"
 
 Graphics::Graphics(Vector2 s)

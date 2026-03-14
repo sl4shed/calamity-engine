@@ -6,17 +6,22 @@ set(BUILD_TARGET "NATIVE" CACHE STRING "Build target: NATIVE | PSP | EMSCRIPTEN"
 set_property(CACHE BUILD_TARGET PROPERTY STRINGS NATIVE PSP EMSCRIPTEN)
 
 add_library(calamity STATIC
-    backend/node.cpp
-    backend/graphics.cpp
-    backend/engine.cpp
-    backend/utils.cpp
-    backend/components.cpp
-    backend/file.cpp
-    backend/audio.cpp
-    backend/definitions.cpp
-    backend/logger.cpp
-    backend/services.cpp
-    backend/input.cpp
+    # core
+    backend/core/definitions.cpp
+    backend/core/node/components.cpp
+    backend/core/node/node.cpp
+
+    # utils
+    backend/utils/utils.cpp
+    backend/utils/logger.cpp
+    backend/utils/file.cpp
+
+    # services
+    backend/services/audio.cpp
+    backend/services/services.cpp
+    backend/services/input/input.cpp
+    backend/services/graphics.cpp
+    backend/services/engine.cpp
 )
 
 target_include_directories(calamity PUBLIC

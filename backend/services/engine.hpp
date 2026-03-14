@@ -1,6 +1,6 @@
 #pragma once
-#include "definitions.hpp"
-#include "node.hpp"
+#include "../core/definitions.hpp"
+#include "../core/node/node.hpp"
 
 /**
  * This class is mostly used to abstract stuff like the root node and obtaining deltaTime.

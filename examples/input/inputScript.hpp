@@ -3,13 +3,15 @@
 #include <iostream>
 #include <cereal/types/polymorphic.hpp>
 #include <cereal/archives/json.hpp>
-#include "backend/definitions.hpp"
-#include "backend/node.hpp"
-#include "backend/components.hpp"
-#include "backend/input.hpp"
-#include "backend/keycode.hpp"
-#include "backend/logger.hpp"
-#include "backend/definitions.hpp"
+#include "backend/services/engine.hpp"
+#include "backend/core/node/node.hpp"
+#include "backend/core/definitions.hpp"
+#include "backend/services/input/input.hpp"
+#include "backend/services/audio.hpp"
+#include "backend/services/graphics.hpp"
+#include "backend/utils/logger.hpp"
+#include "backend/services/services.hpp"
+#include "backend/core/node/components.hpp"
 
 class InputScript : public Script
 {

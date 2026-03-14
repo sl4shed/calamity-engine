@@ -1,9 +1,9 @@
 #pragma once
-#include "definitions.hpp"
-#include "graphics.hpp"
-#include "utils.hpp"
+#include "../definitions.hpp"
+#include "../../services/services.hpp"
+#include "../../utils/utils.hpp"
 #include "components.hpp"
-#include "keycode.hpp"
+#include "../../services/input/keycode.hpp"
 #include <iostream>
 #include <cereal/types/vector.hpp>
 #include <cereal/types/memory.hpp>

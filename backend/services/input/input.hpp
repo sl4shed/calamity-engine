@@ -1,6 +1,7 @@
 #pragma once
 
-#include "definitions.hpp"
+#include "../../core/definitions.hpp"
+#include "keycode.hpp"
 
 // multiple per frame
 class InputEvent
@@ -13,7 +14,7 @@ private:
     Keycode keycode;
 };
 
-#include "components.hpp"
+#include "../../core/node/components.hpp"
 
 
 /**
