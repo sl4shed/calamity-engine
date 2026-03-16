@@ -10,24 +10,26 @@
 
 void Input::update(float deltaTime)
 {
-    prevInputs = inputs;
     inputs.clear();
 
     SDL_Event event;
-    while (SDL_PollEvent(&event)) {}
+    while (SDL_PollEvent(&event)) {
+        
+    }
 
     const bool* state = SDL_GetKeyboardState(nullptr);
 
     for (int i = 0; i < SDL_SCANCODE_COUNT; i++)
     {
         bool curr = state[i];
-        bool prev = std::any_of(prevInputs.begin(), prevInputs.end(),
-            [i](InputEvent& e) { return e.isKeycode((Keycode)i); });
+        bool prev = prevKeyboardInputs[i];
 
         if (curr && !prev)
             inputs.emplace_back((Keycode)i, InputAction::KeyPressed);
         else if (!curr && prev)
             inputs.emplace_back((Keycode)i, InputAction::KeyReleased);
+
+        prevKeyboardInputs[i] = curr;
     }
 
     for (InputEvent& e : inputs)
@@ -35,9 +37,7 @@ void Input::update(float deltaTime)
 }
 
 bool InputEvent::isKeycode(Keycode compare) {
-    bool condition = (this->keycode == compare);
-    Logger::debug("test: {}", condition);
-    return condition;
+    return this->keycode == compare;
 }
 
 InputEvent::InputEvent(Keycode k, InputAction ac) {

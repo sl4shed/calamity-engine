@@ -12,10 +12,11 @@
 #include "backend/utils/logger.hpp"
 #include "backend/services/services.hpp"
 #include "backend/core/node/components.hpp"
+#include "backend/services/input/keycode.hpp"
 
 class InputScript : public Script
 {
-    Node* node;
+    Node *node;
 
 public:
     template <class Archive>
@@ -24,13 +25,17 @@ public:
     template <class Archive>
     void load(Archive &ar) {}
 
-    void start() {
+    void start()
+    {
         node = this->getNode();
     }
-    
-    void input(InputEvent event) {
-        if(event.isKeycode(Keycode::W)) {
-            node->transform.rotate(0.001f);
+
+    void input(InputEvent event)
+    {
+        if (event.isKeycode(Keycode::W))
+        {
+            Logger::debug("W pressed");
+            node->transform.rotate(1.0f);
         }
     }
 };

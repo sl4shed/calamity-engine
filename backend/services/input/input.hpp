@@ -19,9 +19,9 @@ public:
     InputEvent(Keycode keycode, InputAction action);
 
     bool isKeycode(Keycode compare);
+    InputAction action;
 private:
     Keycode keycode;
-    InputAction action;
 };
 
 
@@ -38,7 +38,11 @@ class Input
 public:
     void update(float deltaTime);
 private:
+    std::vector<bool> prevKeyboardInputs = std::vector<bool>(SDL_SCANCODE_COUNT, false);
     std::vector<InputEvent> inputs;
-    std::vector<InputEvent> prevInputs;
 };
 
+
+class InputRegistry {
+
+};
