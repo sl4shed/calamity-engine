@@ -35,8 +35,17 @@ public:
             node->transform.position = motion->position;
         }
 
-        if(auto* motion = dynamic_cast<InputEventKey*>(&event)) {
-            node->transform.rotate(1);
+        if(auto* ev = dynamic_cast<InputEventMouseButton*>(&event)) {
+            if(ev->buttonIndex == MouseButton::MOUSE_BUTTON_LEFT) {
+                node->transform.rotate(0.1f);
+            } else if (ev->buttonIndex == MouseButton::MOUSE_BUTTON_MIDDLE && ev->pressed == true)
+            {
+                auto scale = node->transform.getScale();
+                node->transform.scale({1.1f, 1.1f});
+            } else if (ev->buttonIndex == MouseButton::MOUSE_BUTTON_WHEEL_DOWN)
+            {
+                node->transform.rotate(-0.1f);
+            }
         }
     }
 };

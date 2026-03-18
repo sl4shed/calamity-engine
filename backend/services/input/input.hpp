@@ -3,6 +3,8 @@
 #include "../../core/definitions.hpp"
 #include "keycode.hpp"
 
+// hello. here i just copied godot's homework because i love how godot input works its really good
+
 // massive todo kinda
 // if i ever continue working on this i need to encapsulate a lot of these values
 // such that they either only get set in the constructor
@@ -55,14 +57,14 @@ public:
 enum class MouseButton {
     MOUSE_BUTTON_NONE,
     MOUSE_BUTTON_LEFT,
-    MOUSE_BUTTON_RIGHT,
     MOUSE_BUTTON_MIDDLE,
+    MOUSE_BUTTON_RIGHT,
+    MOUSE_BUTTON_XBUTTON1,
+    MOUSE_BUTTON_XBUTTON2,
     MOUSE_BUTTON_WHEEL_UP,
     MOUSE_BUTTON_WHEEL_DOWN,
     MOUSE_BUTTON_WHEEL_LEFT,
-    MOUSE_BUTTON_WHEEL_RIGHT,
-    MOUSE_BUTTON_XBUTTON1,
-    MOUSE_BUTTON_XBUTTON2
+    MOUSE_BUTTON_WHEEL_RIGHT
 };
 
 class InputEventMouse : public InputEventWithModifiers {
@@ -81,6 +83,8 @@ public:
 
 class InputEventMouseMotion : public InputEventMouse {
 public:
+    // this also has some stuff to do with drawing pens so todo that i guess
+    // should be easy with SDL pen events
     Vector2 relative = {0, 0};
     Vector2 position = {0, 0};
 };

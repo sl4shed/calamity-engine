@@ -46,11 +46,41 @@ void Input::update(float deltaTime)
         if(event.type == SDL_EVENT_MOUSE_BUTTON_DOWN) {
             auto ev = std::make_unique<InputEventMouseButton>();
             ev->pressed = true;
-            ev->buttonIndex = (MouseButton)event.button.button; // todo check if this actualy works
-            inputs.push_bacK(std::move(ev));
+            ev->buttonIndex = (MouseButton)event.button.button;
+            inputs.push_back(std::move(ev));
         }
 
-        
+        if(event.type == SDL_EVENT_MOUSE_BUTTON_UP) {
+            auto ev = std::make_unique<InputEventMouseButton>();
+            ev->pressed = false;
+            ev->buttonIndex = (MouseButton)event.button.button;
+            inputs.push_back(std::move(ev));
+        }
+
+        if(event.type == SDL_EVENT_MOUSE_WHEEL) {
+            auto ev = std::make_unique<InputEventMouseButton>();
+            ev->pressed = true;
+            
+            // i write this with the assumption that nobody who uses calamity engine has a fucking scroll ball mouse
+            // maybe i should fix this somehow?? idk how i would fix it but i think if i were to add support for scroll balls then a separate
+            // InputEventMouseScroll would be appropriate with a direction enum and x and y variables.
+            if(event.motion.x > 0) {
+                ev->buttonIndex = MouseButton::MOUSE_BUTTON_WHEEL_RIGHT;
+                ev->factor = event.motion.x;
+            } else if (event.motion.x < 0)
+            {
+                ev->buttonIndex = MouseButton::MOUSE_BUTTON_WHEEL_LEFT;
+                ev->factor = -event.motion.x;
+            } else if (event.motion.y < 0) 
+            {
+                ev->buttonIndex = MouseButton::MOUSE_BUTTON_WHEEL_DOWN;
+                ev->factor = -event.motion.y;
+            } else if (event.motion.y > 0)
+            {
+                ev->buttonIndex = MouseButton::MOUSE_BUTTON_WHEEL_UP;
+                ev->factor = event.motion.y;
+            }
+        }
 
         if(event.type == SDL_EVENT_QUIT) {
             shouldQuit = true;
