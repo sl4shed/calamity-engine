@@ -17,7 +17,7 @@ struct Component
     virtual ~Component() = default;
     virtual void update() {};
     virtual void initialize() {};
-    virtual void input(InputEvent event) {};
+    virtual void input(InputEvent& event) {};
     Node *getNode();
     void setNode(Node *n);
 

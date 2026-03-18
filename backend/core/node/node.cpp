@@ -177,7 +177,7 @@ void Node::initialize()
     }
 }
 
-void Node::input(InputEvent event) {
+void Node::input(InputEvent& event) {
     for (size_t i = 0; i < children.size(); i++)
     {
         children[i]->input(event);

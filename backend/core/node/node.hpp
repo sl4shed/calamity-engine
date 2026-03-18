@@ -58,7 +58,7 @@ public:
 	void render(Graphics &graphics, Engine *engine);
 	void update(float deltaTime);
 	void initialize();
-	void input(InputEvent event);
+	void input(InputEvent& event);
 
 	std::vector<Script *> activeScripts;
 

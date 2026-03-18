@@ -30,12 +30,13 @@ public:
         node = this->getNode();
     }
 
-    void input(InputEvent event)
-    {
-        if (event.isKeycode(Keycode::W))
-        {
-            Logger::debug("W pressed");
-            node->transform.rotate(1.0f);
+    void input(InputEvent& event) {
+        if (auto* motion = dynamic_cast<InputEventMouseMotion*>(&event)) {
+            node->transform.position = motion->position;
+        }
+
+        if(auto* motion = dynamic_cast<InputEventKey*>(&event)) {
+            node->transform.rotate(1);
         }
     }
 };

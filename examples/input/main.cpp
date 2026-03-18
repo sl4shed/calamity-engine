@@ -22,6 +22,12 @@ int main() {
     cameraNode->addComponent(camera);
     engine.root.addChild(cameraNode);
 
+    std::shared_ptr<Node> bgNode = std::make_shared<Node>();
+    std::shared_ptr<Sprite> bgSprite = std::make_shared<Sprite>();
+    bgSprite->texture = Texture("assets/dash.png");
+    bgNode->addComponent(bgSprite);
+    engine.root.addChild(bgNode);
+
     std::shared_ptr<Node> node = std::make_shared<Node>();
     node->transform.scale({4, 4});
     std::shared_ptr<Sprite> sprite = std::make_shared<Sprite>();
@@ -32,14 +38,10 @@ int main() {
     engine.root.addChild(node);
     engine.root.initialize();
 
-    bool running = true;
-    while(running) {
-        SDL_Event event;
-        while(SDL_PollEvent(&event)) {
-            if(event.type == SDL_EVENT_QUIT) {
-                running = false;
-            }
-        }
+    while(!input.shouldQuit) {
+        cameraNode->transform.position.x += 0.01;
+
+
         engine.update();
         engine.render(graphics);
     }

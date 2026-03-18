@@ -2,6 +2,7 @@
 #include "../../utils/logger.hpp"
 #include "../services.hpp"
 #include "../engine.hpp"
+#include "../graphics.hpp"
 #include "keycode.hpp"
 #include <iostream>
 #include <SDL3/SDL.h>
@@ -12,35 +13,69 @@ void Input::update(float deltaTime)
 {
     inputs.clear();
 
+    // bullshit
     SDL_Event event;
     while (SDL_PollEvent(&event)) {
+        if(event.type == SDL_EVENT_KEY_DOWN) {
+            auto ev = std::make_unique<InputEventKey>();
+            ev->pressed = true;
+            ev->keycode = (Keycode)event.key.scancode;
+            inputs.push_back(std::move(ev));
+        }
+
+        if(event.type == SDL_EVENT_KEY_UP) {
+            auto ev = std::make_unique<InputEventKey>();
+            ev->pressed = false;
+            ev->keycode = (Keycode)event.key.scancode;
+            inputs.push_back(std::move(ev));
+        }
+
+        if(event.type == SDL_EVENT_MOUSE_MOTION) {
+            // todo fucking optimize this bullshit
+            auto ev = std::make_unique<InputEventMouseMotion>();
+            auto camera = Services::engine()->getActiveCamera();
+            auto cameraT = camera->getNode()->globalTransform;
+            auto screen = Services::graphics()->screenSize;
+
+            ev->position = (Vector2){event.motion.x, event.motion.y} + cameraT.position - (screen * camera->origin);
+            ev->relative = (Vector2){event.motion.xrel, event.motion.yrel};
+            
+            inputs.push_back(std::move(ev));
+        }
+
+        if(event.type == SDL_EVENT_MOUSE_BUTTON_DOWN) {
+            auto ev = std::make_unique<InputEventMouseButton>();
+            ev->pressed = true;
+            ev->buttonIndex = (MouseButton)event.button.button; // todo check if this actualy works
+            inputs.push_bacK(std::move(ev));
+        }
+
         
+
+        if(event.type == SDL_EVENT_QUIT) {
+            shouldQuit = true;
+        }
     }
 
-    const bool* state = SDL_GetKeyboardState(nullptr);
+    // // keyboard bullshit
+    // const bool* state = SDL_GetKeyboardState(nullptr);
 
-    for (int i = 0; i < SDL_SCANCODE_COUNT; i++)
-    {
-        bool curr = state[i];
-        bool prev = prevKeyboardInputs[i];
+    // for (int i = 0; i < SDL_SCANCODE_COUNT; i++)
+    // {
+    //     bool curr = state[i];
+    //     bool prev = prevKeyboardInputs[i];
 
-        if (curr && !prev)
-            inputs.emplace_back((Keycode)i, InputAction::KeyPressed);
-        else if (!curr && prev)
-            inputs.emplace_back((Keycode)i, InputAction::KeyReleased);
+    //     auto ev = std::make_unique<InputEventKey>();
+    //     ev->keycode = (Keycode)i;
+    //     if (curr && !prev)
+    //         ev->pressed = true;
+    //     else if (!curr && prev)
+    //         ev->pressed = false;
+        
+    //     inputs.push_back(std::move(ev));
+    //     prevKeyboardInputs[i] = curr;
+    // }
 
-        prevKeyboardInputs[i] = curr;
-    }
-
-    for (InputEvent& e : inputs)
-        Services::engine()->root.input(e);
-}
-
-bool InputEvent::isKeycode(Keycode compare) {
-    return this->keycode == compare;
-}
-
-InputEvent::InputEvent(Keycode k, InputAction ac) {
-    this->keycode = k;
-    this->action = ac;
+    for (auto& e : inputs)
+        Services::engine()->root.input(*e);
 }
