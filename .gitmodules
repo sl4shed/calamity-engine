@@ -16,3 +16,6 @@
 [submodule "vendored/spdlog"]
 	path = vendored/spdlog
 	url = https://github.com/gabime/spdlog
+[submodule "vendored/box2d"]
+	path = vendored/box2d
+	url = https://github.com/erincatto/box2d
