@@ -1,7 +1,6 @@
 #include "definitions.hpp"
 #include <cmath>
 #include <SDL3/SDL.h>
-#include <SDL3_image/SDL_image.h>
 #include "../services/graphics.hpp"
 #include "../services/services.hpp"
 #include <cereal/archives/json.hpp>

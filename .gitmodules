@@ -19,3 +19,6 @@
 [submodule "vendored/box2d"]
 	path = vendored/box2d
 	url = https://github.com/erincatto/box2d
+[submodule "vendored/cereal"]
+	path = vendored/cereal
+	url = https://github.com/USCiLab/cereal

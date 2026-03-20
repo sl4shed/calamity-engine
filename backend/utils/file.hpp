@@ -1,7 +1,6 @@
 #pragma once
 
 #include <SDL3/SDL.h>
-#include <SDL3_image/SDL_image.h>
 #include <memory>
 #include "../core/definitions.hpp"
 #include "../core/node/node.hpp"

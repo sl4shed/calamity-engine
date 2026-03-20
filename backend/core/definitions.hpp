@@ -3,7 +3,6 @@
 #include <vector>
 #include <string>
 #include <SDL3/SDL.h>
-#include <SDL3_image/SDL_image.h>
 #include <cereal/archives/json.hpp>
 // Forward declarations
 class Graphics;
