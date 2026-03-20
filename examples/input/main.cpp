@@ -39,8 +39,6 @@ int main() {
     engine.root.initialize();
 
     while(!input.shouldQuit) {
-        cameraNode->transform.position.x += 0.01;
-
         engine.update();
         engine.render(graphics);
     }

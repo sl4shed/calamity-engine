@@ -15,13 +15,13 @@ class InputEvent
 {
 public:
     virtual ~InputEvent() = default;
-    bool is_action_pressed(std::string action) const;
-    bool is_action_released(std::string action) const;
-    bool is_action(std::string action) const;
-    float get_action_strength(std::string action) const;
+    bool isActionPressed(std::string action) const;
+    bool isActionReleased(std::string action) const;
+    bool isAction(std::string action) const;
+    float getActionStrength(std::string action) const;
 
-    bool is_pressed() const;
-    bool is_released() const;
+    bool isPressed() const;
+    bool isReleased() const;
 
 };
 
@@ -73,11 +73,14 @@ public:
     Vector2 relative = {0, 0};
 };
 
+// here's one thing that i dont like how godot does.
+// if its a mouse wheel event i'll just put like the entire Vector2 of factor because
+// then if you're using a touchpad (for example) you dont actually get the high resolution 2d scroll or whatever
 class InputEventMouseButton : public InputEventMouse {
 public:
     MouseButton buttonIndex = MouseButton::MOUSE_BUTTON_NONE;
     bool double_click = false;
-    float factor = 1.0; // todo whatever the fuck this has to do with high-resolution scroll;
+    Vector2 factor = {0, 0};
     bool pressed = false;
 };
 
@@ -101,9 +104,19 @@ class Input
 {
 public:
     void update(float deltaTime);
+
+    bool isKeyPressed(Keycode key) const;
+    bool isKeyLabelPressed(Keycode key) const; // todo thisz
+    bool isMouseButtonPressed(MouseButton button) const;
+    Vector2 getMousePosition() const;
+
+    // todo
+    bool isActionPressed() const;
+    bool isActionJustPressed() const;
+    bool isActionJustReleased() const;
+
     bool shouldQuit = false;
 private:
-    std::vector<bool> prevKeyboardInputs = std::vector<bool>(SDL_SCANCODE_COUNT, false);
     std::vector<std::unique_ptr<InputEvent>> inputs;
 };
 

@@ -43,6 +43,7 @@ elseif(BUILD_TARGET STREQUAL "NATIVE")
     message(STATUS "Building for native")
     find_package(SDL3 REQUIRED CONFIG REQUIRED COMPONENTS SDL3-shared)
     find_package(SDL3_image REQUIRED CONFIG)
+    find_package(box2d)
 
     target_link_libraries(calamity PUBLIC
         SDL3::SDL3

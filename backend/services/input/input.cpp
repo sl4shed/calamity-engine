@@ -61,25 +61,18 @@ void Input::update(float deltaTime)
             auto ev = std::make_unique<InputEventMouseButton>();
             ev->pressed = true;
             
-            // i write this with the assumption that nobody who uses calamity engine has a fucking scroll ball mouse
-            // maybe i should fix this somehow?? idk how i would fix it but i think if i were to add support for scroll balls then a separate
-            // InputEventMouseScroll would be appropriate with a direction enum and x and y variables.
-            if(event.motion.x > 0) {
-                ev->buttonIndex = MouseButton::MOUSE_BUTTON_WHEEL_RIGHT;
-                ev->factor = event.motion.x;
-            } else if (event.motion.x < 0)
-            {
-                ev->buttonIndex = MouseButton::MOUSE_BUTTON_WHEEL_LEFT;
-                ev->factor = -event.motion.x;
-            } else if (event.motion.y < 0) 
-            {
-                ev->buttonIndex = MouseButton::MOUSE_BUTTON_WHEEL_DOWN;
-                ev->factor = -event.motion.y;
-            } else if (event.motion.y > 0)
-            {
-                ev->buttonIndex = MouseButton::MOUSE_BUTTON_WHEEL_UP;
-                ev->factor = event.motion.y;
+            if (std::abs(event.wheel.x) > std::abs(event.wheel.y)) {
+                ev->buttonIndex = event.wheel.x > 0 
+                    ? MouseButton::MOUSE_BUTTON_WHEEL_RIGHT 
+                    : MouseButton::MOUSE_BUTTON_WHEEL_LEFT;
+            } else {
+                ev->buttonIndex = event.wheel.y > 0 
+                    ? MouseButton::MOUSE_BUTTON_WHEEL_UP 
+                    : MouseButton::MOUSE_BUTTON_WHEEL_DOWN;
             }
+
+            ev->factor = {event.motion.x, event.motion.y};
+            inputs.push_back(std::move(ev));
         }
 
         if(event.type == SDL_EVENT_QUIT) {
@@ -87,25 +80,17 @@ void Input::update(float deltaTime)
         }
     }
 
-    // // keyboard bullshit
-    // const bool* state = SDL_GetKeyboardState(nullptr);
-
-    // for (int i = 0; i < SDL_SCANCODE_COUNT; i++)
-    // {
-    //     bool curr = state[i];
-    //     bool prev = prevKeyboardInputs[i];
-
-    //     auto ev = std::make_unique<InputEventKey>();
-    //     ev->keycode = (Keycode)i;
-    //     if (curr && !prev)
-    //         ev->pressed = true;
-    //     else if (!curr && prev)
-    //         ev->pressed = false;
-        
-    //     inputs.push_back(std::move(ev));
-    //     prevKeyboardInputs[i] = curr;
-    // }
-
     for (auto& e : inputs)
         Services::engine()->root.input(*e);
+}
+
+bool Input::isKeyPressed(Keycode key) const {
+    // todo make this work with sdl_getkeyboardstate
+    for (const auto& input : inputs) {
+        if (auto* ev = dynamic_cast<InputEventKey*>(input.get())) {
+            if (ev->keycode == key && ev->pressed)
+                return true;
+        }
+    }
+    return false;
 }
