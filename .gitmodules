@@ -22,3 +22,6 @@
 [submodule "vendored/cereal"]
 	path = vendored/cereal
 	url = https://github.com/USCiLab/cereal
+[submodule "vendored/SDL_GameControllerDB"]
+	path = vendored/SDL_GameControllerDB
+	url = https://github.com/mdqinc/SDL_GameControllerDB.git

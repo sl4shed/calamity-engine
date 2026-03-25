@@ -11,6 +11,7 @@
 
 void Input::update(float deltaTime)
 {
+    SDL_PumpEvents(); // update keyboard array i think
     inputs.clear();
 
     // bullshit
@@ -85,12 +86,16 @@ void Input::update(float deltaTime)
 }
 
 bool Input::isKeyPressed(Keycode key) const {
-    // todo make this work with sdl_getkeyboardstate
-    for (const auto& input : inputs) {
-        if (auto* ev = dynamic_cast<InputEventKey*>(input.get())) {
-            if (ev->keycode == key && ev->pressed)
-                return true;
-        }
-    }
-    return false;
+    return sdlKeyArray[(SDL_Scancode)key];
+}
+
+bool Input::isMouseButtonPressed(MouseButton button) const {
+    SDL_MouseButtonFlags flags = SDL_GetMouseState(nullptr, nullptr);
+    return (flags & SDL_BUTTON_MASK((int)button)) != 0;
+}
+
+Vector2 Input::getMousePosition() const {
+    float x, y;
+    SDL_GetMouseState(&x, &y);
+    return {x, y};
 }

@@ -9,7 +9,8 @@ Graphics::Graphics(Vector2 s)
     : screenSize(s)
 {
     screenSize = s;
-    SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMEPAD | SDL_INIT_AUDIO);
+    SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMEPAD | SDL_INIT_AUDIO | SDL_INIT_GAMEPAD);
+    SDL_AddGamepadMappingsFromFile("gamecontrollerdb.txt");
 
     this->window = SDL_CreateWindow(
         "window",

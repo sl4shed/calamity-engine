@@ -120,6 +120,17 @@ enum class ControllerButton {
     COUNT
 };
 
+enum class ControllerAxis {
+    INVALID = -1,
+    LEFT_X,
+    LEFT_Y,
+    RIGHT_X,
+    RIGHT_Y,
+    TRIGGER_LEFT,
+    TRIGGER_RIGHT,
+    SDL_MAX
+};
+
 class InputEventControllerButton {
 public:
     ControllerButton buttonIndex;
@@ -141,18 +152,34 @@ public:
     void update(float deltaTime);
 
     bool isKeyPressed(Keycode key) const;
-    bool isKeyLabelPressed(Keycode key) const; // todo thisz
+    bool isControllerButtonPressed(ControllerButton button) const;
+    bool isKeyLabelPressed(Keycode key) const; // todo this shit with sdl keycodes!!!
     bool isMouseButtonPressed(MouseButton button) const;
     Vector2 getMousePosition() const;
+    bool isActionPressed() const; // big todo
 
-    // todo
-    bool isActionPressed() const;
-    bool isActionJustPressed() const;
-    bool isActionJustReleased() const;
+    // controllers, todo
+    float getControllerAxis(int device, ControllerAxis axis) const;
+    std::string getControllerGUID(int device) const;
+    std::string getControllerName(int device) const;
+    float getControllerVibrationDuration(int device);
+    Vector2 getControllerVibrationStrength(int device);
+    std::vector<int> getConnectedControllers(int device);
+    void startControllerVibration(int device, float weakMagnitude, float strongMagnitude, float duration = 0);
+    void stopControllerVibration(int device);
+    // void vibrateHandheld(int durationMs = 500, float amplitude = -1.0f);
+    // no mobile support, yet :)
+
+    // input getting methods, todo for input registry
+
+    Vector2 getVector(std::string minX, std::string maxX, std::string minY, std::string maxY, float deadzone = -1.0f) const;
+    float getAxis(std::string minAction, std::string maxAction) const;
 
     bool shouldQuit = false;
 private:
     std::vector<std::unique_ptr<InputEvent>> inputs;
+    int sdlKeyNum;
+    const bool * sdlKeyArray = SDL_GetKeyboardState(&sdlKeyNum);
 };
 
 

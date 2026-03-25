@@ -34,25 +34,12 @@ public:
 
     void update(float dt) {
         if(pe->isKeyPressed(Keycode::W)) {
-            node->transform = node->transform.inverse();
+            node->transform.rotate(0.01f * dt);
         }
     }
 
     void input(InputEvent& event) {
-        if(auto* ev = dynamic_cast<InputEventMouseButton*>(&event)) {
-            if(ev->buttonIndex == MouseButton::MOUSE_BUTTON_LEFT && ev->pressed == false) {
-                // left mouse button released
-                node->transform.rotate(0.1f);
-            } else if (ev->buttonIndex == MouseButton::MOUSE_BUTTON_MIDDLE && ev->pressed == true)
-            {
-                // middle mouse pressed
-                auto scale = node->transform.getScale();
-                node->transform.scale({1.1f, 1.1f});
-            }
-
-            // factor is only different from 0 when the mouse scrolls
-            node->transform.position = node->transform.position + ev->factor;
-        }
+        // nothing for now
     }
 };
 
