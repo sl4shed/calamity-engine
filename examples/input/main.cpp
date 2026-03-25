@@ -7,8 +7,17 @@
 #include "backend/utils/logger.hpp"
 #include "backend/services/services.hpp"
 #include "backend/core/node/components.hpp"
-
 #include "inputScript.hpp"
+
+#ifdef PSP
+// if you want psp support you have to have the psp module info thing
+#include <pspuser.h>
+#include <pspctrl.h>
+#include <pspdisplay.h>
+#include <pspgu.h>
+PSP_MODULE_INFO("texture", 0, 1, 0);
+PSP_MAIN_THREAD_ATTR(THREAD_ATTR_USER);
+#endif
 
 int main() {
     Logger::init();
