@@ -24,7 +24,7 @@
 class Graphics
 {
 public:
-    Graphics(Vector2 screenSize = {480, 272});
+    Graphics(Vector2 screenSize = {480, 272}, std::string windowTitle = "Calamity Engine");
     void *loadTexture(const std::string &path);
     void renderSprite(Node &node, Engine *engine);
     void preRender();

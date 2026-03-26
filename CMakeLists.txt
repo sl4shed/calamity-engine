@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.11)
 
 project(calamity-engine)
 
+set(CMAKE_BUILD_TYPE Debug)
 set(BUILD_TARGET "NATIVE" CACHE STRING "Build target: NATIVE | PSP | EMSCRIPTEN")
 set_property(CACHE BUILD_TARGET PROPERTY STRINGS NATIVE PSP EMSCRIPTEN)
 
@@ -67,8 +68,6 @@ else()
     message(FATAL_ERROR "Unknown BUILD_TARGET: ${BUILD_TARGET}")
 endif()
 
-set(CMAKE_BUILD_TYPE Debug)
-
 if(BUILD_TARGET STREQUAL "EMSCRIPTEN")
     add_subdirectory(vendored/fmt)
     target_link_libraries(calamity PUBLIC fmt::fmt)
@@ -92,4 +91,6 @@ else()
 
     find_package(cereal REQUIRED)
     target_link_libraries(calamity PUBLIC cereal::cereal)
+
+    configure_file(${CMAKE_CURRENT_SOURCE_DIR}/vendored/SDL_GameControllerDB/gamecontrollerdb.txt ${CMAKE_CURRENT_BINARY_DIR}/gamecontrollerdb.txt COPYONLY)
 endif()

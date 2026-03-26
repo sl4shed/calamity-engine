@@ -14,7 +14,7 @@ target_include_directories(${PROJECT_NAME} PUBLIC
     $<INSTALL_INTERFACE:include>
 )
 
-add_subdirectory("../../" "build")
+add_subdirectory("../../" "calamity")
 target_link_libraries(${PROJECT_NAME} PRIVATE calamity)
 
 add_custom_target(copy_assets

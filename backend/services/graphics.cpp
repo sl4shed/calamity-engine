@@ -5,15 +5,15 @@
 #include "../core/node/node.hpp"
 #include "engine.hpp"
 
-Graphics::Graphics(Vector2 s)
+Graphics::Graphics(Vector2 s, std::string title)
     : screenSize(s)
 {
     screenSize = s;
     SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMEPAD | SDL_INIT_AUDIO | SDL_INIT_GAMEPAD);
-    SDL_AddGamepadMappingsFromFile("gamecontrollerdb.txt");
+    SDL_AddGamepadMappingsFromFile("./calamity/gamecontrollerdb.txt");
 
     this->window = SDL_CreateWindow(
-        "window",
+        title.c_str(),
         screenSize.x,
         screenSize.y,
         0);

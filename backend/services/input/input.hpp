@@ -11,88 +11,8 @@
 // or they can only get set once
 // and theyre constants or whatever
 // just like in godot...
-class InputEvent
-{
-public:
-    virtual ~InputEvent() = default;
-    bool isActionPressed(std::string action) const;
-    bool isActionReleased(std::string action) const;
-    bool isAction(std::string action) const;
-    float getActionStrength(std::string action) const;
 
-    bool isPressed() const;
-    bool isReleased() const;
-
-};
-
-class InputEventAction : public InputEvent {
-public:
-    std::string action = "";
-    int eventIndex = -1;
-    bool pressed = false;
-    float strength = 1.0;
-};
-
-class InputEventWithModifiers : public InputEvent {
-public:
-    bool altPressed = false;
-    bool commandOrControlAutoremap = false;
-    bool ctrlPressed = false;
-    bool metaPressed = false;
-    bool shiftPressed = false;
-
-    // TODO make this use keymodifiermask or whatever godot does
-    std::vector<bool> getModifiersMask() const;
-    bool isCommandOrControlPressed() const;
-};
-
-// TODO add keylabel and shit to this from SDL key
-class InputEventKey : public InputEventWithModifiers {
-public:
-    bool echo = false;
-    Keycode keycode = Keycode::UNKNOWN;
-    bool pressed = false;
-};
-
-enum class MouseButton {
-    MOUSE_BUTTON_NONE,
-    MOUSE_BUTTON_LEFT,
-    MOUSE_BUTTON_MIDDLE,
-    MOUSE_BUTTON_RIGHT,
-    MOUSE_BUTTON_XBUTTON1,
-    MOUSE_BUTTON_XBUTTON2,
-    MOUSE_BUTTON_WHEEL_UP,
-    MOUSE_BUTTON_WHEEL_DOWN,
-    MOUSE_BUTTON_WHEEL_LEFT,
-    MOUSE_BUTTON_WHEEL_RIGHT
-};
-
-class InputEventMouse : public InputEventWithModifiers {
-public:
-    Vector2 position = {0, 0};
-    Vector2 relative = {0, 0};
-};
-
-// here's one thing that i dont like how godot does.
-// if its a mouse wheel event i'll just put like the entire Vector2 of factor because
-// then if you're using a touchpad (for example) you dont actually get the high resolution 2d scroll or whatever
-class InputEventMouseButton : public InputEventMouse {
-public:
-    MouseButton buttonIndex = MouseButton::MOUSE_BUTTON_NONE;
-    bool double_click = false;
-    Vector2 factor = {0, 0};
-    bool pressed = false;
-};
-
-class InputEventMouseMotion : public InputEventMouse {
-public:
-    // this also has some stuff to do with drawing pens so todo that i guess
-    // should be easy with SDL pen events
-    Vector2 relative = {0, 0};
-    Vector2 position = {0, 0};
-};
-
-// controller shit //
+// enums //
 
 enum class ControllerButton {
     INVALID = -1,
@@ -131,15 +51,121 @@ enum class ControllerAxis {
     SDL_MAX
 };
 
-class InputEventControllerButton {
+enum class MouseButton {
+    MOUSE_BUTTON_NONE,
+    MOUSE_BUTTON_LEFT,
+    MOUSE_BUTTON_MIDDLE,
+    MOUSE_BUTTON_RIGHT,
+    MOUSE_BUTTON_XBUTTON1,
+    MOUSE_BUTTON_XBUTTON2,
+    MOUSE_BUTTON_WHEEL_UP,
+    MOUSE_BUTTON_WHEEL_DOWN,
+    MOUSE_BUTTON_WHEEL_LEFT,
+    MOUSE_BUTTON_WHEEL_RIGHT
+};
+
+// input events //
+
+class InputEvent
+{
 public:
-    ControllerButton buttonIndex;
+    virtual ~InputEvent() = default;
+    virtual bool operator==(const InputEvent& other) const = 0;
+
+    bool isActionPressed(std::string action) const;
+    bool isActionReleased(std::string action) const;
+    bool isAction(std::string action) const;
+    // float getActionStrength(std::string action) const;
+};
+
+class InputEventAction : public InputEvent {
+public:
+    std::string action = "";
+    int eventIndex = -1;
+    bool pressed = false;
+    float strength = 1.0;
+};
+
+class InputEventWithModifiers : public InputEvent {
+public:
+    bool altPressed = false;
+    bool commandOrControlAutoremap = false;
+    bool ctrlPressed = false;
+    bool metaPressed = false;
+    bool shiftPressed = false;
+
+    // TODO make this use keymodifiermask or whatever godot does
+    std::vector<bool> getModifiersMask() const;
+    bool isCommandOrControlPressed() const;
+};
+
+// TODO add keylabel and shit to this from SDL key
+class InputEventKey : public InputEventWithModifiers {
+public:
+    bool operator==(const InputEventKey& other) const;
+
+    bool echo = false;
+    Keycode scancode = Keycode::UNKNOWN;
+    Keycode keycode = Keycode::UNKNOWN;
+    const char * keyLabel;
+    bool pressed = false;
+};
+
+class InputEventMouse : public InputEventWithModifiers {
+public:
+    Vector2 position = {0, 0};
+    Vector2 relative = {0, 0};
+};
+
+// here's one thing that i dont like how godot does.
+// if its a mouse wheel event i'll just put like the entire Vector2 of factor because
+// then if you're using a touchpad (for example) you dont actually get the high resolution 2d scroll or whatever
+class InputEventMouseButton : public InputEventMouse {
+public:
+    bool operator==(const InputEventMouseButton& other) const;
+
+    MouseButton buttonIndex = MouseButton::MOUSE_BUTTON_NONE;
+    bool double_click = false;
+    Vector2 factor = {0, 0};
+    bool pressed = false;
+};
+
+class InputEventMouseMotion : public InputEventMouse {
+public:
+    bool operator==(const InputEventMouseMotion& other) const;
+
+    // this also has some stuff to do with drawing pens so todo that i guess
+    // should be easy with SDL pen events
+    Vector2 relative = {0, 0};
+    Vector2 position = {0, 0};
+};
+
+class InputEventControllerButton : public InputEvent {
+public:
+    bool operator==(const InputEventControllerButton& other) const;
+    ControllerButton button;
     bool pressed;
     float pressure;
+    int device;
+};
+
+class InputEventControllerStatus : public InputEvent {
+public:
+    bool operator==(const InputEventControllerStatus& other) const;
+    int device;
+    bool connected;
+};
+
+class InputEventControllerMotion : public InputEvent {
+public:
+    bool operator==(const InputEventControllerMotion& other) const;
+    int device;
+    float motion;
+    ControllerAxis axis;
 };
 
 #include "../../core/node/components.hpp"
-
+// input stuff //
 
 /**
  * # Input class
@@ -152,8 +178,8 @@ public:
     void update(float deltaTime);
 
     bool isKeyPressed(Keycode key) const;
-    bool isControllerButtonPressed(ControllerButton button) const;
-    bool isKeyLabelPressed(Keycode key) const; // todo this shit with sdl keycodes!!!
+    bool isControllerButtonPressed(int device, ControllerButton button) const;
+    bool isKeyLabelPressed(const char * label) const;
     bool isMouseButtonPressed(MouseButton button) const;
     Vector2 getMousePosition() const;
     bool isActionPressed() const; // big todo
@@ -162,11 +188,12 @@ public:
     float getControllerAxis(int device, ControllerAxis axis) const;
     std::string getControllerGUID(int device) const;
     std::string getControllerName(int device) const;
-    float getControllerVibrationDuration(int device);
-    Vector2 getControllerVibrationStrength(int device);
-    std::vector<int> getConnectedControllers(int device);
-    void startControllerVibration(int device, float weakMagnitude, float strongMagnitude, float duration = 0);
-    void stopControllerVibration(int device);
+    // todo these two functions but i think theyre useless
+    //float getControllerVibrationDuration(int device); 
+    //Vector2 getControllerVibrationStrength(int device);
+
+    std::vector<int> getConnectedControllers();
+    void startControllerVibration(int device, float weakMagnitude, float strongMagnitude, int durationMs = 0);
     // void vibrateHandheld(int durationMs = 500, float amplitude = -1.0f);
     // no mobile support, yet :)
 
@@ -180,9 +207,31 @@ private:
     std::vector<std::unique_ptr<InputEvent>> inputs;
     int sdlKeyNum;
     const bool * sdlKeyArray = SDL_GetKeyboardState(&sdlKeyNum);
+    std::vector<int> controllers;
 };
 
+// input registry stuff //
+
+struct InputRegistryAction {
+    std::string name;
+    std::vector<std::unique_ptr<InputEvent>> events;
+    float deadzone;
+};
 
 class InputRegistry {
-
+public:
+    int actionAddEvent(std::string name, std::unique_ptr<InputEvent> event);
+    void actionRemoveEvent(std::string action, int index);
+    void actionRemoveEvents(std::string action);
+    float actionGetDeadzone(std::string action);
+    std::vector<InputEvent> actionGetEvents(std::string action);
+    // bool actionHasEvent(std::string action, InputEvent event);
+    void actionSetDeadzone(std::string action, float deadzone);
+    void addAction(std::string action, float deadzone = 0.2f);
+    void removeAction(std::string action);
+    bool eventIsAction(std::unique_ptr<InputEvent> event, std::string action);
+    std::vector<std::string> getActions();
+    bool hasAction(std::string action) const;
+private:
+    std::unordered_map<std::string, InputRegistryAction> actions;
 };
