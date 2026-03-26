@@ -24,7 +24,15 @@ int main() {
     Engine engine = Engine();
     Input input = Input();
     Graphics graphics = Graphics();
-    Services::init(&graphics, &engine, &input);
+    InputRegistry inputRegistry = InputRegistry();
+    Services::init(&graphics, &engine, &input, &inputRegistry);
+
+    inputRegistry.addAction("rotate", 0.1f);
+    std::unique_ptr<InputEventControllerButton> exampleEvent = std::make_unique<InputEventControllerButton>();
+    exampleEvent->pressed = true;
+    exampleEvent->button = ControllerButton::SOUTH;
+    exampleEvent->device = 0;
+    inputRegistry.actionAddEvent("rotate", std::move(exampleEvent));
 
     std::shared_ptr<Node> cameraNode = std::make_shared<Node>();
     std::shared_ptr<Camera> camera = std::make_shared<Camera>();

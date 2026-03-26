@@ -11,6 +11,9 @@
 
 void Input::update(float deltaTime)
 {
+    if (!actionsArrayPointer)
+        actionsArrayPointer = Services::inputRegistry()->getActionsArray();
+
     SDL_PumpEvents(); // update keyboard array i think
     inputs.clear();
 
@@ -52,6 +55,7 @@ void Input::update(float deltaTime)
             auto ev = std::make_unique<InputEventMouseButton>();
             ev->pressed = true;
             ev->buttonIndex = (MouseButton)event.button.button;
+            if(event.button.clicks > 1) ev->doubleClick = true;
             inputs.push_back(std::move(ev));
         }
 
@@ -59,6 +63,7 @@ void Input::update(float deltaTime)
             auto ev = std::make_unique<InputEventMouseButton>();
             ev->pressed = false;
             ev->buttonIndex = (MouseButton)event.button.button;
+            if(event.button.clicks > 1) ev->doubleClick = true;
             inputs.push_back(std::move(ev));
         }
 
@@ -121,8 +126,19 @@ void Input::update(float deltaTime)
         }
     }
 
-    for (auto& e : inputs)
-        Services::engine()->root.input(*e);
+    prevActionStrength = actionStrength;
+    actionStrength.clear();
+    for (auto& e : inputs) {
+        Services::engine()->root.input(*e);    
+    }
+
+    for(auto& [name, action] : *actionsArrayPointer) {
+        float strength = 0.0f;
+        for (auto& e : action.events) {
+            strength = std::max(strength, e->getStrength());
+        }
+        actionStrength[name] = strength;
+    }
 }
 
 bool Input::isKeyPressed(Keycode key) const {
@@ -190,7 +206,7 @@ bool InputRegistry::hasAction(std::string name) const {
 // input registry action event management
 
 int InputRegistry::actionAddEvent(std::string name, std::unique_ptr<InputEvent> event) {
-    actions.at(name).events.push_back(event);
+    actions.at(name).events.push_back(std::move(event));
     return actions.at(name).events.size() - 1;
 }
 
@@ -212,36 +228,104 @@ void InputRegistry::actionSetDeadzone(std::string name, float deadzone) {
     actions.at(name).deadzone = deadzone;
 }
 
+std::vector<std::string> InputRegistry::getActions() {
+    std::vector<std::string> act;
+    for (auto& [name, action] : actions) {
+        act.push_back(name);
+    }
+    return act;
+}
+
+std::unordered_map<std::string, InputRegistryAction>* InputRegistry::getActionsArray() {
+    return &actions;
+}
+
 // darwin help me
-bool InputRegistry::eventIsAction(std::unique_ptr<InputEvent> event, std::string name) {
+bool InputRegistry::eventIsAction(const InputEvent* event, std::string name) {
     auto& events = actions.at(name).events;
-    return std::any_of(events.begin(), events.end(), [&](const std::unique_ptr<InputEvent> stored) {
-        return event == stored;
+    return std::any_of(events.begin(), events.end(), [&](const std::unique_ptr<InputEvent>& stored) {
+        return *event == *stored;
     });
 }
 
 // event operators
 
-bool InputEventKey::operator==(const InputEventKey& other) const {
-    return (scancode == other.scancode && pressed == other.pressed);
+bool InputEventKey::operator==(const InputEvent& other) const {
+    const auto* o = dynamic_cast<const InputEventKey*>(&other);
+    if(!o) return false;
+    return (scancode == o->scancode && pressed == o->pressed);
 }
 
-bool InputEventMouseButton::operator==(const InputEventMouseButton& other) const {
-    return (buttonIndex == other.buttonIndex && pressed == other.pressed && factor == other.factor && double_click == other.double_click);
+bool InputEventMouseButton::operator==(const InputEvent& other) const {
+    const auto* o = dynamic_cast<const InputEventMouseButton*>(&other);
+    if(!o) return false;
+    return (buttonIndex == o->buttonIndex && pressed == o->pressed && factor == o->factor && doubleClick == o->doubleClick);
 }
 
-bool InputEventMouseMotion::operator==(const InputEventMouseMotion& other) const {
-    return (position == other.position && relative == other.relative);
+bool InputEventMouseMotion::operator==(const InputEvent& other) const {
+    const auto* o = dynamic_cast<const InputEventMouseMotion*>(&other);
+    if(!o) return false;
+    return (position == o->position && relative == o->relative);
 }
 
-bool InputEventControllerButton::operator==(const InputEventControllerButton& other) const {
-    return (device == other.device && button == other.button && pressed == other.pressed && pressure == other.pressure);
+bool InputEventControllerButton::operator==(const InputEvent& other) const {
+    const auto* o = dynamic_cast<const InputEventControllerButton*>(&other);
+    if(!o) return false;
+    return (device == o->device && button == o->button && pressed == o->pressed && pressure == o->pressure);
 }
 
-bool InputEventControllerStatus::operator==(const InputEventControllerStatus& other) const {
-    return (device == other.device && connected == other.connected);
+bool InputEventControllerStatus::operator==(const InputEvent& other) const {
+    const auto* o = dynamic_cast<const InputEventControllerStatus*>(&other);
+    if(!o) return false;
+    return (device == o->device && connected == o->connected);
 }
 
-bool InputEventControllerMotion::operator==(const InputEventControllerMotion& other) const {
-    return (device == other.device && axis == other.axis && motion == other.motion);
+bool InputEventControllerMotion::operator==(const InputEvent& other) const {
+    const auto* o = dynamic_cast<const InputEventControllerMotion*>(&other);
+    if(!o) return false;
+    return (device == o->device && axis == o->axis && motion == o->motion);
+}
+
+// action functions
+
+bool InputEvent::isAction(std::string name) const {
+    return Services::inputRegistry()->eventIsAction(this, name);
+}
+
+bool InputEvent::isActionPressed(std::string name) const {
+    return (Services::inputRegistry()->eventIsAction(this, name) && this->isPressed());
+}
+
+bool InputEvent::isActionReleased(std::string name) const {
+    return (Services::inputRegistry()->eventIsAction(this, name) && this->isReleased());
+}
+
+bool Input::isActionPressed(std::string name) const {
+    return actionStrength.at(name) > Services::inputRegistry()->actionGetDeadzone(name);
+}
+
+bool Input::isActionJustPressed(std::string name) const {
+    auto dz = Services::inputRegistry()->actionGetDeadzone(name);
+    float prev = prevActionStrength.count(name) ? prevActionStrength.at(name) : 0.0f;
+    return actionStrength.at(name) > dz && prev <= dz;
+}
+
+bool Input::isActionJustReleased(std::string name) const {
+    auto dz = Services::inputRegistry()->actionGetDeadzone(name);
+    float prev = prevActionStrength.count(name) ? prevActionStrength.at(name) : 0.0f;
+    return actionStrength.at(name) <= dz && prev > dz;
+}
+
+float Input::getAxis(std::string minAction, std::string maxAction) const {
+    return actionStrength.at(maxAction) - actionStrength.at(minAction);
+}
+
+Vector2 Input::getVector(std::string minX, std::string maxX, std::string minY, std::string maxY, float deadzone) const {
+    Vector2 v = {getAxis(minX, maxX), getAxis(minY, maxY)};
+    // normalize if outside deadzone
+    float len = std::sqrt(v.x*v.x + v.y*v.y);
+    if (deadzone < 0) deadzone = 0.2f; // fallback default
+    if (len <= deadzone) return {0, 0};
+    return {v.x / len * ((len - deadzone) / (1.0f - deadzone)),
+            v.y / len * ((len - deadzone) / (1.0f - deadzone))};
 }

@@ -75,7 +75,11 @@ public:
     bool isActionPressed(std::string action) const;
     bool isActionReleased(std::string action) const;
     bool isAction(std::string action) const;
+    
     // float getActionStrength(std::string action) const;
+    virtual bool isPressed() const { return false; }
+    virtual bool isReleased() const { return false; }
+    virtual float getStrength() const { return 0.0f; }
 };
 
 class InputEventAction : public InputEvent {
@@ -84,6 +88,10 @@ public:
     int eventIndex = -1;
     bool pressed = false;
     float strength = 1.0;
+
+    bool isPressed() const { return pressed; };
+    bool isReleased() const { return !pressed; };
+    float getStrength() const { return strength; };
 };
 
 class InputEventWithModifiers : public InputEvent {
@@ -102,13 +110,17 @@ public:
 // TODO add keylabel and shit to this from SDL key
 class InputEventKey : public InputEventWithModifiers {
 public:
-    bool operator==(const InputEventKey& other) const;
+    bool operator==(const InputEvent& other) const;
 
-    bool echo = false;
+    bool echo = false; // todo
     Keycode scancode = Keycode::UNKNOWN;
     Keycode keycode = Keycode::UNKNOWN;
     const char * keyLabel;
     bool pressed = false;
+
+    bool isPressed() const { return pressed; };
+    bool isReleased() const { return !pressed; };
+    float getStrength() const { return (float)pressed; }
 };
 
 class InputEventMouse : public InputEventWithModifiers {
@@ -122,17 +134,21 @@ public:
 // then if you're using a touchpad (for example) you dont actually get the high resolution 2d scroll or whatever
 class InputEventMouseButton : public InputEventMouse {
 public:
-    bool operator==(const InputEventMouseButton& other) const;
+    bool operator==(const InputEvent& other) const;
 
     MouseButton buttonIndex = MouseButton::MOUSE_BUTTON_NONE;
-    bool double_click = false;
+    bool doubleClick = false;
     Vector2 factor = {0, 0};
     bool pressed = false;
+
+    bool isPressed() const { return pressed; };
+    bool isReleased() const { return !pressed; };
+    float getStrength() const { return (float)pressed; };
 };
 
 class InputEventMouseMotion : public InputEventMouse {
 public:
-    bool operator==(const InputEventMouseMotion& other) const;
+    bool operator==(const InputEvent& other) const;
 
     // this also has some stuff to do with drawing pens so todo that i guess
     // should be easy with SDL pen events
@@ -142,29 +158,62 @@ public:
 
 class InputEventControllerButton : public InputEvent {
 public:
-    bool operator==(const InputEventControllerButton& other) const;
+    bool operator==(const InputEvent& other) const;
     ControllerButton button;
     bool pressed;
-    float pressure;
+    float pressure = 1.0f;
     int device;
+
+    bool isPressed() const { return pressed; };
+    bool isReleased() const { return !pressed; };
+    float getStrength() const { return (float)pressed; } // for now its this because sdl doesnt do gamepad button pressure :(
 };
 
 class InputEventControllerStatus : public InputEvent {
 public:
-    bool operator==(const InputEventControllerStatus& other) const;
+    bool operator==(const InputEvent& other) const;
     int device;
     bool connected;
 };
 
 class InputEventControllerMotion : public InputEvent {
 public:
-    bool operator==(const InputEventControllerMotion& other) const;
+    bool operator==(const InputEvent& other) const;
     int device;
     float motion;
     ControllerAxis axis;
+
+    float getStrength() const { return motion; };
 };
 
 #include "../../core/node/components.hpp"
+
+// input registry stuff //
+
+struct InputRegistryAction {
+    std::string name;
+    std::vector<std::unique_ptr<InputEvent>> events;
+    float deadzone;
+};
+
+class InputRegistry {
+public:
+    int actionAddEvent(std::string name, std::unique_ptr<InputEvent> event);
+    void actionRemoveEvent(std::string action, int index);
+    void actionRemoveEvents(std::string action);
+    float actionGetDeadzone(std::string action);
+    std::vector<InputEvent> actionGetEvents(std::string action);
+    void actionSetDeadzone(std::string action, float deadzone);
+    void addAction(std::string action, float deadzone = 0.2f);
+    void removeAction(std::string action);
+    bool eventIsAction(const InputEvent* event, std::string name);
+    std::vector<std::string> getActions();
+    bool hasAction(std::string action) const;
+    std::unordered_map<std::string, InputRegistryAction> *getActionsArray();
+private:
+    std::unordered_map<std::string, InputRegistryAction> actions;
+};
+
 // input stuff //
 
 /**
@@ -182,9 +231,8 @@ public:
     bool isKeyLabelPressed(const char * label) const;
     bool isMouseButtonPressed(MouseButton button) const;
     Vector2 getMousePosition() const;
-    bool isActionPressed() const; // big todo
 
-    // controllers, todo
+    // controllers //
     float getControllerAxis(int device, ControllerAxis axis) const;
     std::string getControllerGUID(int device) const;
     std::string getControllerName(int device) const;
@@ -194,13 +242,14 @@ public:
 
     std::vector<int> getConnectedControllers();
     void startControllerVibration(int device, float weakMagnitude, float strongMagnitude, int durationMs = 0);
-    // void vibrateHandheld(int durationMs = 500, float amplitude = -1.0f);
-    // no mobile support, yet :)
+    //void vibrateHandheld(int durationMs = 500, float amplitude = -1.0f); // no mobile support, yet :)
 
-    // input getting methods, todo for input registry
-
+    // input getting methods //
     Vector2 getVector(std::string minX, std::string maxX, std::string minY, std::string maxY, float deadzone = -1.0f) const;
     float getAxis(std::string minAction, std::string maxAction) const;
+    bool isActionJustPressed(std::string name) const;
+    bool isActionJustReleased(std::string name) const;
+    bool isActionPressed(std::string name) const;
 
     bool shouldQuit = false;
 private:
@@ -208,30 +257,7 @@ private:
     int sdlKeyNum;
     const bool * sdlKeyArray = SDL_GetKeyboardState(&sdlKeyNum);
     std::vector<int> controllers;
-};
-
-// input registry stuff //
-
-struct InputRegistryAction {
-    std::string name;
-    std::vector<std::unique_ptr<InputEvent>> events;
-    float deadzone;
-};
-
-class InputRegistry {
-public:
-    int actionAddEvent(std::string name, std::unique_ptr<InputEvent> event);
-    void actionRemoveEvent(std::string action, int index);
-    void actionRemoveEvents(std::string action);
-    float actionGetDeadzone(std::string action);
-    std::vector<InputEvent> actionGetEvents(std::string action);
-    // bool actionHasEvent(std::string action, InputEvent event);
-    void actionSetDeadzone(std::string action, float deadzone);
-    void addAction(std::string action, float deadzone = 0.2f);
-    void removeAction(std::string action);
-    bool eventIsAction(std::unique_ptr<InputEvent> event, std::string action);
-    std::vector<std::string> getActions();
-    bool hasAction(std::string action) const;
-private:
-    std::unordered_map<std::string, InputRegistryAction> actions;
+    std::unordered_map<std::string, float> actionStrength;
+    std::unordered_map<std::string, float> prevActionStrength;
+    std::unordered_map<std::string, InputRegistryAction>* actionsArrayPointer = nullptr;
 };

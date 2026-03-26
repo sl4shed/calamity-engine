@@ -33,7 +33,7 @@ public:
     }
 
     void update(float dt) {
-        if(pe->isKeyPressed(Keycode::W)) {
+        if(Services::input()->isActionPressed("rotate")) {
             node->transform.rotate(0.01f * dt);
         }
     }
