@@ -52,16 +52,16 @@ enum class ControllerAxis {
 };
 
 enum class MouseButton {
-    MOUSE_BUTTON_NONE,
-    MOUSE_BUTTON_LEFT,
-    MOUSE_BUTTON_MIDDLE,
-    MOUSE_BUTTON_RIGHT,
-    MOUSE_BUTTON_XBUTTON1,
-    MOUSE_BUTTON_XBUTTON2,
-    MOUSE_BUTTON_WHEEL_UP,
-    MOUSE_BUTTON_WHEEL_DOWN,
-    MOUSE_BUTTON_WHEEL_LEFT,
-    MOUSE_BUTTON_WHEEL_RIGHT
+    NONE,
+    LEFT,
+    MIDDLE,
+    RIGHT,
+    XBUTTON1,
+    XBUTTON2,
+    WHEEL_UP,
+    WHEEL_DOWN,
+    WHEEL_LEFT,
+    WHEEL_RIGHT
 };
 
 // input events //
@@ -70,7 +70,8 @@ class InputEvent
 {
 public:
     virtual ~InputEvent() = default;
-    virtual bool operator==(const InputEvent& other) const = 0;
+    virtual bool operator==(const InputEvent& other) const { return false; };
+    virtual bool operator<=(const InputEvent& other) const { return false; };
 
     bool isActionPressed(std::string action) const;
     bool isActionReleased(std::string action) const;
@@ -111,6 +112,7 @@ public:
 class InputEventKey : public InputEventWithModifiers {
 public:
     bool operator==(const InputEvent& other) const;
+    bool operator<=(const InputEvent& other) const;
 
     bool echo = false; // todo
     Keycode scancode = Keycode::UNKNOWN;
@@ -135,8 +137,9 @@ public:
 class InputEventMouseButton : public InputEventMouse {
 public:
     bool operator==(const InputEvent& other) const;
+    bool operator<=(const InputEvent& other) const;
 
-    MouseButton buttonIndex = MouseButton::MOUSE_BUTTON_NONE;
+    MouseButton buttonIndex = MouseButton::NONE;
     bool doubleClick = false;
     Vector2 factor = {0, 0};
     bool pressed = false;
@@ -149,6 +152,7 @@ public:
 class InputEventMouseMotion : public InputEventMouse {
 public:
     bool operator==(const InputEvent& other) const;
+    bool operator<=(const InputEvent& other) const;
 
     // this also has some stuff to do with drawing pens so todo that i guess
     // should be easy with SDL pen events
@@ -159,6 +163,8 @@ public:
 class InputEventControllerButton : public InputEvent {
 public:
     bool operator==(const InputEvent& other) const;
+    bool operator<=(const InputEvent& other) const;
+
     ControllerButton button;
     bool pressed;
     float pressure = 1.0f;
@@ -172,6 +178,8 @@ public:
 class InputEventControllerStatus : public InputEvent {
 public:
     bool operator==(const InputEvent& other) const;
+    bool operator<=(const InputEvent& other) const;
+
     int device;
     bool connected;
 };
@@ -179,6 +187,8 @@ public:
 class InputEventControllerMotion : public InputEvent {
 public:
     bool operator==(const InputEvent& other) const;
+    bool operator<=(const InputEvent& other) const;
+    
     int device;
     float motion;
     ControllerAxis axis;
@@ -204,9 +214,9 @@ public:
     float actionGetDeadzone(std::string action);
     std::vector<InputEvent> actionGetEvents(std::string action);
     void actionSetDeadzone(std::string action, float deadzone);
-    void addAction(std::string action, float deadzone = 0.2f);
+    void addAction(std::string action, float deadzone = 0.1f);
     void removeAction(std::string action);
-    bool eventIsAction(const InputEvent* event, std::string name);
+    bool eventIsAction(const InputEvent* event, std::string name, bool identityCheck = false);
     std::vector<std::string> getActions();
     bool hasAction(std::string action) const;
     std::unordered_map<std::string, InputRegistryAction> *getActionsArray();
@@ -260,4 +270,5 @@ private:
     std::unordered_map<std::string, float> actionStrength;
     std::unordered_map<std::string, float> prevActionStrength;
     std::unordered_map<std::string, InputRegistryAction>* actionsArrayPointer = nullptr;
+    std::unordered_set<std::string> heldActions;
 };

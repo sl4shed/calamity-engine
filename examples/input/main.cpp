@@ -28,11 +28,15 @@ int main() {
     Services::init(&graphics, &engine, &input, &inputRegistry);
 
     inputRegistry.addAction("rotate", 0.1f);
-    std::unique_ptr<InputEventControllerButton> exampleEvent = std::make_unique<InputEventControllerButton>();
+    std::unique_ptr<InputEventKey> exampleEvent = std::make_unique<InputEventKey>();
     exampleEvent->pressed = true;
-    exampleEvent->button = ControllerButton::SOUTH;
-    exampleEvent->device = 0;
+    exampleEvent->scancode = Keycode::W;
     inputRegistry.actionAddEvent("rotate", std::move(exampleEvent));
+
+    std::unique_ptr<InputEventControllerButton> exampleEvent2 = std::make_unique<InputEventControllerButton>();
+    exampleEvent2->button = ControllerButton::SOUTH;
+    exampleEvent2->pressed = true;
+    inputRegistry.actionAddEvent("rotate", std::move(exampleEvent2));
 
     std::shared_ptr<Node> cameraNode = std::make_shared<Node>();
     std::shared_ptr<Camera> camera = std::make_shared<Camera>();

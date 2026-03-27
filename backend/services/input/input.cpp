@@ -73,12 +73,12 @@ void Input::update(float deltaTime)
             
             if (std::abs(event.wheel.x) > std::abs(event.wheel.y)) {
                 ev->buttonIndex = event.wheel.x > 0 
-                    ? MouseButton::MOUSE_BUTTON_WHEEL_RIGHT 
-                    : MouseButton::MOUSE_BUTTON_WHEEL_LEFT;
+                    ? MouseButton::WHEEL_RIGHT 
+                    : MouseButton::WHEEL_LEFT;
             } else {
                 ev->buttonIndex = event.wheel.y > 0 
-                    ? MouseButton::MOUSE_BUTTON_WHEEL_UP 
-                    : MouseButton::MOUSE_BUTTON_WHEEL_DOWN;
+                    ? MouseButton::WHEEL_UP 
+                    : MouseButton::WHEEL_DOWN;
             }
 
             ev->factor = {event.motion.x, event.motion.y};
@@ -90,6 +90,7 @@ void Input::update(float deltaTime)
         }
 
         if(event.type == SDL_EVENT_GAMEPAD_BUTTON_DOWN) {
+            Logger::debug("penis man@!!!");
             auto ev = std::make_unique<InputEventControllerButton>();
             ev->pressed = true;
             ev->device = event.gbutton.which;
@@ -104,9 +105,10 @@ void Input::update(float deltaTime)
         }
 
         if(event.type == SDL_EVENT_GAMEPAD_ADDED) {
+            SDL_OpenGamepad(event.cdevice.which);
             auto ev = std::make_unique<InputEventControllerStatus>();
             ev->connected = true;
-            ev->device = event.gdevice.which;
+            ev->device = event.cdevice.which;
             inputs.push_back(std::move(ev));
         }
 
@@ -132,12 +134,29 @@ void Input::update(float deltaTime)
         Services::engine()->root.input(*e);    
     }
 
-    for(auto& [name, action] : *actionsArrayPointer) {
-        float strength = 0.0f;
-        for (auto& e : action.events) {
-            strength = std::max(strength, e->getStrength());
+    for (auto& e : inputs) {
+        if (auto* motion = dynamic_cast<InputEventControllerMotion*>(e.get())) {
+            for (auto& [name, action] : *actionsArrayPointer)
+                if (Services::inputRegistry()->eventIsAction(e.get(), name, true))
+                    actionStrength[name] = motion->getStrength();
+        } else {
+            for (auto& [name, action] : *actionsArrayPointer) {
+                if (Services::inputRegistry()->eventIsAction(e.get(), name, true)) {
+                    if (e->isPressed())
+                        heldActions.insert(name);
+                    else
+                        heldActions.erase(name);
+                }
+            }
         }
-        actionStrength[name] = strength;
+    }
+
+    // pass 4: build actionStrength from held state
+    prevActionStrength = actionStrength;
+    actionStrength.clear();
+    for (auto& [name, action] : *actionsArrayPointer) {
+        if (!actionStrength.count(name)) // don't overwrite analog values set in pass 3
+            actionStrength[name] = heldActions.count(name) ? 1.0f : 0.0f;
     }
 }
 
@@ -241,11 +260,18 @@ std::unordered_map<std::string, InputRegistryAction>* InputRegistry::getActionsA
 }
 
 // darwin help me
-bool InputRegistry::eventIsAction(const InputEvent* event, std::string name) {
-    auto& events = actions.at(name).events;
-    return std::any_of(events.begin(), events.end(), [&](const std::unique_ptr<InputEvent>& stored) {
-        return *event == *stored;
-    });
+bool InputRegistry::eventIsAction(const InputEvent* event, std::string name, bool identityCheck) {
+    if(identityCheck) {
+        auto& events = actions.at(name).events;
+        return std::any_of(events.begin(), events.end(), [&](const std::unique_ptr<InputEvent>& stored) {
+            return *event <= *stored;
+        });
+    } else {
+        auto& events = actions.at(name).events;
+        return std::any_of(events.begin(), events.end(), [&](const std::unique_ptr<InputEvent>& stored) {
+            return *event == *stored;
+        });
+    }
 }
 
 // event operators
@@ -286,6 +312,42 @@ bool InputEventControllerMotion::operator==(const InputEvent& other) const {
     return (device == o->device && axis == o->axis && motion == o->motion);
 }
 
+bool InputEventKey::operator<=(const InputEvent& other) const {
+    const auto* o = dynamic_cast<const InputEventKey*>(&other);
+    if(!o) return false;
+    return (scancode == o->scancode);
+}
+
+bool InputEventMouseButton::operator<=(const InputEvent& other) const {
+    const auto* o = dynamic_cast<const InputEventMouseButton*>(&other);
+    if(!o) return false;
+    return (buttonIndex == o->buttonIndex);
+}
+
+bool InputEventMouseMotion::operator<=(const InputEvent& other) const {
+    const auto* o = dynamic_cast<const InputEventMouseMotion*>(&other);
+    if(!o) return false;
+    return (position == o->position && relative == o->relative);
+}
+
+bool InputEventControllerButton::operator<=(const InputEvent& other) const {
+    const auto* o = dynamic_cast<const InputEventControllerButton*>(&other);
+    if(!o) return false;
+    return (device == o->device && button == o->button);
+}
+
+bool InputEventControllerStatus::operator<=(const InputEvent& other) const {
+    const auto* o = dynamic_cast<const InputEventControllerStatus*>(&other);
+    if(!o) return false;
+    return (device == o->device);
+}
+
+bool InputEventControllerMotion::operator<=(const InputEvent& other) const {
+    const auto* o = dynamic_cast<const InputEventControllerMotion*>(&other);
+    if(!o) return false;
+    return (device == o->device && axis == o->axis);
+}
+
 // action functions
 
 bool InputEvent::isAction(std::string name) const {
@@ -323,7 +385,7 @@ float Input::getAxis(std::string minAction, std::string maxAction) const {
 Vector2 Input::getVector(std::string minX, std::string maxX, std::string minY, std::string maxY, float deadzone) const {
     Vector2 v = {getAxis(minX, maxX), getAxis(minY, maxY)};
     // normalize if outside deadzone
-    float len = std::sqrt(v.x*v.x + v.y*v.y);
+    float len = std::sqrt(v.x * v.x + v.y * v.y);
     if (deadzone < 0) deadzone = 0.2f; // fallback default
     if (len <= deadzone) return {0, 0};
     return {v.x / len * ((len - deadzone) / (1.0f - deadzone)),
