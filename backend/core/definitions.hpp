@@ -23,6 +23,7 @@ struct Vector2
     Vector2 operator*(Vector2 s) const { return {x * s.x, y * s.y}; }
     Vector2 operator+(const Vector2 &v) const { return {x + v.x, y + v.y}; }
     Vector2 operator-(const Vector2 &v) const { return {x - v.x, y - v.y}; }
+    bool operator!=(Vector2 o) const { return (x != o.x || y != o.y); };
 
     template <class Archive>
     void serialize(Archive &ar)
@@ -58,7 +59,7 @@ public:
     }
     void initialize();
 
-    void *handle;
+    SDL_Texture *handle;
     int width;
     int height;
     std::string path;

@@ -1,8 +1,11 @@
 #pragma once
 #include <SDL3/SDL.h>
+#include <SDL3_ttf/SDL_ttf.h>
 #include <string>
 #include "../core/definitions.hpp"
 #include "../core/node/components.hpp"
+#include "../core/ui/definitions.hpp"
+#include "../core/ui/label.hpp"
 
 /**
  * Here is your modular graphics class, which you should technically be able to change out for another implementation
@@ -25,13 +28,16 @@ class Graphics
 {
 public:
     Graphics(Vector2 screenSize = {480, 272}, std::string windowTitle = "Calamity Engine");
-    void *loadTexture(const std::string &path);
+    SDL_Texture *loadTexture(const std::string &path);
     void renderSprite(Node &node, Engine *engine);
+    void renderLabel(Label *label);
     void preRender();
     void postRender();
     Vector2 screenSize;
 
+    TTF_TextEngine *getTextEngine();
 private:
     SDL_Window *window;
     SDL_Renderer *renderer;
+    TTF_TextEngine *textEngine;
 };

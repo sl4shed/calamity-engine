@@ -33,9 +33,8 @@ public:
     }
 
     void update(float dt) {
-        if(Services::input()->isActionPressed("rotate")) {
-            node->transform.rotate(0.01f * dt);
-        }
+        auto vec = Services::input()->getVector("left", "right", "up", "down");
+        node->transform.position = node->transform.position + (vec * dt);
     }
 
     void input(InputEvent& event) {

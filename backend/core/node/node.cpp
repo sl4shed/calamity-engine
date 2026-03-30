@@ -116,12 +116,14 @@ void Node::render(Graphics &graphics, Engine *engine)
     for (size_t i = 0; i < this->components.size(); i++)
     {
         Sprite *sprite = dynamic_cast<Sprite *>(components[i].get());
-        if (sprite)
+        if (sprite && sprite->visible)
         {
-            if (sprite && sprite->visible)
-            {
-                graphics.renderSprite(*this, engine);
-            }
+            graphics.renderSprite(*this, engine);
+        }
+
+        Label *label = dynamic_cast<Label *>(components[i].get());
+        if(label && label->visible) {
+            graphics.renderLabel(label);
         }
     }
 

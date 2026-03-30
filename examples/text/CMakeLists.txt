@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.11)
 
-project(input)
+project(text)
 
 set(BUILD_TARGET "NATIVE" CACHE STRING "Build target: NATIVE | PSP | EMSCRIPTEN")
 set_property(CACHE BUILD_TARGET PROPERTY STRINGS NATIVE PSP EMSCRIPTEN)
@@ -16,11 +16,6 @@ target_include_directories(${PROJECT_NAME} PUBLIC
 
 add_subdirectory("../../" "calamity")
 target_link_libraries(${PROJECT_NAME} PRIVATE calamity)
-
-add_custom_target(copy_assets
-    COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_LIST_DIR}/assets ${CMAKE_CURRENT_BINARY_DIR}/assets
-)
-add_dependencies(${PROJECT_NAME} copy_assets)
 
 if(BUILD_TARGET STREQUAL "EMSCRIPTEN")
     set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/$<CONFIGURATION>")

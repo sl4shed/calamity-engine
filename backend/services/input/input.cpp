@@ -90,10 +90,11 @@ void Input::update(float deltaTime)
         }
 
         if(event.type == SDL_EVENT_GAMEPAD_BUTTON_DOWN) {
-            Logger::debug("penis man@!!!");
             auto ev = std::make_unique<InputEventControllerButton>();
             ev->pressed = true;
             ev->device = event.gbutton.which;
+            ev->button = (ControllerButton)event.gbutton.button;
+            Logger::debug("button press: {}; device: {}", (int)ev->button, ev->device);
             inputs.push_back(std::move(ev));
         }
         
@@ -101,14 +102,16 @@ void Input::update(float deltaTime)
             auto ev = std::make_unique<InputEventControllerButton>();
             ev->pressed = false;
             ev->device = event.gbutton.which;
+            ev->button = (ControllerButton)event.gbutton.button;
+            Logger::debug("button relis: {}; device: {}", (int)ev->button, ev->device);
             inputs.push_back(std::move(ev));
         }
 
         if(event.type == SDL_EVENT_GAMEPAD_ADDED) {
-            SDL_OpenGamepad(event.cdevice.which);
+            SDL_OpenGamepad(event.gdevice.which);
             auto ev = std::make_unique<InputEventControllerStatus>();
             ev->connected = true;
-            ev->device = event.cdevice.which;
+            ev->device = event.gdevice.which;
             inputs.push_back(std::move(ev));
         }
 
@@ -122,40 +125,52 @@ void Input::update(float deltaTime)
         if(event.type == SDL_EVENT_GAMEPAD_AXIS_MOTION) {
             auto ev = std::make_unique<InputEventControllerMotion>();
             ev->device = event.gaxis.which;
-            ev->motion = event.gaxis.value;
+            ev->motion = (float)event.gaxis.value / 32767.0f;
             ev->axis = (ControllerAxis)event.gaxis.axis;
+            if (ev->axis == ControllerAxis::LEFT_Y || ev->axis == ControllerAxis::RIGHT_Y)
+                ev->motion = -ev->motion; // stupid sdl3
+            Logger::debug("axis motion: {}, device: {}, motion: {}", (int)ev->axis, ev->device, ev->motion);
             inputs.push_back(std::move(ev));
         }
     }
 
-    prevActionStrength = actionStrength;
-    actionStrength.clear();
     for (auto& e : inputs) {
         Services::engine()->root.input(*e);    
     }
+
+    prevActionStrength = actionStrength;
+    actionStrength.clear();
 
     for (auto& e : inputs) {
         if (auto* motion = dynamic_cast<InputEventControllerMotion*>(e.get())) {
             for (auto& [name, action] : *actionsArrayPointer)
                 if (Services::inputRegistry()->eventIsAction(e.get(), name, true))
-                    actionStrength[name] = motion->getStrength();
+                    actionStrength[name] = std::max(actionStrength.count(name) ? actionStrength[name] : 0.0f, std::abs(motion->getStrength()));
         } else {
             for (auto& [name, action] : *actionsArrayPointer) {
                 if (Services::inputRegistry()->eventIsAction(e.get(), name, true)) {
-                    if (e->isPressed())
-                        heldActions.insert(name);
-                    else
-                        heldActions.erase(name);
+                    if (e->isPressed()) heldActions.insert(name);
+                    else heldActions.erase(name);
                 }
             }
         }
     }
 
-    // pass 4: build actionStrength from held state
-    prevActionStrength = actionStrength;
-    actionStrength.clear();
+    // poll analog bindings directly from hardware
     for (auto& [name, action] : *actionsArrayPointer) {
-        if (!actionStrength.count(name)) // don't overwrite analog values set in pass 3
+        for (auto& stored : action.events) {
+            if (auto* motion = dynamic_cast<InputEventControllerMotion*>(stored.get())) {
+                float val = getControllerAxis(motion->device, motion->axis);
+                // only activate if val is in the same direction as the binding
+                float directed = val * motion->motion; // positive if same direction
+                if (directed > action.deadzone)
+                    actionStrength[name] = std::max(actionStrength.count(name) ? actionStrength[name] : 0.0f, directed);
+            }
+        }
+    }
+
+    for (auto& [name, action] : *actionsArrayPointer) {
+        if (!actionStrength.count(name))
             actionStrength[name] = heldActions.count(name) ? 1.0f : 0.0f;
     }
 }
@@ -187,7 +202,10 @@ Vector2 Input::getMousePosition() const {
 // controller stuff
 
 float Input::getControllerAxis(int device, ControllerAxis axis) const {
-    return (float)SDL_GetGamepadAxis(SDL_GetGamepadFromID(device), (SDL_GamepadAxis)axis) / 32768.0f; // clamp to float :)
+    float val = (float)SDL_GetGamepadAxis(SDL_GetGamepadFromID(device), (SDL_GamepadAxis)axis) / 32768.0f;
+    if (axis == ControllerAxis::LEFT_Y || axis == ControllerAxis::RIGHT_Y)
+        val = -val; // stupid sdl3
+    return val;
 }
 
 std::string Input::getControllerGUID(int device) const {
@@ -333,7 +351,7 @@ bool InputEventMouseMotion::operator<=(const InputEvent& other) const {
 bool InputEventControllerButton::operator<=(const InputEvent& other) const {
     const auto* o = dynamic_cast<const InputEventControllerButton*>(&other);
     if(!o) return false;
-    return (device == o->device && button == o->button);
+    return (button == o->button);
 }
 
 bool InputEventControllerStatus::operator<=(const InputEvent& other) const {
@@ -345,7 +363,7 @@ bool InputEventControllerStatus::operator<=(const InputEvent& other) const {
 bool InputEventControllerMotion::operator<=(const InputEvent& other) const {
     const auto* o = dynamic_cast<const InputEventControllerMotion*>(&other);
     if(!o) return false;
-    return (device == o->device && axis == o->axis);
+    return (axis == o->axis);
 }
 
 // action functions

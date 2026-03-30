@@ -11,6 +11,8 @@ add_library(calamity STATIC
     backend/core/definitions.cpp
     backend/core/node/components.cpp
     backend/core/node/node.cpp
+    backend/core/ui/definitions.cpp
+    backend/core/ui/label.cpp
 
     # utils
     backend/utils/utils.cpp
@@ -34,16 +36,19 @@ if(BUILD_TARGET STREQUAL "PSP")
     message(STATUS "Building for PSP")
     find_package(SDL3 REQUIRED CONFIG REQUIRED COMPONENTS SDL3-static)
     find_package(SDL3_image REQUIRED CONFIG)
+    find_package(SDL3_ttf REQUIRED CONFIG)
 
     target_link_libraries(calamity PUBLIC
         SDL3::SDL3
         SDL3_image::SDL3_image
+        SDL3_ttf::SDL3_ttf
     )
 elseif(BUILD_TARGET STREQUAL "NATIVE")
     target_compile_definitions(calamity PUBLIC PLATFORM_NATIVE)
     message(STATUS "Building for native")
     find_package(SDL3 REQUIRED CONFIG REQUIRED COMPONENTS SDL3-shared)
     find_package(SDL3_image REQUIRED CONFIG)
+    find_package(SDL3_ttf REQUIRED CONFIG)
 
     # box2d
     #find_package(box2d)
@@ -52,6 +57,7 @@ elseif(BUILD_TARGET STREQUAL "NATIVE")
     target_link_libraries(calamity PUBLIC
         SDL3::SDL3
         SDL3_image::SDL3_image
+        SDL3_ttf::SDL3_ttf
     )
 elseif(BUILD_TARGET STREQUAL "EMSCRIPTEN")
     message(STATUS "Building for Emscripten")
@@ -59,11 +65,12 @@ elseif(BUILD_TARGET STREQUAL "EMSCRIPTEN")
     set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/$<CONFIGURATION>")
     add_subdirectory(vendored/SDL EXCLUDE_FROM_ALL)
     add_subdirectory(vendored/SDL_image EXCLUDE_FROM_ALL)
+    add_subdirectory(vendored/SDL_ttf EXCLUDE_FROM_ALL)
 
     target_link_libraries(calamity PUBLIC SDL3::SDL3 SDL3_image::SDL3_image)
     target_compile_definitions(calamity PUBLIC __EMSCRIPTEN__)
     target_compile_options(calamity PUBLIC -sUSE_SDL=3 -sUSE_SDL_IMAGE=3)
-    target_link_options(calamity PUBLIC -sUSE_SDL=3 -sUSE_SDL_IMAGE=3 -sALLOW_MEMORY_GROWTH=1)
+    target_link_options(calamity PUBLIC -sUSE_SDL=3 -sUSE_SDL_IMAGE=3 -sUSE_SDL_TTF=3 -sUSE_FREETYPE=1 -sALLOW_MEMORY_GROWTH=1)
 else()
     message(FATAL_ERROR "Unknown BUILD_TARGET: ${BUILD_TARGET}")
 endif()
@@ -93,4 +100,5 @@ else()
     target_link_libraries(calamity PUBLIC cereal::cereal)
 
     configure_file(${CMAKE_CURRENT_SOURCE_DIR}/vendored/SDL_GameControllerDB/gamecontrollerdb.txt ${CMAKE_CURRENT_BINARY_DIR}/gamecontrollerdb.txt COPYONLY)
+    configure_file(${CMAKE_CURRENT_SOURCE_DIR}/assets/default.ttf ${CMAKE_CURRENT_BINARY_DIR}/default.ttf COPYONLY) 
 endif()

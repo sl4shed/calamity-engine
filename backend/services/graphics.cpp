@@ -1,8 +1,10 @@
 #include <SDL3/SDL.h>
 #include <SDL3_image/SDL_image.h>
+#include <SDL3_ttf/SDL_ttf.h>
 #include "graphics.hpp"
 #include "../core/definitions.hpp"
 #include "../core/node/node.hpp"
+#include "../utils/logger.hpp"
 #include "engine.hpp"
 
 Graphics::Graphics(Vector2 s, std::string title)
@@ -10,6 +12,7 @@ Graphics::Graphics(Vector2 s, std::string title)
 {
     screenSize = s;
     SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMEPAD | SDL_INIT_AUDIO | SDL_INIT_GAMEPAD);
+    TTF_Init();
     SDL_AddGamepadMappingsFromFile("./calamity/gamecontrollerdb.txt");
 
     this->window = SDL_CreateWindow(
@@ -19,10 +22,11 @@ Graphics::Graphics(Vector2 s, std::string title)
         0);
 
     this->renderer = SDL_CreateRenderer(window, NULL);
+    this->textEngine = TTF_CreateRendererTextEngine(this->renderer);
 }
 
 // this is intentionally ambiguous as to allow for modularity
-void *Graphics::loadTexture(const std::string &path)
+SDL_Texture *Graphics::loadTexture(const std::string &path)
 {
     SDL_Surface *pixels = IMG_Load(path.c_str());
     return SDL_CreateTextureFromSurface(renderer, pixels);
@@ -30,8 +34,7 @@ void *Graphics::loadTexture(const std::string &path)
 
 void Graphics::renderSprite(Node &node, Engine *engine)
 {
-    if (!node.currentSprite)
-        return;
+    if (!node.currentSprite) return;
 
     Camera *activeCamera = engine->getActiveCamera();
     Transform cameraTransform = activeCamera->getNode()->globalTransform;
@@ -65,8 +68,23 @@ void Graphics::renderSprite(Node &node, Engine *engine)
 
     int indices[6] = {0, 1, 2, 2, 3, 0};
 
-    int status = SDL_RenderGeometry(this->renderer, (SDL_Texture *)sprite->texture.handle, vertices, 4, indices, 6);
+    int status = SDL_RenderGeometry(this->renderer, sprite->texture.handle, vertices, 4, indices, 6);
     // printf("RenderGeometry status: %d\n", status);
+}
+
+void Graphics::renderLabel(Label *label) {
+    if(!label->getNode()) return;
+    
+    if(!label->wrap) {
+        TTF_SetTextWrapWidth(label->getHandle(), 0);
+    }
+
+    Vector2 pos = label->getNode()->transform.position;
+    TTF_DrawRendererText(label->getHandle(), pos.x, pos.y);
+}
+
+TTF_TextEngine *Graphics::getTextEngine() {
+    return textEngine;
 }
 
 void Graphics::preRender()

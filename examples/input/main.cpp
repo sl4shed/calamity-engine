@@ -27,16 +27,53 @@ int main() {
     InputRegistry inputRegistry = InputRegistry();
     Services::init(&graphics, &engine, &input, &inputRegistry);
 
-    inputRegistry.addAction("rotate", 0.1f);
-    std::unique_ptr<InputEventKey> exampleEvent = std::make_unique<InputEventKey>();
-    exampleEvent->pressed = true;
-    exampleEvent->scancode = Keycode::W;
-    inputRegistry.actionAddEvent("rotate", std::move(exampleEvent));
+    inputRegistry.addAction("left", 0.2f);
+    auto leftEvent = std::make_unique<InputEventControllerMotion>();
+    leftEvent->device = 5;
+    leftEvent->axis = ControllerAxis::LEFT_X;
+    leftEvent->motion = -1.0f;
+    inputRegistry.actionAddEvent("left", std::move(leftEvent));
 
-    std::unique_ptr<InputEventControllerButton> exampleEvent2 = std::make_unique<InputEventControllerButton>();
-    exampleEvent2->button = ControllerButton::SOUTH;
-    exampleEvent2->pressed = true;
-    inputRegistry.actionAddEvent("rotate", std::move(exampleEvent2));
+    auto leftEventK = std::make_unique<InputEventKey>();
+    leftEventK->pressed = true;
+    leftEventK->scancode = Keycode::A;
+    inputRegistry.actionAddEvent("left", std::move(leftEventK));
+
+    inputRegistry.addAction("right", 0.2f);
+    auto rightEvent = std::make_unique<InputEventControllerMotion>();
+    rightEvent->device = 5;
+    rightEvent->axis = ControllerAxis::LEFT_X;
+    rightEvent->motion = 1.0f;
+    inputRegistry.actionAddEvent("right", std::move(rightEvent));
+
+    auto rightEventK = std::make_unique<InputEventKey>();
+    rightEventK->pressed = true;
+    rightEventK->scancode = Keycode::D;
+    inputRegistry.actionAddEvent("right", std::move(rightEventK));
+
+    inputRegistry.addAction("up", 0.2f);
+    auto upEvent = std::make_unique<InputEventControllerMotion>();
+    upEvent->device = 5;
+    upEvent->axis = ControllerAxis::LEFT_Y;
+    upEvent->motion = 1.0f;
+    inputRegistry.actionAddEvent("up", std::move(upEvent));
+
+    auto upEventK = std::make_unique<InputEventKey>();
+    upEventK->pressed = true;
+    upEventK->scancode = Keycode::W;
+    inputRegistry.actionAddEvent("up", std::move(upEventK));
+
+    inputRegistry.addAction("down", 0.2f);
+    auto downEvent = std::make_unique<InputEventControllerMotion>();
+    downEvent->device = 5;
+    downEvent->axis = ControllerAxis::LEFT_Y;
+    downEvent->motion = -1.0f;
+    inputRegistry.actionAddEvent("down", std::move(downEvent));
+
+    auto downEventK = std::make_unique<InputEventKey>();
+    downEventK->pressed = true;
+    downEventK->scancode = Keycode::S;
+    inputRegistry.actionAddEvent("down", std::move(downEventK));
 
     std::shared_ptr<Node> cameraNode = std::make_shared<Node>();
     std::shared_ptr<Camera> camera = std::make_shared<Camera>();
