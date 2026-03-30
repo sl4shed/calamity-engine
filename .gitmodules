@@ -25,3 +25,6 @@
 [submodule "vendored/SDL_GameControllerDB"]
 	path = vendored/SDL_GameControllerDB
 	url = https://github.com/mdqinc/SDL_GameControllerDB.git
+[submodule "vendored/SDL_ttf"]
+	path = vendored/SDL_ttf
+	url = https://github.com/libsdl-org/SDL_ttf
