@@ -26,11 +26,12 @@ int main() {
     Input input = Input();
     Graphics graphics = Graphics();
     InputRegistry inputRegistry = InputRegistry();
-    Services::init(&graphics, &engine, &input, &inputRegistry);
+    Physics physics = Physics();
+    Services::init(&graphics, &engine, &input, &inputRegistry, &physics);
 
     // here initialize any nodes that you want
 
-    engine.root.initialize();
+    engine.initialize();
     while(!input.shouldQuit) {
         engine.update();
         engine.render(graphics);

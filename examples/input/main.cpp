@@ -7,6 +7,7 @@
 #include "backend/utils/logger.hpp"
 #include "backend/services/services.hpp"
 #include "backend/core/node/components.hpp"
+#include "backend/services/physics/physics.hpp"
 #include "inputScript.hpp"
 
 #ifdef PSP
@@ -25,7 +26,8 @@ int main() {
     Input input = Input();
     Graphics graphics = Graphics();
     InputRegistry inputRegistry = InputRegistry();
-    Services::init(&graphics, &engine, &input, &inputRegistry);
+    Physics physics = Physics();
+    Services::init(&graphics, &engine, &input, &inputRegistry, &physics);
 
     inputRegistry.addAction("left", 0.2f);
     auto leftEvent = std::make_unique<InputEventControllerMotion>();
@@ -94,7 +96,7 @@ int main() {
 
     node->addComponent(std::make_shared<InputScript>());
     engine.root.addChild(node);
-    engine.root.initialize();
+    engine.initialize();
 
     while(!input.shouldQuit) {
         engine.update();

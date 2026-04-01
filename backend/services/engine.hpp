@@ -1,6 +1,7 @@
 #pragma once
 #include "../core/definitions.hpp"
 #include "../core/node/node.hpp"
+#include "services.hpp"
 
 /**
  * This class is mostly used to abstract stuff like the root node and obtaining deltaTime.
@@ -29,6 +30,7 @@ public:
     Node root;
     void update();
     void render(Graphics &graphics);
+    void initialize();
 
     void setActiveCamera(Camera *camera);
     Camera *getActiveCamera();

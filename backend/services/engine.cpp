@@ -2,6 +2,7 @@
 #include "services.hpp"
 #include "input/input.hpp"
 #include "graphics.hpp"
+#include "physics/physics.hpp"
 
 Engine::Engine()
 {
@@ -12,6 +13,11 @@ Engine::Engine()
 Engine::~Engine()
 {
     // idk
+}
+
+void Engine::initialize() {
+    Services::physics()->initialize();
+    root.initialize();
 }
 
 void Engine::update()

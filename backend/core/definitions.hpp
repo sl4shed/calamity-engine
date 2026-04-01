@@ -4,6 +4,8 @@
 #include <string>
 #include <SDL3/SDL.h>
 #include <cereal/archives/json.hpp>
+#include <box2d/types.h>
+
 // Forward declarations
 class Graphics;
 class Services;
@@ -24,6 +26,7 @@ struct Vector2
     Vector2 operator+(const Vector2 &v) const { return {x + v.x, y + v.y}; }
     Vector2 operator-(const Vector2 &v) const { return {x - v.x, y - v.y}; }
     bool operator!=(Vector2 o) const { return (x != o.x || y != o.y); };
+    operator b2Vec2() const { return {x, y}; };
 
     template <class Archive>
     void serialize(Archive &ar)

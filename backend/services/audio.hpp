@@ -27,7 +27,7 @@ public:
 
     bool loadAudio();
     void initialize();
-    void update();
+    void update(float deltaTime);
 
 private:
     Sound handle;

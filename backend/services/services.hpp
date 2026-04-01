@@ -5,6 +5,7 @@ class Graphics;
 class Engine;
 class Input;
 class InputRegistry;
+class Physics;
 
 /**
  * # Services class
@@ -25,12 +26,13 @@ class InputRegistry;
 class Services
 {
 public:
-    static void init(Graphics *graphics, Engine *engine, Input *input, InputRegistry *inputRegistry);
+    static void init(Graphics *graphics, Engine *engine, Input *input, InputRegistry *inputRegistry, Physics *physics);
 
     static Graphics *graphics();
     static Engine *engine();
     static Input *input();
     static InputRegistry *inputRegistry();
+    static Physics *physics();
 
     static void shutdown();
 
@@ -39,4 +41,5 @@ private:
     static Engine *s_engine;
     static Input *s_input;
     static InputRegistry *s_inputRegistry;
+    static Physics *s_physics;
 };

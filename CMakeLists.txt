@@ -25,6 +25,7 @@ add_library(calamity STATIC
     backend/services/input/input.cpp
     backend/services/graphics.cpp
     backend/services/engine.cpp
+    backend/services/physics/physics.cpp
 )
 
 target_include_directories(calamity PUBLIC
@@ -51,8 +52,8 @@ elseif(BUILD_TARGET STREQUAL "NATIVE")
     find_package(SDL3_ttf REQUIRED CONFIG)
 
     # box2d
-    #find_package(box2d)
-    #target_link_libraries(calamity PUBLIC box2d)
+    find_package(box2d)
+    target_link_libraries(calamity PUBLIC box2d)
 
     target_link_libraries(calamity PUBLIC
         SDL3::SDL3

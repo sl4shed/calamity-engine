@@ -3,6 +3,7 @@
 #include "../../services/services.hpp"
 #include "../../services/input/keycode.hpp"
 #include "../../services/input/input.hpp"
+#include "../../services/physics/physics.hpp"
 
 class Node; // Forward declaration'
 
@@ -61,6 +62,27 @@ public:
     void load(Archive &ar)
     {
         ar(CEREAL_NVP(origin), CEREAL_NVP(sourceTransform), CEREAL_NVP(zIndex), CEREAL_NVP(visible), CEREAL_NVP(texture));
+    }
+};
+
+class PolygonSprite : public Component
+{
+public:
+    Vector2 origin = {0.5f, 0.5f};
+    Polygon shape;
+    bool visible = true;
+    int zIndex = 1;
+
+    template <class Archive>
+    void save(Archive &ar) const
+    {
+        ar(CEREAL_NVP(origin), CEREAL_NVP(shape), CEREAL_NVP(zIndex), CEREAL_NVP(visible));
+    }
+
+    template <class Archive>
+    void load(Archive &ar)
+    {
+        ar(CEREAL_NVP(origin), CEREAL_NVP(shape), CEREAL_NVP(zIndex), CEREAL_NVP(visible));
     }
 };
 

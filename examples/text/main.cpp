@@ -6,6 +6,7 @@
 #include "backend/services/graphics.hpp"
 #include "backend/utils/logger.hpp"
 #include "backend/services/services.hpp"
+#include "backend/services/physics/physics.hpp"
 #include "backend/core/node/components.hpp"
 #include "backend/core/ui/definitions.hpp"
 #include "backend/core/ui/label.hpp"
@@ -26,7 +27,8 @@ int main() {
     Input input = Input();
     Graphics graphics = Graphics({480, 272}, "Text Example", RenderLogicalPresentation::LETTERBOX, Color::BLACK);
     InputRegistry inputRegistry = InputRegistry();
-    Services::init(&graphics, &engine, &input, &inputRegistry);
+    Physics physics = Physics();
+    Services::init(&graphics, &engine, &input, &inputRegistry, &physics);
 
     std::shared_ptr<Node> cameraNode = std::make_shared<Node>();
     std::shared_ptr<Camera> camera = std::make_shared<Camera>();
@@ -40,7 +42,7 @@ int main() {
     node->addComponent(label);
 
     engine.root.addChild(node);
-    engine.root.initialize();
+    engine.initialize();
 
     while(!input.shouldQuit) {
         engine.update();
