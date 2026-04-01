@@ -15,7 +15,7 @@ class Node; // Forward declaration'
 struct Component
 {
     virtual ~Component() = default;
-    virtual void update() {};
+    virtual void update(float deltaTime) {};
     virtual void initialize() {};
     virtual void input(InputEvent& event) {};
     Node *getNode();
@@ -66,7 +66,7 @@ public:
 
 /**
  * # Script component
- * A base class for all scripts attached to nodes to inherit from. It provides the necessary api's like update and start.
+ * A base class for all scripts attached to nodes to inherit from. It provides the necessary api's like update and initialize.
  *
  * To create a script and attach it to a node, create a header file somewhere like `scripts/ExampleScripy.hpp`:
  * ```cpp
@@ -91,9 +91,9 @@ public:
  *     template <class Archive>
  *     void load(Archive &ar) {};
  *
- *     void start()
+ *     void initialize()
  *     {
- *         // start logic here
+ *         // initialize logic here
  *     }
  *
  *     void update(float deltaTime)
@@ -118,7 +118,7 @@ class Script : public Component
 {
 public:
     virtual void update(float deltaTime) {};
-    virtual void start() {};
+    virtual void initialize() {};
     virtual void physicsUpdate() {}; // todo
 
     template <class Archive>

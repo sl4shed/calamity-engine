@@ -94,7 +94,6 @@ void Input::update(float deltaTime)
             ev->pressed = true;
             ev->device = event.gbutton.which;
             ev->button = (ControllerButton)event.gbutton.button;
-            Logger::debug("button press: {}; device: {}", (int)ev->button, ev->device);
             inputs.push_back(std::move(ev));
         }
         
@@ -103,7 +102,6 @@ void Input::update(float deltaTime)
             ev->pressed = false;
             ev->device = event.gbutton.which;
             ev->button = (ControllerButton)event.gbutton.button;
-            Logger::debug("button relis: {}; device: {}", (int)ev->button, ev->device);
             inputs.push_back(std::move(ev));
         }
 
@@ -129,8 +127,11 @@ void Input::update(float deltaTime)
             ev->axis = (ControllerAxis)event.gaxis.axis;
             if (ev->axis == ControllerAxis::LEFT_Y || ev->axis == ControllerAxis::RIGHT_Y)
                 ev->motion = -ev->motion; // stupid sdl3
-            Logger::debug("axis motion: {}, device: {}, motion: {}", (int)ev->axis, ev->device, ev->motion);
             inputs.push_back(std::move(ev));
+        }
+
+        if(event.type == SDL_EVENT_WINDOW_RESIZED) {
+            Services::graphics()->resetLogicalPresentation();
         }
     }
 

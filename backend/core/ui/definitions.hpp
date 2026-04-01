@@ -18,6 +18,13 @@ public:
     Color(std::string hexCode);
     Color(std::string hexCode, int a);
 
+    static const Color WHITE;
+    static const Color BLACK;
+    static const Color RED;
+    static const Color GREEN;
+    static const Color BLUE;
+    static const Color TRANSPARENT;
+
     template <class Archive>
     void serialize(Archive &ar)
     {

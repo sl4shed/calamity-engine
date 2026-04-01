@@ -7,6 +7,15 @@
 #include "../core/ui/definitions.hpp"
 #include "../core/ui/label.hpp"
 
+enum class RenderLogicalPresentation
+{
+    DISABLED,  /**< There is no logical size in effect */
+    STRETCH,   /**< The rendered content is stretched to the output resolution */
+    LETTERBOX, /**< The rendered content is fit to the largest dimension and the other dimension is letterboxed with the clear color */
+    OVERSCAN,  /**< The rendered content is fit to the smallest dimension and the other dimension extends beyond the output bounds */
+    INTEGER_SCALE   /**< The rendered content is scaled up by integer multiples to fit the output resolution */
+};
+
 /**
  * Here is your modular graphics class, which you should technically be able to change out for another implementation
  * with another graphics API (OpenGL, for example). Right now it uses SDL3.
@@ -27,13 +36,17 @@
 class Graphics
 {
 public:
-    Graphics(Vector2 screenSize = {480, 272}, std::string windowTitle = "Calamity Engine");
+    Graphics(Vector2 screenSize = {480, 272}, std::string windowTitle = "Calamity Engine", RenderLogicalPresentation presentation = RenderLogicalPresentation::LETTERBOX, Color clearColor = Color::WHITE);
     SDL_Texture *loadTexture(const std::string &path);
     void renderSprite(Node &node, Engine *engine);
     void renderLabel(Label *label);
     void preRender();
     void postRender();
-    Vector2 screenSize;
+    void resetLogicalPresentation();
+
+    Vector2 screenSize = {480, 272};
+    Color clearColor = Color::WHITE;
+    RenderLogicalPresentation presentation = RenderLogicalPresentation::LETTERBOX;
 
     TTF_TextEngine *getTextEngine();
 private:

@@ -57,12 +57,6 @@ void Node::addComponent(std::shared_ptr<Component> component)
     component->setNode(this);
     components.push_back(component);
 
-    if (Script *script = dynamic_cast<Script *>(component.get()))
-    {
-        // i need to update ts
-        activeScripts.push_back(script);
-    }
-
     if (Sprite *sprite = dynamic_cast<Sprite *>(component.get()))
     {
         if (currentSprite)
@@ -79,12 +73,6 @@ void Node::removeComponent(std::shared_ptr<Component> component)
     {
         if (components[i] == component)
         {
-            if (Script *script = dynamic_cast<Script *>(components[i].get()))
-            {
-                // activeScripts.erase(std::find(activeScripts.begin(), activeScripts.end(), script));
-                //  todo: cuz im too lazy
-            }
-
             if (Sprite *sprite = dynamic_cast<Sprite *>(components[i].get()))
             {
                 // todo: lazy
@@ -146,28 +134,17 @@ void Node::update(float deltaTime)
 
     for (size_t i = 0; i < components.size(); i++)
     {
-        components[i]->update();
+        components[i]->update(deltaTime);
     }
 
     for (size_t i = 0; i < children.size(); i++)
     {
         children[i]->update(deltaTime);
     }
-
-    for (Script *script : activeScripts)
-    {
-
-        script->update(deltaTime); // todo change
-    }
 }
 
 void Node::initialize()
 {
-    for (Script *script : activeScripts)
-    {
-        script->start();
-    }
-
     for (size_t i = 0; i < children.size(); i++)
     {
         children[i]->initialize();

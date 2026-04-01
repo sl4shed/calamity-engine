@@ -7,10 +7,12 @@
 #include "../utils/logger.hpp"
 #include "engine.hpp"
 
-Graphics::Graphics(Vector2 s, std::string title)
+Graphics::Graphics(Vector2 s, std::string title, RenderLogicalPresentation p, Color cc)
     : screenSize(s)
 {
     screenSize = s;
+    presentation = p;
+    clearColor = cc;
     SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMEPAD | SDL_INIT_AUDIO | SDL_INIT_GAMEPAD);
     TTF_Init();
     SDL_AddGamepadMappingsFromFile("./calamity/gamecontrollerdb.txt");
@@ -19,13 +21,18 @@ Graphics::Graphics(Vector2 s, std::string title)
         title.c_str(),
         screenSize.x,
         screenSize.y,
-        0);
+        SDL_WINDOW_RESIZABLE);
+    
+    SDL_SetRenderLogicalPresentation(renderer, screenSize.x, screenSize.y, (SDL_RendererLogicalPresentation)presentation);
 
     this->renderer = SDL_CreateRenderer(window, NULL);
     this->textEngine = TTF_CreateRendererTextEngine(this->renderer);
 }
 
-// this is intentionally ambiguous as to allow for modularity
+void Graphics::resetLogicalPresentation() {
+    SDL_SetRenderLogicalPresentation(renderer, screenSize.x, screenSize.y, (SDL_RendererLogicalPresentation)presentation);
+}
+
 SDL_Texture *Graphics::loadTexture(const std::string &path)
 {
     SDL_Surface *pixels = IMG_Load(path.c_str());
@@ -89,7 +96,7 @@ TTF_TextEngine *Graphics::getTextEngine() {
 
 void Graphics::preRender()
 {
-    SDL_SetRenderDrawColor(this->renderer, 23, 23, 23, 255);
+    SDL_SetRenderDrawColor(this->renderer, clearColor.r, clearColor.g, clearColor.b, clearColor.a);
     SDL_RenderClear(this->renderer);
 }
 

@@ -71,6 +71,8 @@ Testing/
 #vendored/
 build-emscripten/
 build-psp/
+psp-build/
+em-build/
 .vscode/
 docs-out/
 */build

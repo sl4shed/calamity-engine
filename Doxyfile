@@ -27,9 +27,14 @@ FULL_SIDEBAR = NO
 HTML_EXTRA_STYLESHEET  = vendored/doxygen-awesome-css/doxygen-awesome.css
 HTML_COLORSTYLE        = DARK # required with Doxygen >= 1.9.5
 
-INPUT += docs/
+EXCLUDE = ./vendored ./build ./docs-out ./.github ./.vscode ./examples
+INPUT = docs backend
 USE_MDFILE_AS_MAINPAGE = docs/mainpage.md
 EXCLUDE_SYSTEM_HEADERS = YES
+FILE_PATTERNS          = *.h *.cpp *.md
+RECURSIVE              = YES
+MARKDOWN_SUPPORT = YES
+TOC_INCLUDE_HEADINGS = 0
 # end of my stuff
 
 DOXYFILE_ENCODING      = UTF-8
@@ -59,13 +64,13 @@ PROJECT_BRIEF          = "A cross-platform 2D game engine written in C++ and SDL
 # pixels and the maximum width should not exceed 200 pixels. Doxygen will copy
 # the logo to the output directory.
 
-PROJECT_LOGO           =  "./assets/logo.png"
+PROJECT_LOGO           =  "./assets/logo-full.png"
 
 # With the PROJECT_ICON tag one can specify an icon that is included in the tabs
 # when the HTML document is shown. Doxygen will copy the logo to the output
 # directory.
 
-PROJECT_ICON           = "./assets/Icon.png"
+PROJECT_ICON           = "./assets/logo.png"
 
 # The OUTPUT_DIRECTORY tag is used to specify the (relative or absolute) path
 # into which the generated documentation will be written. If a relative path is
@@ -1017,14 +1022,6 @@ WARN_LOGFILE           =
 #---------------------------------------------------------------------------
 # Configuration options related to the input files
 #---------------------------------------------------------------------------
-
-# The INPUT tag is used to specify the files and/or directories that contain
-# documented source files. You may enter file names like myfile.cpp or
-# directories like /usr/src/myproject. Separate the files or directories with
-# spaces. See also FILE_PATTERNS and EXTENSION_MAPPING
-# Note: If this tag is empty the current directory is searched.
-
-INPUT                  = ./backend
 
 # This tag can be used to specify the character encoding of the source files
 # that Doxygen parses. Internally Doxygen uses the UTF-8 encoding. Doxygen uses

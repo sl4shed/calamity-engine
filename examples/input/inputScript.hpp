@@ -26,7 +26,7 @@ public:
     template <class Archive>
     void load(Archive &ar) {}
 
-    void start()
+    void initialize()
     {
         node = this->getNode();
         pe = Services::input();

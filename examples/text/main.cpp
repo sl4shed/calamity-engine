@@ -24,7 +24,7 @@ int main() {
     Logger::init();
     Engine engine = Engine();
     Input input = Input();
-    Graphics graphics = Graphics();
+    Graphics graphics = Graphics({480, 272}, "Text Example", RenderLogicalPresentation::LETTERBOX, Color::BLACK);
     InputRegistry inputRegistry = InputRegistry();
     Services::init(&graphics, &engine, &input, &inputRegistry);
 
@@ -37,7 +37,6 @@ int main() {
     std::shared_ptr<Label> label = std::make_shared<Label>("test text");
     label->size = {100, 500};
     node->transform.position = {20, 20};
-    label->wrap = false;
     node->addComponent(label);
 
     engine.root.addChild(node);
