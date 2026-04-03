@@ -20,6 +20,12 @@ struct Vector2
     float x;
     float y;
 
+    Vector2() : x(0), y(0) {}
+    Vector2(float x, float y) : x(x), y(y) {}
+    explicit Vector2(const b2Vec2& v) {
+        x = v.x;
+        y = v.y;
+    };
     bool operator==(Vector2 o) const { return ( x == o.x && y == o.y ); };
     Vector2 operator*(float s) const { return {x * s, y * s}; }
     Vector2 operator*(Vector2 s) const { return {x * s.x, y * s.y}; }

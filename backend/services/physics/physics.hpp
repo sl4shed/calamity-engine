@@ -18,26 +18,44 @@ public:
     void initialize();
 
     Vector2 gravity = {0.0f, -9.81f};
-private:
     b2WorldDef worldDef;
     b2WorldId worldId;
 };
 
 struct Polygon {
+Polygon();
+explicit Polygon(const b2Polygon &polygon);
+
 Vector2 centroid;
 int count;
 Vector2 normals[B2_MAX_POLYGON_VERTICES];
 float radius;
 Vector2 vertices[B2_MAX_POLYGON_VERTICES];
 
-
-static Polygon Box();
+operator b2Polygon() const;
+static Polygon Box(Vector2 size, Vector2 center = {0.5f, 0.5f}, float angle = 0.0f);
 };
 
+
+class Shape {
+public:
+    Polygon polygon;
+    b2ShapeDef shapeDef;
+};
+
+class BoxShape : public Shape {
+public:
+    BoxShape(Vector2 size, Vector2 center = {0.5f, 0.5f});
+    Vector2 size;
+    Vector2 center;
+};
 
 class StaticBody : public Component {
 public:
     StaticBody();
+    StaticBody(std::shared_ptr<Shape> shape);
+
+    std::shared_ptr<Shape> shape;
 private:
     b2BodyDef bodyDef;
     b2BodyId bodyId;
@@ -45,9 +63,9 @@ private:
 
 class RigidBody : public Component {
 public:
-    RigidBody();
+    RigidBody(std::shared_ptr<Shape> shape);
 
-
+    std::shared_ptr<Shape> shape;
     template <class Archive>
     void save(Archive &ar) const
     {
