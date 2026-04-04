@@ -28,6 +28,7 @@ struct Vector2
     };
     bool operator==(Vector2 o) const { return ( x == o.x && y == o.y ); };
     Vector2 operator*(float s) const { return {x * s, y * s}; }
+    Vector2 operator/(float s) const { return {x / s, y / s}; }
     Vector2 operator*(Vector2 s) const { return {x * s.x, y * s.y}; }
     Vector2 operator+(const Vector2 &v) const { return {x + v.x, y + v.y}; }
     Vector2 operator-(const Vector2 &v) const { return {x - v.x, y - v.y}; }
@@ -115,6 +116,7 @@ struct Transform
 
     void rotate(float angle);
     void scale(Vector2 scale);
+    void setAngle(float angle);
 
     Vector2 applyTo(const Vector2 &point) const;
     Transform applyTo(const Transform &other) const;
@@ -128,4 +130,18 @@ struct Transform
     {
         ar(CEREAL_NVP(position), CEREAL_NVP(transformation));
     }
+};
+
+
+struct Polygon {
+    Polygon();
+    explicit Polygon(const b2Polygon &polygon);
+
+    Vector2 centroid;
+    int count;
+    Vector2 normals[B2_MAX_POLYGON_VERTICES];
+    float radius;
+    Vector2 vertices[B2_MAX_POLYGON_VERTICES];
+
+    operator b2Polygon() const;
 };

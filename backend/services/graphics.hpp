@@ -39,6 +39,7 @@ public:
     Graphics(Vector2 screenSize = {480, 272}, std::string windowTitle = "Calamity Engine", RenderLogicalPresentation presentation = RenderLogicalPresentation::LETTERBOX, Color clearColor = Color::WHITE);
     SDL_Texture *loadTexture(const std::string &path);
     void renderSprite(Node &node, Engine *engine);
+    void renderPolygonSprite(Node &node, Engine *engine);
     void renderLabel(Label *label);
     void preRender();
     void postRender();

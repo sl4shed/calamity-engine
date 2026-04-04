@@ -71,7 +71,7 @@ public:
     ~Font();
     std::string path; // File path of the font.
     int size = 30;
-    
+
     Font* setKerning(bool enabled);
     Font* setHinting(FontHinting setting);
     Font* setLanguage(std::string language); // bcp47 code please

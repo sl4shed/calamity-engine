@@ -195,9 +195,13 @@ bool Input::isControllerButtonPressed(int device, ControllerButton button) const
 }
 
 Vector2 Input::getMousePosition() const {
+    auto camera = Services::engine()->getActiveCamera();
+    auto cameraT = camera->getNode()->globalTransform;
+    auto screen = Services::graphics()->screenSize;
     float x, y;
     SDL_GetMouseState(&x, &y);
-    return {x, y};
+    Vector2 pos = (Vector2){x, y} + cameraT.position - (screen * camera->origin);
+    return pos;
 }
 
 // controller stuff

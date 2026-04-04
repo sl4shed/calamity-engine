@@ -1,7 +1,6 @@
 #pragma once
 
 #include "../../core/definitions.hpp"
-#include "../../core/node/node.hpp"
 #include "../../core/node/components.hpp"
 
 #include <box2d/base.h>
@@ -13,34 +12,40 @@
 class Physics {
 public:
     Physics(Vector2 gravity = {0.0f, -9.81f});
+    ~Physics();
 
-    void update(float deltaTime);
-    void initialize();
+    void physicsUpdate(float timeStep);
+    int subSteps = 4;
+    static float constexpr scale = 0.01f; // 100 pixels = 1 meter
 
-    Vector2 gravity = {0.0f, -9.81f};
+    Vector2 gravity = {0.0f, 9.81f};
     b2WorldDef worldDef;
     b2WorldId worldId;
 };
 
-struct Polygon {
-Polygon();
-explicit Polygon(const b2Polygon &polygon);
-
-Vector2 centroid;
-int count;
-Vector2 normals[B2_MAX_POLYGON_VERTICES];
-float radius;
-Vector2 vertices[B2_MAX_POLYGON_VERTICES];
-
-operator b2Polygon() const;
-static Polygon Box(Vector2 size, Vector2 center = {0.5f, 0.5f}, float angle = 0.0f);
+class Material {
+public:
+    float density = 1.0f;
+    float friction = 0.3f;
+    float restitution = 0.0f;
+    float rollingResistance = 0.0f;
+    float tangentSpeed = 0.0f;
 };
-
 
 class Shape {
 public:
+    Polygon scaledPolygon;
     Polygon polygon;
     b2ShapeDef shapeDef;
+    Material material;
+
+    Shape* setSensor(bool sensor) {
+        shapeDef.isSensor = sensor;
+        if(sensor) {
+            shapeDef.enableSensorEvents = true;
+        }
+        return this;
+    }
 };
 
 class BoxShape : public Shape {
@@ -50,20 +55,44 @@ public:
     Vector2 center;
 };
 
+class RoundedBoxShape : public Shape {
+public:
+    RoundedBoxShape(Vector2 size, Vector2 center = {0.5f, 0.5f}, float radius = 0.1f);
+    Vector2 size;
+    Vector2 center;
+    float radius;
+};
+
+class CircleShape : public Shape {
+
+};
+
 class StaticBody : public Component {
 public:
     StaticBody();
+    ~StaticBody();
     StaticBody(std::shared_ptr<Shape> shape);
+
+    void physicsUpdate();
+    void initialize();
 
     std::shared_ptr<Shape> shape;
 private:
     b2BodyDef bodyDef;
     b2BodyId bodyId;
+
+    Vector2 prevPosition;
+    float prevAngle;
 };
 
 class RigidBody : public Component {
 public:
+    RigidBody();
+    ~RigidBody();
     RigidBody(std::shared_ptr<Shape> shape);
+
+    void physicsUpdate();
+    void initialize();
 
     std::shared_ptr<Shape> shape;
     template <class Archive>
@@ -80,4 +109,8 @@ public:
 private:
     b2BodyDef bodyDef;
     b2BodyId bodyId;
+
+    Vector2 prevPosition;
+    float prevAngle;
 };
+

@@ -29,3 +29,9 @@ void Camera::initialize()
         setActive();
     }
 }
+
+PolygonSprite::PolygonSprite() {}
+PolygonSprite::PolygonSprite(Polygon shape)
+{
+    this->shape = shape;
+}

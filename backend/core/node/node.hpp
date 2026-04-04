@@ -26,7 +26,7 @@
  * node->initialize(); // Make sure to call initialize if this isn't a child of the root node!
  * ```
  */
-class Node
+class Node : public std::enable_shared_from_this<Node>
 {
 public:
 	std::string name;
@@ -40,6 +40,7 @@ public:
 
 	Node(std::string name = "Node");
 	~Node();
+	void free();
 
 	// children
 	void addChild(std::shared_ptr<Node> child);
@@ -51,12 +52,21 @@ public:
 	void addComponent(std::shared_ptr<Component> component);
 	void removeComponent(std::shared_ptr<Component> component);
 	template <typename T>
-	T *getComponent();
+	T *getComponent() {
+		for (size_t i = 0; i < components.size(); ++i)
+		{
+			T *c = dynamic_cast<T *>(components[i].get());
+			if (c)
+				return c;
+		}
+		return 0;
+	};
 	Component *getComponentByIndex(int index);
 
 	// state functions
 	void render(Graphics &graphics, Engine *engine);
 	void update(float deltaTime);
+	void physicsUpdate(); // runs locked at 60fps
 	void initialize();
 	void input(InputEvent& event);
 

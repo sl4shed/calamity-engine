@@ -5,6 +5,7 @@
 #include "../core/definitions.hpp"
 #include "../core/node/node.hpp"
 #include "../utils/logger.hpp"
+#include "../core/ui/definitions.hpp"
 #include "engine.hpp"
 
 Graphics::Graphics(Vector2 s, std::string title, RenderLogicalPresentation p, Color cc)
@@ -75,8 +76,41 @@ void Graphics::renderSprite(Node &node, Engine *engine)
 
     int indices[6] = {0, 1, 2, 2, 3, 0};
 
-    int status = SDL_RenderGeometry(this->renderer, sprite->texture.handle, vertices, 4, indices, 6);
-    // printf("RenderGeometry status: %d\n", status);
+    SDL_RenderGeometry(this->renderer, sprite->texture.handle, vertices, 4, indices, 6);
+}
+
+void Graphics::renderPolygonSprite(Node &node, Engine *engine) {
+    PolygonSprite *polySprite = node.getComponent<PolygonSprite>();
+    if (!polySprite) return;
+
+    Camera *activeCamera = engine->getActiveCamera();
+    Transform cameraTransform = activeCamera->getNode()->globalTransform;
+    Vector2 originOffset = {screenSize.x * activeCamera->origin.x, screenSize.y * activeCamera->origin.y};
+
+    Polygon &poly = polySprite->shape;
+    int count = poly.count;
+    if (count < 3) return;
+
+    SDL_FColor col = {polySprite->color.r / 255.0f, polySprite->color.g / 255.0f, polySprite->color.b / 255.0f, polySprite->color.a / 255.0f};
+    std::vector<SDL_Vertex> vertices(count);
+    for (int i = 0; i < count; i++) {
+        Vector2 pos = poly.vertices[i];
+        pos = node.globalTransform.applyTo(pos);
+        pos = pos - cameraTransform.position;
+        pos = cameraTransform.inverse().transformation * pos;
+        pos = pos + originOffset;
+        vertices[i] = {{pos.x, pos.y}, col, {0, 0}};
+    }
+
+    // fan triangulation from vertex 0
+    std::vector<int> indices;
+    for (int i = 1; i < count - 1; i++) {
+        indices.push_back(0);
+        indices.push_back(i);
+        indices.push_back(i + 1);
+    }
+
+    SDL_RenderGeometry(renderer, nullptr, vertices.data(), count, indices.data(), indices.size());
 }
 
 void Graphics::renderLabel(Label *label) {

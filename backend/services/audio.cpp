@@ -48,7 +48,7 @@ bool AudioSource::loadAudio()
     return false;
 }
 
-void AudioSource::update()
+void AudioSource::update(float deltaTime)
 {
     if (this->volume != this->prevVolume)
     {

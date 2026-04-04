@@ -3,7 +3,7 @@
 #include "../../services/services.hpp"
 #include "../../services/input/keycode.hpp"
 #include "../../services/input/input.hpp"
-#include "../../services/physics/physics.hpp"
+#include "../ui/definitions.hpp"
 
 class Node; // Forward declaration'
 
@@ -18,6 +18,7 @@ struct Component
     virtual ~Component() = default;
     virtual void update(float deltaTime) {};
     virtual void initialize() {};
+    virtual void physicsUpdate() {};
     virtual void input(InputEvent& event) {};
     Node *getNode();
     void setNode(Node *n);
@@ -68,10 +69,14 @@ public:
 class PolygonSprite : public Component
 {
 public:
+    PolygonSprite();
+    PolygonSprite(Polygon shape);
+
     Vector2 origin = {0.5f, 0.5f};
     Polygon shape;
     bool visible = true;
     int zIndex = 1;
+    Color color = Color::WHITE;
 
     template <class Archive>
     void save(Archive &ar) const
@@ -141,7 +146,7 @@ class Script : public Component
 public:
     virtual void update(float deltaTime) {};
     virtual void initialize() {};
-    virtual void physicsUpdate() {}; // todo
+    virtual void physicsUpdate() {};
 
     template <class Archive>
     void save(Archive &ar) const {};

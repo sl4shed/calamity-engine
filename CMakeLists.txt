@@ -38,6 +38,8 @@ if(BUILD_TARGET STREQUAL "PSP")
     find_package(SDL3 REQUIRED CONFIG REQUIRED COMPONENTS SDL3-static)
     find_package(SDL3_image REQUIRED CONFIG)
     find_package(SDL3_ttf REQUIRED CONFIG)
+    find_package(box2d)
+    target_link_libraries(calamity PUBLIC box2d)
 
     target_link_libraries(calamity PUBLIC
         SDL3::SDL3

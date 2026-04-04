@@ -1,5 +1,6 @@
 #include "node.hpp"
 #include "../../utils/utils.hpp"
+#include "../../utils/logger.hpp"
 #include "../../services/input/input.hpp"
 #include "../../services/graphics.hpp"
 #include <iostream>
@@ -13,16 +14,17 @@ Node::Node(std::string name)
 
 Node::~Node()
 {
-    for (size_t i = 0; i < children.size(); ++i)
-    {
-        // delete children[i];
-        //  todo fix
-    }
+    for (auto &child : children)
+        child->parent = nullptr;
+    children.clear();
+    components.clear();
+}
 
-    for (size_t i = 0; i < components.size(); ++i)
-    {
-        // delete components[i];
-        //  todo fix
+void Node::free() {
+    if (parent) {
+        parent->removeChild(shared_from_this());
+    } else {
+        Logger::warn("Trying to free a node {} with no parent.", name);
     }
 }
 
@@ -41,10 +43,8 @@ void Node::removeChild(std::shared_ptr<Node> child)
     {
         if (children[i] == child)
         {
-            // todo fix
-
-            // delete children[i];
-            // children.erase(children.begin() + i);
+            children[i]->parent = nullptr;
+            children.erase(children.begin() + i);
             return;
         }
     }
@@ -75,28 +75,13 @@ void Node::removeComponent(std::shared_ptr<Component> component)
         {
             if (Sprite *sprite = dynamic_cast<Sprite *>(components[i].get()))
             {
-                // todo: lazy
+                if (currentSprite == sprite)
+                    currentSprite = nullptr;
             }
-
-            // delete components[i];
-            // components.erase(components.begin() + i);
-            // todo
+            components.erase(components.begin() + i);
             return;
         }
     }
-}
-
-template <typename T>
-T *Node::getComponent()
-{
-    // todo make this return a shared pointer
-    for (size_t i = 0; i < components.size(); ++i)
-    {
-        T *c = dynamic_cast<T *>(components[i].get());
-        if (c)
-            return c;
-    }
-    return 0;
 }
 
 void Node::render(Graphics &graphics, Engine *engine)
@@ -107,6 +92,11 @@ void Node::render(Graphics &graphics, Engine *engine)
         if (sprite && sprite->visible)
         {
             graphics.renderSprite(*this, engine);
+        }
+
+        PolygonSprite *polygonSprite = dynamic_cast<PolygonSprite *>(components[i].get());
+        if (polygonSprite && polygonSprite->visible) {
+            graphics.renderPolygonSprite(*this, engine);
         }
 
         Label *label = dynamic_cast<Label *>(components[i].get());
@@ -140,6 +130,19 @@ void Node::update(float deltaTime)
     for (size_t i = 0; i < children.size(); i++)
     {
         children[i]->update(deltaTime);
+    }
+}
+
+void Node::physicsUpdate() {
+    //Logger::debug("physicsUpdate - {}", name);
+    for (size_t i = 0; i < components.size(); i++)
+    {
+        components[i]->physicsUpdate();
+    }
+
+    for (size_t i = 0; i < children.size(); i++)
+    {
+        children[i]->physicsUpdate();
     }
 }
 
