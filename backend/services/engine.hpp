@@ -31,6 +31,7 @@ public:
     void update();
     void render(Graphics &graphics);
     void initialize();
+    void shutdown();
 
     void setActiveCamera(Camera *camera);
     Camera *getActiveCamera();

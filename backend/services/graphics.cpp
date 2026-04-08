@@ -27,7 +27,16 @@ Graphics::Graphics(Vector2 s, std::string title, RenderLogicalPresentation p, Co
     SDL_SetRenderLogicalPresentation(renderer, screenSize.x, screenSize.y, (SDL_RendererLogicalPresentation)presentation);
 
     this->renderer = SDL_CreateRenderer(window, NULL);
+#ifdef PSP
+    // current sdl3 ttf release doesn't respect the max texture size of 512 for the psp so I have to do this
+    // https://github.com/pspdev/psp-packages/issues/289
+    SDL_PropertiesID props = SDL_CreateProperties();
+    SDL_SetPointerProperty(props, TTF_PROP_RENDERER_TEXT_ENGINE_RENDERER, renderer);
+    SDL_SetNumberProperty(props, TTF_PROP_RENDERER_TEXT_ENGINE_ATLAS_TEXTURE_SIZE, 512);
+    this->textEngine = TTF_CreateRendererTextEngineWithProperties(props);
+#else
     this->textEngine = TTF_CreateRendererTextEngine(this->renderer);
+#endif
 }
 
 void Graphics::resetLogicalPresentation() {

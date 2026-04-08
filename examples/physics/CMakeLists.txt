@@ -47,5 +47,3 @@ elseif(BUILD_TARGET STREQUAL "PSP")
         VERSION 01.00
     )
 endif()
-
-set(CMAKE_BUILD_TYPE Debug)

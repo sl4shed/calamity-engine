@@ -24,46 +24,56 @@ PSP_MAIN_THREAD_ATTR(THREAD_ATTR_USER);
 
 int main() {
     Logger::init();
-    Engine engine = Engine();
-    Input input = Input();
-    Graphics graphics = Graphics({480, 272}, "Physics Example", RenderLogicalPresentation::LETTERBOX, Color::BLACK);
-    InputRegistry inputRegistry = InputRegistry();
-    Physics physics = Physics({0, 9.81f});
-    Services::init(&graphics, &engine, &input, &inputRegistry, &physics);
-    
-    inputRegistry.addAction("add", 0.2f);
-    auto addEvent = std::make_unique<InputEventMouseButton>();
-    addEvent->pressed = true;
-    addEvent->buttonIndex = MouseButton::LEFT;
-    inputRegistry.actionAddEvent("add", std::move(addEvent));
+    {
+        Engine engine = Engine();
+        Input input = Input();
+        Graphics graphics = Graphics({480, 272}, "Physics Example", RenderLogicalPresentation::LETTERBOX, Color::BLACK);
+        InputRegistry inputRegistry = InputRegistry();
+        Physics physics = Physics({0, 9.81f});
+        Services::init(&graphics, &engine, &input, &inputRegistry, &physics);
 
-    std::shared_ptr<Node> cameraNode = std::make_shared<Node>("cameraNode");
-    std::shared_ptr<Camera> camera = std::make_shared<Camera>();
-    cameraNode->addComponent(camera);
+        inputRegistry.addAction("add", 0.2f);
+        auto addEvent = std::make_unique<InputEventMouseButton>();
+        addEvent->pressed = true;
+        addEvent->buttonIndex = MouseButton::LEFT;
+        inputRegistry.actionAddEvent("add", std::move(addEvent));
 
-    std::shared_ptr<Node> node = std::make_shared<Node>("floorNode");
-    node->transform.position = {-150, 0};
-    node->transform.setAngle(0.1f);
-    auto shape = std::make_shared<BoxShape>(Vector2{300, 50});
-    node->addComponent(std::make_shared<StaticBody>(shape));
-    node->addComponent(std::make_shared<PolygonSprite>(shape->polygon));
-    engine.root.addChild(cameraNode);
-    engine.root.addChild(node);
+        std::shared_ptr<Node> cameraNode = std::make_shared<Node>("cameraNode");
+        std::shared_ptr<Camera> camera = std::make_shared<Camera>();
+        cameraNode->addComponent(camera);
 
-    std::shared_ptr<Node> labelNode = std::make_shared<Node>();
-    std::shared_ptr<Label> label = std::make_shared<Label>("left click - add box\nright click - clear boxes\nW - step physics\nS - toggle auto physics update");
-    label->size = {200, 700};
-    label->font->setSize(16);
-    label->wrap = false;
-    labelNode->transform.position = {20, 20};
-    labelNode->addComponent(label);
-    engine.root.addChild(labelNode);
+        std::shared_ptr<Node> node = std::make_shared<Node>("floorNode");
+        node->transform.position = {-150, 0};
+        node->transform.setAngle(0.1f);
+        auto shape = std::make_shared<BoxShape>(Vector2{300, 50});
+        node->addComponent(std::make_shared<StaticBody>(shape));
+        node->addComponent(std::make_shared<PolygonSprite>(shape->polygon));
+        engine.root.addChild(cameraNode);
+        engine.root.addChild(node);
 
-    engine.root.addComponent(std::make_shared<RootScript>());
-    engine.initialize();
+        std::shared_ptr<Node> labelNode = std::make_shared<Node>();
 
-    while(!input.shouldQuit) {
-        engine.update();
-        engine.render(graphics);
+#ifdef PSP
+        std::shared_ptr<Label> label = std::make_shared<Label>("X - add box");
+#else
+        std::shared_ptr<Label> label = std::make_shared<Label>("left click - add box\nright click - clear boxes\nW - step physics\nS - toggle auto physics update");
+#endif
+
+        label->size = {200, 700};
+        label->font->setSize(16);
+        label->wrap = false;
+        labelNode->transform.position = {20, 20};
+        labelNode->addComponent(label);
+        engine.root.addChild(labelNode);
+
+        engine.root.addComponent(std::make_shared<RootScript>());
+        engine.initialize();
+
+        while(!input.shouldQuit) {
+            engine.update();
+            engine.render(graphics);
+        }
+
+        engine.shutdown();
     }
 }

@@ -2,7 +2,6 @@ cmake_minimum_required(VERSION 3.11)
 
 project(calamity-engine)
 
-set(CMAKE_BUILD_TYPE Debug)
 set(BUILD_TARGET "NATIVE" CACHE STRING "Build target: NATIVE | PSP | EMSCRIPTEN")
 set_property(CACHE BUILD_TARGET PROPERTY STRINGS NATIVE PSP EMSCRIPTEN)
 

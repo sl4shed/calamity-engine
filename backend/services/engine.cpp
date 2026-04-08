@@ -4,10 +4,46 @@
 #include "graphics.hpp"
 #include "physics/physics.hpp"
 
+#ifdef PSP
+#include <pspuser.h>
+#include <pspctrl.h>
+#include <pspdisplay.h>
+#include <pspgu.h>
+
+int exit_callback(int arg1, int arg2, void *common)
+{
+    sceKernelExitGame();
+    return 0;
+}
+
+int CallbackThread(SceSize args, void *argp)
+{
+    int cbid = sceKernelCreateCallback("Exit Callback", exit_callback, NULL);
+    sceKernelRegisterExitCallback(cbid);
+    sceKernelSleepThreadCB();
+    return 0;
+}
+
+// these callbacks are for that menu that pops up when u press HOME to exit the game
+int SetupCallbacks(void)
+{
+    int thid = 0;
+    // a bunch of random magic numbers and I don't know what they do
+    thid = sceKernelCreateThread("update_thread", CallbackThread, 0x11, 0xFA0, 0, 0);
+    if (thid >= 0)
+        sceKernelStartThread(thid, 0, 0);
+    return thid;
+}
+#endif
+
 Engine::Engine()
 {
     root = Node();
     root.transform.position = {0, 0};
+
+#ifdef PSP
+    SetupCallbacks();
+#endif
 }
 
 Engine::~Engine()
@@ -34,6 +70,19 @@ void Engine::update()
 
     Services::input()->update(deltaTime);
     root.update(deltaTime);
+}
+
+void Engine::shutdown()
+{
+    for (const auto child : root.children)
+    {
+        root.removeChild(child);
+    }
+
+#ifdef PSP
+    sceKernelSleepThread();
+    sceKernelExitGame();
+#endif
 }
 
 void Engine::render(Graphics &graphics)

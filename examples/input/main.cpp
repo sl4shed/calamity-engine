@@ -24,14 +24,14 @@ int main() {
     Logger::init();
     Engine engine = Engine();
     Input input = Input();
-    Graphics graphics = Graphics();
+    Graphics graphics = Graphics({480, 272}, "Input Example", RenderLogicalPresentation::LETTERBOX, {0, 0, 0});
     InputRegistry inputRegistry = InputRegistry();
     Physics physics = Physics();
     Services::init(&graphics, &engine, &input, &inputRegistry, &physics);
 
     inputRegistry.addAction("left", 0.2f);
     auto leftEvent = std::make_unique<InputEventControllerMotion>();
-    leftEvent->device = 5;
+    leftEvent->device = 0;
     leftEvent->axis = ControllerAxis::LEFT_X;
     leftEvent->motion = -1.0f;
     inputRegistry.actionAddEvent("left", std::move(leftEvent));
@@ -43,7 +43,7 @@ int main() {
 
     inputRegistry.addAction("right", 0.2f);
     auto rightEvent = std::make_unique<InputEventControllerMotion>();
-    rightEvent->device = 5;
+    rightEvent->device = 0;
     rightEvent->axis = ControllerAxis::LEFT_X;
     rightEvent->motion = 1.0f;
     inputRegistry.actionAddEvent("right", std::move(rightEvent));
@@ -55,7 +55,7 @@ int main() {
 
     inputRegistry.addAction("up", 0.2f);
     auto upEvent = std::make_unique<InputEventControllerMotion>();
-    upEvent->device = 5;
+    upEvent->device = 0;
     upEvent->axis = ControllerAxis::LEFT_Y;
     upEvent->motion = 1.0f;
     inputRegistry.actionAddEvent("up", std::move(upEvent));
@@ -67,7 +67,7 @@ int main() {
 
     inputRegistry.addAction("down", 0.2f);
     auto downEvent = std::make_unique<InputEventControllerMotion>();
-    downEvent->device = 5;
+    downEvent->device = 0;
     downEvent->axis = ControllerAxis::LEFT_Y;
     downEvent->motion = -1.0f;
     inputRegistry.actionAddEvent("down", std::move(downEvent));
@@ -82,17 +82,19 @@ int main() {
     cameraNode->addComponent(camera);
     engine.root.addChild(cameraNode);
 
-    std::shared_ptr<Node> bgNode = std::make_shared<Node>();
-    std::shared_ptr<Sprite> bgSprite = std::make_shared<Sprite>();
-    bgSprite->texture = Texture("assets/dash.png");
-    bgNode->addComponent(bgSprite);
-    engine.root.addChild(bgNode);
-
     std::shared_ptr<Node> node = std::make_shared<Node>();
     node->transform.scale({4, 4});
     std::shared_ptr<Sprite> sprite = std::make_shared<Sprite>();
     sprite->texture = Texture("assets/glass.png");
     node->addComponent(sprite);
+
+    std::shared_ptr<Node> lnode = std::make_shared<Node>();
+    std::shared_ptr<Label> label = std::make_shared<Label>("WASD/Left Joystick - Move the glass around");
+    label->font->setSize(12);
+    label->size = {100, 500};
+    lnode->transform.position = {20, 20};
+    lnode->addComponent(label);
+    engine.root.addChild(lnode);
 
     node->addComponent(std::make_shared<InputScript>());
     engine.root.addChild(node);
@@ -102,4 +104,6 @@ int main() {
         engine.update();
         engine.render(graphics);
     }
+
+    engine.shutdown();
 }

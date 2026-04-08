@@ -2,6 +2,7 @@
 #include <SDL3/SDL.h>
 #include "../../core/definitions.hpp"
 #include "keycode.hpp"
+#include <map>
 
 // hello. here i just copied godot's homework because i love how godot input works its really good
 
@@ -266,9 +267,13 @@ private:
     std::vector<std::unique_ptr<InputEvent>> inputs;
     int sdlKeyNum;
     const bool * sdlKeyArray = SDL_GetKeyboardState(&sdlKeyNum);
-    std::vector<int> controllers;
+
     std::unordered_map<std::string, float> actionStrength;
     std::unordered_map<std::string, float> prevActionStrength;
     std::unordered_map<std::string, InputRegistryAction>* actionsArrayPointer = nullptr;
     std::unordered_set<std::string> heldActions;
+
+    // sdl controller id -> sequential controller id (calamity controller id)
+    std::map<int, int> controllerMap;
+    std::map<int, int> reversedControllerMap; // its stupid, but it works, so its not stupid
 };

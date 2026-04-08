@@ -48,4 +48,6 @@ int main() {
         engine.update();
         engine.render(graphics);
     }
+
+    engine.shutdown();
 }

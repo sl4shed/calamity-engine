@@ -11,7 +11,6 @@ Physics::Physics(Vector2 gravity) {
 }
 
 void Physics::physicsUpdate(float timeStep) {
-    //Logger::debug("stepping physics world - {}",  __builtin_FUNCTION());
     b2World_Step(worldId, timeStep, subSteps);
 }
 

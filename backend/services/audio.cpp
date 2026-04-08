@@ -8,8 +8,7 @@ AudioSource::AudioSource(std::string path)
 
 bool AudioSource::loadAudio()
 {
-    Logger::debug("Loading audio");
-    char *wav_path = NULL;
+    char *wav_path = nullptr;
 
     if (this->handle.stream != nullptr)
     {
@@ -18,7 +17,7 @@ bool AudioSource::loadAudio()
     }
 
     SDL_AudioSpec spec;
-    audio_device = SDL_OpenAudioDevice(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, NULL);
+    audio_device = SDL_OpenAudioDevice(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, nullptr);
     SDL_asprintf(&wav_path, "%s%s", SDL_GetBasePath(), path.c_str());
     if (!SDL_LoadWAV(wav_path, &spec, &this->handle.wav_data, &this->handle.wav_data_len))
     {
@@ -26,26 +25,20 @@ bool AudioSource::loadAudio()
         return false;
     }
 
-    this->handle.stream = SDL_CreateAudioStream(&spec, NULL);
+    this->handle.stream = SDL_CreateAudioStream(&spec, nullptr);
     if (!this->handle.stream)
     {
         Logger::error("Couldn't create audio stream: {}", SDL_GetError());
         return false;
     }
-    else if (!SDL_BindAudioStream(audio_device, this->handle.stream))
+    if (!SDL_BindAudioStream(audio_device, this->handle.stream))
     {
         Logger::error("Failed to bind {} stream to device: {}", this->path, SDL_GetError());
         return false;
     }
-    else
-    {
-        Logger::debug("Loaded successfully.");
-        SDL_free(wav_path);
-        return true;
-    }
-
+    Logger::debug("Loaded successfully.");
     SDL_free(wav_path);
-    return false;
+    return true;
 }
 
 void AudioSource::update(float deltaTime)

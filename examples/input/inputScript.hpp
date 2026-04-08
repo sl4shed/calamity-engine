@@ -18,6 +18,7 @@ class InputScript : public Script
 {
     Node *node;
     Input *pe;
+    const int SPEED = 500;
 
 public:
     template <class Archive>
@@ -34,7 +35,7 @@ public:
 
     void update(float dt) {
         auto vec = Services::input()->getVector("left", "right", "up", "down");
-        node->transform.position = node->transform.position + (vec * dt);
+        node->transform.position = node->transform.position + (vec * dt * SPEED);
     }
 
     void input(InputEvent& event) {

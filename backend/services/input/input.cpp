@@ -20,133 +20,160 @@ void Input::update(float deltaTime)
     // bullshit
     SDL_Event event;
     while (SDL_PollEvent(&event)) {
-        if(event.type == SDL_EVENT_KEY_DOWN) {
-            auto ev = std::make_unique<InputEventKey>();
-            ev->pressed = true;
-            ev->keycode = (Keycode)event.key.key;
-            ev->scancode = (Keycode)event.key.scancode;
-            ev->keyLabel = SDL_GetKeyName(event.key.key);
-            inputs.push_back(std::move(ev));
-        }
-
-        if(event.type == SDL_EVENT_KEY_UP) {
-            auto ev = std::make_unique<InputEventKey>();
-            ev->pressed = false;
-            ev->keycode = (Keycode)event.key.key;
-            ev->scancode = (Keycode)event.key.scancode;
-            ev->keyLabel = SDL_GetKeyName(event.key.key);
-            inputs.push_back(std::move(ev));
-        }
-
-        if(event.type == SDL_EVENT_MOUSE_MOTION) {
-            // todo fucking optimize this bullshit
-            auto ev = std::make_unique<InputEventMouseMotion>();
-            auto camera = Services::engine()->getActiveCamera();
-            auto cameraT = camera->getNode()->globalTransform;
-            auto screen = Services::graphics()->screenSize;
-
-            ev->position = (Vector2){event.motion.x, event.motion.y} + cameraT.position - (screen * camera->origin);
-            ev->relative = (Vector2){event.motion.xrel, event.motion.yrel};
-            
-            inputs.push_back(std::move(ev));
-        }
-
-        if(event.type == SDL_EVENT_MOUSE_BUTTON_DOWN) {
-            auto ev = std::make_unique<InputEventMouseButton>();
-            ev->pressed = true;
-            ev->buttonIndex = (MouseButton)event.button.button;
-            if(event.button.clicks > 1) ev->doubleClick = true;
-            inputs.push_back(std::move(ev));
-        }
-
-        if(event.type == SDL_EVENT_MOUSE_BUTTON_UP) {
-            auto ev = std::make_unique<InputEventMouseButton>();
-            ev->pressed = false;
-            ev->buttonIndex = (MouseButton)event.button.button;
-            if(event.button.clicks > 1) ev->doubleClick = true;
-            inputs.push_back(std::move(ev));
-        }
-
-        if(event.type == SDL_EVENT_MOUSE_WHEEL) {
-            auto ev = std::make_unique<InputEventMouseButton>();
-            ev->pressed = true;
-            
-            if (std::abs(event.wheel.x) > std::abs(event.wheel.y)) {
-                ev->buttonIndex = event.wheel.x > 0 
-                    ? MouseButton::WHEEL_RIGHT 
-                    : MouseButton::WHEEL_LEFT;
-            } else {
-                ev->buttonIndex = event.wheel.y > 0 
-                    ? MouseButton::WHEEL_UP 
-                    : MouseButton::WHEEL_DOWN;
+        switch (event.type)
+        {
+        case SDL_EVENT_KEY_DOWN:
+            {
+                auto ev = std::make_unique<InputEventKey>();
+                ev->pressed = true;
+                ev->keycode = (Keycode)event.key.key;
+                ev->scancode = (Keycode)event.key.scancode;
+                ev->keyLabel = SDL_GetKeyName(event.key.key);
+                inputs.push_back(std::move(ev));
+                break;
             }
+        case SDL_EVENT_KEY_UP:
+            {
+                auto ev = std::make_unique<InputEventKey>();
+                ev->pressed = false;
+                ev->keycode = (Keycode)event.key.key;
+                ev->scancode = (Keycode)event.key.scancode;
+                ev->keyLabel = SDL_GetKeyName(event.key.key);
+                inputs.push_back(std::move(ev));
+                break;
+            }
+        case SDL_EVENT_MOUSE_MOTION:
+            {
+                // todo fucking optimize this bullshit
+                auto ev = std::make_unique<InputEventMouseMotion>();
+                auto camera = Services::engine()->getActiveCamera();
+                auto cameraT = camera->getNode()->globalTransform;
+                auto screen = Services::graphics()->screenSize;
 
-            ev->factor = {event.motion.x, event.motion.y};
-            inputs.push_back(std::move(ev));
-        }
+                ev->position = (Vector2){event.motion.x, event.motion.y} + cameraT.position - (screen * camera->origin);
+                ev->relative = (Vector2){event.motion.xrel, event.motion.yrel};
 
-        if(event.type == SDL_EVENT_QUIT) {
-            shouldQuit = true;
-        }
+                inputs.push_back(std::move(ev));
+                break;
+            }
+        case SDL_EVENT_MOUSE_BUTTON_DOWN:
+            {
+                auto ev = std::make_unique<InputEventMouseButton>();
+                ev->pressed = true;
+                ev->buttonIndex = (MouseButton)event.button.button;
+                if(event.button.clicks > 1) ev->doubleClick = true;
+                inputs.push_back(std::move(ev));
+                break;
+            }
+        case SDL_EVENT_MOUSE_BUTTON_UP:
+            {
+                auto ev = std::make_unique<InputEventMouseButton>();
+                ev->pressed = false;
+                ev->buttonIndex = (MouseButton)event.button.button;
+                if(event.button.clicks > 1) ev->doubleClick = true;
+                inputs.push_back(std::move(ev));
+                break;
+            }
+        case SDL_EVENT_MOUSE_WHEEL:
+            {
+                auto ev = std::make_unique<InputEventMouseButton>();
+                ev->pressed = true;
 
-        if(event.type == SDL_EVENT_GAMEPAD_BUTTON_DOWN) {
-            auto ev = std::make_unique<InputEventControllerButton>();
-            ev->pressed = true;
-            ev->device = event.gbutton.which;
-            ev->button = (ControllerButton)event.gbutton.button;
-            inputs.push_back(std::move(ev));
-        }
-        
-        if(event.type == SDL_EVENT_GAMEPAD_BUTTON_UP) {
-            auto ev = std::make_unique<InputEventControllerButton>();
-            ev->pressed = false;
-            ev->device = event.gbutton.which;
-            ev->button = (ControllerButton)event.gbutton.button;
-            inputs.push_back(std::move(ev));
-        }
+                if (std::abs(event.wheel.x) > std::abs(event.wheel.y)) {
+                    ev->buttonIndex = event.wheel.x > 0
+                        ? MouseButton::WHEEL_RIGHT
+                        : MouseButton::WHEEL_LEFT;
+                } else {
+                    ev->buttonIndex = event.wheel.y > 0
+                        ? MouseButton::WHEEL_UP
+                        : MouseButton::WHEEL_DOWN;
+                }
 
-        if(event.type == SDL_EVENT_GAMEPAD_ADDED) {
-            SDL_OpenGamepad(event.gdevice.which);
-            auto ev = std::make_unique<InputEventControllerStatus>();
-            ev->connected = true;
-            ev->device = event.gdevice.which;
-            inputs.push_back(std::move(ev));
-        }
+                ev->factor = {event.motion.x, event.motion.y};
+                inputs.push_back(std::move(ev));
+                break;
+            }
+        case SDL_EVENT_QUIT:
+            {
+                shouldQuit = true;
+                break;
+            }
+        case SDL_EVENT_GAMEPAD_BUTTON_DOWN:
+            {
+                auto ev = std::make_unique<InputEventControllerButton>();
+                ev->pressed = true;
+                ev->device = controllerMap.at((int)event.gdevice.which); // find calamity controller id;
+                ev->button = (ControllerButton)event.gbutton.button;
+                inputs.push_back(std::move(ev));
+                break;
+            }
+        case SDL_EVENT_GAMEPAD_BUTTON_UP:
+            {
+                auto ev = std::make_unique<InputEventControllerButton>();
+                ev->pressed = false;
+                ev->device = controllerMap.at((int)event.gdevice.which); // find calamity controller id;
+                ev->button = (ControllerButton)event.gbutton.button;
+                inputs.push_back(std::move(ev));
+                break;
+            }
+        case SDL_EVENT_GAMEPAD_ADDED:
+            {
+                SDL_OpenGamepad(event.gdevice.which);
+                auto ev = std::make_unique<InputEventControllerStatus>();
+                ev->connected = true;
 
-        if(event.type == SDL_EVENT_GAMEPAD_REMOVED) {
-            auto ev = std::make_unique<InputEventControllerStatus>();
-            ev->connected = false;
-            ev->device = event.gdevice.which;
-            inputs.push_back(std::move(ev));
-        }
+                int c = controllerMap.size();
+                controllerMap.insert({event.gdevice.which, c});
+                reversedControllerMap.insert({c, event.gdevice.which});
+                ev->device = c;
 
-        if(event.type == SDL_EVENT_GAMEPAD_AXIS_MOTION) {
-            auto ev = std::make_unique<InputEventControllerMotion>();
-            ev->device = event.gaxis.which;
-            ev->motion = (float)event.gaxis.value / 32767.0f;
-            ev->axis = (ControllerAxis)event.gaxis.axis;
-            if (ev->axis == ControllerAxis::LEFT_Y || ev->axis == ControllerAxis::RIGHT_Y)
-                ev->motion = -ev->motion; // stupid sdl3
-            inputs.push_back(std::move(ev));
+                inputs.push_back(std::move(ev));
+                break;
+            }
+        case SDL_EVENT_GAMEPAD_REMOVED:
+            {
+                auto ev = std::make_unique<InputEventControllerStatus>();
+                ev->connected = false;
+                ev->device = controllerMap.at((int)event.gdevice.which); // find calamity controller id;
+                reversedControllerMap.erase(controllerMap.at((int)event.gdevice.which));
+                controllerMap.erase((int)event.gdevice.which); // remove the controller from the list
+                inputs.push_back(std::move(ev));
+                break;
+            }
+        case SDL_EVENT_GAMEPAD_AXIS_MOTION:
+            {
+                auto ev = std::make_unique<InputEventControllerMotion>();
+                ev->device = controllerMap.at((int)event.gdevice.which); // find calamity controller id;
+                ev->motion = (float)event.gaxis.value / 32767.0f;
+                ev->axis = (ControllerAxis)event.gaxis.axis;
+                if (ev->axis == ControllerAxis::LEFT_Y || ev->axis == ControllerAxis::RIGHT_Y)
+                    ev->motion = -ev->motion; // stupid sdl3
+                inputs.push_back(std::move(ev));
+                break;
+            }
+        case SDL_EVENT_WINDOW_RESIZED:
+            {
+                Services::graphics()->resetLogicalPresentation();
+                break;
+            }
+        default:
+            break;
         }
-
-        if(event.type == SDL_EVENT_WINDOW_RESIZED) {
-            Services::graphics()->resetLogicalPresentation();
-        }
-    }
-
-    for (auto& e : inputs) {
-        Services::engine()->root.input(*e);    
     }
 
     prevActionStrength = actionStrength;
     actionStrength.clear();
+    for (auto& e : inputs) {
+        Services::engine()->root.input(*e);    
+    }
 
     for (auto& e : inputs) {
         if (auto* motion = dynamic_cast<InputEventControllerMotion*>(e.get())) {
             for (auto& [name, action] : *actionsArrayPointer)
                 if (Services::inputRegistry()->eventIsAction(e.get(), name, true))
+                {
                     actionStrength[name] = std::max(actionStrength.count(name) ? actionStrength[name] : 0.0f, std::abs(motion->getStrength()));
+                }
         } else {
             for (auto& [name, action] : *actionsArrayPointer) {
                 if (Services::inputRegistry()->eventIsAction(e.get(), name, true)) {
@@ -207,28 +234,36 @@ Vector2 Input::getMousePosition() const {
 // controller stuff
 
 float Input::getControllerAxis(int device, ControllerAxis axis) const {
-    float val = (float)SDL_GetGamepadAxis(SDL_GetGamepadFromID(device), (SDL_GamepadAxis)axis) / 32768.0f;
+    if (!reversedControllerMap.count(device)) return 0.0f;
+    float val = (float)SDL_GetGamepadAxis(SDL_GetGamepadFromID(reversedControllerMap.at(device)), (SDL_GamepadAxis)axis) / 32768.0f;
     if (axis == ControllerAxis::LEFT_Y || axis == ControllerAxis::RIGHT_Y)
         val = -val; // stupid sdl3
     return val;
 }
 
 std::string Input::getControllerGUID(int device) const {
+    if (!reversedControllerMap.count(device)) return "";
     char buf[33];
-    SDL_GUIDToString(SDL_GetGamepadGUIDForID(device), buf, sizeof(buf));
+    SDL_GUIDToString(SDL_GetGamepadGUIDForID(reversedControllerMap.at(device)), buf, sizeof(buf));
     return std::string(buf);
 }
 
 std::string Input::getControllerName(int device) const {
-    return std::string(SDL_GetGamepadNameForID(device));
+    if (!reversedControllerMap.count(device)) return "";
+    return std::string(SDL_GetGamepadNameForID(reversedControllerMap.at(device)));
 }
 
 std::vector<int> Input::getConnectedControllers() {
+    std::vector<int> controllers;
+    for (auto pair : controllerMap)
+    {
+        controllers.push_back(pair.second);
+    }
     return controllers;
 }
 
 void Input::startControllerVibration(int device, float weakMagnitude, float strongMagnitude, int durationMs) {
-    SDL_RumbleGamepad(SDL_GetGamepadFromID(device), 0xFFFF * weakMagnitude, 0xFFFF * strongMagnitude, durationMs);
+    SDL_RumbleGamepad(SDL_GetGamepadFromID(reversedControllerMap.at(device)), 0xFFFF * weakMagnitude, 0xFFFF * strongMagnitude, durationMs);
 }
 
 // input registry stuff
@@ -356,7 +391,7 @@ bool InputEventMouseMotion::operator<=(const InputEvent& other) const {
 bool InputEventControllerButton::operator<=(const InputEvent& other) const {
     const auto* o = dynamic_cast<const InputEventControllerButton*>(&other);
     if(!o) return false;
-    return (button == o->button);
+    return (device == o->device && button == o->button);
 }
 
 bool InputEventControllerStatus::operator<=(const InputEvent& other) const {
@@ -368,7 +403,7 @@ bool InputEventControllerStatus::operator<=(const InputEvent& other) const {
 bool InputEventControllerMotion::operator<=(const InputEvent& other) const {
     const auto* o = dynamic_cast<const InputEventControllerMotion*>(&other);
     if(!o) return false;
-    return (axis == o->axis);
+    return (device == o->device && axis == o->axis);
 }
 
 // action functions
