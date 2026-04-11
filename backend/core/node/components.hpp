@@ -20,6 +20,8 @@ struct Component
     virtual void initialize() {};
     virtual void physicsUpdate() {};
     virtual void input(InputEvent& event) {};
+    virtual void exit() {};
+
     Node *getNode();
     void setNode(Node *n);
 
@@ -35,14 +37,17 @@ private:
 
 /**
  * # Sprite component
- * You add this to nodes that you want to have textures, pretty simple if you ask me.
+ * The sprite component renders a texture.
+ *
  * Example usage:
- * ```
+ * ```cpp
  * std::shared_ptr<Node> spriteNode = std::make_shared<Node>();
  * std::shared_ptr<Sprite> sprite = std::make_shared<Sprite>();
  * sprite->texture = Texture("path/to/texture.png");
  * spriteNode->addComponent(sprite);
  * ```
+ *
+ * Be sure to also check out the atlas example in the examples folder!
  */
 class Sprite : public Component
 {
@@ -66,11 +71,24 @@ public:
     }
 };
 
-class PolygonSprite : public Component
+/**
+ * # ShapeSprite
+ * A dynamic sprite (mainly used for debugging) which can draw solid color filled shapes.
+ *
+ * Example usage:
+ * ```cpp
+ * std::shared_ptr<Node> spriteNode = std::make_shared<Node>();
+ * Polygon shape = Polygon();
+ * // populate polygon here, do whatever you want
+ * std::shared_ptr<ShapeSprite> sprite = std::make_shared<ShapeSprite>(shape);
+ * spriteNode->addComponent(sprite);
+ * ```
+ */
+class ShapeSprite : public Component
 {
 public:
-    PolygonSprite();
-    PolygonSprite(Polygon shape);
+    ShapeSprite();
+    ShapeSprite(Polygon shape);
 
     Vector2 origin = {0.5f, 0.5f};
     Polygon shape;
@@ -93,17 +111,16 @@ public:
 
 /**
  * # Script component
- * A base class for all scripts attached to nodes to inherit from. It provides the necessary api's like update and initialize.
+ * A base class for all scripts attached to nodes to inherit from. It provides the necessary api's like update, initialize, physicsUpdate, input and exit.
  *
- * To create a script and attach it to a node, create a header file somewhere like `scripts/ExampleScripy.hpp`:
+ * To create a script and attach it to a node, create a header file somewhere like `scripts/ExampleScript.hpp`:
  * ```cpp
  *
  * #pragma once
  *
- * #include "../backend/definitions.hpp"
+ * // include everything you want here
  * #include <cereal/types/polymorphic.hpp>
  * #include <cereal/archives/json.hpp>
- * // and any other includes here based on where you put this file
  *
  * class ExampleScript : public Script
  * {
@@ -137,8 +154,7 @@ public:
  * and do this to your node:
  * ```cpp
  * std::shared_ptr<Node> exampleNode = std::make_shared<Node>();
- * ExampleScript *exampleScript = new ExampleScript();
- * exampleNode->addComponent(exampleScript);
+ * exampleNode->addComponent(std::make_shared<ExampleScript>());
  * ```
  */
 class Script : public Component
@@ -147,6 +163,7 @@ public:
     virtual void update(float deltaTime) {};
     virtual void initialize() {};
     virtual void physicsUpdate() {};
+    virtual void exit() {};
 
     template <class Archive>
     void save(Archive &ar) const {};

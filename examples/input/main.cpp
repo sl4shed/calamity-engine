@@ -22,11 +22,11 @@ PSP_MAIN_THREAD_ATTR(THREAD_ATTR_USER);
 
 int main() {
     Logger::init();
+    Physics physics = Physics();
     Engine engine = Engine();
     Input input = Input();
     Graphics graphics = Graphics({480, 272}, "Input Example", RenderLogicalPresentation::LETTERBOX, {0, 0, 0});
     InputRegistry inputRegistry = InputRegistry();
-    Physics physics = Physics();
     Services::init(&graphics, &engine, &input, &inputRegistry, &physics);
 
     inputRegistry.addAction("left", 0.2f);

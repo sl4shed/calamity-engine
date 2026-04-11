@@ -2,6 +2,24 @@
 #include "../node/components.hpp"
 #include "../definitions.hpp"
 
+/**
+ * # Label
+ * A component which renders text (wow, amazing. I know.)
+ * You can construct it with or without a font, in which case a default font will be used.
+ *
+ * Also dictates a size and origin, similar to a Sprite.
+ *
+ * Example Usage:
+ * ```cpp
+ * std::shared_ptr<Node> node = std::make_shared<Node>();
+ * std::shared_ptr<Label> label = std::make_shared<Label>("Text goes here");
+ * label->size = {100, 500};
+ * node->transform.position = {20, 20};
+ * node->addComponent(label);
+ * ```
+ *
+ * Make sure to also check out the text example in the examples folder!
+ */
 class Label : public Component {
 public:
     Label(std::string text, Font *font);

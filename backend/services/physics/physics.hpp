@@ -9,6 +9,10 @@
 #include <box2d/id.h>
 #include <box2d/types.h>
 
+/**
+ * # Physics Service
+ *
+ */
 class Physics {
 public:
     Physics(Vector2 gravity = {0.0f, -9.81f});

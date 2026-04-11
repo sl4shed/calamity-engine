@@ -6,6 +6,12 @@
 #include <string>
 #include "../definitions.hpp"
 
+/**
+ * # Color
+ * A simple class that defines a color using red, green, blue and alpha channels.
+ *
+ * You can construct it with a string hex code, an actual hex code, or provide individual channel values up to 255.
+ */
 class Color {
 public:
     int r; // Red value. Goes up to 255.
@@ -15,6 +21,8 @@ public:
 
     Color(int r, int g, int b);
     Color(int r, int g, int b, int a);
+    Color(int hexCode);
+    Color(int hexCode, int a);
     Color(std::string hexCode);
     Color(std::string hexCode, int a);
 
@@ -32,6 +40,10 @@ public:
     }
 };
 
+/**
+ * Mirrors the [TTF_HintingFlags](https://wiki.libsdl.org/SDL3_ttf/TTF_HintingFlags) enum.
+ * Dictates font hinting.
+ */
 enum class FontHinting {
     INVALID = -1,
     NORMAL,
@@ -41,6 +53,10 @@ enum class FontHinting {
     LIGHT_SUBPIXEL
 };
 
+/**
+ * Mirrors the [TTF_FontStyleFlags](https://wiki.libsdl.org/SDL3_ttf/TTF_FontStyleFlags) enum.
+ * Dictates the font style used (bold, italic, underline, etc...).
+ */
 enum class FontStyle {
     NORMAL = 0x00,
     BOLD = 0x01,
@@ -49,6 +65,10 @@ enum class FontStyle {
     STRIKETHROUGH = 0x08
 };
 
+/**
+ * Mirrors the [TTF_Direction](https://wiki.libsdl.org/SDL3_ttf/TTF_Direction) enum.
+ * Dictates the direction of the text (left to right, right to left, etc...).
+ */
 enum class FontDirection {
     INVALID,
     LTR = 4,
@@ -57,6 +77,10 @@ enum class FontDirection {
     BTT
 };
 
+/**
+ * Mirrors the [TTF_HorizontalAlignment](https://wiki.libsdl.org/SDL3_ttf/TTF_HorizontalAlignment) enum.
+ * Dictates the horizontal alignment of the font.
+ */
 enum class FontAlignment {
     INVALID = -1,
     LEFT,
@@ -64,6 +88,16 @@ enum class FontAlignment {
     RIGHT
 };
 
+/**
+ * # Font
+ * Allows the usage of TrueType fonts. Has plenty of settings aswell!
+ *
+ * Example usage:
+ * ```cpp
+ * Font font = Font("path/to/font");
+ * font.setKerning(true)->setLineSpacing(10)->setSize(30)->setStyle(FontStyle::UNDERLINE);
+ * ```
+ */
 class Font {
 public:
     Font();
@@ -95,6 +129,5 @@ public:
         TTF_OpenFont(path.c_str(), size);
     }
 private:
-    TTF_Font* handle; // again for interchangeability of backends if for whatever reason i wanted to switch from SDL
-    // that will always be the sdl3 font thing
+    TTF_Font* handle;
 };

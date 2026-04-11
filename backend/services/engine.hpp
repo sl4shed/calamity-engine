@@ -14,11 +14,13 @@
  *
  * // setup nodes, components, etc here
  *
- * engine->initialize(); // VERY IMPORTANT
+ * engine->initialize();
  * while (running) {
  *  engine.update();
  *  engine.render(Services::graphics());
  * }
+ *
+ * engine.shutdown();
  * ```
  *
  */

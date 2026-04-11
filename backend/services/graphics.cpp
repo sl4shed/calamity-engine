@@ -95,7 +95,7 @@ void Graphics::renderSprite(Node &node, Engine *engine)
 }
 
 void Graphics::renderPolygonSprite(Node &node, Engine *engine) {
-    PolygonSprite *polySprite = node.getComponent<PolygonSprite>();
+    ShapeSprite *polySprite = node.getComponent<ShapeSprite>();
     if (!polySprite) return;
 
     Camera *activeCamera = engine->getActiveCamera();

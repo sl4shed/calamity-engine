@@ -11,9 +11,8 @@ class Graphics;
 class Services;
 
 /**
- * # Vector2 Struct
- * Literally just like any other Vector2 struct you have ever seen in your lifetime.
- * You can multiply, add and subtract them for now.
+ * # Vector2
+ * A struct which holds an x and y float.
  */
 struct Vector2
 {
@@ -45,10 +44,11 @@ struct Vector2
 /**
  * # Texture class
  * This is a simple wrapper around an SDL_Texture pointer, which also stores the width and height of the texture.
- * Keep in mind when serializing this it does not serialize the SDL_Texture pointer but only the path of the texture to be efficient.
- * (also because SDL_Texture pointers can't be serialized, but you get the point)
  *
- * The texture is initialized automatically after loading, so don't worry about calling ``initialize()``.
+ * Example usage:
+ * ```
+ * Texture texture = Texture("path/to/texture.png");
+ * ```
  */
 class Texture
 {
@@ -105,9 +105,6 @@ struct Matrix2
  * # Transform struct
  * This is the struct that represents the position, rotation and scale of a node.
  * The position is stored as a Vector2, and the rotation and scale are stored in a Matrix2.
- *
- * For simplicity's sake, you can kindly ignore the ``applyTo()`` function
- * (it just applies the transformation matrix to another transform or Vector2) because it's for internal use :)
  */
 struct Transform
 {
@@ -132,7 +129,10 @@ struct Transform
     }
 };
 
-
+/**
+ * # Polygon
+ * A simple polygon class, which basically mirrors the [box2d polygon class](https://box2d.org/documentation/group__geometry.html#structb2_polygon).
+ */
 struct Polygon {
     Polygon();
     explicit Polygon(const b2Polygon &polygon);

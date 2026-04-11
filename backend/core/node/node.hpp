@@ -19,9 +19,8 @@
  * ```
  * std::shared_ptr<Node> node = std::make_shared<Node>("My Node");
  * std::shared_ptr<Sprite> sprite = std::make_shared<Sprite>();
- * std::shared_ptr<MyScript> script = std::make_shared<MyScript>();
  * node->addComponent(sprite);
- * node->addComponent(script);
+ * node->addComponent(std::make_shared<MyScript>());
  *
  * node->initialize(); // Make sure to call initialize if this isn't a child of the root node!
  * ```
@@ -69,6 +68,7 @@ public:
 	void physicsUpdate(); // runs locked at 60fps
 	void initialize();
 	void input(InputEvent& event);
+	void exit();
 
 	std::vector<Script *> activeScripts;
 

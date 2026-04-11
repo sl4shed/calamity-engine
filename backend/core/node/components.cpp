@@ -30,8 +30,8 @@ void Camera::initialize()
     }
 }
 
-PolygonSprite::PolygonSprite() {}
-PolygonSprite::PolygonSprite(Polygon shape)
+ShapeSprite::ShapeSprite() {}
+ShapeSprite::ShapeSprite(Polygon shape)
 {
     this->shape = shape;
 }

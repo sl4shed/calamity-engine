@@ -48,7 +48,7 @@ public:
             fallingNode->transform.setAngle(rand() % 100 / 100.0f - 0.5f); // random angle between -0.5 and 0.5 radians
             auto fallingShape = std::make_shared<BoxShape>(Vector2{(float)(rand() % 75 + 25), (float)(rand() % 75 + 25)});
             fallingNode->addComponent(std::make_shared<RigidBody>(fallingShape));
-            std::shared_ptr<PolygonSprite> fallingSprite = std::make_shared<PolygonSprite>(fallingShape->polygon);
+            std::shared_ptr<ShapeSprite> fallingSprite = std::make_shared<ShapeSprite>(fallingShape->polygon);
             fallingSprite->color = Color::RED;
             fallingNode->addComponent(fallingSprite);
 
@@ -65,7 +65,7 @@ public:
             fallingNode->transform.setAngle(rand() % 100 / 100.0f - 0.5f); // random angle between -0.5 and 0.5 radians
             auto fallingShape = std::make_shared<BoxShape>(Vector2{(float)(rand() % 75 + 25), (float)(rand() % 75 + 25)});
             fallingNode->addComponent(std::make_shared<RigidBody>(fallingShape));
-            std::shared_ptr<PolygonSprite> fallingSprite = std::make_shared<PolygonSprite>(fallingShape->polygon);
+            std::shared_ptr<ShapeSprite> fallingSprite = std::make_shared<ShapeSprite>(fallingShape->polygon);
             fallingSprite->color = Color::RED;
             fallingNode->addComponent(fallingSprite);
 

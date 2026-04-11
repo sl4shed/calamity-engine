@@ -15,6 +15,7 @@ void Physics::physicsUpdate(float timeStep) {
 }
 
 Physics::~Physics() {
+    Logger::debug("Destroying world");
     b2DestroyWorld(worldId);
 }
 
@@ -108,7 +109,7 @@ void RigidBody::physicsUpdate() {
     getNode()->transform.setAngle(b2Rot_GetAngle(b2Body_GetRotation(bodyId)));
 
     // debug
-    PolygonSprite *polySprite = getNode()->getComponent<PolygonSprite>();
+    ShapeSprite *polySprite = getNode()->getComponent<ShapeSprite>();
     if (polySprite) {
         polySprite->shape = shape->polygon;
     }
@@ -137,9 +138,11 @@ void RigidBody::initialize() {
 }
 
 RigidBody::~RigidBody() {
+    Logger::debug("destroying rigidbody");
     b2DestroyBody(bodyId);
 }
 
 StaticBody::~StaticBody() {
+    Logger::debug("destroying staticbody");
     b2DestroyBody(bodyId);
 }

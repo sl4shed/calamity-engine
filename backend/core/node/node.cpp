@@ -44,6 +44,7 @@ void Node::removeChild(std::shared_ptr<Node> child)
         if (children[i] == child)
         {
             children[i]->parent = nullptr;
+            children[i]->exit();
             children.erase(children.begin() + i);
             return;
         }
@@ -94,7 +95,7 @@ void Node::render(Graphics &graphics, Engine *engine)
             graphics.renderSprite(*this, engine);
         }
 
-        PolygonSprite *polygonSprite = dynamic_cast<PolygonSprite *>(components[i].get());
+        ShapeSprite *polygonSprite = dynamic_cast<ShapeSprite *>(components[i].get());
         if (polygonSprite && polygonSprite->visible) {
             graphics.renderPolygonSprite(*this, engine);
         }
@@ -130,6 +131,19 @@ void Node::update(float deltaTime)
     for (size_t i = 0; i < children.size(); i++)
     {
         children[i]->update(deltaTime);
+    }
+}
+
+void Node::exit()
+{
+    for (size_t i = 0; i < children.size(); i++)
+    {
+        children[i]->exit();
+    }
+
+    for (size_t i = 0; i < components.size(); i++)
+    {
+        components[i]->exit();
     }
 }
 

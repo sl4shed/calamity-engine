@@ -10,23 +10,40 @@ const Color Color::GREEN = Color(0, 255, 0, 255);
 const Color Color::BLUE = Color(0, 0, 255, 255);
 const Color Color::TRANSPARENT = Color(0, 0, 0, 0);
 
-Color::Color(int r, int g, int b) {
-    this->r = r;
-    this->g = g;
-    this->b = b;
-    this->a = 255;
+Color::Color(int r, int g, int b) : r(r), g(g), b(b), a(255) {}
+Color::Color(int r, int g, int b, int a) : r(r), g(g), b(b), a(a) {}
+
+Color::Color(int hexCode) {
+    r = (hexCode >> 16) & 0xFF;
+    g = (hexCode >> 8)  & 0xFF;
+    b =  hexCode        & 0xFF;
+    a = 255;
 }
 
-Color::Color(int r, int g, int b, int a) {
-    this->r = r;
-    this->g = g;
-    this->b = b;
+Color::Color(int hexCode, int a) : Color(hexCode) {
     this->a = a;
 }
 
-// todo
-Color::Color(std::string hexCode) {}
-Color::Color(std::string hexCode, int a) {}
+Color::Color(std::string hexCode) {
+    if (!hexCode.empty() && hexCode[0] == '#')
+        hexCode = hexCode.substr(1);
+    unsigned int hex = std::stoul(hexCode, nullptr, 16);
+    if (hexCode.size() == 8) { // RRGGBBAA
+        r = (hex >> 24) & 0xFF;
+        g = (hex >> 16) & 0xFF;
+        b = (hex >> 8)  & 0xFF;
+        a =  hex        & 0xFF;
+    } else { // RRGGBB
+        r = (hex >> 16) & 0xFF;
+        g = (hex >> 8)  & 0xFF;
+        b =  hex        & 0xFF;
+        a = 255;
+    }
+}
+
+Color::Color(std::string hexCode, int a) : Color(hexCode) {
+    this->a = a;
+}
 
 Font::Font(std::string path) {
     this->handle = TTF_OpenFont(path.c_str(), size);

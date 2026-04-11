@@ -12,6 +12,7 @@ assets/
     # assets go here
 ```
 Obviously this isnt required but I heavily recommend it.
+Also, while I did write a lot of documentation for every class (documentation which I think is decent), make sure to also look at the examples folder for different features of the engine for actual real code examples which compile!
 
 ## `main.cpp`
 
@@ -21,12 +22,12 @@ There is some boilerplate code that goes into starting a project:
 // includes go here //
 
 int main() {
+    Physics physics = Physics(); // always initialize physics before engine
     Logger::init();
     Engine engine = Engine();
     Input input = Input();
     Graphics graphics = Graphics();
     InputRegistry inputRegistry = InputRegistry();
-    Physics physics = Physics();
     Services::init(&graphics, &engine, &input, &inputRegistry, &physics);
 
     // here initialize any nodes that you want
@@ -36,6 +37,8 @@ int main() {
         engine.update();
         engine.render(graphics);
     }
+    
+    engine.shutdown();
 }
 ```
 

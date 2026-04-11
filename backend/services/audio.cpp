@@ -41,6 +41,8 @@ bool AudioSource::loadAudio()
     return true;
 }
 
+// TODO: add stopping/resetting the audio stream maybe.
+// TODO: add a finished variable like in godot
 void AudioSource::update(float deltaTime)
 {
     if (this->volume != this->prevVolume)
@@ -51,8 +53,7 @@ void AudioSource::update(float deltaTime)
 
     if (this->playing != this->prevPlaying)
     {
-        if (this->playing == false)
-        {
+        if (this->playing == false) {
             SDL_PauseAudioStreamDevice(this->handle.stream);
         }
         else
@@ -73,10 +74,19 @@ void AudioSource::update(float deltaTime)
     }
 }
 
+void AudioSource::exit()
+{
+    if (this->handle.stream) {
+        SDL_DestroyAudioStream(this->handle.stream);
+        SDL_free(this->handle.wav_data);
+        this->handle.stream = nullptr;
+        this->handle.wav_data = nullptr;
+    }
+}
+
 AudioSource::~AudioSource()
 {
-    SDL_DestroyAudioStream(this->handle.stream);
-    SDL_free(this->handle.wav_data);
+    exit();
 }
 
 void AudioSource::initialize()
