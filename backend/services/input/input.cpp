@@ -44,15 +44,16 @@ void Input::update(float deltaTime)
             }
         case SDL_EVENT_MOUSE_MOTION:
             {
-                // todo fucking optimize this bullshit
                 auto ev = std::make_unique<InputEventMouseMotion>();
                 auto camera = Services::engine()->getActiveCamera();
                 auto cameraT = camera->getNode()->globalTransform;
                 auto screen = Services::graphics()->screenSize;
 
-                ev->position = (Vector2){event.motion.x, event.motion.y} + cameraT.position - (screen * camera->origin);
-                ev->relative = (Vector2){event.motion.xrel, event.motion.yrel};
+                float lx, ly;
+                SDL_RenderCoordinatesFromWindow(Services::graphics()->getRenderer(), event.motion.x, event.motion.y, &lx, &ly);
 
+                ev->position = (Vector2){lx, ly} + cameraT.position - (screen * camera->origin);
+                ev->relative = (Vector2){event.motion.xrel, event.motion.yrel};
                 inputs.push_back(std::move(ev));
                 break;
             }
@@ -225,9 +226,14 @@ Vector2 Input::getMousePosition() const {
     auto camera = Services::engine()->getActiveCamera();
     auto cameraT = camera->getNode()->globalTransform;
     auto screen = Services::graphics()->screenSize;
-    float x, y;
-    SDL_GetMouseState(&x, &y);
-    Vector2 pos = (Vector2){x, y} + cameraT.position - (screen * camera->origin);
+    float wx, wy;
+    SDL_GetMouseState(&wx, &wy);
+
+    // map from window coords -> logical renderer coords
+    float lx, ly;
+    SDL_RenderCoordinatesFromWindow(Services::graphics()->getRenderer(), wx, wy, &lx, &ly);
+
+    Vector2 pos = (Vector2){lx, ly} + cameraT.position - (screen * camera->origin);
     return pos;
 }
 

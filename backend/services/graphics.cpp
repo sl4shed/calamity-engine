@@ -49,6 +49,11 @@ SDL_Texture *Graphics::loadTexture(const std::string &path)
     return SDL_CreateTextureFromSurface(renderer, pixels);
 }
 
+SDL_Renderer* Graphics::getRenderer()
+{
+    return renderer;
+}
+
 void Graphics::renderSprite(Node &node, Engine *engine)
 {
     if (!node.currentSprite) return;
@@ -77,8 +82,9 @@ void Graphics::renderSprite(Node &node, Engine *engine)
         vertices[i].position.x = pos.x;
         vertices[i].position.y = pos.y;
 
+        Transform sourceTransform = sprite->sourceTransform;
         Vector2 texturePos = {vertices[i].tex_coord.x, vertices[i].tex_coord.y};
-        texturePos = sprite->sourceTransform.applyTo(texturePos);
+        texturePos = texturePos * sourceTransform.getScale() + Vector2{sourceTransform.position.x / (float)sprite->texture.width, sourceTransform.position.y / (float)sprite->texture.height};
         vertices[i].tex_coord.x = texturePos.x;
         vertices[i].tex_coord.y = texturePos.y;
     }

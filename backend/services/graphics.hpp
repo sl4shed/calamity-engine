@@ -45,6 +45,7 @@ public:
     void postRender();
     void resetLogicalPresentation();
 
+    SDL_Renderer *getRenderer();
     Vector2 screenSize = {480, 272};
     Color clearColor = Color::WHITE;
     RenderLogicalPresentation presentation = RenderLogicalPresentation::LETTERBOX;
