@@ -56,7 +56,7 @@ BoxShape::BoxShape(Vector2 size, Vector2 center) {
     this->center = center;
 
     Vector2 calculatedCenter = center * size;
-    b2Rot rotation = {cos(0), sin(0)};
+    b2Rot rotation = b2Rot();
     
     // scaled version for Box2D
     b2Polygon poly = b2MakeOffsetBox(size.x / 2 * Physics::scale, size.y / 2 * Physics::scale, (b2Vec2)(calculatedCenter * Physics::scale), rotation);

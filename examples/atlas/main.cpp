@@ -9,9 +9,7 @@
 #include "backend/core/node/components.hpp"
 #include "backend/services/physics/physics.hpp"
 #include "atlasScript.hpp"
-
 #ifdef PSP
-// if you want psp support you have to have the psp module info thing
 #include <pspuser.h>
 #include <pspctrl.h>
 #include <pspdisplay.h>
@@ -19,15 +17,26 @@
 PSP_MODULE_INFO("texture", 0, 1, 0);
 PSP_MAIN_THREAD_ATTR(THREAD_ATTR_USER);
 #endif
+#ifdef __EMSCRIPTEN__
+#include <emscripten.h>
+#endif
+
+static Engine engine;
+static Input input;
+static Graphics* graphics = nullptr;
+static Physics physics;
+static InputRegistry inputRegistry;
+
+void loop() {
+    engine.update();
+    engine.render(*graphics);
+}
 
 int main() {
     Logger::init();
-    Engine engine = Engine();
-    Input input = Input();
-    Graphics graphics = Graphics({480, 272}, "Atlas Example", RenderLogicalPresentation::LETTERBOX, {0, 0, 0});
-    InputRegistry inputRegistry = InputRegistry();
-    Physics physics = Physics();
-    Services::init(&graphics, &engine, &input, &inputRegistry, &physics);
+
+    graphics = new Graphics({480, 272}, "Atlas Example", RenderLogicalPresentation::LETTERBOX, {0, 0, 0});
+    Services::init(graphics, &engine, &input, &inputRegistry, &physics);
 
     std::shared_ptr<Node> cameraNode = std::make_shared<Node>();
     std::shared_ptr<Camera> camera = std::make_shared<Camera>();
@@ -49,16 +58,21 @@ int main() {
     label->size = {200, 500};
     lnode->transform.position = {20, 20};
     lnode->addComponent(label);
-    engine.root.addChild(lnode);
 
+    engine.root.addChild(lnode);
     node->addComponent(std::make_shared<AtlasScript>());
     engine.root.addChild(node);
     engine.initialize();
 
-    while(!input.shouldQuit) {
-        engine.update();
-        engine.render(graphics);
+#ifdef __EMSCRIPTEN__
+    emscripten_set_main_loop(loop, 0, 1);
+#else
+    while (!input.shouldQuit) {
+        loop();
     }
-
     engine.shutdown();
+    delete graphics;
+#endif
+
+    return 0;
 }

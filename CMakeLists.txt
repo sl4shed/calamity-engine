@@ -1,11 +1,11 @@
 cmake_minimum_required(VERSION 3.11)
 
-project(calamity-engine)
+project(calamity)
 
 set(BUILD_TARGET "NATIVE" CACHE STRING "Build target: NATIVE | PSP | EMSCRIPTEN")
 set_property(CACHE BUILD_TARGET PROPERTY STRINGS NATIVE PSP EMSCRIPTEN)
 
-add_library(calamity STATIC
+add_library(${PROJECT_NAME} STATIC
     # core
     backend/core/definitions.cpp
     backend/core/node/components.cpp
@@ -27,7 +27,7 @@ add_library(calamity STATIC
     backend/services/physics/physics.cpp
 )
 
-target_include_directories(calamity PUBLIC
+target_include_directories(${PROJECT_NAME} PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
     $<INSTALL_INTERFACE:include>
 )
@@ -38,15 +38,15 @@ if(BUILD_TARGET STREQUAL "PSP")
     find_package(SDL3_image REQUIRED CONFIG)
     find_package(SDL3_ttf REQUIRED CONFIG)
     find_package(box2d)
-    target_link_libraries(calamity PUBLIC box2d)
+    target_link_libraries(${PROJECT_NAME} PUBLIC box2d)
 
-    target_link_libraries(calamity PUBLIC
+    target_link_libraries(${PROJECT_NAME} PUBLIC
         SDL3::SDL3
         SDL3_image::SDL3_image
         SDL3_ttf::SDL3_ttf
     )
 elseif(BUILD_TARGET STREQUAL "NATIVE")
-    target_compile_definitions(calamity PUBLIC PLATFORM_NATIVE)
+    target_compile_definitions(${PROJECT_NAME} PUBLIC PLATFORM_NATIVE)
     message(STATUS "Building for native")
     find_package(SDL3 REQUIRED CONFIG REQUIRED COMPONENTS SDL3-shared)
     find_package(SDL3_image REQUIRED CONFIG)
@@ -54,9 +54,9 @@ elseif(BUILD_TARGET STREQUAL "NATIVE")
 
     # box2d
     find_package(box2d)
-    target_link_libraries(calamity PUBLIC box2d)
+    target_link_libraries(${PROJECT_NAME} PUBLIC box2d)
 
-    target_link_libraries(calamity PUBLIC
+    target_link_libraries(${PROJECT_NAME} PUBLIC
         SDL3::SDL3
         SDL3_image::SDL3_image
         SDL3_ttf::SDL3_ttf
@@ -67,39 +67,50 @@ elseif(BUILD_TARGET STREQUAL "EMSCRIPTEN")
     set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/$<CONFIGURATION>")
     add_subdirectory(vendored/SDL EXCLUDE_FROM_ALL)
     add_subdirectory(vendored/SDL_image EXCLUDE_FROM_ALL)
+    set(SDLTTF_VENDORED ON CACHE BOOL "" FORCE)
     add_subdirectory(vendored/SDL_ttf EXCLUDE_FROM_ALL)
 
-    target_link_libraries(calamity PUBLIC SDL3::SDL3 SDL3_image::SDL3_image)
-    target_compile_definitions(calamity PUBLIC __EMSCRIPTEN__)
-    target_compile_options(calamity PUBLIC -sUSE_SDL=3 -sUSE_SDL_IMAGE=3)
-    target_link_options(calamity PUBLIC -sUSE_SDL=3 -sUSE_SDL_IMAGE=3 -sUSE_SDL_TTF=3 -sUSE_FREETYPE=1 -sUSE_HARFBUZZ=1 -sALLOW_MEMORY_GROWTH=1)
+    target_link_libraries(${PROJECT_NAME} PUBLIC SDL3::SDL3 SDL3_image::SDL3_image SDL3_ttf::SDL3_ttf)
+    target_compile_definitions(${PROJECT_NAME} PUBLIC __EMSCRIPTEN__)
+    target_compile_options(${PROJECT_NAME} PUBLIC -sUSE_SDL=3 -sUSE_SDL_IMAGE=3)
+    target_link_options(${PROJECT_NAME} PUBLIC -sUSE_SDL=3 -sUSE_SDL_IMAGE=3 -sUSE_SDL_TTF=3 -sUSE_FREETYPE=1 -sUSE_HARFBUZZ=1 -sALLOW_MEMORY_GROWTH=1)
 else()
     message(FATAL_ERROR "Unknown BUILD_TARGET: ${BUILD_TARGET}")
 endif()
 
 if(BUILD_TARGET STREQUAL "EMSCRIPTEN")
+    target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)
+
     add_subdirectory(vendored/fmt)
-    target_link_libraries(calamity PUBLIC fmt::fmt)
+    target_link_libraries(${PROJECT_NAME} PUBLIC fmt::fmt)
 
     add_subdirectory(vendored/spdlog)
-    target_link_libraries(calamity PUBLIC spdlog::spdlog)
+    target_link_libraries(${PROJECT_NAME} PUBLIC spdlog::spdlog)
 
-    target_compile_features(calamity PUBLIC cxx_std_17)
     set(CEREAL_INSTALL OFF CACHE BOOL "" FORCE)
     set(BUILD_TESTS OFF CACHE BOOL "" FORCE)
     set(SKIP_PORTABILITY_TEST ON CACHE BOOL "" FORCE)
     set(BUILD_SANDBOX OFF CACHE BOOL "" FORCE)
-    target_include_directories(calamity PUBLIC vendored/cereal/include)
-    #target_link_libraries(calamity PUBLIC cereal::cereal)
+    target_include_directories(${PROJECT_NAME} PUBLIC vendored/cereal/include)
+    
+    set(BOX2D_SAMPLES OFF CACHE BOOL "" FORCE)
+    set(GLFW_BUILD_WAYLAND OFF CACHE BOOL "" FORCE)
+    set(BOX2D_SAMPLES OFF CACHE BOOL "" FORCE)
+    set(BOX2D_BENCHMARKS OFF CACHE BOOL "" FORCE)
+    set(BOX2D_PROFILE OFF CACHE BOOL "" FORCE)
+    set(BOX2D_VALIDATE OFF CACHE BOOL "" FORCE)
+    set(BOX2D_UNIT_TESTS OFF CACHE BOOL "" FORCE)
+    add_subdirectory(vendored/box2d EXCLUDE_FROM_ALL)
+    target_link_libraries(${PROJECT_NAME} PUBLIC box2d)
 else()
     find_package(fmt REQUIRED)
-    target_link_libraries(calamity PUBLIC fmt::fmt)
+    target_link_libraries(${PROJECT_NAME} PUBLIC fmt::fmt)
 
     find_package(spdlog CONFIG REQUIRED)
-    target_link_libraries(calamity PUBLIC spdlog::spdlog)
+    target_link_libraries(${PROJECT_NAME} PUBLIC spdlog::spdlog)
 
     find_package(cereal REQUIRED)
-    target_link_libraries(calamity PUBLIC cereal::cereal)
+    target_link_libraries(${PROJECT_NAME} PUBLIC cereal::cereal)
 
     configure_file(${CMAKE_CURRENT_SOURCE_DIR}/vendored/SDL_GameControllerDB/gamecontrollerdb.txt ${CMAKE_CURRENT_BINARY_DIR}/gamecontrollerdb.txt COPYONLY)
     configure_file(${CMAKE_CURRENT_SOURCE_DIR}/assets/default.ttf ${CMAKE_CURRENT_BINARY_DIR}/default.ttf COPYONLY) 
