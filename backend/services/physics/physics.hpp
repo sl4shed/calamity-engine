@@ -15,7 +15,7 @@
  */
 class Physics {
 public:
-    Physics(Vector2 gravity = {0.0f, -9.81f});
+    Physics(Vector2 gravity = {0.0f, 9.81f});
     ~Physics();
 
     void physicsUpdate(float timeStep);

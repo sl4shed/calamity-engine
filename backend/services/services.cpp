@@ -5,13 +5,15 @@ Engine *Services::s_engine = nullptr;
 Input *Services::s_input = nullptr;
 InputRegistry* Services::s_inputRegistry = nullptr;
 Physics* Services::s_physics = nullptr;
+Audio* Services::s_audio = nullptr;
 
-void Services::init(Graphics *graphics, Engine *engine, Input *input, InputRegistry *inputRegistry, Physics *physics)
+void Services::init(Graphics *graphics, Physics *physics, Engine *engine, Input *input, InputRegistry *inputRegistry, Audio *audio)
 {
     s_graphics = graphics;
     s_engine = engine;
     s_input = input;
     s_inputRegistry = inputRegistry;
+    s_audio = audio;
     s_physics = physics;
 }
 
@@ -39,11 +41,16 @@ Physics *Services::physics() {
     return s_physics;
 }
 
+Audio *Services::audio() {
+    return s_audio;
+}
+
 void Services::shutdown()
 {
     s_graphics = nullptr;
     s_engine = nullptr;
     s_input = nullptr;
     s_inputRegistry = nullptr;
+    s_audio = nullptr;
     s_physics = nullptr;
 }

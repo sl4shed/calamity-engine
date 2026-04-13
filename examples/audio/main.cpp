@@ -26,7 +26,7 @@ int main() {
     Input input = Input();
     Graphics graphics = Graphics({480, 272}, "Sound Example", RenderLogicalPresentation::LETTERBOX, {0, 0, 0});
     InputRegistry inputRegistry = InputRegistry();
-    Services::init(&graphics, &engine, &input, &inputRegistry, &physics);
+    Services::init(&graphics, &physics, &engine, &input, &inputRegistry);
 
     std::shared_ptr<Node> cameraNode = std::make_shared<Node>();
     std::shared_ptr<Camera> camera = std::make_shared<Camera>();
@@ -39,10 +39,13 @@ int main() {
     node->addComponent(sound);
 
     // play sound
-    sound->playing = true;
+    sound->play();
+    sound->finished.connect([]() {
+        Logger::info("Sound finished playing!");
+    });
 
     std::shared_ptr<Node> lnode = std::make_shared<Node>();
-    std::shared_ptr<Label> label = std::make_shared<Label>("The sound should start automatically.");
+    std::shared_ptr<Label> label = std::make_shared<Label>("Space - stop/play sound");
     label->font->setSize(12);
     label->size = {200, 500};
     lnode->transform.position = {20, 20};

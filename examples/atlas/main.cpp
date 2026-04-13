@@ -17,7 +17,8 @@
 PSP_MODULE_INFO("texture", 0, 1, 0);
 PSP_MAIN_THREAD_ATTR(THREAD_ATTR_USER);
 #endif
-#ifdef __EMSCRIPTEN__
+
+#ifdef EMSCRIPTEN
 #include <emscripten.h>
 #endif
 

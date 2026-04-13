@@ -17,11 +17,6 @@ target_include_directories(${PROJECT_NAME} PUBLIC
 add_subdirectory("../../" "calamity")
 target_link_libraries(${PROJECT_NAME} PRIVATE calamity)
 
-add_custom_target(copy_assets
-    COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_LIST_DIR}/assets ${CMAKE_CURRENT_BINARY_DIR}/assets
-)
-add_dependencies(${PROJECT_NAME} copy_assets)
-
 if(BUILD_TARGET STREQUAL "EMSCRIPTEN")
     set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/$<CONFIGURATION>")
     set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/$<CONFIGURATION>")
@@ -36,7 +31,6 @@ if(BUILD_TARGET STREQUAL "EMSCRIPTEN")
         OUTPUT_NAME "index"
         SUFFIX ".html"
     )
-    target_link_options(${PROJECT_NAME} PRIVATE --embed-file ./assets/)
 elseif(BUILD_TARGET STREQUAL "PSP")
     create_pbp_file(
         TARGET ${PROJECT_NAME}

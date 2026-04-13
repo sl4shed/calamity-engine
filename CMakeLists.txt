@@ -8,6 +8,7 @@ set_property(CACHE BUILD_TARGET PROPERTY STRINGS NATIVE PSP EMSCRIPTEN)
 add_library(${PROJECT_NAME} STATIC
     # core
     backend/core/definitions.cpp
+    backend/core/signal.cpp
     backend/core/node/components.cpp
     backend/core/node/node.cpp
     backend/core/ui/definitions.cpp

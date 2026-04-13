@@ -12,6 +12,10 @@
 #include "backend/core/ui/label.hpp"
 #include "rootScript.hpp"
 
+#ifdef EMSCRIPTEN
+#include <emscripten.h>
+#endif
+
 #ifdef PSP
 // if you want psp support you have to have the psp module info thing
 #include <pspuser.h>
@@ -22,14 +26,21 @@ PSP_MODULE_INFO("texture", 0, 1, 0);
 PSP_MAIN_THREAD_ATTR(THREAD_ATTR_USER);
 #endif
 
+static Physics physics = Physics({0, 9.81f});
+static Engine engine;
+static Input input;
+static Graphics* graphics = nullptr;
+static InputRegistry inputRegistry;
+
+void loop() {
+    engine.update();
+    engine.render(*graphics);
+}
+
 int main() {
     Logger::init();
-    Physics physics = Physics({0, 9.81f});
-    Engine engine = Engine();
-    Input input = Input();
-    Graphics graphics = Graphics({480, 272}, "Physics Example", RenderLogicalPresentation::LETTERBOX, Color::BLACK);
-    InputRegistry inputRegistry = InputRegistry();
-    Services::init(&graphics, &engine, &input, &inputRegistry, &physics);
+    graphics = new Graphics({480, 272}, "Physics Example", RenderLogicalPresentation::LETTERBOX, Color::BLACK);
+    Services::init(graphics, &engine, &input, &inputRegistry, &physics);
 
     inputRegistry.addAction("add", 0.2f);
     auto addEvent = std::make_unique<InputEventMouseButton>();
@@ -68,10 +79,13 @@ int main() {
     engine.root.addComponent(std::make_shared<RootScript>());
     engine.initialize();
 
+#ifdef EMSCRIPTEN
+    emscripten_set_main_loop(loop, 0, 1);
+#else
     while(!input.shouldQuit) {
-        engine.update();
-        engine.render(graphics);
+        loop();
     }
+#endif
 
     engine.shutdown();
 }
