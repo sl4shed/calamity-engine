@@ -21,14 +21,29 @@ PSP_MODULE_INFO("texture", 0, 1, 0);
 PSP_MAIN_THREAD_ATTR(THREAD_ATTR_USER);
 #endif
 
+#ifdef EMSCRIPTEN
+#include <emscripten.h>
+#endif
+
+static Physics physics;
+static Engine engine;
+static Graphics* graphics = nullptr;
+
+void loop()
+{
+    engine.update();
+    engine.render(*graphics);
+}
+
 int main() {
     Logger::init();
-    Engine engine = Engine();
-    Input input = Input();
-    Graphics graphics = Graphics({480, 272}, "Text Example", RenderLogicalPresentation::LETTERBOX, Color::BLACK);
-    InputRegistry inputRegistry = InputRegistry();
-    Physics physics = Physics();
-    Services::init(&graphics, &engine, &input, &inputRegistry, &physics);
+
+    Input input;
+    InputRegistry inputRegistry;
+    Audio audio;
+
+    graphics = new Graphics({480, 272}, "Text Example", RenderLogicalPresentation::LETTERBOX, Color::BLACK);
+    Services::init(graphics, &physics, &engine, &input, &inputRegistry, &audio);
 
     std::shared_ptr<Node> cameraNode = std::make_shared<Node>();
     std::shared_ptr<Camera> camera = std::make_shared<Camera>();
@@ -44,10 +59,13 @@ int main() {
     engine.root.addChild(node);
     engine.initialize();
 
+#ifdef EMSCRIPTEN
+    emscripten_set_main_loop(loop, 0, 1);
+#else
     while(!input.shouldQuit) {
-        engine.update();
-        engine.render(graphics);
+        loop();
     }
+#endif
 
     engine.shutdown();
 }

@@ -34,7 +34,11 @@ Label::Label(std::string text, Font *font) {
 }
 
 Label::Label(std::string text) {
+#ifdef EMSCRIPTEN
+    static Font dfont = Font("/calamity/default.ttf");
+#else
     static Font dfont = Font("./calamity/default.ttf");
+#endif
     this->font = &dfont;
     this->handle = TTF_CreateText(Services::graphics()->getTextEngine(), font->getHandle(), text.c_str(), text.size());
     this->setColor({255, 255, 255, 255});

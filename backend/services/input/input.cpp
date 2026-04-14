@@ -164,17 +164,15 @@ void Input::update(float deltaTime)
 
     prevActionStrength = actionStrength;
     actionStrength.clear();
-    for (auto& e : inputs) {
-        Services::engine()->root.input(*e);    
-    }
 
+    // send events and pull action strengths and held actions
     for (auto& e : inputs) {
+        Services::engine()->root.input(*e);
+
         if (auto* motion = dynamic_cast<InputEventControllerMotion*>(e.get())) {
             for (auto& [name, action] : *actionsArrayPointer)
                 if (Services::inputRegistry()->eventIsAction(e.get(), name, true))
-                {
                     actionStrength[name] = std::max(actionStrength.count(name) ? actionStrength[name] : 0.0f, std::abs(motion->getStrength()));
-                }
         } else {
             for (auto& [name, action] : *actionsArrayPointer) {
                 if (Services::inputRegistry()->eventIsAction(e.get(), name, true)) {
@@ -185,22 +183,22 @@ void Input::update(float deltaTime)
         }
     }
 
-    // poll analog bindings directly from hardware
+    // special cases for action strengths and held actions
     for (auto& [name, action] : *actionsArrayPointer) {
+        float evStrength = actionStrength.count(name) ? actionStrength[name] : 0.0f;
+
+        float pollStrength = 0.0f;
         for (auto& stored : action.events) {
             if (auto* motion = dynamic_cast<InputEventControllerMotion*>(stored.get())) {
                 float val = getControllerAxis(motion->device, motion->axis);
-                // only activate if val is in the same direction as the binding
-                float directed = val * motion->motion; // positive if same direction
+                float directed = val * motion->motion;
                 if (directed > action.deadzone)
-                    actionStrength[name] = std::max(actionStrength.count(name) ? actionStrength[name] : 0.0f, directed);
+                    pollStrength = std::max(pollStrength, directed);
             }
         }
-    }
 
-    for (auto& [name, action] : *actionsArrayPointer) {
-        if (!actionStrength.count(name))
-            actionStrength[name] = heldActions.count(name) ? 1.0f : 0.0f;
+        float held = heldActions.count(name) ? 1.0f : 0.0f;
+        actionStrength[name] = std::max({evStrength, pollStrength, held});
     }
 }
 

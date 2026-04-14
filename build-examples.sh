@@ -1,0 +1,67 @@
+#!/bin/bash
+set -e
+echo "Make sure to have emsdk activated!"
+
+EXAMPLES_DIR="examples"
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+
+CLEAN=false
+
+# parse args
+for arg in "$@"; do
+    case $arg in
+        --clean)
+            CLEAN=true
+            shift
+            ;;
+    esac
+done
+
+for example in "$EXAMPLES_DIR"/*/; do
+    [ -d "$example" ] || continue
+
+    echo "==> Building: $example"
+    cd "$example"
+
+    # optionally clean build
+    for build_dir in build build-web build-psp; do
+        if [ "$CLEAN" = true ]; then
+            rm -rf "$build_dir"
+        fi
+
+        # ensure directory exists
+        mkdir -p "$build_dir"
+    done
+
+    # native build
+    cd build
+    echo " -> building native..."
+    {
+        cmake -G Ninja -DBUILD_TARGET=NATIVE -DCMAKE_BUILD_TYPE=Release ..
+        ninja
+    } > /dev/null 2>&1 || echo " -> native build FAILED"
+    cd ..
+
+    # emscripten build
+    cd build-web
+    echo " -> building emscripten..."
+    {
+        emcmake cmake -DBUILD_TARGET=EMSCRIPTEN -DCMAKE_BUILD_TYPE=Release -DSDLTTF_VENDORED=ON ..
+        emmake make
+    } > /dev/null 2>&1 || echo " -> emscripten build FAILED"
+    cd ..
+
+    # psp build
+    cd build-psp
+    echo " -> building psp..."
+    {
+        psp-cmake -DBUILD_TARGET=PSP -DCMAKE_BUILD_TYPE=Release -G Ninja ..
+        ninja
+    } > /dev/null 2>&1 || echo " -> psp build FAILED"
+    cd ..
+
+    cd "$SCRIPT_DIR"
+    echo "--> Done building: $example"
+done
+
+echo "All examples built."

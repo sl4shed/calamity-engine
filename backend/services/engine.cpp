@@ -1,4 +1,6 @@
 #include "engine.hpp"
+
+#include "audio.hpp"
 #include "services.hpp"
 #include "input/input.hpp"
 #include "graphics.hpp"
@@ -53,6 +55,7 @@ Engine::~Engine()
 
 void Engine::initialize() {
     root.initialize();
+    Services::audio()->initialize();
 }
 
 void Engine::update()

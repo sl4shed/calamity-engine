@@ -93,7 +93,7 @@ if(BUILD_TARGET STREQUAL "EMSCRIPTEN")
     set(SKIP_PORTABILITY_TEST ON CACHE BOOL "" FORCE)
     set(BUILD_SANDBOX OFF CACHE BOOL "" FORCE)
     target_include_directories(${PROJECT_NAME} PUBLIC vendored/cereal/include)
-    
+
     set(BOX2D_SAMPLES OFF CACHE BOOL "" FORCE)
     set(GLFW_BUILD_WAYLAND OFF CACHE BOOL "" FORCE)
     set(BOX2D_SAMPLES OFF CACHE BOOL "" FORCE)
@@ -103,6 +103,15 @@ if(BUILD_TARGET STREQUAL "EMSCRIPTEN")
     set(BOX2D_UNIT_TESTS OFF CACHE BOOL "" FORCE)
     add_subdirectory(vendored/box2d EXCLUDE_FROM_ALL)
     target_link_libraries(${PROJECT_NAME} PUBLIC box2d)
+
+    set(CALAMITY_ROOT "${CMAKE_CURRENT_LIST_DIR}" CACHE INTERNAL "Path to engine root")
+    message(STATUS "CALAMITY_ROOT = ${CALAMITY_ROOT}")
+    function(calamity_apply_assets target)
+        target_link_options(${target} PRIVATE
+                --preload-file=${CALAMITY_ROOT}/vendored/SDL_GameControllerDB/gamecontrollerdb.txt@calamity/gamecontrollerdb.txt
+                --preload-file=${CALAMITY_ROOT}/assets/default.ttf@calamity/default.ttf
+        )
+    endfunction()
 else()
     find_package(fmt REQUIRED)
     target_link_libraries(${PROJECT_NAME} PUBLIC fmt::fmt)
@@ -114,5 +123,5 @@ else()
     target_link_libraries(${PROJECT_NAME} PUBLIC cereal::cereal)
 
     configure_file(${CMAKE_CURRENT_SOURCE_DIR}/vendored/SDL_GameControllerDB/gamecontrollerdb.txt ${CMAKE_CURRENT_BINARY_DIR}/gamecontrollerdb.txt COPYONLY)
-    configure_file(${CMAKE_CURRENT_SOURCE_DIR}/assets/default.ttf ${CMAKE_CURRENT_BINARY_DIR}/default.ttf COPYONLY) 
+    configure_file(${CMAKE_CURRENT_SOURCE_DIR}/assets/default.ttf ${CMAKE_CURRENT_BINARY_DIR}/default.ttf COPYONLY)
 endif()

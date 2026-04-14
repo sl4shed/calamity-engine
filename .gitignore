@@ -69,10 +69,13 @@ Testing/
 .cache/
 
 #vendored/
+build-web/
+build-em/
 build-emscripten/
 build-psp/
 psp-build/
 em-build/
+web-build/
 .vscode/
 docs-out/
 */build

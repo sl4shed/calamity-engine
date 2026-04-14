@@ -20,14 +20,28 @@ PSP_MODULE_INFO("texture", 0, 1, 0);
 PSP_MAIN_THREAD_ATTR(THREAD_ATTR_USER);
 #endif
 
+#ifdef EMSCRIPTEN
+#include <emscripten.h>
+#endif
+
+static Physics physics;
+static Engine engine;
+static Graphics* graphics = nullptr;
+
+void loop() {
+    engine.update();
+    engine.render(*graphics);
+}
+
 int main() {
     Logger::init();
-    Physics physics = Physics();
-    Engine engine = Engine();
-    Input input = Input();
-    Graphics graphics = Graphics({480, 272}, "Input Example", RenderLogicalPresentation::LETTERBOX, {0, 0, 0});
-    InputRegistry inputRegistry = InputRegistry();
-    Services::init(&graphics, &engine, &input, &inputRegistry, &physics);
+
+    Input input;
+    InputRegistry inputRegistry;
+    Audio audio;
+
+    graphics = new Graphics({480, 272}, "Input Example", RenderLogicalPresentation::LETTERBOX, Color::BLACK);
+    Services::init(graphics, &physics, &engine, &input, &inputRegistry, &audio);
 
     inputRegistry.addAction("left", 0.2f);
     auto leftEvent = std::make_unique<InputEventControllerMotion>();
@@ -100,10 +114,13 @@ int main() {
     engine.root.addChild(node);
     engine.initialize();
 
+#ifdef EMSCRIPTEN
+    emscripten_set_main_loop(loop, 0, 1);
+#else
     while(!input.shouldQuit) {
-        engine.update();
-        engine.render(graphics);
+        loop();
     }
+#endif
 
     engine.shutdown();
 }

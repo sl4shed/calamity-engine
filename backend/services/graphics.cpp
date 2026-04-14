@@ -16,7 +16,12 @@ Graphics::Graphics(Vector2 s, std::string title, RenderLogicalPresentation p, Co
     clearColor = cc;
     SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMEPAD | SDL_INIT_AUDIO | SDL_INIT_GAMEPAD);
     TTF_Init();
+
+#ifdef EMSCRIPTEN
+    SDL_AddGamepadMappingsFromFile("/calamity/gamecontrollerdb.txt");
+#else
     SDL_AddGamepadMappingsFromFile("./calamity/gamecontrollerdb.txt");
+#endif
 
     this->window = SDL_CreateWindow(
         title.c_str(),

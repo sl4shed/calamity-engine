@@ -2,12 +2,15 @@
 #include <SDL3/SDL_audio.h>
 
 
-Audio::Audio() {
-    this->openAudioDevice(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK);
-}
+Audio::Audio() {}
 
 Audio::~Audio() {
     SDL_CloseAudioDevice(this->device);
+}
+
+void Audio::initialize()
+{
+    this->openAudioDevice(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK);
 }
 
 void Audio::openAudioDevice(int id) {
