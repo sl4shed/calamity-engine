@@ -16,14 +16,36 @@ enum class Whence {
 /**
  * # File
  *
- * user://path/to/file
- * res://path/to/file
+ * Can be used to access the host filesystem. Generally, you would only want access to an app-specific folder (for save data, for example) or to the root of the app. So, that's exactly what you get!
  *
+ * When trying to access a file anywhere in calamity engine, you can use the `user://` and `res://` prefixes to access the user folder and the base folder of the app respectively:
+ * ```cpp
+ * File *save = File::open("user://savedata.txt", "r");
+ * std::string saveText = save->getAsText();
+ * Logger::info("save data: {}", saveText);
+ *
+ * // Output: yeah
+ * ```
+ *
+ * You can also write to files:
+ * ```cpp
+ * File *save = File::open("user://savedata.txt", "a+");
+ * save->seek(0, Whence::END);
+ * save->storeString("yeah 2");
+ *
+ * Logger::info("{}", save->getAsText());
+ * // Output: yeah
+ * // Output: yeah 2
+ * ```
+ *
+ * If you structured your project like was recommended in the getting started guide, you access your game assets like so:
+ * ```
+ *
+ * ```
  */
 class File
 {
 public:
-    File();
     ~File();
     std::string mode;
     std::string path;

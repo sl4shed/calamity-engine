@@ -8,7 +8,7 @@
 #include "../core/ui/definitions.hpp"
 #include "engine.hpp"
 
-Graphics::Graphics(Vector2 s, RenderLogicalPresentation p, Color cc, WindowFlags flags)
+Graphics::Graphics(Vector2 s, std::string t, RenderLogicalPresentation p, Color cc, WindowFlags flags)
     : screenSize(s)
 {
     presentation = p;
@@ -23,7 +23,7 @@ Graphics::Graphics(Vector2 s, RenderLogicalPresentation p, Color cc, WindowFlags
 #endif
 
     this->window = SDL_CreateWindow(
-        Services::engine()->appName.c_str(),
+        t.c_str(),
         screenSize.x,
         screenSize.y,
         (SDL_WindowFlags)flags
@@ -33,7 +33,7 @@ Graphics::Graphics(Vector2 s, RenderLogicalPresentation p, Color cc, WindowFlags
 
     this->renderer = SDL_CreateRenderer(window, NULL);
 #ifdef PSP
-    // current sdl3 ttf release doesn't respect the max texture size of 512 for the psp so I have to do this
+    // current sdl3 ttf release doesn't respect the max texture size of 512 for the psp, so I have to do this
     // https://github.com/pspdev/psp-packages/issues/289
     SDL_PropertiesID props = SDL_CreateProperties();
     SDL_SetPointerProperty(props, TTF_PROP_RENDERER_TEXT_ENGINE_RENDERER, renderer);

@@ -50,7 +50,7 @@ int main() {
     std::shared_ptr<Node> node = std::make_shared<Node>();
     node->transform.scale({4, 4});
     std::shared_ptr<Sprite> sprite = std::make_shared<Sprite>();
-    sprite->texture = Texture("assets/atlas.png");
+    sprite->texture = Texture("res://assets/atlas.png");
     sprite->sourceTransform.scale({0.5, 1});
     sprite->sourceTransform.position = {160, 0};
     node->transform.scale(Vector2(0.5, 1) * 0.2);

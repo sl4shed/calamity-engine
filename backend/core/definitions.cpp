@@ -3,6 +3,7 @@
 #include <SDL3/SDL.h>
 #include "../services/graphics.hpp"
 #include "../services/services.hpp"
+#include "../utils/file.hpp"
 #include <cereal/archives/json.hpp>
 #include <fstream>
 
@@ -101,7 +102,7 @@ Matrix2 Matrix2::scale(Vector2 s)
     return result;
 }
 ///////////////////////////////////////////
-// transform /////////////////////////////
+// transform //////////////////////////////
 ///////////////////////////////////////////
 
 void Transform::rotate(float angle)
@@ -173,15 +174,14 @@ Transform Transform::inverse() const
 }
 
 // texture
-Texture::Texture(std::string p)
+Texture::Texture(std::string p) : path(p), handle(nullptr), width(0), height(0)
 {
-    this->path = p;
     this->initialize();
 }
 
 void Texture::initialize()
 {
-    this->handle = Services::graphics()->loadTexture(this->path);
-    this->width = static_cast<SDL_Texture *>(handle)->w;
-    this->height = static_cast<SDL_Texture *>(handle)->h;
+    this->handle = Services::graphics()->loadTexture(File::getAbsoluteFilePath(this->path));
+    this->width = handle->w;
+    this->height = (handle)->h;
 }

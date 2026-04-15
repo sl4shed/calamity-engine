@@ -8,6 +8,7 @@
 #include "backend/services/services.hpp"
 #include "backend/core/node/components.hpp"
 #include "backend/services/physics/physics.hpp"
+#include "backend/utils/file.hpp"
 #include "inputScript.hpp"
 
 #ifdef PSP
@@ -99,7 +100,7 @@ int main() {
     std::shared_ptr<Node> node = std::make_shared<Node>();
     node->transform.scale({4, 4});
     std::shared_ptr<Sprite> sprite = std::make_shared<Sprite>();
-    sprite->texture = Texture("assets/glass.png");
+    sprite->texture = Texture("res://assets/glass.png");
     node->addComponent(sprite);
 
     std::shared_ptr<Node> lnode = std::make_shared<Node>();

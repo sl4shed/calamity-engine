@@ -52,14 +52,14 @@ enum class WindowFlags {
  * // main loop (usually in a function for emscripten compatibility)
  * while (running) {
  *   engine.update();
- *   engine.render(Services::graphics());
+ *   engine.render(graphics);
  * }
  * ```
  */
 class Graphics
 {
 public:
-    Graphics(Vector2 screenSize = {480, 272}, RenderLogicalPresentation presentation = RenderLogicalPresentation::LETTERBOX, Color clearColor = Color::BLACK, WindowFlags flags = WindowFlags::RESIZABLE);
+    Graphics(Vector2 screenSize = {480, 272}, std::string title = "Calamity App", RenderLogicalPresentation presentation = RenderLogicalPresentation::LETTERBOX, Color clearColor = Color::BLACK, WindowFlags flags = WindowFlags::RESIZABLE);
     SDL_Texture *loadTexture(const std::string &path);
     void renderSprite(Node &node, Engine *engine);
     void renderPolygonSprite(Node &node, Engine *engine);

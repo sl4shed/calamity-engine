@@ -12,7 +12,6 @@ File::~File()
     }
 }
 
-
 File *File::open(std::string path, std::string mode) {
     File *file = new File();
     file->path = path;
@@ -115,17 +114,17 @@ void File::storeString(std::string str) {
     if (handle) {
         SDL_WriteIO(handle, str.c_str(), str.size());
         return;
-    } else {
-        Logger::warn("Attempted to write string to file with no handle: {}", path);
     }
+    Logger::warn("Attempted to write string to file with no handle: {}", path);
 }
 
 void File::storeLine(std::string str) {
     if(!str.empty() && str.back() == '\n') {
         storeString(str);
-    } else {
-        storeString(str + "\n");
+        return;
     }
+
+    storeString(str + "\n");
 }
 
 std::string File::getAbsoluteFilePath(std::string path) {
@@ -138,9 +137,9 @@ int File::getFileSize(std::string path) {
     if(SDL_GetPathInfo(fsPath.c_str(), &pathInfo) == true) {
         int size = pathInfo.size;
         return size;
-    } else {
-        return -1;
     }
+
+    return -1;
 }
 
 bool File::fileExists(std::string path) {
@@ -159,6 +158,9 @@ std::string File::getFileAsText(std::string path) {
         SDL_CloseIO(stream);
         return text;
     }
+
+    Logger::debug("Failed to get file {} as text: {}", path, SDL_GetError());
+    return "";
 }
 
 /**

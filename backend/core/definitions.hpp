@@ -43,17 +43,17 @@ struct Vector2
 
 /**
  * # Texture class
- * This is a simple wrapper around an SDL_Texture pointer, which also stores the width and height of the texture.
+ * Stores an image, its path, its width and its size.
  *
  * Example usage:
  * ```
- * Texture texture = Texture("path/to/texture.png");
+ * Texture texture = Texture("res://path/to/texture.png");
  * ```
  */
 class Texture
 {
 public:
-    Texture() : handle(nullptr), width(0), height(0) {}
+    Texture() : handle(nullptr), width(0), height(0) {};
     Texture(std::string path);
     template <class Archive>
     void load(Archive &ar)
@@ -77,7 +77,8 @@ public:
 
 /**
  * # Matrix2 struct
- * also known as the bane of my existence. nothing interesting here either.
+ * Also known as the bane of my existence :)
+ *
  * You can multiply them together, multiply with a Vector2, subtract, divide and add them.
  * You can also create rotation and scale matrices with the static functions.
  */
@@ -103,7 +104,8 @@ struct Matrix2
 
 /**
  * # Transform struct
- * This is the struct that represents the position, rotation and scale of a node.
+ *
+ * This is the struct that represents the position, rotation and scale of a node (or anything else, for that matter. For example, sprites have source transforms).
  * The position is stored as a Vector2, and the rotation and scale are stored in a Matrix2.
  */
 struct Transform
@@ -131,7 +133,8 @@ struct Transform
 
 /**
  * # Polygon
- * A simple polygon class, which basically mirrors the [box2d polygon class](https://box2d.org/documentation/group__geometry.html#structb2_polygon).
+ *
+ * A simple polygon class, which basically mirrors the [Box2D polygon class](https://box2d.org/documentation/group__geometry.html#structb2_polygon).
  */
 struct Polygon {
     Polygon();

@@ -1,5 +1,7 @@
 #include "engine.hpp"
 
+#include <utility>
+
 #include "audio.hpp"
 #include "services.hpp"
 #include "input/input.hpp"
@@ -38,7 +40,7 @@ int SetupCallbacks(void)
 }
 #endif
 
-Engine::Engine(std::string _appName) : appName(_appName)
+Engine::Engine(std::string _appName) : appName(std::move(_appName))
 {
     root = Node();
     root.transform.position = {0, 0};
