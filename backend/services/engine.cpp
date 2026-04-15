@@ -38,7 +38,7 @@ int SetupCallbacks(void)
 }
 #endif
 
-Engine::Engine()
+Engine::Engine(std::string _appName) : appName(_appName)
 {
     root = Node();
     root.transform.position = {0, 0};

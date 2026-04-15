@@ -27,9 +27,12 @@
 class Engine
 {
 public:
-    Engine();
+    Engine(std::string _appName = "Calamity App");
     ~Engine();
+
     Node root;
+    const std::string appName;
+
     void update();
     void render(Graphics &graphics);
     void initialize();

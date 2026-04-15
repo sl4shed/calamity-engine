@@ -23,12 +23,9 @@ PSP_MAIN_THREAD_ATTR(THREAD_ATTR_USER);
 #include <emscripten.h>
 #endif
 
-static Physics physics = Physics();
-static Engine engine;
-static Input input;
+static Physics physics;
+static Engine engine = Engine("Calamity Engine");
 static Graphics* graphics = nullptr;
-static InputRegistry inputRegistry;
-static Audio audio;
 
 void loop()
 {
@@ -38,7 +35,12 @@ void loop()
 
 int main() {
     Logger::init();
-    graphics = new Graphics({480, 272}, "Audio Example", RenderLogicalPresentation::LETTERBOX, Color::BLACK);
+
+    Input input;
+    InputRegistry inputRegistry;
+    Audio audio;
+
+    graphics = new Graphics({480, 272});
     Services::init(graphics, &physics, &engine, &input, &inputRegistry, &audio);
 
     std::shared_ptr<Node> cameraNode = std::make_shared<Node>();

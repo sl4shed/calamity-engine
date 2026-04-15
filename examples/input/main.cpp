@@ -25,7 +25,7 @@ PSP_MAIN_THREAD_ATTR(THREAD_ATTR_USER);
 #endif
 
 static Physics physics;
-static Engine engine;
+static Engine engine = Engine("Input Example");
 static Graphics* graphics = nullptr;
 
 void loop() {
@@ -40,7 +40,7 @@ int main() {
     InputRegistry inputRegistry;
     Audio audio;
 
-    graphics = new Graphics({480, 272}, "Input Example", RenderLogicalPresentation::LETTERBOX, Color::BLACK);
+    graphics = new Graphics({480, 272});
     Services::init(graphics, &physics, &engine, &input, &inputRegistry, &audio);
 
     inputRegistry.addAction("left", 0.2f);

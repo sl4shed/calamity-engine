@@ -16,6 +16,29 @@ enum class RenderLogicalPresentation
     INTEGER_SCALE   /**< The rendered content is scaled up by integer multiples to fit the output resolution */
 };
 
+enum class WindowFlags {
+    FULLSCREEN = 0x0000000000000001,
+    OCCLUDED = 0x0000000000000004,
+    HIDDEN = 0x0000000000000008,
+    BORDERLESS = 0x0000000000000010,
+    RESIZABLE = 0x0000000000000020,
+    MINIMIZED = 0x0000000000000040,
+    MAXIMIZED = 0x0000000000000080,
+    INPUT_GRABBED = 0x0000000000000100,
+    INPUT_FOCUS = 0x0000000000000200,
+    MOUSE_FOCUS = 0x0000000000000400,
+    MODAL = 0x0000000000001000,
+    HIGH_DPI = 0x0000000000002000,
+    MOUSE_CAPTURE = 0x0000000000004000,
+    ALWAYS_ON_TOP = 0x0000000000010000,
+    UTILITY = 0x0000000000020000,
+    TOOLTIP = 0x0000000000040000,
+    POPUP_MENU = 0x0000000000080000,
+    KEYBOARD_GRABBED = 0x0000000000100000,
+    FILL_DOCUMENT = 0x0000000000200000, // Emscripten only
+    TRANSPARENT = 0x0000000040000000
+};
+
 /**
  * Here is your modular graphics class, which you should technically be able to change out for another implementation
  * with another graphics API (OpenGL, for example). Right now it uses SDL3.
@@ -36,7 +59,7 @@ enum class RenderLogicalPresentation
 class Graphics
 {
 public:
-    Graphics(Vector2 screenSize = {480, 272}, std::string windowTitle = "Calamity Engine", RenderLogicalPresentation presentation = RenderLogicalPresentation::LETTERBOX, Color clearColor = Color::WHITE);
+    Graphics(Vector2 screenSize = {480, 272}, RenderLogicalPresentation presentation = RenderLogicalPresentation::LETTERBOX, Color clearColor = Color::BLACK, WindowFlags flags = WindowFlags::RESIZABLE);
     SDL_Texture *loadTexture(const std::string &path);
     void renderSprite(Node &node, Engine *engine);
     void renderPolygonSprite(Node &node, Engine *engine);
@@ -46,7 +69,7 @@ public:
     void resetLogicalPresentation();
 
     SDL_Renderer *getRenderer();
-    Vector2 screenSize = {480, 272};
+    const Vector2 screenSize;
     Color clearColor = Color::WHITE;
     RenderLogicalPresentation presentation = RenderLogicalPresentation::LETTERBOX;
 

@@ -8,10 +8,9 @@
 #include "../core/ui/definitions.hpp"
 #include "engine.hpp"
 
-Graphics::Graphics(Vector2 s, std::string title, RenderLogicalPresentation p, Color cc)
+Graphics::Graphics(Vector2 s, RenderLogicalPresentation p, Color cc, WindowFlags flags)
     : screenSize(s)
 {
-    screenSize = s;
     presentation = p;
     clearColor = cc;
     SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMEPAD | SDL_INIT_AUDIO | SDL_INIT_GAMEPAD);
@@ -24,10 +23,11 @@ Graphics::Graphics(Vector2 s, std::string title, RenderLogicalPresentation p, Co
 #endif
 
     this->window = SDL_CreateWindow(
-        title.c_str(),
+        Services::engine()->appName.c_str(),
         screenSize.x,
         screenSize.y,
-        SDL_WINDOW_RESIZABLE);
+        (SDL_WindowFlags)flags
+    );
     
     SDL_SetRenderLogicalPresentation(renderer, screenSize.x, screenSize.y, (SDL_RendererLogicalPresentation)presentation);
 

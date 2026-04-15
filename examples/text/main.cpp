@@ -26,7 +26,7 @@ PSP_MAIN_THREAD_ATTR(THREAD_ATTR_USER);
 #endif
 
 static Physics physics;
-static Engine engine;
+static Engine engine = Engine("Text Example");
 static Graphics* graphics = nullptr;
 
 void loop()
@@ -42,7 +42,7 @@ int main() {
     InputRegistry inputRegistry;
     Audio audio;
 
-    graphics = new Graphics({480, 272}, "Text Example", RenderLogicalPresentation::LETTERBOX, Color::BLACK);
+    graphics = new Graphics({480, 272});
     Services::init(graphics, &physics, &engine, &input, &inputRegistry, &audio);
 
     std::shared_ptr<Node> cameraNode = std::make_shared<Node>();

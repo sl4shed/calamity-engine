@@ -62,3 +62,4 @@ std::string exportNodeTree(std::shared_ptr<Node> node);
 std::string exportNodeTree();
 void loadNodeTree(std::shared_ptr<Node> parent, std::string jsonText);
 void loadNodeTree(std::string jsonText);
+std::string parseFilePath(std::string path);
