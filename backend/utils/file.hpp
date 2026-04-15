@@ -7,6 +7,12 @@
 #include "../services/engine.hpp"
 #include "../core/node/components.hpp"
 
+enum class Whence {
+    BEGIN,
+    CURRENT,
+    END
+};
+
 /**
  * # File
  *
@@ -17,22 +23,32 @@
 class File
 {
 public:
-    File(std::string path, std::string mode);
+    File();
     ~File();
-    const std::string mode;
-    const std::string path;
+    std::string mode;
+    std::string path;
 
-    int getSize(std::string path);
     void flush();
     void close();
+    void seek(int offset, Whence whence);
 
+    int getSize() const;
     std::string getAsText();
-    std::string getPath();
-    std::string getAbsolutePath(std::string path);
+    std::string getAbsolutePath();
+    int getPosition();
+    std::string getLine();
+    bool eofReached() const;
+    void storeString(std::string str);
+    void storeLine(std::string str);
 
+    static std::string getAbsoluteFilePath(std::string path);
+    static File *open(std::string path, std::string mode);
+    static int getFileSize(std::string path);
     static bool fileExists(std::string path);
     static std::string getFileAsText(std::string path);
+
 private:
+    std::string fsPath;
     SDL_IOStream *handle;
 };
 

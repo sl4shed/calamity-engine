@@ -4,6 +4,87 @@
 #include "logger.hpp"
 #include "../services/services.hpp"
 
+File::~File()
+{
+// idk
+}
+
+
+// TODO: parse file path to get real file path
+// using SDL_BasePaht() and SDL_GetPrefPath()
+File *File::open(std::string path, std::string mode) {
+    File *file = new File();
+    file->path = path;
+    file->mode = mode;
+    file->handle = SDL_IOFromFile(path.c_str(), mode.c_str());
+    if(!file->handle) {
+        Logger::error("Failed to open file: {}", path);
+        delete file;
+        return nullptr;
+    }
+
+    return file;
+}
+
+void File::flush() {
+    if(handle) {
+        SDL_FlushIO(handle);
+    }
+}
+
+void File::close() {
+    if(handle) {
+        SDL_CloseIO(handle);
+        handle = nullptr;
+    }
+}
+
+void File::seek(int offset, Whence whence) {
+    if(handle) {
+        SDL_SeekIO(handle, offset, (SDL_IOWhence)whence);
+    }
+}
+
+int File::getPosition() {
+    if(handle) {
+        return SDL_TellIO(handle);
+    }
+
+    Logger::warn("Attempted to get position of file with no handle: {}", path);
+    return -1;
+}
+
+int File::getSize() const {
+    SDL_PathInfo *pathInfo = nullptr;
+    if(SDL_GetPathInfo(fsPath.c_str(), pathInfo) == true && pathInfo) {
+        int size = pathInfo->size;
+        return size;
+    } else {
+        Logger::warn("Error encountered while getting file size for {}: {}", path, SDL_GetError());
+    }
+
+    return -1;
+}
+
+std::string File::getAsText() {
+    if(handle) {
+        int size = getSize();
+        if(size < 0) return "";
+
+        std::string text(size, '\0');
+        SDL_ReadIO(handle, &text[0], size);
+        return text;
+    }
+
+    Logger::warn("Attempted to read file as text with no handle: {}", path);
+    return "";
+}
+
+std::string File::getAbsolutePath() {
+    
+}
+
+
 std::string exportNodeTree(std::shared_ptr<Node> node)
 {
     std::stringstream o;
