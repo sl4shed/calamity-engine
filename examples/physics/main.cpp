@@ -69,7 +69,7 @@ int main() {
 #ifdef PSP
     std::shared_ptr<Label> label = std::make_shared<Label>("X - add box");
 #else
-    std::shared_ptr<Label> label = std::make_shared<Label>("left click - add box\nright click - clear boxes\nW - step physics\nS - toggle auto physics update");
+    std::shared_ptr<Label> label = std::make_shared<Label>("left click - add box\nright click - clear boxes");
 #endif
 
     label->size = {200, 700};

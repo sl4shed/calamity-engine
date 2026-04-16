@@ -55,17 +55,19 @@ int main() {
     std::shared_ptr<Camera> camera = std::make_shared<Camera>();
     cameraNode->addComponent(camera);
 
+
+    std::shared_ptr<Node> node2 = std::make_shared<Node>("floorNode2");
+    node2->transform.position = {-150, -300};
+    auto shape2 = std::make_shared<BoxShape>(Vector2{50, 300});
+    node2->addComponent(std::make_shared<StaticBody>(shape2));
+    node2->addComponent(std::make_shared<ShapeSprite>(shape2->polygon));
+
     std::shared_ptr<Node> node = std::make_shared<Node>("floorNode");
     node->transform.position = {-150, 0};
-    node->transform.setAngle(0.1f);
     auto shape = std::make_shared<BoxShape>(Vector2{300, 50});
     node->addComponent(std::make_shared<StaticBody>(shape));
-
-    std::shared_ptr<Sprite> sprite = std::make_shared<Sprite>();
-    sprite->texture = Texture("res://assets/cat.png");
-    node->addComponent(sprite);
-
     node->addComponent(std::make_shared<ShapeSprite>(shape->polygon));
+
     engine.root.addChild(cameraNode);
     engine.root.addChild(node);
 
@@ -74,7 +76,7 @@ int main() {
 #ifdef PSP
     std::shared_ptr<Label> label = std::make_shared<Label>("X - add box");
 #else
-    std::shared_ptr<Label> label = std::make_shared<Label>("left click - add box\nright click - clear boxes\nW - step physics\nS - toggle auto physics update");
+    std::shared_ptr<Label> label = std::make_shared<Label>("left click - add box\nright click - clear boxes");
 #endif
 
     label->size = {200, 700};

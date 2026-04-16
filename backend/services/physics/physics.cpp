@@ -94,47 +94,50 @@ RigidBody::RigidBody(std::shared_ptr<Shape> shape) {
 }
 
 void RigidBody::physicsUpdate() {
-    if (getNode()->transform.position != prevPosition) {
-        b2Body_SetTransform(bodyId, (b2Vec2)(getNode()->transform.position * Physics::scale), b2Body_GetRotation(bodyId));
+    if (getNode()->globalTransform.position != prevPosition) {
+        b2Body_SetTransform(bodyId, (b2Vec2)(getNode()->globalTransform.position * Physics::scale), b2Body_GetRotation(bodyId));
     }
     prevPosition = Vector2(b2Body_GetPosition(bodyId)) / Physics::scale;
 
-    if (getNode()->transform.getAngle() != prevAngle) {
-        b2Body_SetTransform(bodyId, b2Body_GetPosition(bodyId), {cos(getNode()->transform.getAngle()), sin(getNode()->transform.getAngle())});
+    if (getNode()->globalTransform.getAngle() != prevAngle) {
+        b2Body_SetTransform(bodyId, b2Body_GetPosition(bodyId), {cos(getNode()->globalTransform.getAngle()), sin(getNode()->globalTransform.getAngle())});
     }
     prevAngle = b2Rot_GetAngle(b2Body_GetRotation(bodyId));
 
-    // read back from box2d as normal
-    getNode()->transform.position = Vector2(b2Body_GetPosition(bodyId)) / Physics::scale;
-    getNode()->transform.setAngle(b2Rot_GetAngle(b2Body_GetRotation(bodyId)));
+    Node* node = getNode();
+    Vector2 worldPos = Vector2(b2Body_GetPosition(bodyId)) / Physics::scale;
+    float worldAngle = b2Rot_GetAngle(b2Body_GetRotation(bodyId));
 
-    // debug
-    ShapeSprite *polySprite = getNode()->getComponent<ShapeSprite>();
-    if (polySprite) {
-        polySprite->shape = shape->polygon;
+    if (node->parent) {
+        Transform parentInverse = node->parent->globalTransform.inverse();
+        node->transform.position = parentInverse.transformation * (worldPos - node->parent->globalTransform.position);
+        node->transform.setAngle(worldAngle - node->parent->globalTransform.getAngle());
+    } else {
+        node->transform.position = worldPos;
+        node->transform.setAngle(worldAngle);
     }
 }
 
 void StaticBody::physicsUpdate() {
-    if (getNode()->transform.position != prevPosition) {
-        b2Body_SetTransform(bodyId, (b2Vec2)(getNode()->transform.position * Physics::scale), b2Body_GetRotation(bodyId));
+    if (getNode()->globalTransform.position != prevPosition) {
+        b2Body_SetTransform(bodyId, (b2Vec2)(getNode()->globalTransform.position * Physics::scale), b2Body_GetRotation(bodyId));
     }
     prevPosition = Vector2(b2Body_GetPosition(bodyId)) / Physics::scale;
 
-    if (getNode()->transform.getAngle() != prevAngle) {
-        b2Body_SetTransform(bodyId, b2Body_GetPosition(bodyId), {cos(getNode()->transform.getAngle()), sin(getNode()->transform.getAngle())});
+    if (getNode()->globalTransform.getAngle() != prevAngle) {
+        b2Body_SetTransform(bodyId, b2Body_GetPosition(bodyId), {cos(getNode()->globalTransform.getAngle()), sin(getNode()->globalTransform.getAngle())});
     }
     prevAngle = b2Rot_GetAngle(b2Body_GetRotation(bodyId));
 }
 
 void StaticBody::initialize() {
-    b2Body_SetTransform(bodyId, (b2Vec2)(getNode()->transform.position * Physics::scale), 
-        {cos(getNode()->transform.getAngle()), sin(getNode()->transform.getAngle())});
+    b2Body_SetTransform(bodyId, (b2Vec2)(getNode()->globalTransform.position * Physics::scale), 
+        {cos(getNode()->globalTransform.getAngle()), sin(getNode()->globalTransform.getAngle())});
 }
 
 void RigidBody::initialize() {
-    b2Body_SetTransform(bodyId, (b2Vec2)(getNode()->transform.position * Physics::scale),
-        {cos(getNode()->transform.getAngle()), sin(getNode()->transform.getAngle())});
+    b2Body_SetTransform(bodyId, (b2Vec2)(getNode()->globalTransform.position * Physics::scale),
+        {cos(getNode()->globalTransform.getAngle()), sin(getNode()->globalTransform.getAngle())});
 }
 
 RigidBody::~RigidBody() {

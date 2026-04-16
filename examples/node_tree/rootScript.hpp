@@ -64,15 +64,15 @@ public:
             std::shared_ptr<Node> fallingNode = std::make_shared<Node>("fallingNode");
             fallingNode->transform.position = Services::input()->getMousePosition();
             fallingNode->transform.setAngle(rand() % 100 / 100.0f - 0.5f); // random angle between -0.5 and 0.5 radians
-            auto fallingShape = std::make_shared<BoxShape>(Vector2{(float)(rand() % 75 + 25), (float)(rand() % 75 + 25)});
+            Vector2 size = Vector2{(float)(rand() % 75 + 25), (float)(rand() % 75 + 25)};
+            auto fallingShape = std::make_shared<BoxShape>(size);
             fallingNode->addComponent(std::make_shared<RigidBody>(fallingShape));
             std::shared_ptr<Sprite> sprite = std::make_shared<Sprite>();
             sprite->texture = Texture("res://assets/cat.png");
-            node->addComponent(sprite);
-
-            std::shared_ptr<ShapeSprite> fallingSprite = std::make_shared<ShapeSprite>(fallingShape->polygon);
-            fallingSprite->color = Color::RED;
-            fallingNode->addComponent(fallingSprite);
+            sprite->texture.width = size.x;
+            sprite->texture.height = size.y;
+            sprite->origin = {0.0f, 0.0f};
+            fallingNode->addComponent(sprite);
 
             fallingNodes.push_back(fallingNode);
             node->addChild(fallingNode);
