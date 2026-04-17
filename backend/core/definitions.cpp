@@ -182,6 +182,7 @@ Texture::Texture(std::string p) : path(p), handle(nullptr), width(0), height(0)
 void Texture::initialize()
 {
     this->handle = Services::graphics()->loadTexture(File::getAbsoluteFilePath(this->path));
+
     this->width = handle->w;
     this->height = (handle)->h;
 }

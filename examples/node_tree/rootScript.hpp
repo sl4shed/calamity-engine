@@ -20,8 +20,6 @@
 class RootScript : public Script
 {
     Node *node;
-    std::vector<std::shared_ptr<Node>> fallingNodes;
-
 public:
     template <class Archive>
     void save(Archive &ar) const {}
@@ -37,33 +35,39 @@ public:
     void input(InputEvent& event) {
         InputEventMouseButton* mouseButtonEvent = dynamic_cast<InputEventMouseButton*>(&event);
         if(mouseButtonEvent && mouseButtonEvent->pressed && mouseButtonEvent->buttonIndex == MouseButton::RIGHT) {
-            for(auto node : fallingNodes) {
-                node->free();
+            auto children = node->getChild("catNode")->children;
+            for (auto n : children)
+            {
+                n->free();
             }
-            fallingNodes.clear();
-        }
-
-        InputEventControllerButton* controllerButtonEvent = dynamic_cast<InputEventControllerButton*>(&event);
-        if(controllerButtonEvent && controllerButtonEvent->pressed && controllerButtonEvent->button == ControllerButton::SOUTH) {
-            std::shared_ptr<Node> fallingNode = std::make_shared<Node>("fallingNode");
-            fallingNode->transform.position = {0, -100};
-            fallingNode->transform.setAngle(rand() % 100 / 100.0f - 0.5f); // random angle between -0.5 and 0.5 radians
-            auto fallingShape = std::make_shared<BoxShape>(Vector2{(float)(rand() % 75 + 25), (float)(rand() % 75 + 25)});
-            fallingNode->addComponent(std::make_shared<RigidBody>(fallingShape));
-            std::shared_ptr<ShapeSprite> fallingSprite = std::make_shared<ShapeSprite>(fallingShape->polygon);
-            fallingSprite->color = Color::RED;
-            fallingNode->addComponent(fallingSprite);
-
-            fallingNodes.push_back(fallingNode);
-            node->addChild(fallingNode);
-            fallingNode->initialize();
         }
 
         InputEventKey *keyEvent = dynamic_cast<InputEventKey*>(&event);
-        if(keyEvent && keyEvent->isPressed() && keyEvent->keycode == Keycode::Z) {
-            // guh why doesnt get child return a shared ptr
-            // todo fix. bad.
-            exportNodeTree(node->getChild("catNode"));
+        if(keyEvent && keyEvent->pressed && keyEvent->scancode == Keycode::Z) {
+            std::string exp = exportNodeTree(node->getChild("catNode"));
+            File *file = File::open("user://save.data", "w");
+            Logger::info("Save path: {}", file->getAbsolutePath());
+            file->storeString(exp);
+            file->flush();
+            file->close();
+        } else if (keyEvent && keyEvent->pressed && keyEvent->scancode == Keycode::V)
+        {
+            if (!File::fileExists("user://save.data")) return;
+            File *file = File::open("user://save.data", "r");
+
+            std::string saveData = file->getAsText();
+            if (saveData != "")
+            {
+                auto children = node->getChild("catNode")->children;
+                for (auto n : children)
+                {
+                    n->free();
+                }
+                loadNodeTree(node->getChild("catNode"), saveData);
+            } else
+            {
+                Logger::info("no save data to load");
+            }
         }
     }
 
@@ -75,10 +79,18 @@ public:
             Vector2 size = Vector2{(float)(rand() % 75 + 25), (float)(rand() % 75 + 25)};
             auto fallingShape = std::make_shared<BoxShape>(size);
 
+            Material mat = Material();
+            mat.friction = 1.0f;
+            mat.density = 2.0f;
+            fallingShape->applyMaterial(mat);
+
             std::shared_ptr<RigidBody> rigidBody = std::make_shared<RigidBody>(fallingShape);
-            // TODO: add friction setting
             fallingNode->addComponent(rigidBody);
-            
+
+            std::shared_ptr<ShapeSprite> shapeSprite = std::make_shared<ShapeSprite>(fallingShape->polygon);
+            shapeSprite->color = Color::RED;
+            fallingNode->addComponent(shapeSprite);
+
             std::shared_ptr<Sprite> sprite = std::make_shared<Sprite>();
             sprite->texture = Texture("res://assets/cat.png");
             sprite->texture.width = size.x;
@@ -86,7 +98,6 @@ public:
             sprite->origin = {0.0f, 0.0f};
             fallingNode->addComponent(sprite);
 
-            fallingNodes.push_back(fallingNode);
             node->getChild("catNode")->addChild(fallingNode);
             fallingNode->initialize();
         }

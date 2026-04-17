@@ -5,7 +5,8 @@
 #include "../core/definitions.hpp"
 #include "../core/node/components.hpp"
 #include "../core/ui/definitions.hpp"
-#include "../core/ui/label.hpp"
+
+class Label; //forward declare
 
 enum class RenderLogicalPresentation
 {

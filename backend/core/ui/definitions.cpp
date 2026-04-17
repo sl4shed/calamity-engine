@@ -48,6 +48,8 @@ Color::Color(std::string hexCode, int a) : Color(hexCode) {
 Font::Font(std::string path) {
     this->handle = TTF_OpenFont(path.c_str(), size);
     if(!this->handle) Logger::debug("font load failed: {}", SDL_GetError());
+
+    this->lineSpacing = TTF_GetFontLineSkip((TTF_Font*)handle);
 }
 
 TTF_Font* Font::getHandle() {
@@ -59,31 +61,37 @@ Font::~Font() {
 }
 
 Font* Font::setKerning(bool enabled) {
+    this->kerning = enabled;
     TTF_SetFontKerning((TTF_Font*)handle, enabled);
     return this;
 }
 
 Font* Font::setHinting(FontHinting setting) {
+    this->hinting = setting;
     TTF_SetFontHinting((TTF_Font*)handle, (TTF_HintingFlags)setting);
     return this;
 }
 
-Font* Font::setLanguage(std::string language) {
+Font* Font::setLanguage(std::string _language) {
+    this->language = _language;
     TTF_SetFontLanguage((TTF_Font*)handle, language.c_str());
     return this;
 }
 
-Font* Font::setLineSpacing(int spacing) {
-    TTF_SetFontLineSkip((TTF_Font*)handle, spacing);
+Font* Font::setLineSpacing(int _spacing) {
+    this->lineSpacing = _spacing;
+    TTF_SetFontLineSkip((TTF_Font*)handle, lineSpacing);
     return this;
 }
 
-Font* Font::setOutline(int outline) {
+Font* Font::setOutline(int _outline) {
+    this->outline = _outline;
     TTF_SetFontOutline((TTF_Font*)handle, outline);
     return this;
 }
 
 Font* Font::setSDF(bool enabled) {
+    this->SDF = enabled;
     TTF_SetFontSDF((TTF_Font*)handle, enabled);
     return this;
 }
@@ -94,12 +102,14 @@ Font* Font::setSize(int ptSize) {
     return this;
 }
 
-Font* Font::setStyle(FontStyle style) {
+Font* Font::setStyle(FontStyle _style) {
+    this->style = _style;
     TTF_SetFontStyle((TTF_Font*)handle, (TTF_FontStyleFlags)style);
     return this;
 }
 
-Font* Font::setAlignment(FontAlignment alignment) {
+Font* Font::setAlignment(FontAlignment _alignment) {
+    this->alignment = _alignment;
     TTF_SetFontWrapAlignment((TTF_Font*)handle, (TTF_HorizontalAlignment)alignment);
     return this;
 }

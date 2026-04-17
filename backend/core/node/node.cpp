@@ -3,11 +3,12 @@
 #include "../../utils/logger.hpp"
 #include "../../services/input/input.hpp"
 #include "../../services/graphics.hpp"
+#include "../ui/label.hpp"
 #include <iostream>
 #include <cmath>
 
 Node::Node(std::string name)
-    : parent(0)
+    : parent(nullptr)
 {
     this->name = name;
 }
@@ -185,32 +186,32 @@ void Node::input(InputEvent& event) {
     }
 }
 
-Node *Node::getChild(std::string name)
+std::shared_ptr<Node> Node::getChild(std::string name)
 {
     for (size_t i = 0; i < children.size(); ++i)
     {
         if (children[i]->name == name)
         {
-            return children[i].get();
+            return children[i];
         }
     }
     return nullptr;
 }
 
-Node *Node::getChildByIndex(int index)
+std::shared_ptr<Node> Node::getChildByIndex(int index)
 {
     if (index < 0 || index >= children.size())
     {
         return nullptr;
     }
-    return children[index].get();
+    return children[index];
 }
 
-Component *Node::getComponentByIndex(int index)
+std::shared_ptr<Component> Node::getComponentByIndex(int index)
 {
     if (index < 0 || index >= components.size())
     {
         return nullptr;
     }
-    return components[index].get();
+    return components[index];
 }

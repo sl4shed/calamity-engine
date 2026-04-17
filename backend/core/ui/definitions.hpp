@@ -120,14 +120,32 @@ public:
 
     template <class Archive>
     void save(Archive &ar) const {
-        ar(path, size);
+        ar(CEREAL_NVP(path), CEREAL_NVP(size), CEREAL_NVP(kerning), CEREAL_NVP(hinting), CEREAL_NVP(language), CEREAL_NVP(lineSpacing), CEREAL_NVP(outline), CEREAL_NVP(SDF), CEREAL_NVP(alignment), CEREAL_NVP(style), CEREAL_NVP(alignment));
     }
 
     template <class Archive>
     void load(Archive &ar) {
-        ar(path, size);
+        ar(CEREAL_NVP(path), CEREAL_NVP(size), CEREAL_NVP(kerning), CEREAL_NVP(hinting), CEREAL_NVP(language), CEREAL_NVP(lineSpacing), CEREAL_NVP(outline), CEREAL_NVP(SDF), CEREAL_NVP(alignment), CEREAL_NVP(style), CEREAL_NVP(alignment));
         TTF_OpenFont(path.c_str(), size);
+        //TTF_SetFontSize((TTF_Font*)handle, size);
+        TTF_SetFontKerning((TTF_Font*)handle, kerning);
+        TTF_SetFontHinting((TTF_Font*)handle, (TTF_HintingFlags)hinting);
+        TTF_SetFontLanguage((TTF_Font*)handle, language.c_str());
+        TTF_SetFontLineSkip((TTF_Font*)handle, lineSpacing);
+        TTF_SetFontOutline((TTF_Font*)handle, outline);
+        TTF_SetFontSDF((TTF_Font*)handle, SDF);
+        TTF_SetFontStyle((TTF_Font*)handle, (TTF_FontStyleFlags)style);
+        TTF_SetFontWrapAlignment((TTF_Font*)handle, (TTF_HorizontalAlignment)alignment);
     }
 private:
+    bool kerning = true;
+    FontHinting hinting = FontHinting::NONE;
+    std::string language = "en-US";
+    int lineSpacing;
+    int outline = 0;
+    bool SDF = false;
+    FontStyle style = FontStyle::NORMAL;
+    FontAlignment alignment = FontAlignment::LEFT;
+
     TTF_Font* handle;
 };

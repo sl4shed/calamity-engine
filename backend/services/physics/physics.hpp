@@ -28,6 +28,7 @@ public:
     b2WorldId worldId;
 };
 
+// TODO: make this actually work with shapeDefs and shit
 class Material
 {
 public:
@@ -47,10 +48,12 @@ public:
 class Shape
 {
 public:
+    virtual ~Shape() = default;
     Polygon scaledPolygon;
     Polygon polygon;
     b2ShapeDef shapeDef;
-    Material material;
+
+    void applyMaterial(Material material);
 
     Shape *setSensor(bool sensor)
     {
@@ -65,19 +68,22 @@ public:
     template <class Archive>
     void save(Archive &ar) const
     {
-        ar(scaledPolygon, polygon, material);
+        ar(CEREAL_NVP(scaledPolygon), CEREAL_NVP(polygon), CEREAL_NVP(material));
     }
 
     template <class Archive>
     void load(Archive &ar)
     {
-        ar(scaledPolygon, polygon, material);
+        ar(CEREAL_NVP(scaledPolygon), CEREAL_NVP(polygon), CEREAL_NVP(material));
     }
+private:
+    Material material;
 };
 
 class BoxShape : public Shape
 {
 public:
+    BoxShape() = default;
     BoxShape(Vector2 size, Vector2 center = {0.5f, 0.5f});
     Vector2 size;
     Vector2 center;
@@ -85,13 +91,23 @@ public:
     template <class Archive>
     void save(Archive &ar) const
     {
-        ar(cereal::base_class<Shape>(this), size, center);
+        ar(cereal::base_class<Shape>(this), CEREAL_NVP(size), CEREAL_NVP(center));
     }
 
     template <class Archive>
     void load(Archive &ar)
     {
-        ar(cereal::base_class<Shape>(this), size, center);
+        ar(cereal::base_class<Shape>(this), CEREAL_NVP(size), CEREAL_NVP(center));
+
+        // just reconstruct everything from size and center like the constructor does
+        Vector2 calculatedCenter = center * size;
+        b2Rot rotation = {cos(0.0f), sin(0.0f)};
+
+        b2Polygon poly = b2MakeOffsetBox(size.x / 2 * Physics::scale, size.y / 2 * Physics::scale, (b2Vec2)(calculatedCenter * Physics::scale), rotation);
+        b2Polygon polyUnscaled = b2MakeOffsetBox(size.x / 2, size.y / 2, (b2Vec2)calculatedCenter, rotation);
+
+        this->polygon = (Polygon)polyUnscaled;
+        this->scaledPolygon = (Polygon)poly;
         this->shapeDef = b2DefaultShapeDef();
     }
 };
@@ -128,13 +144,13 @@ public:
     template <class Archive>
     void save(Archive &ar) const
     {
-        ar(shape);
+        ar(CEREAL_NVP(shape));
     }
 
     template <class Archive>
     void load(Archive &ar)
     {
-        ar(shape);
+        ar(CEREAL_NVP(shape));
 
         bodyDef = b2DefaultBodyDef();
         bodyDef.type = b2BodyType::b2_staticBody;
@@ -165,13 +181,13 @@ public:
     template <class Archive>
     void save(Archive &ar) const
     {
-        ar(shape);
+        ar(CEREAL_NVP(shape));
     }
 
     template <class Archive>
     void load(Archive &ar)
     {
-        ar(shape);
+        ar(CEREAL_NVP(shape));
 
         bodyDef = b2DefaultBodyDef();
         bodyDef.type = b2BodyType::b2_dynamicBody;
@@ -187,3 +203,12 @@ private:
     Vector2 prevPosition;
     float prevAngle;
 };
+
+
+CEREAL_REGISTER_TYPE(RigidBody);
+CEREAL_REGISTER_TYPE(StaticBody);
+CEREAL_REGISTER_POLYMORPHIC_RELATION(Component, RigidBody);
+CEREAL_REGISTER_POLYMORPHIC_RELATION(Component, StaticBody);
+
+CEREAL_REGISTER_TYPE(BoxShape);
+CEREAL_REGISTER_POLYMORPHIC_RELATION(Shape, BoxShape);

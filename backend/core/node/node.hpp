@@ -44,23 +44,22 @@ public:
 	// children
 	void addChild(std::shared_ptr<Node> child);
 	void removeChild(std::shared_ptr<Node> child);
-	Node *getChild(std::string name);
-	Node *getChildByIndex(int index);
+	std::shared_ptr<Node> getChild(std::string name);
+	std::shared_ptr<Node> getChildByIndex(int index);
 
 	// components
 	void addComponent(std::shared_ptr<Component> component);
 	void removeComponent(std::shared_ptr<Component> component);
 	template <typename T>
-	T *getComponent() {
+	std::shared_ptr<T> getComponent() {
 		for (size_t i = 0; i < components.size(); ++i)
 		{
-			T *c = dynamic_cast<T *>(components[i].get());
-			if (c)
-				return c;
+			if (T *c = dynamic_cast<T *>(components[i].get()))
+				return std::dynamic_pointer_cast<T>(components[i]);
 		}
-		return 0;
+		return nullptr;
 	};
-	Component *getComponentByIndex(int index);
+	std::shared_ptr<Component> getComponentByIndex(int index);
 
 	// state functions
 	void render(Graphics &graphics, Engine *engine);

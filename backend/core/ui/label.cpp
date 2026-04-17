@@ -48,28 +48,30 @@ Label::~Label() {
     TTF_DestroyText((TTF_Text*)handle);
 }
 
-Label* Label::setColor(Color color) {
+Label* Label::setColor(Color _color) {
+    this->color = _color;
     TTF_SetTextColor(handle, color.r, color.g, color.b, color.a);
     return this;
 }
 
-Label* Label::setDirection(FontDirection direction) {
+Label* Label::setDirection(FontDirection _direction) {
+    this->direction = _direction;
     TTF_SetTextDirection(handle, (TTF_Direction)direction);
     return this;
 }
 
-Label* Label::setText(std::string text) {
+Label* Label::setText(std::string _text) {
+    this->text = _text;
     TTF_SetTextString(handle, text.c_str(), text.size());
     return this;
 }
 
 Label* Label::setWrapWidth(int width) {
-    TTF_SetTextWrapWidth(handle, width);
+    this->wrapWidth = width;
+    TTF_SetTextWrapWidth(handle, wrapWidth);
     return this;
 }
 
 int Label::getWrapWidth() {
-    int wrapWidth;
-    TTF_GetTextWrapWidth(handle, &wrapWidth);
     return wrapWidth;
 }

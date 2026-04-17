@@ -60,12 +60,13 @@ public:
     {
         ar(CEREAL_NVP(path));
         this->initialize();
+        ar(CEREAL_NVP(width), CEREAL_NVP(height));
     }
 
     template <class Archive>
     void save(Archive &ar) const
     {
-        ar(CEREAL_NVP(path));
+        ar(CEREAL_NVP(path), CEREAL_NVP(width), CEREAL_NVP(height));
     }
     void initialize();
 
@@ -147,4 +148,10 @@ struct Polygon {
     Vector2 vertices[B2_MAX_POLYGON_VERTICES];
 
     operator b2Polygon() const;
+
+    template <class Archive>
+    void serialize(Archive &ar)
+    {
+        ar(CEREAL_NVP(centroid), CEREAL_NVP(count), CEREAL_NVP(normals), CEREAL_NVP(radius), CEREAL_NVP(vertices));
+    }
 };

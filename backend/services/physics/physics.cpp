@@ -3,6 +3,16 @@
 #include "../../core/node/node.hpp"
 #include "../../utils/logger.hpp"
 
+void Shape::applyMaterial(Material mat)
+{
+    this->material = mat;
+    shapeDef.density = mat.density;
+    shapeDef.material.friction = mat.friction;
+    shapeDef.material.restitution = mat.restitution;
+    shapeDef.material.rollingResistance = mat.rollingResistance;
+    shapeDef.material.tangentSpeed = mat.tangentSpeed;
+}
+
 Physics::Physics(Vector2 gravity) {
     worldDef = b2DefaultWorldDef();
     worldDef.gravity = (b2Vec2)(gravity);
@@ -55,8 +65,9 @@ BoxShape::BoxShape(Vector2 size, Vector2 center) {
     this->size = size;
     this->center = center;
 
+    //Vector2 calculatedCenter = (center - Vector2{0.5f, 0.5f}) * size;
     Vector2 calculatedCenter = center * size;
-    b2Rot rotation = {cos(0.0f), sin(0.0f)};
+    b2Rot rotation = b2Rot_identity;
     
     // scaled version for Box2D
     b2Polygon poly = b2MakeOffsetBox(size.x / 2 * Physics::scale, size.y / 2 * Physics::scale, (b2Vec2)(calculatedCenter * Physics::scale), rotation);
@@ -78,6 +89,9 @@ StaticBody::StaticBody(std::shared_ptr<Shape> shape) {
     bodyDef = b2DefaultBodyDef();
     bodyDef.type = b2BodyType::b2_staticBody;
     bodyId = b2CreateBody(Services::physics()->worldId, &bodyDef);
+
+    bodyDef.linearDamping = 0.0f;
+    bodyDef.angularDamping = 0.1f;
     b2Polygon poly = shape->scaledPolygon;
     b2CreatePolygonShape(bodyId, &shape->shapeDef, &poly);
 }
@@ -88,7 +102,11 @@ RigidBody::RigidBody(std::shared_ptr<Shape> shape) {
 
     bodyDef = b2DefaultBodyDef();
     bodyDef.type = b2BodyType::b2_dynamicBody;
+    bodyDef.linearDamping = 0.1f;
+    bodyDef.angularDamping = 0.1f;
+
     bodyId = b2CreateBody(Services::physics()->worldId, &bodyDef);
+
     b2Polygon poly = shape->scaledPolygon;
     b2CreatePolygonShape(bodyId, &shape->shapeDef, &poly);
 }
@@ -141,11 +159,9 @@ void RigidBody::initialize() {
 }
 
 RigidBody::~RigidBody() {
-    Logger::debug("destroying rigidbody");
     b2DestroyBody(bodyId);
 }
 
 StaticBody::~StaticBody() {
-    Logger::debug("destroying staticbody");
     b2DestroyBody(bodyId);
 }

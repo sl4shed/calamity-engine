@@ -7,6 +7,7 @@
 #include "../utils/logger.hpp"
 #include "../core/ui/definitions.hpp"
 #include "engine.hpp"
+#include "../core/ui/label.hpp"
 
 Graphics::Graphics(Vector2 s, std::string t, RenderLogicalPresentation p, Color cc, WindowFlags flags)
     : screenSize(s)
@@ -100,7 +101,7 @@ void Graphics::renderSprite(Node &node, Engine *engine)
 }
 
 void Graphics::renderPolygonSprite(Node &node, Engine *engine) {
-    ShapeSprite *polySprite = node.getComponent<ShapeSprite>();
+    std::shared_ptr<ShapeSprite> polySprite = node.getComponent<ShapeSprite>();
     if (!polySprite) return;
 
     Camera *activeCamera = engine->getActiveCamera();
