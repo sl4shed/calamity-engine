@@ -27,7 +27,7 @@ PSP_MAIN_THREAD_ATTR(THREAD_ATTR_USER);
 #endif
 
 static Physics physics = Physics({0, 9.81f});
-static Engine engine = Engine("Physics Example");
+static Engine engine = Engine("Node Tree Example");
 static Graphics* graphics = nullptr;
 
 void loop() {
@@ -42,7 +42,7 @@ int main() {
     InputRegistry inputRegistry;
     Audio audio;
 
-    graphics = new Graphics({480, 272});
+    graphics = new Graphics({1280, 720}, "Node Tree Example");
     Services::init(graphics, &physics, &engine, &input, &inputRegistry, &audio);
 
     inputRegistry.addAction("add", 0.2f);
@@ -55,12 +55,18 @@ int main() {
     std::shared_ptr<Camera> camera = std::make_shared<Camera>();
     cameraNode->addComponent(camera);
 
-
+    // box thing
     std::shared_ptr<Node> node2 = std::make_shared<Node>("floorNode2");
-    node2->transform.position = {-150, -300};
-    auto shape2 = std::make_shared<BoxShape>(Vector2{50, 300});
+    node2->transform.position = {-200, -300};
+    auto shape2 = std::make_shared<BoxShape>(Vector2{50, 350});
     node2->addComponent(std::make_shared<StaticBody>(shape2));
     node2->addComponent(std::make_shared<ShapeSprite>(shape2->polygon));
+
+    std::shared_ptr<Node> node3 = std::make_shared<Node>("floorNode3");
+    node3->transform.position = {150, -300};
+    auto shape3 = std::make_shared<BoxShape>(Vector2{50, 350});
+    node3->addComponent(std::make_shared<StaticBody>(shape3));
+    node3->addComponent(std::make_shared<ShapeSprite>(shape3->polygon));
 
     std::shared_ptr<Node> node = std::make_shared<Node>("floorNode");
     node->transform.position = {-150, 0};
@@ -69,6 +75,8 @@ int main() {
     node->addComponent(std::make_shared<ShapeSprite>(shape->polygon));
 
     engine.root.addChild(cameraNode);
+    engine.root.addChild(node2);
+    engine.root.addChild(node3);
     engine.root.addChild(node);
 
     std::shared_ptr<Node> labelNode = std::make_shared<Node>();
@@ -85,6 +93,9 @@ int main() {
     labelNode->transform.position = {20, 20};
     labelNode->addComponent(label);
     engine.root.addChild(labelNode);
+
+    std::shared_ptr<Node> catNode = std::make_shared<Node>("catNode");
+    engine.root.addChild(catNode);
 
     engine.root.addComponent(std::make_shared<RootScript>());
     engine.initialize();

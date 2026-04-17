@@ -15,6 +15,7 @@
 #include "backend/core/node/components.hpp"
 #include "backend/services/input/keycode.hpp"
 #include "backend/services/physics/physics.hpp"
+#include "backend/utils/file.hpp"
 
 class RootScript : public Script
 {
@@ -57,6 +58,13 @@ public:
             node->addChild(fallingNode);
             fallingNode->initialize();
         }
+
+        InputEventKey *keyEvent = dynamic_cast<InputEventKey*>(&event);
+        if(keyEvent && keyEvent->isPressed() && keyEvent->keycode == Keycode::Z) {
+            // guh why doesnt get child return a shared ptr
+            // todo fix. bad.
+            exportNodeTree(node->getChild("catNode"));
+        }
     }
 
     void update(float dt) {
@@ -66,7 +74,11 @@ public:
             fallingNode->transform.setAngle(rand() % 100 / 100.0f - 0.5f); // random angle between -0.5 and 0.5 radians
             Vector2 size = Vector2{(float)(rand() % 75 + 25), (float)(rand() % 75 + 25)};
             auto fallingShape = std::make_shared<BoxShape>(size);
-            fallingNode->addComponent(std::make_shared<RigidBody>(fallingShape));
+
+            std::shared_ptr<RigidBody> rigidBody = std::make_shared<RigidBody>(fallingShape);
+            // TODO: add friction setting
+            fallingNode->addComponent(rigidBody);
+            
             std::shared_ptr<Sprite> sprite = std::make_shared<Sprite>();
             sprite->texture = Texture("res://assets/cat.png");
             sprite->texture.width = size.x;
@@ -75,7 +87,7 @@ public:
             fallingNode->addComponent(sprite);
 
             fallingNodes.push_back(fallingNode);
-            node->addChild(fallingNode);
+            node->getChild("catNode")->addChild(fallingNode);
             fallingNode->initialize();
         }
     }
