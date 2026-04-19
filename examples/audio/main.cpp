@@ -8,6 +8,7 @@
 #include "backend/services/services.hpp"
 #include "backend/core/node/components.hpp"
 #include "backend/services/physics/physics.hpp"
+#include "backend/core/ui/label.hpp"
 
 #ifdef PSP
 // if you want psp support you have to have the psp module info thing

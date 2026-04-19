@@ -66,15 +66,15 @@ void Engine::update()
     now = SDL_GetPerformanceCounter();
     float deltaTime = (float)(now - last) / SDL_GetPerformanceFrequency();
 
-    accumulator += deltaTime;
-    while (accumulator >= physicsTimestep) {
-        root.physicsUpdate();
-        Services::physics()->physicsUpdate(physicsTimestep);
-        accumulator -= physicsTimestep;
-    }
-
     Services::input()->update(deltaTime);
     root.update(deltaTime);
+
+    accumulator += deltaTime;
+    while (accumulator >= physicsTimestep) {
+        Services::physics()->physicsUpdate(physicsTimestep);
+        root.physicsUpdate();
+        accumulator -= physicsTimestep;
+    }
 }
 
 void Engine::shutdown()

@@ -16,7 +16,6 @@ void Shape::applyMaterial(Material mat)
 Physics::Physics(Vector2 gravity) {
     worldDef = b2DefaultWorldDef();
     worldDef.gravity = (b2Vec2)(gravity);
-
     worldId = b2CreateWorld(&worldDef);
 }
 
@@ -63,38 +62,22 @@ Polygon::Polygon() {
 
 BoxShape::BoxShape(Vector2 size, Vector2 center) {
     this->size = size;
-    this->center = center;
+    this->origin = center;
 
-    //Vector2 calculatedCenter = (center - Vector2{0.5f, 0.5f}) * size;
-    Vector2 calculatedCenter = center * size;
+    Vector2 calculatedCenter = origin * size;
     b2Rot rotation = b2Rot_identity;
-    
-    // scaled version for Box2D
+
     b2Polygon poly = b2MakeOffsetBox(size.x / 2 * Physics::scale, size.y / 2 * Physics::scale, (b2Vec2)(calculatedCenter * Physics::scale), rotation);
-    
-    // unscaled version for rendering
     b2Polygon polyUnscaled = b2MakeOffsetBox(size.x / 2, size.y / 2, (b2Vec2)calculatedCenter, rotation);
+
     this->polygon = (Polygon)polyUnscaled;
-    
     this->shapeDef = b2DefaultShapeDef();
-    
-    // store scaled separately for body creation
     this->scaledPolygon = (Polygon)poly;
 }
 
-StaticBody::StaticBody() {}
-StaticBody::StaticBody(std::shared_ptr<Shape> shape) {
-    this->shape = shape;
-
-    bodyDef = b2DefaultBodyDef();
-    bodyDef.type = b2BodyType::b2_staticBody;
-    bodyId = b2CreateBody(Services::physics()->worldId, &bodyDef);
-
-    bodyDef.linearDamping = 0.0f;
-    bodyDef.angularDamping = 0.1f;
-    b2Polygon poly = shape->scaledPolygon;
-    b2CreatePolygonShape(bodyId, &shape->shapeDef, &poly);
-}
+////////////////////
+// rigid body //////
+///////////////////
 
 RigidBody::RigidBody() {}
 RigidBody::RigidBody(std::shared_ptr<Shape> shape) {
@@ -112,17 +95,9 @@ RigidBody::RigidBody(std::shared_ptr<Shape> shape) {
 }
 
 void RigidBody::physicsUpdate() {
-    if (getNode()->globalTransform.position != prevPosition) {
-        b2Body_SetTransform(bodyId, (b2Vec2)(getNode()->globalTransform.position * Physics::scale), b2Body_GetRotation(bodyId));
-    }
-    prevPosition = Vector2(b2Body_GetPosition(bodyId)) / Physics::scale;
-
-    if (getNode()->globalTransform.getAngle() != prevAngle) {
-        b2Body_SetTransform(bodyId, b2Body_GetPosition(bodyId), {cos(getNode()->globalTransform.getAngle()), sin(getNode()->globalTransform.getAngle())});
-    }
-    prevAngle = b2Rot_GetAngle(b2Body_GetRotation(bodyId));
-
     Node* node = getNode();
+
+    // send box2d pos to world pos
     Vector2 worldPos = Vector2(b2Body_GetPosition(bodyId)) / Physics::scale;
     float worldAngle = b2Rot_GetAngle(b2Body_GetRotation(bodyId));
 
@@ -136,30 +111,81 @@ void RigidBody::physicsUpdate() {
     }
 }
 
-void StaticBody::physicsUpdate() {
-    if (getNode()->globalTransform.position != prevPosition) {
-        b2Body_SetTransform(bodyId, (b2Vec2)(getNode()->globalTransform.position * Physics::scale), b2Body_GetRotation(bodyId));
-    }
-    prevPosition = Vector2(b2Body_GetPosition(bodyId)) / Physics::scale;
-
-    if (getNode()->globalTransform.getAngle() != prevAngle) {
-        b2Body_SetTransform(bodyId, b2Body_GetPosition(bodyId), {cos(getNode()->globalTransform.getAngle()), sin(getNode()->globalTransform.getAngle())});
-    }
-    prevAngle = b2Rot_GetAngle(b2Body_GetRotation(bodyId));
+void RigidBody::setPosition(Vector2 pos)
+{
+    b2Body_SetTransform(bodyId, (b2Vec2)pos, b2Body_GetRotation(bodyId));
+    // this is supposed to null velocity but i think it does that anyway?
 }
 
-void StaticBody::initialize() {
-    b2Body_SetTransform(bodyId, (b2Vec2)(getNode()->globalTransform.position * Physics::scale), 
-        {cos(getNode()->globalTransform.getAngle()), sin(getNode()->globalTransform.getAngle())});
+void RigidBody::setAngle(float angle)
+{
+    b2Body_SetTransform(bodyId, b2Body_GetPosition(bodyId), {cos(getNode()->globalTransform.getAngle()), sin(getNode()->globalTransform.getAngle())});
+    // this is supposed to null velocity but idk
+}
+
+void RigidBody::setLinearVelocity(Vector2 vel)
+{
+    b2Body_SetLinearVelocity(bodyId, vel);
+}
+
+void RigidBody::applyForce(Vector2 force)
+{
+    b2Body_ApplyForce(bodyId, force, shape->origin, true);
+    // i guess, always wake the body? that makes the most sense
+}
+
+void RigidBody::applyImpulse(Vector2 impulse)
+{
+    b2Body_ApplyLinearImpulse(bodyId, impulse, shape->origin, true);
 }
 
 void RigidBody::initialize() {
-    b2Body_SetTransform(bodyId, (b2Vec2)(getNode()->globalTransform.position * Physics::scale),
-        {cos(getNode()->globalTransform.getAngle()), sin(getNode()->globalTransform.getAngle())});
+    auto tr = this->getNode()->globalTransform;
+    b2Body_SetTransform(bodyId, tr.position * Physics::scale, {cos(tr.getAngle()), sin(tr.getAngle())});
 }
 
 RigidBody::~RigidBody() {
     b2DestroyBody(bodyId);
+}
+
+/////////////////////////////
+// static body             //
+/////////////////////////////
+
+StaticBody::StaticBody() {}
+StaticBody::StaticBody(std::shared_ptr<Shape> shape) {
+    this->shape = shape;
+
+    bodyDef = b2DefaultBodyDef();
+    bodyDef.type = b2BodyType::b2_staticBody;
+    bodyDef.linearDamping = 0.1f;
+    bodyDef.angularDamping = 0.1f;
+    bodyId = b2CreateBody(Services::physics()->worldId, &bodyDef);
+
+    b2Polygon poly = shape->scaledPolygon;
+    b2CreatePolygonShape(bodyId, &shape->shapeDef, &poly);
+}
+
+void StaticBody::physicsUpdate() {
+    // genuinely nothing lol
+}
+
+void StaticBody::setPosition(Vector2 pos)
+{
+    b2Body_SetTransform(bodyId, (b2Vec2)pos, b2Body_GetRotation(bodyId));
+    // this is supposed to null velocity but i think it does that anyway?
+}
+
+void StaticBody::setAngle(float angle)
+{
+    b2Body_SetTransform(bodyId, b2Body_GetPosition(bodyId), {cos(getNode()->globalTransform.getAngle()), sin(getNode()->globalTransform.getAngle())});
+    // this is supposed to null velocity but idk
+}
+
+
+void StaticBody::initialize() {
+    auto tr = this->getNode()->globalTransform;
+    b2Body_SetTransform(bodyId, tr.position * Physics::scale, {cos(tr.getAngle()), sin(tr.getAngle())});
 }
 
 StaticBody::~StaticBody() {

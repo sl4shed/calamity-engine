@@ -9,6 +9,7 @@
 #include "backend/core/node/components.hpp"
 #include "backend/services/physics/physics.hpp"
 #include "backend/utils/file.hpp"
+#include "backend/core/ui/label.hpp"
 #include "inputScript.hpp"
 
 #ifdef PSP

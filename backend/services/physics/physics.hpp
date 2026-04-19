@@ -52,6 +52,7 @@ public:
     Polygon scaledPolygon;
     Polygon polygon;
     b2ShapeDef shapeDef;
+    Vector2 origin;
 
     void applyMaterial(Material material);
 
@@ -68,13 +69,13 @@ public:
     template <class Archive>
     void save(Archive &ar) const
     {
-        ar(CEREAL_NVP(scaledPolygon), CEREAL_NVP(polygon), CEREAL_NVP(material));
+        ar(CEREAL_NVP(scaledPolygon), CEREAL_NVP(polygon), CEREAL_NVP(material), CEREAL_NVP(origin));
     }
 
     template <class Archive>
     void load(Archive &ar)
     {
-        ar(CEREAL_NVP(scaledPolygon), CEREAL_NVP(polygon), CEREAL_NVP(material));
+        ar(CEREAL_NVP(scaledPolygon), CEREAL_NVP(polygon), CEREAL_NVP(material), CEREAL_NVP(origin));
     }
 private:
     Material material;
@@ -84,23 +85,22 @@ class BoxShape : public Shape
 {
 public:
     BoxShape() = default;
-    BoxShape(Vector2 size, Vector2 center = {0.5f, 0.5f});
+    BoxShape(Vector2 size, Vector2 origin = {0.5f, 0.5f});
     Vector2 size;
-    Vector2 center;
 
     template <class Archive>
     void save(Archive &ar) const
     {
-        ar(cereal::base_class<Shape>(this), CEREAL_NVP(size), CEREAL_NVP(center));
+        ar(cereal::base_class<Shape>(this), CEREAL_NVP(size));
     }
 
     template <class Archive>
     void load(Archive &ar)
     {
-        ar(cereal::base_class<Shape>(this), CEREAL_NVP(size), CEREAL_NVP(center));
+        ar(cereal::base_class<Shape>(this), CEREAL_NVP(size));
 
         // just reconstruct everything from size and center like the constructor does
-        Vector2 calculatedCenter = center * size;
+        Vector2 calculatedCenter = origin * size;
         b2Rot rotation = {cos(0.0f), sin(0.0f)};
 
         b2Polygon poly = b2MakeOffsetBox(size.x / 2 * Physics::scale, size.y / 2 * Physics::scale, (b2Vec2)(calculatedCenter * Physics::scale), rotation);
@@ -115,9 +115,8 @@ public:
 class RoundedBoxShape : public Shape
 {
 public:
-    RoundedBoxShape(Vector2 size, Vector2 center = {0.5f, 0.5f}, float radius = 0.1f);
+    RoundedBoxShape(Vector2 size, Vector2 origin = {0.5f, 0.5f}, float radius = 0.1f);
     Vector2 size;
-    Vector2 center;
     float radius;
 };
 
@@ -138,6 +137,9 @@ public:
 
     void physicsUpdate();
     void initialize();
+
+    void setPosition(Vector2 pos);
+    void setAngle(float angle);
 
     std::shared_ptr<Shape> shape;
 
@@ -162,9 +164,6 @@ public:
 private:
     b2BodyDef bodyDef;
     b2BodyId bodyId;
-
-    Vector2 prevPosition;
-    float prevAngle;
 };
 
 class RigidBody : public Component
@@ -176,6 +175,13 @@ public:
 
     void physicsUpdate();
     void initialize();
+
+    void setPosition(Vector2 pos);
+    void setAngle(float angle);
+
+    void setLinearVelocity(Vector2 vel);
+    void applyForce(Vector2 force);
+    void applyImpulse(Vector2 impulse);
 
     std::shared_ptr<Shape> shape;
     template <class Archive>
@@ -199,9 +205,6 @@ public:
 private:
     b2BodyDef bodyDef;
     b2BodyId bodyId;
-
-    Vector2 prevPosition;
-    float prevAngle;
 };
 
 

@@ -11,6 +11,7 @@
 #include "backend/core/ui/definitions.hpp"
 #include "backend/core/ui/label.hpp"
 #include "rootScript.hpp"
+#include "fpsScript.hpp"
 
 #ifdef EMSCRIPTEN
 #include <emscripten.h>
@@ -96,6 +97,14 @@ int main() {
 
     std::shared_ptr<Node> catNode = std::make_shared<Node>("catNode");
     engine.root.addChild(catNode);
+
+    std::shared_ptr<Node> fpsNode = std::make_shared<Node>("fpsNode");
+    std::shared_ptr<Label> fpsLabel = std::make_shared<Label>("");
+    fpsLabel->font->setSize(16);
+    fpsNode->transform.position = {20, 50};
+    fpsNode->addComponent(fpsLabel);
+    fpsNode->addComponent(std::make_shared<FpsScript>());
+    engine.root.addChild(fpsNode);
 
     engine.root.addComponent(std::make_shared<RootScript>());
     engine.initialize();

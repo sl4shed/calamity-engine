@@ -112,6 +112,7 @@ void Node::render(Graphics &graphics, Engine *engine)
         children[i]->render(graphics, engine);
     }
 }
+
 void Node::update(float deltaTime)
 {
     if (parent)
@@ -163,6 +164,17 @@ void Node::physicsUpdate() {
 
 void Node::initialize()
 {
+    // copied from update
+    if (parent)
+    {
+        globalTransform = parent->globalTransform.applyTo(transform);
+    }
+    else
+    {
+        globalTransform.transformation = transform.transformation;
+        globalTransform.position = transform.position;
+    }
+
     for (size_t i = 0; i < children.size(); i++)
     {
         children[i]->initialize();

@@ -15,13 +15,13 @@
 
 A modular and cross-platform 2D game engine made in SDL3 and C++ built in mind with the Sony PSP.
 
-# Stuff you should look at
+# Index
 
- - [Installation](https://calamity.sl4shed.xyz/)
- - [Getting Started](https://calamity.sl4shed.xyz/)
- - [Cross Compilation](https://calamity.sl4shed.xyz)
+ - [Creating a new project](https://calamity.sl4shed.xyz/creating_a_new_project.html)
+ - [Your first project](https://calamity.sl4shed.xyz/your_first_project.html)
+ - [Compiling a project](https://calamity.sl4shed.xyz/compiling_a_project.html)
 
-# [Platforms that I support atm](https://calamity.sl4shed.xyz)
+# [Supported Platforms](https://calamity.sl4shed.xyz)
 
  - Linux
  - Windows
@@ -38,6 +38,19 @@ A modular and cross-platform 2D game engine made in SDL3 and C++ built in mind w
  - [box2d](https://github.com/erincatto/box2d)
  - [SDL_GameControllerDB](https://github.com/mdqinc/SDL_GameControllerDB)
  - [doxygen-awesome-css](https://github.com/jothepro/doxygen-awesome-css)
+
+# Optimization Sidequest
+Due to my engine targeting older/underpowered platforms like the Sony PSP, I designed my engine's architecture with performance in mind from the start.
+
+The physics and render loops are fully decoupled from one another. Physics runs at a fixed 60hz, which avoids both over-simulation and the "spiral of death" where a slow frame causes even slower subsequent frames.
+
+Components and children are stored in `std::vector`s, so iterating over them in update/render/physicsUpdate is sequential memory access, which matters a lot on platforms with limited cache.
+
+The active sprite on each node is cached as a raw pointer (`currentSprite`), so the renderer doesn't have to scan the full component vector every frame just to find the thing it draws most often.
+
+On the physics side, Box2D's substepping is exposed and set to 4 substeps by default. Also, the pixel-to-meter scaling that Box2D requires is baked into the shape at creation time (`scaledPolygon`) rather than being multiplied in every physics update.
+
+A lot of the end-user API is also function-based rather than property-based specifically to avoid having to diff previous values to detect changes in update loops which I did to optimize cycles for the more underpowered platforms like the PSP.
 
 # Aknowledgements
 

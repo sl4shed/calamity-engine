@@ -8,6 +8,7 @@
 #include "backend/services/services.hpp"
 #include "backend/core/node/components.hpp"
 #include "backend/services/physics/physics.hpp"
+#include "backend/core/ui/label.hpp"
 #include "atlasScript.hpp"
 
 #ifdef PSP
