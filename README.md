@@ -46,7 +46,7 @@ The physics and render loops are fully decoupled from one another. Physics runs 
 
 Components and children are stored in `std::vector`s, so iterating over them in update/render/physicsUpdate is sequential memory access, which matters a lot on platforms with limited cache.
 
-The active sprite on each node is cached as a raw pointer (`currentSprite`), so the renderer doesn't have to scan the full component vector every frame just to find the thing it draws most often.
+The active sprite on each node is cached (`currentSprite`) so the renderer doesn't have to search the full component vector every frame just to find the sprite.
 
 On the physics side, Box2D's substepping is exposed and set to 4 substeps by default. Also, the pixel-to-meter scaling that Box2D requires is baked into the shape at creation time (`scaledPolygon`) rather than being multiplied in every physics update.
 
@@ -55,4 +55,4 @@ A lot of the end-user API is also function-based rather than property-based spec
 # Aknowledgements
 
  - [Hack Club](https://hackclub.com) ❤️
- - My friends that are smarter than me ([@art0007i](https://github.com/art0007i/), [@misleadingname](https://codeberg.org/misleadingname), [@vianraaa](https://github.com/vianraaa))
+ - My friends that are smarter than me ([@art0007i](https://github.com/art0007i/), [@misleadingname](https://codeberg.org/misleadingname), [@vianraaa](https://github.com/vianraaa), [@ttmso](https://codeberg.org/ttmso))
