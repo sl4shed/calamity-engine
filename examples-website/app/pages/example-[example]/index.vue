@@ -13,22 +13,55 @@ const { data: manifest } = await useFetch(
   { server: false }
 );
 
-// highlight code safely
-watchEffect(async () => {
-  if (!manifest.value?.sourceFiles) return;
+const activeTab = ref('');
+const fileTabItems = computed(() => {
+  const files = manifest.value?.sourceFiles;
+  if (!files) return [];
 
-  const firstFile = Object.values(manifest.value.sourceFiles)[0];
-  if (!firstFile) return;
+  return files.map((file) => ({
+    label: file,
+    value: file,
+    icon: 'i-lucide-file'
+  }));
+});
 
-  highlightedCode.value = await codeToHtml(firstFile, {
-    lang: 'cpp',
-    theme: 'slack-dark'
-  });
+watchEffect(() => {
+  const file = activeTab.value;
+  if (!file) return;
+
+  (async () => {
+    try {
+      const res = await fetch(`/examples/${exampleId}/${file}`);
+      const text = await res.text();
+
+      highlightedCode.value = await codeToHtml(text, {
+        lang: 'cpp',
+        theme: 'slack-dark'
+      });
+    } catch (err) {
+      console.error('Failed to load file:', file, err);
+      highlightedCode.value = '';
+    }
+  })();
+});
+
+watchEffect(() => {
+  const file = activeTab.value;
+  if (!file) return;
+
+  (async () => {
+    const res = await fetch(`/examples/${exampleId}/${file}`);
+    const text = await res.text();
+
+    highlightedCode.value = await codeToHtml(text, {
+      lang: 'cpp',
+      theme: 'slack-dark'
+    });
+  })();
 });
 
 let isLoaded = false;
 
-// wait until canvas is REAL DOM node
 const waitForCanvas = () => {
   return new Promise((resolve) => {
     const check = () => {
@@ -47,10 +80,8 @@ const loadModule = async () => {
   isLoaded = true;
 
   const canvas = await waitForCanvas();
-  console.log(canvas);
   const basePath = `/examples/${exampleId}/build-web`;
 
-  // IMPORTANT: reset previous runtime (HMR safety)
   window.Module = {
     canvas,
     print: console.log,
@@ -62,8 +93,6 @@ const loadModule = async () => {
   await new Promise((resolve, reject) => {
     const script = document.createElement('script');
     script.src = `${basePath}/index.js`;
-
-    // IMPORTANT: no async (Emscripten hates race conditions)
     script.async = false;
 
     script.onload = resolve;
@@ -86,14 +115,6 @@ onMounted(() => {
   });
 });
 
-// HMR cleanup (THIS is why you needed multiple refreshes)
-if (import.meta.hot) {
-  import.meta.hot.dispose(() => {
-    window.Module = null;
-    isLoaded = false;
-  });
-}
-
 const exampleTitle = computed(() => {
   return (
     manifest.value?.name ||
@@ -103,8 +124,8 @@ const exampleTitle = computed(() => {
 </script>
 
 <template>
-  <div>
-    <UPageHeader :title="exampleTitle">
+  <UContainer>
+    <UPageHeader :title="manifest?.title || exampleTitle">
       <template #headline>
         <UBreadcrumb :items="[
           { label: 'Examples', to: '/examples' },
@@ -114,27 +135,46 @@ const exampleTitle = computed(() => {
     </UPageHeader>
 
 
-  <UPageBody>
-    <div class="flex flex-col lg:flex-row gap-6">
-      
-      <div class="lg:w-2/3">
-        <div class="bg-gray-900 dark:bg-gray-950 rounded-lg overflow-hidden">
-          <canvas 
-            ref="canvasRef"
-            class="w-full h-auto"
-            :width="manifest?.width || 800"
-            :height="manifest?.height || 600"
-            @contextmenu.prevent
-          />
+    <UPageBody>
+      <div class="flex flex-col lg:flex-row gap-6">
+
+        <div class="lg:w-2/3">
+          <div class="bg-transparent rounded-lg flex items-center justify-center">
+            <canvas ref="canvasRef" id="canvas" :width="manifest.width" :height="manifest.height"
+              @contextmenu.prevent />
+          </div>
+        </div>
+
+        <div class="lg:w-1/3">
+          <UCard>
+            <div class="flex flex-col gap-4">
+              <div class="flex flex-row gap-3">
+                <UBadge v-for="tag in manifest.tags" :key="tag">
+                  {{ tag }}
+                </UBadge>
+              </div>
+
+              <USeparator />
+
+              {{ manifest?.description }}
+
+              <USeparator />
+
+              <UDrawer title="Source Code" direction="right" :inset="true" :ui="{ width: 'w-1/3' }" size="lg">
+                <UButton label="Source Code" icon="i-lucide-code" variant="subtle" color="neutral" />
+
+                <template #content>
+                  <UTabs v-model="activeTab" :items="fileTabItems" variant="link">
+                    <template #default>
+                      
+                    </template>
+                  </UTabs>
+                </template>
+              </UDrawer>
+            </div>
+          </UCard>
         </div>
       </div>
-      
-      <div class="lg:w-1/3">
-        <UCard>
-          peanits peanits balls
-        </UCard>
-      </div>
-    </div>
-  </UPageBody>
-  </div>
+    </UPageBody>
+  </UContainer>
 </template>

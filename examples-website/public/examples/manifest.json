@@ -1,0 +1,14 @@
+{
+    "examples": [
+        {
+            "title": "Input Example",
+            "id": "input",
+            "tags": ["Input", "InputRegistry", "Sprite", "Script"]
+        },
+        {
+            "title": "Audio Example",
+            "id": "audio",
+            "tags": ["Audio", "Sound", "Music"]
+        }
+    ]
+}

@@ -6,5 +6,5 @@
     ],
     "width": 480,
     "height": 272,
-    "jsModule": "examples/input/build-web/index.js"
+    "tags": ["Input", "InputRegistry", "Sprite", "Script"]
 }

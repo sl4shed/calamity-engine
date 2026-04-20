@@ -1,0 +1,10 @@
+{
+    "title": "Atlas example",
+    "description": "An example of a Sprite using texture atlases. It demonstrates how to use the sourceTransform property of the Sprite component to specify a sub-rectangle of the texture to use for the sprite.",
+    "sourceFiles": [
+        "main.cpp", "atlasScript.hpp", "CMakeLists.txt"
+    ],
+    "width": 480,
+    "height": 272,
+    "tags": ["Sprite", "Script"]
+}
