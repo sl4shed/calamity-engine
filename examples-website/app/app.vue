@@ -11,26 +11,25 @@ useHead({
   }
 })
 
-const title = 'Nuxt Starter Template'
-const description = 'A production-ready starter template powered by Nuxt UI. Build beautiful, accessible, and performant applications in minutes, not hours.'
+const title = 'Calamity Engine'
+const description = 'A small, portable game engine written in C++ with SDL3.'
 
-useSeoMeta({
-  title,
-  description,
-  ogTitle: title,
-  ogDescription: description,
-  ogImage: 'https://ui.nuxt.com/assets/templates/nuxt/starter-light.png',
-  twitterCard: 'summary_large_image'
-})
+// useSeoMeta({
+//   title,
+//   description,
+//   ogTitle: title,
+//   ogDescription: description,
+//   ogImage: 'https://ui.nuxt.com/assets/templates/nuxt/starter-light.png',
+//   twitterCard: 'summary_large_image'
+// })
 </script>
 
 <template>
   <UApp>
-    <!-- this is the navbar i think -->
     <UHeader>
       <template #left>
         <NuxtLink to="/">
-          <AppLogo class="w-auto h-12" />
+          <AppLogo class="w-auto h-12 shrink-0" />
         </NuxtLink>
       </template>
 
@@ -46,18 +45,16 @@ useSeoMeta({
       </template>
     </UHeader>
 
-    <!-- main section -->
     <UMain>
       <NuxtPage />
     </UMain>
 
     <USeparator />
 
-    <!-- footer -->
     <UFooter>
       <template #left>
         <p class="text-sm text-muted">
-          Website built with Nuxt UI • © {{ new Date().getFullYear() }}
+          Built with Nuxt UI • © {{ new Date().getFullYear() }}
         </p>
       </template>
 

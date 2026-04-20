@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="VcsDirectoryMappings">
+    <mapping directory="" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/vendored/SDL" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/vendored/SDL_GameControllerDB" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/vendored/SDL_image" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/vendored/SDL_ttf" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/vendored/SDL_ttf/external/freetype" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/vendored/SDL_ttf/external/freetype/subprojects/dlg" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/vendored/SDL_ttf/external/harfbuzz" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/vendored/SDL_ttf/external/plutosvg" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/vendored/SDL_ttf/external/plutosvg/plutovg" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/vendored/SDL_ttf/external/plutovg" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/vendored/box2d" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/vendored/box2d/build/_deps/enkits-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/vendored/box2d/build/_deps/glfw-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/vendored/cereal" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/vendored/doxygen-awesome-css" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/vendored/fmt" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/vendored/json" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/vendored/spdlog" vcs="Git" />
+  </component>
+</project>

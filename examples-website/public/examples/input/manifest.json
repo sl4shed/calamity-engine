@@ -1,0 +1,10 @@
+{
+    "title": "Input example",
+    "description": "An example of the Input service and InputRegistry service. It demonstrates how to create InputEvents and bind them to specific InputRegistry actions to make the glass cube thing move around with both the WASD keys and the left controller joystick.",
+    "sourceFiles": [
+        "main.cpp", "inputScript.hpp", "CMakeLists.txt"
+    ],
+    "width": 480,
+    "height": 272,
+    "jsModule": "examples/input/build-web/index.js"
+}
