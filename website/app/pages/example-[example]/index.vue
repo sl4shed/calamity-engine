@@ -1,5 +1,6 @@
 <script setup>
 import { codeToHtml } from 'shiki';
+import { onBeforeUnmount } from 'vue';
 
 const route = useRoute();
 const exampleId = route.params.example;
@@ -33,6 +34,7 @@ watchEffect(() => {
     try {
       const res = await fetch(`/examples/${exampleId}/${file}`);
       const text = await res.text();
+      console.log(text);
 
       highlightedCode.value = await codeToHtml(text, {
         lang: 'cpp',
@@ -60,8 +62,6 @@ watchEffect(() => {
   })();
 });
 
-let isLoaded = false;
-
 const waitForCanvas = () => {
   return new Promise((resolve) => {
     const check = () => {
@@ -76,9 +76,6 @@ const waitForCanvas = () => {
 };
 
 const loadModule = async () => {
-  if (!manifest.value || isLoaded) return;
-  isLoaded = true;
-
   const canvas = await waitForCanvas();
   const basePath = `/examples/${exampleId}/build-web`;
 
@@ -164,11 +161,18 @@ const exampleTitle = computed(() => {
                 <UButton label="Source Code" icon="i-lucide-code" variant="subtle" color="neutral" />
 
                 <template #content>
-                  <UTabs v-model="activeTab" :items="fileTabItems" variant="link">
-                    <template #default>
-                      
-                    </template>
-                  </UTabs>
+                  <div class="flex flex-col gap-4 w-full min-w-0">
+                    <UTabs
+                        v-model="activeTab"
+                        :items="fileTabItems"
+                        variant="link"
+                    />
+
+                    <div
+                        class="overflow-auto text-sm"
+                        v-html="highlightedCode"
+                    />
+                  </div>
                 </template>
               </UDrawer>
             </div>
