@@ -109,6 +109,9 @@ void RigidBody::physicsUpdate() {
         node->transform.position = worldPos;
         node->transform.setAngle(worldAngle);
     }
+
+    storedTransform.position = Vector2(b2Body_GetPosition(bodyId));
+    storedTransform.setAngle(b2Rot_GetAngle(b2Body_GetRotation(bodyId)));
 }
 
 void RigidBody::setPosition(Vector2 pos)
@@ -167,7 +170,8 @@ StaticBody::StaticBody(std::shared_ptr<Shape> shape) {
 }
 
 void StaticBody::physicsUpdate() {
-    // genuinely nothing lol
+    storedTransform.position = Vector2(b2Body_GetPosition(bodyId));
+    storedTransform.setAngle(b2Rot_GetAngle(b2Body_GetRotation(bodyId)));
 }
 
 void StaticBody::setPosition(Vector2 pos)

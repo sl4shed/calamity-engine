@@ -1,68 +1,94 @@
-// insane build script
-
 import fs from 'fs';
 import path from 'path';
 
-const examplesDir = path.join(import.meta.dirname, '../examples/');
-const junkFiles = ['cmake_install.cmake', 'CMakeCache.txt', 'compile_commands.json', 'CPackConfig.cmake', 'CPackSourceConfig.cmake', 'Makefile'];
-const junkDirs = ['build', 'build-psp'];
-let totalManifest = {"examples": []};
+const rootDir = import.meta.dirname;
+const examplesDir = path.join(rootDir, '../examples');
 
-fs.readdir(examplesDir, (err, files) => {
-  if (err) {
-    console.error('Error reading examples directory:', err);
-    return;
+const junkFiles = [
+  'cmake_install.cmake',
+  'CMakeCache.txt',
+  'compile_commands.json',
+  'CPackConfig.cmake',
+  'CPackSourceConfig.cmake',
+  'Makefile'
+];
+
+const junkDirs = ['build', 'build-psp'];
+
+const totalManifest = { examples: [] };
+
+const files = fs.readdirSync(examplesDir);
+
+for (const file of files) {
+  console.log('----------------------------------------------');
+
+  const examplePath = path.join(examplesDir, file);
+
+  if (!fs.lstatSync(examplePath).isDirectory()) continue;
+
+  const manifestPath = path.join(examplePath, 'manifest.json');
+  const thumbnailPath = path.join(examplePath, 'thumbnail.png');
+
+  if (!fs.existsSync(manifestPath) || !fs.existsSync(thumbnailPath)) {
+    console.warn(`${file} => missing manifest.json or thumbnail.png`);
+    continue;
   }
 
-  files.forEach(file => {
-    console.log("----------------------------------------------");
-    const examplePath = path.join(examplesDir, file);
-    if (fs.lstatSync(examplePath).isDirectory()) {
-      const manifestPath = path.join(examplePath, 'manifest.json');
-      const thumbnailPath = path.join(examplePath, 'thumbnail.png');
+  const buildDir = path.join(examplePath, 'build-web');
 
-      if (fs.existsSync(manifestPath) && fs.existsSync(thumbnailPath)) {
-        const buildDir = path.join(import.meta.dirname, '../examples', file, 'build-web');
-        if(!fs.existsSync(buildDir)) {
-            console.warn(`${file} => Emscripten build directory does not exist.`);
-            return;
-        }
+  if (!fs.existsSync(buildDir)) {
+    console.warn(`${file} => missing build-web directory`);
+    continue;
+  }
 
-        fs.copyFileSync(manifestPath, path.join(buildDir, 'manifest.json'));
-        fs.copyFileSync(thumbnailPath, path.join(buildDir, 'thumbnail.png'));
-        console.log(`${file} -> Copied thumbnail and manifest to build-web`);
-        const manifestFile = JSON.parse(fs.readFileSync(manifestPath, 'utf-8'));
+  // copy the manifest and thumbnail to build-web
+  fs.copyFileSync(manifestPath, path.join(buildDir, 'manifest.json'));
+  fs.copyFileSync(thumbnailPath, path.join(buildDir, 'thumbnail.png'));
 
-        const examplesDirPath = path.join(import.meta.dirname, 'public', 'examples', file);
-        fs.mkdirSync(examplesDirPath, { recursive: true });
-        fs.cpSync(path.join(examplesDir, file), examplesDirPath, { recursive: true });
-        console.log(`${file} -> Copied to public/examples/${file}`);
+  console.log(`${file} -> copied manifest + thumbnail to build-web`);
 
-        fs.readdir(examplesDirPath, (err, buildFiles) => {
-            for (const junkFile of junkFiles) {
-                const junkFilePath = path.join(examplesDirPath, 'build-web', junkFile);
-                if (fs.existsSync(junkFilePath)) {
-                    fs.unlinkSync(junkFilePath);
-                    console.log(`${file} -> Deleted junk file: ${junkFile}`);
-                }
-            }
+  const manifestFile = JSON.parse(fs.readFileSync(manifestPath, 'utf-8'));
 
-            for (const junkDir of junkDirs) {
-                const junkDirPath = path.join(examplesDirPath, 'build-web', junkDir);
-                if (fs.existsSync(junkDirPath)) {
-                    fs.rmSync(junkDirPath, { recursive: true });
-                    console.log(`${file} -> Deleted junk directory: ${junkDir}`);
-                }
-            }
-        });
+  // copy example to public folder
+  const publicExamplePath = path.join(rootDir, 'public', 'examples', file);
+  fs.mkdirSync(publicExamplePath, { recursive: true });
 
-        totalManifest.examples.push(manifestFile);
-      } else {
-        console.warn(`${file} => skipping because of missing manifest.json or thumbnail.png`);
-      }
+  fs.cpSync(examplePath, publicExamplePath, { recursive: true });
+
+  console.log(`${file} -> copied to public/examples/${file}`);
+
+  const buildWebPath = path.join(publicExamplePath, 'build-web');
+
+  // clean up
+  for (const junkFile of junkFiles) {
+    const junkPath = path.join(buildWebPath, junkFile);
+    if (fs.existsSync(junkPath)) {
+      fs.unlinkSync(junkPath);
+      console.log(`${file} -> deleted junk file: ${junkFile}`);
     }
-  });
-});
+  }
 
-fs.writeFileSync(path.join(import.meta.dirname, 'public', 'examples', 'manifest.json'), JSON.stringify(totalManifest, null, 2));
-console.log('Total manifest.json created with all examples.');
+  // clean up
+  for (const junkDir of junkDirs) {
+    const junkPath = path.join(buildWebPath, junkDir);
+    if (fs.existsSync(junkPath)) {
+      fs.rmSync(junkPath, { recursive: true, force: true });
+      console.log(`${file} -> deleted junk dir: ${junkDir}`);
+    }
+  }
+
+  // add to total manifest
+  totalManifest.examples.push({
+    title: manifestFile.title,
+    tags: manifestFile.tags,
+    id: file
+  });
+}
+
+// write examples manifest
+const outputManifestPath = path.join(rootDir, 'public', 'examples', 'manifest.json');
+
+fs.mkdirSync(path.dirname(outputManifestPath), { recursive: true });
+fs.writeFileSync(outputManifestPath, JSON.stringify(totalManifest, null, 2));
+
+console.log('----------------------------------------------');

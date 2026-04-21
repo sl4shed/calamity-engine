@@ -1,3 +1,62 @@
 {
-  "examples": []
+  "examples": [
+    {
+      "title": "Atlas example",
+      "tags": [
+        "Sprite",
+        "Script"
+      ],
+      "id": "atlas"
+    },
+    {
+      "title": "Audio example",
+      "tags": [
+        "Audio",
+        "Script"
+      ],
+      "id": "audio"
+    },
+    {
+      "title": "Input example",
+      "tags": [
+        "Input",
+        "InputRegistry",
+        "Sprite",
+        "Script"
+      ],
+      "id": "input"
+    },
+    {
+      "title": "Node tree example",
+      "tags": [
+        "Input",
+        "InputRegistry",
+        "Sprite",
+        "Script",
+        "Physics",
+        "File",
+        "Node Trees",
+        "Label"
+      ],
+      "id": "node-tree"
+    },
+    {
+      "title": "Physics example",
+      "tags": [
+        "Input",
+        "ShapeSprite",
+        "Script",
+        "Physics",
+        "Label"
+      ],
+      "id": "physics"
+    },
+    {
+      "title": "Text example",
+      "tags": [
+        "Label"
+      ],
+      "id": "text"
+    }
+  ]
 }

@@ -77,6 +77,7 @@ public:
     {
         ar(CEREAL_NVP(scaledPolygon), CEREAL_NVP(polygon), CEREAL_NVP(material), CEREAL_NVP(origin));
     }
+
 private:
     Material material;
 };
@@ -146,24 +147,29 @@ public:
     template <class Archive>
     void save(Archive &ar) const
     {
-        ar(CEREAL_NVP(shape));
+        ar(CEREAL_NVP(shape), CEREAL_NVP(storedTransform));
     }
 
     template <class Archive>
     void load(Archive &ar)
     {
-        ar(CEREAL_NVP(shape));
+        ar(CEREAL_NVP(shape), CEREAL_NVP(storedTransform));
 
         bodyDef = b2DefaultBodyDef();
         bodyDef.type = b2BodyType::b2_staticBody;
         bodyId = b2CreateBody(Services::physics()->worldId, &bodyDef);
         b2Polygon poly = shape->scaledPolygon;
         b2CreatePolygonShape(bodyId, &shape->shapeDef, &poly);
+
+        float angle = storedTransform.getAngle();
+        b2Body_SetTransform(bodyId, (b2Vec2)storedTransform.position, {cos(angle), sin(angle)});
     }
 
 private:
     b2BodyDef bodyDef;
     b2BodyId bodyId;
+
+    Transform storedTransform;
 };
 
 class RigidBody : public Component
@@ -187,26 +193,30 @@ public:
     template <class Archive>
     void save(Archive &ar) const
     {
-        ar(CEREAL_NVP(shape));
+        ar(CEREAL_NVP(shape), CEREAL_NVP(storedTransform));
     }
 
     template <class Archive>
     void load(Archive &ar)
     {
-        ar(CEREAL_NVP(shape));
+        ar(CEREAL_NVP(shape), CEREAL_NVP(storedTransform));
 
         bodyDef = b2DefaultBodyDef();
         bodyDef.type = b2BodyType::b2_dynamicBody;
         bodyId = b2CreateBody(Services::physics()->worldId, &bodyDef);
         b2Polygon poly = shape->scaledPolygon;
         b2CreatePolygonShape(bodyId, &shape->shapeDef, &poly);
+
+        float angle = storedTransform.getAngle();
+        b2Body_SetTransform(bodyId, (b2Vec2)storedTransform.position, {cos(angle), sin(angle)});
     }
 
 private:
     b2BodyDef bodyDef;
     b2BodyId bodyId;
-};
 
+    Transform storedTransform;
+};
 
 CEREAL_REGISTER_TYPE(RigidBody);
 CEREAL_REGISTER_TYPE(StaticBody);

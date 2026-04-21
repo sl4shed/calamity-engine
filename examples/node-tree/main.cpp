@@ -101,7 +101,7 @@ int main() {
     std::shared_ptr<Node> fpsNode = std::make_shared<Node>("fpsNode");
     std::shared_ptr<Label> fpsLabel = std::make_shared<Label>("");
     fpsLabel->font->setSize(16);
-    fpsNode->transform.position = {20, 50};
+    fpsNode->transform.position = {20, 150};
     fpsNode->addComponent(fpsLabel);
     fpsNode->addComponent(std::make_shared<FpsScript>());
     engine.root.addChild(fpsNode);
