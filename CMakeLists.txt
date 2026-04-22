@@ -108,8 +108,8 @@ if(BUILD_TARGET STREQUAL "EMSCRIPTEN")
     message(STATUS "CALAMITY_ROOT = ${CALAMITY_ROOT}")
     function(calamity_apply_assets target)
         target_link_options(${target} PRIVATE
-                --preload-file=${CALAMITY_ROOT}/vendored/SDL_GameControllerDB/gamecontrollerdb.txt@calamity/gamecontrollerdb.txt
-                --preload-file=${CALAMITY_ROOT}/assets/default.ttf@calamity/default.ttf
+                --embed-file=${CALAMITY_ROOT}/vendored/SDL_GameControllerDB/gamecontrollerdb.txt@calamity/gamecontrollerdb.txt
+                --embed-file=${CALAMITY_ROOT}/assets/default.ttf@calamity/default.ttf
         )
     endfunction()
 else()

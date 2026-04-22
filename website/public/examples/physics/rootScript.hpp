@@ -60,6 +60,7 @@ public:
 
     void update(float dt) {
         if(Services::input()->isActionJustPressed("add")) {
+            Logger::info("Adding box");
             std::shared_ptr<Node> fallingNode = std::make_shared<Node>("fallingNode");
             fallingNode->transform.position = Services::input()->getMousePosition();
             fallingNode->transform.setAngle(rand() % 100 / 100.0f - 0.5f); // random angle between -0.5 and 0.5 radians

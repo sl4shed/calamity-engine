@@ -1,20 +1,21 @@
 <script setup>
-import { codeToHtml } from 'shiki';
-import { onBeforeUnmount } from 'vue';
+import { codeToHtml } from "shiki";
 
 const route = useRoute();
 const exampleId = route.params.example;
 
-const highlightedCode = ref('');
+const highlightedCode = ref("");
 const canvasRef = ref(null);
 const moduleInstance = ref(null);
+const open = ref(false);
+const consoleOutput = ref(null);
 
 const { data: manifest } = await useFetch(
   `examples/${exampleId}/manifest.json`,
-  { server: false }
+  { server: false },
 );
 
-const activeTab = ref('');
+const activeTab = ref("main.cpp");
 const fileTabItems = computed(() => {
   const files = manifest.value?.sourceFiles;
   if (!files) return [];
@@ -22,7 +23,7 @@ const fileTabItems = computed(() => {
   return files.map((file) => ({
     label: file,
     value: file,
-    icon: 'i-lucide-file'
+    icon: "i-lucide-file",
   }));
 });
 
@@ -34,31 +35,15 @@ watchEffect(() => {
     try {
       const res = await fetch(`/examples/${exampleId}/${file}`);
       const text = await res.text();
-      console.log(text);
 
       highlightedCode.value = await codeToHtml(text, {
-        lang: 'cpp',
-        theme: 'slack-dark'
+        lang: "cpp",
+        theme: "dark-plus",
       });
     } catch (err) {
-      console.error('Failed to load file:', file, err);
-      highlightedCode.value = '';
+      console.error("Failed to load file:", file, err);
+      highlightedCode.value = "";
     }
-  })();
-});
-
-watchEffect(() => {
-  const file = activeTab.value;
-  if (!file) return;
-
-  (async () => {
-    const res = await fetch(`/examples/${exampleId}/${file}`);
-    const text = await res.text();
-
-    highlightedCode.value = await codeToHtml(text, {
-      lang: 'cpp',
-      theme: 'slack-dark'
-    });
   })();
 });
 
@@ -81,14 +66,14 @@ const loadModule = async () => {
 
   window.Module = {
     canvas,
-    print: console.log,
-    printErr: console.error,
-    setStatus: (t) => console.log('[WASM]', t),
+    print: (msg) => log(msg),
+    printErr: (err) => log(`<span style="color:red">${err}</span>`),
+    setStatus: (t) => console.log("[WASM]", t),
     locateFile: (path) => `${basePath}/${path}`,
   };
 
   await new Promise((resolve, reject) => {
-    const script = document.createElement('script');
+    const script = document.createElement("script");
     script.src = `${basePath}/index.js`;
     script.async = false;
 
@@ -99,6 +84,14 @@ const loadModule = async () => {
   });
 
   moduleInstance.value = window.Module;
+};
+
+const log = (msg) => {
+  if (!consoleOutput.value) return;
+  console.log(msg);
+
+  consoleOutput.value.innerHTML += msg + "<br>";
+  consoleOutput.value.scrollTop = consoleOutput.value.scrollHeight;
 };
 
 onMounted(() => {
@@ -115,30 +108,37 @@ onMounted(() => {
 const exampleTitle = computed(() => {
   return (
     manifest.value?.name ||
-    exampleId.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
+    exampleId.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase())
   );
 });
 </script>
 
 <template>
-  <UContainer>
+  <UContainer class="flex flex-col gap-4 h-full">
     <UPageHeader :title="manifest?.title || exampleTitle">
       <template #headline>
-        <UBreadcrumb :items="[
-          { label: 'Examples', to: '/examples' },
-          { label: exampleTitle }
-        ]" />
+        <UBreadcrumb
+          :items="[
+            { label: 'Examples', to: '/examples' },
+            { label: exampleTitle },
+          ]"
+        />
       </template>
     </UPageHeader>
 
-
-    <UPageBody>
-      <div class="flex flex-col lg:flex-row gap-6">
-
+    <UPageBody class="flex-1 min-h-0 flex flex-col">
+      <div class="flex flex-col lg:flex-row gap-6 shrink-0">
         <div class="lg:w-2/3">
-          <div class="bg-transparent rounded-lg flex items-center justify-center">
-            <canvas ref="canvasRef" id="canvas" :width="manifest.width" :height="manifest.height"
-              @contextmenu.prevent />
+          <div
+            class="bg-transparent rounded-lg flex items-center justify-center"
+          >
+            <canvas
+              ref="canvasRef"
+              id="canvas"
+              :width="manifest.width"
+              :height="manifest.height"
+              @contextmenu.prevent
+            />
           </div>
         </div>
 
@@ -157,21 +157,49 @@ const exampleTitle = computed(() => {
 
               <USeparator />
 
-              <UDrawer title="Source Code" direction="right" :inset="true" :ui="{ width: 'w-1/3' }" size="lg">
-                <UButton label="Source Code" icon="i-lucide-code" variant="subtle" color="neutral" />
+              <UDrawer
+                :dismissible="false"
+                title="Source Code"
+                direction="right"
+                :handle="false"
+                v-model:open="open"
+                :ui="{
+                  body: 'flex flex-col h-full overflow-hidden',
+                }"
+              >
+                <UButton
+                  label="Source Code"
+                  icon="i-lucide-code"
+                  variant="subtle"
+                  color="neutral"
+                />
 
-                <template #content>
-                  <div class="flex flex-col gap-4 w-full min-w-0">
-                    <UTabs
+                <template #header>
+                  <div class="flex items-center justify-between w-full">
+                    <span class="font-semibold">Source Code</span>
+
+                    <UButton
+                      color="neutral"
+                      variant="ghost"
+                      icon="i-lucide-x"
+                      @click="open = false"
+                    />
+                  </div>
+                </template>
+
+                <template #body>
+                  <div class="flex flex-col h-full min-h-0">
+                    <div class="shrink-0">
+                      <UTabs
                         v-model="activeTab"
                         :items="fileTabItems"
                         variant="link"
-                    />
+                      />
+                    </div>
 
-                    <div
-                        class="overflow-auto text-sm"
-                        v-html="highlightedCode"
-                    />
+                    <div class="flex-1 min-h-0 overflow-auto p-4 code-padding">
+                      <div class="code text-sm" v-html="highlightedCode" />
+                    </div>
                   </div>
                 </template>
               </UDrawer>
@@ -180,5 +208,37 @@ const exampleTitle = computed(() => {
         </div>
       </div>
     </UPageBody>
+
+    <UPageCard title="Console Output" class="flex-1 min-h-0 flex flex-col">
+      <div class="console-output flex-1 overflow-auto p-3 font-mono text-sm bg-black text-green-300 rounded" ref="consoleOutput" />
+    </UPageCard>
   </UContainer>
 </template>
+
+<style>
+.console-output {
+
+}
+
+.code {
+  user-select: text !important;
+  pointer-events: all !important;
+  counter-reset: step;
+  counter-increment: step 0;
+}
+
+.code .line::before {
+  content: counter(step);
+  counter-increment: step;
+  width: 1rem;
+  margin-right: 1.5rem;
+  display: inline-block;
+  text-align: right;
+  color: rgba(115, 138, 148, 0.4);
+}
+
+.code-padding {
+  background-color: rgb(30, 30, 30);
+  border-radius: 2px;
+}
+</style>
