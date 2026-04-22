@@ -46,13 +46,11 @@ void Input::update(float deltaTime)
             {
                 auto ev = std::make_unique<InputEventMouseMotion>();
                 auto camera = Services::engine()->getActiveCamera();
-                auto cameraT = camera->getNode()->globalTransform;
-                auto screen = Services::graphics()->screenSize;
 
                 float lx, ly;
                 SDL_RenderCoordinatesFromWindow(Services::graphics()->getRenderer(), event.motion.x, event.motion.y, &lx, &ly);
 
-                ev->position = (Vector2){lx, ly} + cameraT.position - (screen * camera->origin);
+                ev->position = camera->screenToWorld({lx, ly});
                 ev->relative = (Vector2){event.motion.xrel, event.motion.yrel};
                 inputs.push_back(std::move(ev));
                 break;
@@ -221,18 +219,18 @@ bool Input::isControllerButtonPressed(int device, ControllerButton button) const
 }
 
 Vector2 Input::getMousePosition() const {
-    auto camera = Services::engine()->getActiveCamera();
-    auto cameraT = camera->getNode()->globalTransform;
-    auto screen = Services::graphics()->screenSize;
     float wx, wy;
     SDL_GetMouseState(&wx, &wy);
 
-    // map from window coords -> logical renderer coords
     float lx, ly;
-    SDL_RenderCoordinatesFromWindow(Services::graphics()->getRenderer(), wx, wy, &lx, &ly);
+    SDL_RenderCoordinatesFromWindow(
+        Services::graphics()->getRenderer(),
+        wx, wy, &lx, &ly
+    );
 
-    Vector2 pos = (Vector2){lx, ly} + cameraT.position - (screen * camera->origin);
-    return pos;
+    return Services::engine()
+        ->getActiveCamera()
+        ->screenToWorld({lx, ly});
 }
 
 // controller stuff

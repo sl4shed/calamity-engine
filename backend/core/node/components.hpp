@@ -184,6 +184,8 @@ public:
 
     void initialize();
 
+    Vector2 screenToWorld(Vector2 screen);
+
     template <class Archive>
     void save(Archive &ar) const
     {

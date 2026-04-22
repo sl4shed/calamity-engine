@@ -209,17 +209,19 @@ const exampleTitle = computed(() => {
       </div>
     </UPageBody>
 
-    <UPageCard title="Console Output" class="flex-1 min-h-0 flex flex-col">
-      <div class="console-output flex-1 overflow-auto p-3 font-mono text-sm bg-black text-green-300 rounded" ref="consoleOutput" />
+    <UPageCard
+        title="Console Output"
+        class="grow flex-1 max-h-80 flex"
+    >
+      <div
+          ref="consoleOutput"
+          class="h-full overflow-auto p-3 font-mono text-sm bg-black text-green-300 rounded"
+      />
     </UPageCard>
   </UContainer>
 </template>
 
 <style>
-.console-output {
-
-}
-
 .code {
   user-select: text !important;
   pointer-events: all !important;

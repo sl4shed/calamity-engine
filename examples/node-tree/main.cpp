@@ -43,7 +43,7 @@ int main() {
     InputRegistry inputRegistry;
     Audio audio;
 
-    graphics = new Graphics({1280, 720}, "Node Tree Example");
+    graphics = new Graphics({480, 272}, "Node Tree Example");
     Services::init(graphics, &physics, &engine, &input, &inputRegistry, &audio);
 
     inputRegistry.addAction("add", 0.2f);
@@ -54,6 +54,7 @@ int main() {
 
     std::shared_ptr<Node> cameraNode = std::make_shared<Node>("cameraNode");
     std::shared_ptr<Camera> camera = std::make_shared<Camera>();
+    cameraNode->transform.scale({3, 3});
     cameraNode->addComponent(camera);
 
     // box thing
@@ -93,7 +94,7 @@ int main() {
     label->wrap = false;
     labelNode->transform.position = {20, 20};
     labelNode->addComponent(label);
-    engine.root.addChild(labelNode);
+    cameraNode->addChild(labelNode);
 
     std::shared_ptr<Node> catNode = std::make_shared<Node>("catNode");
     engine.root.addChild(catNode);

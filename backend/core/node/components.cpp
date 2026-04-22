@@ -1,6 +1,7 @@
 #include "components.hpp"
 #include "node.hpp"
 #include "../../services/engine.hpp"
+#include "../../services/graphics.hpp"
 #include "../../services/services.hpp"
 #include "../../utils/logger.hpp"
 #include <cereal/archives/json.hpp>
@@ -28,6 +29,16 @@ void Camera::initialize()
     {
         setActive();
     }
+}
+
+Vector2 Camera::screenToWorld(Vector2 screen)
+{
+    auto screenSize = Services::graphics()->screenSize;
+    auto originOffset = screenSize * origin;
+    Vector2 v = screen - originOffset;
+    v = getNode()->globalTransform.transformation * v;
+    v = v + getNode()->globalTransform.position;
+    return v;
 }
 
 ShapeSprite::ShapeSprite() {}

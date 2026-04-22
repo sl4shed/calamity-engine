@@ -72,6 +72,15 @@ void Graphics::renderSprite(Node &node, Engine *engine)
         pos = node.globalTransform.applyTo(pos);
 
         // translate to camera space or wtv
+
+        /**
+         *
+         * ok so
+         * 1. apply camera position
+         * 2. multiply position by inverse camera transformation matrix
+         * 3. add origin offset to position
+         *
+         */
         pos = pos - cameraTransform.position;
         Transform cameraInverse = cameraTransform.inverse();
         pos = cameraInverse.transformation * pos;
@@ -133,6 +142,7 @@ void Graphics::renderLabel(Label *label) {
     }
 
     Vector2 pos = label->getNode()->transform.position;
+    // TODO: make labels scale somehow according to camera transform
     TTF_DrawRendererText(label->getHandle(), pos.x, pos.y);
 }
 
