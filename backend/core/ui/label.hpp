@@ -44,6 +44,8 @@ public:
     Label* setDirection(FontDirection direction);
     Label* setWrapWidth(int width);
     int getWrapWidth();
+    void rebuildTexture();
+    SDL_Texture *getTexture();
 
     template <class Archive>
     void save(Archive &ar) const
@@ -65,7 +67,9 @@ private:
     Color color = Color::WHITE;
     FontDirection direction = FontDirection::LTR;
     int wrapWidth = -1;
+    bool dirty = true;
 
     TTF_Text* handle; // TTF_Text*
+    SDL_Texture *texture;
     Vector2 prevSize;
 };

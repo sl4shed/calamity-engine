@@ -26,6 +26,8 @@ public:
     Color(std::string hexCode);
     Color(std::string hexCode, int a);
 
+    operator SDL_Color() const { return {(Uint8)r, (Uint8)g, (Uint8)b, (Uint8)a}; };
+
     static const Color WHITE;
     static const Color BLACK;
     static const Color RED;

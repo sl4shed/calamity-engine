@@ -33,7 +33,7 @@ Graphics::Graphics(Vector2 s, std::string t, RenderLogicalPresentation p, Color 
     SDL_SetRenderLogicalPresentation(renderer, screenSize.x, screenSize.y, (SDL_RendererLogicalPresentation)presentation);
 
     this->renderer = SDL_CreateRenderer(window, NULL);
-    this->textEngine = TTF_CreateRendererTextEngine(this->renderer);
+    this->textEngine = TTF_CreateSurfaceTextEngine();
 }
 
 void Graphics::resetLogicalPresentation() {
@@ -72,15 +72,6 @@ void Graphics::renderSprite(Node &node, Engine *engine)
         pos = node.globalTransform.applyTo(pos);
 
         // translate to camera space or wtv
-
-        /**
-         *
-         * ok so
-         * 1. apply camera position
-         * 2. multiply position by inverse camera transformation matrix
-         * 3. add origin offset to position
-         *
-         */
         pos = pos - cameraTransform.position;
         Transform cameraInverse = cameraTransform.inverse();
         pos = cameraInverse.transformation * pos;
@@ -141,9 +132,50 @@ void Graphics::renderLabel(Label *label) {
         TTF_SetTextWrapWidth(label->getHandle(), 0);
     }
 
-    Vector2 pos = label->getNode()->transform.position;
-    // TODO: make labels scale somehow according to camera transform
-    TTF_DrawRendererText(label->getHandle(), pos.x, pos.y);
+    Vector2 pos = label->getNode()->globalTransform.position;
+    // Thopefully this works
+    SDL_Texture *texture = label->getTexture();
+    if(!texture) return;
+
+    Node *lnode = label->getNode();
+
+    Camera *activeCamera = Services::engine()->getActiveCamera();
+    Transform cameraTransform = activeCamera->getNode()->globalTransform;
+    SDL_Vertex vertices[4];
+
+    float w;
+    float h;
+    SDL_GetTextureSize(texture, &w, &h);
+    vertices[0] = {{-(w * label->origin.x), -(h * label->origin.y)}, {1, 1, 1, 1}, {0, 0}};
+    vertices[1] = {{w * (1 - label->origin.x), -(h * label->origin.y)}, {1, 1, 1, 1}, {1, 0}};
+    vertices[2] = {{w * (1 - label->origin.x), h * (1 - label->origin.y)}, {1, 1, 1, 1}, {1, 1}};
+    vertices[3] = {{-(w * label->origin.x), h * (1 - label->origin.y)}, {1, 1, 1, 1}, {0, 1}};
+
+    Vector2 originOffset = Vector2{screenSize.x * activeCamera->origin.x, screenSize.y * activeCamera->origin.y};
+
+    for (int i = 0; i < 4; i++)
+    {
+        Vector2 pos = {vertices[i].position.x, vertices[i].position.y};
+        pos = lnode->globalTransform.applyTo(pos);
+
+        // translate to camera space or wtv
+        pos = pos - cameraTransform.position;
+        Transform cameraInverse = cameraTransform.inverse();
+        pos = pos - cameraTransform.position;
+        pos = cameraInverse.transformation * pos;
+        vertices[i].position.x = pos.x;
+        vertices[i].position.y = pos.y;
+
+        //Transform sourceTransform = label->sourceTransform;
+        Vector2 texturePos = {vertices[i].tex_coord.x, vertices[i].tex_coord.y};
+        //texturePos = texturePos * sourceTransform.getScale() + Vector2{sourceTransform.position.x / (float)sprite->texture.width, sourceTransform.position.y / (float)sprite->texture.height};
+        vertices[i].tex_coord.x = texturePos.x;
+        vertices[i].tex_coord.y = texturePos.y;
+    }
+
+    int indices[6] = {0, 1, 2, 2, 3, 0};
+
+    SDL_RenderGeometry(this->renderer, texture, vertices, 4, indices, 6);
 }
 
 TTF_TextEngine *Graphics::getTextEngine() {
