@@ -110,9 +110,19 @@ void Transform::rotate(float angle)
     transformation = Matrix2::rotation(angle) * transformation;
 }
 
-void Transform::scale(Vector2 scale)
+void Transform::setScale(Vector2 s)
 {
-    transformation = Matrix2::scale(scale) * transformation;
+    // Preserve current rotation, replace scale entirely
+    float angle = getAngle();
+    transformation = Matrix2::rotation(angle) * Matrix2::scale(s);
+}
+
+void Transform::scale(Vector2 s)
+{
+    // Multiply existing scale by s, preserving rotation
+    Vector2 currentScale = getScale();
+    float angle = getAngle();
+    transformation = Matrix2::rotation(angle) * Matrix2::scale({currentScale.x * s.x, currentScale.y * s.y});
 }
 
 float Transform::getAngle()
@@ -177,6 +187,11 @@ Transform Transform::inverse() const
 Texture::Texture(std::string p) : path(p), handle(nullptr), width(0), height(0)
 {
     this->initialize();
+}
+
+Texture::~Texture()
+{
+    SDL_DestroyTexture(handle);
 }
 
 void Texture::initialize()

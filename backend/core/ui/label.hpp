@@ -34,6 +34,7 @@ public:
     Font* font;
     bool visible = true;
     bool wrap = true; // text wrap. yes or no?
+    bool screenSpace = false;
 
     Label* setText(std::string text);
     std::string getText() const;
@@ -70,6 +71,6 @@ private:
     bool dirty = true;
 
     TTF_Text* handle; // TTF_Text*
-    SDL_Texture *texture;
+    SDL_Texture *texture = nullptr;
     Vector2 prevSize;
 };

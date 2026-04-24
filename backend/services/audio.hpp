@@ -6,6 +6,7 @@
 #include "../core/node/components.hpp"
 #include "../utils/logger.hpp"
 #include "../core/signal.hpp"
+#include "backend/utils/file.hpp"
 
 static SDL_AudioDeviceID audio_device = SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK;
 
@@ -15,6 +16,8 @@ public:
     Audio();
     ~Audio();
 
+    static const int bufferSize = 4096 * 4;
+    static const int chunkSize = 4096;
     void openAudioDevice(int id);
     SDL_AudioDeviceID getAudioDevice();
 
@@ -29,9 +32,9 @@ private:
  */
 typedef struct Sound
 {
-    Uint8 *wav_data;
-    Uint32 wav_data_len;
-    SDL_AudioStream *stream;
+    Uint8 *wav_data = nullptr;
+    Uint32 wav_data_len = 0;
+    SDL_AudioStream *stream = nullptr;
 } Sound;
 
 /**
@@ -42,11 +45,9 @@ typedef struct Sound
  * Example Usage:
  * ```
  * std::shared_ptr<Node> node = std::make_shared<Node>();
- * node->transform.scale({4, 4});
- * std::shared_ptr<AudioSource> sound = std::make_shared<AudioSource>("assets/sound.wav");
- * node->addComponent(sound);
+ * node->addComponent(std::make_shared<AudioSource>("assets/sound.wav"));
  *
- * // play sound
+ * // play sound (make sure to do this AFTER the audio source was initialized)
  * sound->play();
  * ```
  *
@@ -57,21 +58,49 @@ class AudioSource : public Component
 public:
     AudioSource(std::string path);
     std::string path;
-    float volume = 1.0f;
-    float pitch = 1.0f;
-    bool playing = false;
-    bool loop = false;
 
+    float getVolume();
+    float getPitch();
+    bool getPlaying();
+    void setPitch(float pitch);
+    void setVolume(float volume);
+
+    bool loop = false;
     Signal<> finished;
+    Signal<> looped;
 
     void play();
     bool loadAudio();
-    void initialize();
     void update(float deltaTime);
     void shutdown();
 
+    template <class Archive>
+    void save(Archive &ar) const
+    {
+        ar(CEREAL_NVP(volume), CEREAL_NVP(pitch), CEREAL_NVP(playing), CEREAL_NVP(path), CEREAL_NVP(loop));
+    }
+
+    template <class Archive>
+    void load(Archive &ar)
+    {
+        ar(CEREAL_NVP(volume), CEREAL_NVP(pitch), CEREAL_NVP(playing), CEREAL_NVP(path), CEREAL_NVP(loop));
+        this->fsPath = File::getAbsoluteFilePath(path);
+        loadAudio();
+        SDL_SetAudioStreamFrequencyRatio(this->handle.stream, this->pitch);
+        SDL_SetAudioStreamGain(this->handle.stream, this->volume);
+        if (playing)
+        {
+            play();
+        }
+    }
+
 private:
+    bool playing = false;
+    float volume = 1.0f;
+    float pitch = 1.0f;
+    size_t cursor = 0;
+    bool finishedFeeding = false;
+
+    std::string fsPath;
     Sound handle;
-    float prevVolume = 0.0f;
-    float prevPitch = 0.0f;
 };

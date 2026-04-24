@@ -29,10 +29,9 @@ Graphics::Graphics(Vector2 s, std::string t, RenderLogicalPresentation p, Color 
         screenSize.y,
         (SDL_WindowFlags)flags
     );
-    
-    SDL_SetRenderLogicalPresentation(renderer, screenSize.x, screenSize.y, (SDL_RendererLogicalPresentation)presentation);
 
     this->renderer = SDL_CreateRenderer(window, NULL);
+    SDL_SetRenderLogicalPresentation(renderer, screenSize.x, screenSize.y, (SDL_RendererLogicalPresentation)presentation);
     this->textEngine = TTF_CreateSurfaceTextEngine();
 }
 
@@ -43,7 +42,13 @@ void Graphics::resetLogicalPresentation() {
 SDL_Texture *Graphics::loadTexture(const std::string &path)
 {
     SDL_Surface *pixels = IMG_Load(path.c_str());
-    return SDL_CreateTextureFromSurface(renderer, pixels);
+    if (!pixels) {
+        Logger::error("Failed to load texture '{}': {}", path, SDL_GetError());
+        return nullptr;
+    }
+    SDL_Texture *tex = SDL_CreateTextureFromSurface(renderer, pixels);
+    SDL_DestroySurface(pixels);
+    return tex;
 }
 
 SDL_Renderer* Graphics::getRenderer()
@@ -54,6 +59,7 @@ SDL_Renderer* Graphics::getRenderer()
 void Graphics::renderSprite(Node &node, Engine *engine)
 {
     if (!node.currentSprite) return;
+    if (!node.currentSprite->texture.handle) return;
 
     Camera *activeCamera = engine->getActiveCamera();
     Transform cameraTransform = activeCamera->getNode()->globalTransform;
@@ -72,9 +78,12 @@ void Graphics::renderSprite(Node &node, Engine *engine)
         pos = node.globalTransform.applyTo(pos);
 
         // translate to camera space or wtv
-        pos = pos - cameraTransform.position;
-        Transform cameraInverse = cameraTransform.inverse();
-        pos = cameraInverse.transformation * pos;
+        if (!sprite->screenSpace)
+        {
+            pos = pos - cameraTransform.position;
+            Transform cameraInverse = cameraTransform.inverse();
+            pos = cameraInverse.transformation * pos;
+        }
         pos = pos + originOffset;
         vertices[i].position.x = pos.x;
         vertices[i].position.y = pos.y;
@@ -108,8 +117,11 @@ void Graphics::renderPolygonSprite(Node &node, Engine *engine) {
     for (int i = 0; i < count; i++) {
         Vector2 pos = poly.vertices[i];
         pos = node.globalTransform.applyTo(pos);
-        pos = pos - cameraTransform.position;
-        pos = cameraTransform.inverse().transformation * pos;
+        if (!polySprite->screenSpace)
+        {
+            pos = pos - cameraTransform.position;
+            pos = cameraTransform.inverse().transformation * pos;
+        }
         pos = pos + originOffset;
         vertices[i] = {{pos.x, pos.y}, col, {0, 0}};
     }
@@ -127,13 +139,8 @@ void Graphics::renderPolygonSprite(Node &node, Engine *engine) {
 
 void Graphics::renderLabel(Label *label) {
     if(!label->getNode()) return;
-    
-    if(!label->wrap) {
-        TTF_SetTextWrapWidth(label->getHandle(), 0);
-    }
 
-    Vector2 pos = label->getNode()->globalTransform.position;
-    // Thopefully this works
+    // hopefully this works
     SDL_Texture *texture = label->getTexture();
     if(!texture) return;
 
@@ -152,23 +159,23 @@ void Graphics::renderLabel(Label *label) {
     vertices[3] = {{-(w * label->origin.x), h * (1 - label->origin.y)}, {1, 1, 1, 1}, {0, 1}};
 
     Vector2 originOffset = Vector2{screenSize.x * activeCamera->origin.x, screenSize.y * activeCamera->origin.y};
+    Transform cameraInverse = cameraTransform.inverse();
 
     for (int i = 0; i < 4; i++)
     {
         Vector2 pos = {vertices[i].position.x, vertices[i].position.y};
         pos = lnode->globalTransform.applyTo(pos);
 
-        // translate to camera space or wtv
-        pos = pos - cameraTransform.position;
-        Transform cameraInverse = cameraTransform.inverse();
-        pos = pos - cameraTransform.position;
-        pos = cameraInverse.transformation * pos;
+        if (!label->screenSpace) {
+            pos = pos - cameraTransform.position;
+            pos = cameraInverse.transformation * pos;
+        }
+        pos = pos + originOffset;
+
         vertices[i].position.x = pos.x;
         vertices[i].position.y = pos.y;
 
-        //Transform sourceTransform = label->sourceTransform;
         Vector2 texturePos = {vertices[i].tex_coord.x, vertices[i].tex_coord.y};
-        //texturePos = texturePos * sourceTransform.getScale() + Vector2{sourceTransform.position.x / (float)sprite->texture.width, sourceTransform.position.y / (float)sprite->texture.height};
         vertices[i].tex_coord.x = texturePos.x;
         vertices[i].tex_coord.y = texturePos.y;
     }

@@ -26,14 +26,17 @@ void Label::rebuildTexture() {
 
     if(texture)
         SDL_DestroyTexture(texture);
-    
-    SDL_Surface *surface = TTF_RenderText_Blended(font->getHandle(), text.c_str(), text.size(), color);
+
+    SDL_Surface *surface;
+    // Pass size.x if wrapping, otherwise pass 0 to allow \n without horizontal wrapping
+    surface = TTF_RenderText_Blended_Wrapped(font->getHandle(), text.c_str(), text.size(), color, wrap ? size.x : 0);
+
     texture = SDL_CreateTextureFromSurface(Services::graphics()->getRenderer(), surface);
     SDL_DestroySurface(surface);
 }
 
 std::string Label::getText() const {
-    return std::string(handle->text);
+    return text;
 }
 
 TTF_Text* Label::getHandle() const {
@@ -49,6 +52,7 @@ Color Label::getColor() {
 Label::Label(std::string text, Font *font) {
     this->font = font;
     this->handle = TTF_CreateText(Services::graphics()->getTextEngine(), font->getHandle(), text.c_str(), text.size());
+    this->text = text;
 }
 
 Label::Label(std::string text) {
@@ -58,7 +62,9 @@ Label::Label(std::string text) {
     static Font dfont = Font("./calamity/default.ttf");
 #endif
     this->font = &dfont;
+
     this->handle = TTF_CreateText(Services::graphics()->getTextEngine(), font->getHandle(), text.c_str(), text.size());
+    this->text = text;
     this->setColor({255, 255, 255, 255});
 }
 

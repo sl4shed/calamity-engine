@@ -41,6 +41,15 @@ Vector2 Camera::screenToWorld(Vector2 screen)
     return v;
 }
 
+// sprite
+
+Sprite::Sprite() {}
+
+Sprite::Sprite(std::string texturePath)
+{
+    texture = Texture(texturePath);
+}
+
 ShapeSprite::ShapeSprite() {}
 ShapeSprite::ShapeSprite(Polygon shape)
 {

@@ -1,17 +1,19 @@
 #include "audio.hpp"
 #include <SDL3/SDL_audio.h>
 
+#include "backend/utils/file.hpp"
 
-Audio::Audio() {}
+
+Audio::Audio()
+{
+    this->openAudioDevice(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK);
+}
 
 Audio::~Audio() {
     SDL_CloseAudioDevice(this->device);
 }
 
-void Audio::initialize()
-{
-    this->openAudioDevice(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK);
-}
+void Audio::initialize() {}
 
 void Audio::openAudioDevice(int id) {
     this->device = SDL_OpenAudioDevice(id, nullptr);
@@ -27,29 +29,35 @@ SDL_AudioDeviceID Audio::getAudioDevice() {
 AudioSource::AudioSource(std::string path)
 {
     this->path = path;
+    this->fsPath = File::getAbsoluteFilePath(path);
 }
 
 void AudioSource::play() {
     this->playing = true;
-    SDL_FlushAudioStream(this->handle.stream);
-    SDL_PutAudioStreamData(this->handle.stream, this->handle.wav_data, (int)this->handle.wav_data_len);
+
+    if (this->handle.stream)
+    {
+        SDL_FlushAudioStream(this->handle.stream);
+    } else
+    {
+        loadAudio();
+    }
+
     SDL_ResumeAudioStreamDevice(this->handle.stream);
     this->finished.reset();
 }
 
 bool AudioSource::loadAudio()
 {
-    char *wav_path = nullptr;
-
     if (this->handle.stream != nullptr)
     {
-        Logger::warn("can't load audiosource twice type shi");
-        return false;
+        SDL_DestroyAudioStream(this->handle.stream);
+        this->handle.wav_data = nullptr;
+        this->handle.wav_data_len = 0;
     }
 
     SDL_AudioSpec spec;
-    SDL_asprintf(&wav_path, "%s%s", SDL_GetBasePath(), path.c_str());
-    if (!SDL_LoadWAV(wav_path, &spec, &this->handle.wav_data, &this->handle.wav_data_len))
+    if (!SDL_LoadWAV(fsPath.c_str(), &spec, &this->handle.wav_data, &this->handle.wav_data_len))
     {
         Logger::error("Couldn't load audio file: {}", SDL_GetError());
         return false;
@@ -67,28 +75,75 @@ bool AudioSource::loadAudio()
         return false;
     }
 
-    SDL_free(wav_path);
     return true;
+}
+
+void AudioSource::setVolume(float _volume)
+{
+    this->volume = _volume;
+    SDL_SetAudioStreamGain(this->handle.stream, this->volume);
+}
+
+void AudioSource::setPitch(float _pitch)
+{
+    this->pitch = _pitch;
+    SDL_SetAudioStreamFrequencyRatio(this->handle.stream, this->pitch);
+}
+
+float AudioSource::getPitch()
+{
+    return pitch;
+}
+
+float AudioSource::getVolume()
+{
+    return volume;
+}
+
+bool AudioSource::getPlaying()
+{
+    return playing;
 }
 
 void AudioSource::update(float deltaTime)
 {
-    if (this->volume != this->prevVolume)
+    // ok here the loop is making sure that the audio stream data never dips below the wav data length
+    // which is kinda aids
+    // i should probably just have a buffer length
+    // and feed it more data based on the buffer
+    int queued = SDL_GetAudioStreamQueued(this->handle.stream);
+
+    if (!finishedFeeding)
     {
-        SDL_SetAudioStreamGain(this->handle.stream, this->volume);
-        this->prevVolume = this->volume;
+        while (queued < Audio::bufferSize)
+        {
+            size_t remaining = this->handle.wav_data_len - cursor;
+            size_t toCopy = std::min((size_t)Audio::chunkSize, remaining);
+
+            SDL_PutAudioStreamData(this->handle.stream, this->handle.wav_data + cursor, (int)toCopy);
+
+            cursor += toCopy;
+            queued += toCopy;
+
+            if (cursor >= this->handle.wav_data_len)
+            {
+                if (loop)
+                {
+                    cursor = 0;
+                    looped.fire();
+                } else
+                {
+                    finishedFeeding = true;
+                    break;
+                }
+            }
+        }
     }
 
-    if(this->pitch != this->prevPitch) {
-        SDL_SetAudioStreamFrequencyRatio(this->handle.stream, this->pitch);
-        this->prevPitch = this->pitch;
-    }
-
-    if (!this->loop && SDL_GetAudioStreamQueued(this->handle.stream) == 0) {
+    if (finishedFeeding && queued <= Audio::chunkSize && this->playing == true)
+    {
         this->playing = false;
         finished.fire();
-    } else if (SDL_GetAudioStreamQueued(this->handle.stream) < (int)this->handle.wav_data_len) {
-        SDL_PutAudioStreamData(this->handle.stream, this->handle.wav_data, (int)this->handle.wav_data_len);
     }
 }
 
@@ -100,9 +155,4 @@ void AudioSource::shutdown()
         this->handle.stream = nullptr;
         this->handle.wav_data = nullptr;
     }
-}
-
-void AudioSource::initialize()
-{
-    this->loadAudio();
 }

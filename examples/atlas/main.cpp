@@ -61,7 +61,8 @@ int main() {
     std::shared_ptr<Label> label = std::make_shared<Label>("W - texture 1\nA - texture 2");
     label->font->setSize(12);
     label->size = {200, 500};
-    lnode->transform.position = {20, 20};
+    label->screenSpace = true;
+    lnode->transform.position = {-240, -136};
     lnode->addComponent(label);
 
     engine.root.addChild(lnode);

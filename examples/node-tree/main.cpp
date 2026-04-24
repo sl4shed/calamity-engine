@@ -92,9 +92,10 @@ int main() {
     label->size = {200, 700};
     label->font->setSize(16);
     label->wrap = false;
-    labelNode->transform.position = {20, 20};
+    labelNode->transform.position = {-240, -136};
     labelNode->addComponent(label);
-    cameraNode->addChild(labelNode);
+    label->screenSpace = true;
+    engine.root.addChild(labelNode);
 
     std::shared_ptr<Node> catNode = std::make_shared<Node>("catNode");
     engine.root.addChild(catNode);
@@ -102,7 +103,8 @@ int main() {
     std::shared_ptr<Node> fpsNode = std::make_shared<Node>("fpsNode");
     std::shared_ptr<Label> fpsLabel = std::make_shared<Label>("");
     fpsLabel->font->setSize(16);
-    fpsNode->transform.position = {20, 150};
+    fpsLabel->screenSpace = true;
+    fpsNode->transform.position = {-240, -60};
     fpsNode->addComponent(fpsLabel);
     fpsNode->addComponent(std::make_shared<FpsScript>());
     engine.root.addChild(fpsNode);

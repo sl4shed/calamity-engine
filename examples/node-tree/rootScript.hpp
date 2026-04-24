@@ -68,6 +68,20 @@ public:
             {
                 Logger::info("no save data to load");
             }
+        } else if (keyEvent && keyEvent->pressed && keyEvent->scancode == Keycode::B)
+        {
+            Logger::info("changing camera zoom");
+            auto& transform = node->getChild("cameraNode")->transform;
+            Logger::debug("x - {}, y - {}", transform.getScale().x, transform.getScale().y);
+            if (transform.getScale() == (Vector2){3.0f, 3.0f})
+            {
+                transform.setScale({1.0f, 1.0f});
+            } else
+            {
+                transform.setScale({3.0f, 3.0f});
+            }
+
+            Logger::debug("x - {}, y - {}", transform.getScale().x, transform.getScale().y);
         }
     }
 

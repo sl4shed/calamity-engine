@@ -37,11 +37,11 @@ void loop()
 int main() {
     Logger::init();
 
+    graphics = new Graphics({480, 272});
     Input input;
     InputRegistry inputRegistry;
     Audio audio;
 
-    graphics = new Graphics({480, 272});
     Services::init(graphics, &physics, &engine, &input, &inputRegistry, &audio);
 
     std::shared_ptr<Node> cameraNode = std::make_shared<Node>();
@@ -51,25 +51,36 @@ int main() {
 
     std::shared_ptr<Node> node = std::make_shared<Node>();
     node->transform.scale({4, 4});
-    std::shared_ptr<AudioSource> sound = std::make_shared<AudioSource>("assets/sound.wav");
+    node->addComponent(std::make_shared<Sprite>("res://assets/speaker.png"));
+    std::shared_ptr<AudioSource> sound = std::make_shared<AudioSource>("res://assets/sound.wav");
+    node->transform.setScale({0.5f, 0.5f});
+    sound->loop = false;
     node->addComponent(sound);
-
-    // play sound
-    sound->play();
-    sound->finished.connect([]() {
-        Logger::info("Sound finished playing!");
-    });
 
     std::shared_ptr<Node> lnode = std::make_shared<Node>();
     std::shared_ptr<Label> label = std::make_shared<Label>("Space - Play/Stop sound");
     label->font->setSize(12);
     label->size = {200, 500};
-    lnode->transform.position = {20, 20};
+    lnode->transform.position = {-240, -136};
     lnode->addComponent(label);
-    engine.root.addChild(lnode);
 
     engine.root.addChild(node);
+    engine.root.addChild(lnode);
+
     engine.initialize();
+
+    // play sound
+    sound->play();
+    sound->finished.connect([sound]() {
+        Logger::info("Sound finished playing!");
+        sound->finished.reset();
+    });
+
+    sound->looped.connect([sound]()
+    {
+        Logger::info("audio looped");
+        sound->looped.reset();
+    });
 
 #ifdef EMSCRIPTEN
     emscripten_set_main_loop(loop, 0, 1);

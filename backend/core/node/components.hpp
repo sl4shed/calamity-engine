@@ -52,11 +52,15 @@ private:
 class Sprite : public Component
 {
 public:
+    Sprite();
+    Sprite(std::string texturePath);
+
     Vector2 origin = {0.5f, 0.5f};
     Texture texture;
     Transform sourceTransform;
     bool visible = true;
     int zIndex = 1;
+    bool screenSpace = false;
 
     template <class Archive>
     void save(Archive &ar) const
@@ -94,6 +98,7 @@ public:
     Polygon shape;
     bool visible = true;
     int zIndex = 1;
+    bool screenSpace = false;
     Color color = Color::WHITE;
 
     template <class Archive>

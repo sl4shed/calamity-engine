@@ -56,6 +56,28 @@ class Texture
 public:
     Texture() : handle(nullptr), width(0), height(0) {};
     Texture(std::string path);
+    ~Texture();
+    Texture(const Texture&) = delete;
+    Texture& operator=(const Texture&) = delete;
+    Texture(Texture&& other) noexcept : handle(other.handle), width(other.width), height(other.height), path(std::move(other.path))
+    {
+        other.handle = nullptr;
+    }
+
+    Texture& operator=(Texture&& other) noexcept
+    {
+        if (this != &other)
+        {
+            SDL_DestroyTexture(handle);
+            handle = other.handle;
+            width = other.width;
+            height = other.height;
+            path = std::move(other.path);
+            other.handle = nullptr;
+        }
+        return *this;
+    }
+
     template <class Archive>
     void load(Archive &ar)
     {
@@ -116,6 +138,7 @@ struct Transform
     Matrix2 transformation = {{{1, 0}, {0, 1}}};
 
     void rotate(float angle);
+    void setScale(Vector2 scale);
     void scale(Vector2 scale);
     void setAngle(float angle);
 

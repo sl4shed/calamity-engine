@@ -5,6 +5,8 @@ project(audio)
 set(BUILD_TARGET "NATIVE" CACHE STRING "Build target: NATIVE | PSP | EMSCRIPTEN")
 set_property(CACHE BUILD_TARGET PROPERTY STRINGS NATIVE PSP EMSCRIPTEN)
 
+option(CALAMITY_VENDORED "Use vendored dependencies" OFF)
+
 add_executable(${PROJECT_NAME}
         main.cpp
 )
@@ -22,22 +24,13 @@ add_custom_target(copy_assets
 )
 add_dependencies(${PROJECT_NAME} copy_assets)
 
+calamity_apply_assets(${PROJECT_NAME})
 if(BUILD_TARGET STREQUAL "EMSCRIPTEN")
-    calamity_apply_assets(${PROJECT_NAME})
-
-    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/$<CONFIGURATION>")
-    set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/$<CONFIGURATION>")
-
-    target_compile_options(${PROJECT_NAME} PRIVATE -sUSE_SDL=3)
-    target_link_options(${PROJECT_NAME} PRIVATE
-            -sUSE_SDL=3
-            -sALLOW_MEMORY_GROWTH=1
-    )
-
     set_target_properties(${PROJECT_NAME} PROPERTIES
             OUTPUT_NAME "index"
             SUFFIX ".html"
     )
+
     target_link_options(${PROJECT_NAME} PRIVATE --embed-file ./assets/)
 elseif(BUILD_TARGET STREQUAL "PSP")
     create_pbp_file(

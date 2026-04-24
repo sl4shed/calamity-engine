@@ -5,6 +5,8 @@ project(calamity)
 set(BUILD_TARGET "NATIVE" CACHE STRING "Build target: NATIVE | PSP | EMSCRIPTEN")
 set_property(CACHE BUILD_TARGET PROPERTY STRINGS NATIVE PSP EMSCRIPTEN)
 
+option(CALAMITY_VENDORED "Use vendored dependencies" OFF)
+
 add_library(${PROJECT_NAME} STATIC
     # core
     backend/core/definitions.cpp
@@ -33,53 +35,42 @@ target_include_directories(${PROJECT_NAME} PUBLIC
     $<INSTALL_INTERFACE:include>
 )
 
-if(BUILD_TARGET STREQUAL "PSP")
-    message(STATUS "Building for PSP")
-    find_package(SDL3 REQUIRED CONFIG REQUIRED COMPONENTS SDL3-static)
-    find_package(SDL3_image REQUIRED CONFIG)
-    find_package(SDL3_ttf REQUIRED CONFIG)
-    find_package(box2d)
-    target_link_libraries(${PROJECT_NAME} PUBLIC box2d)
+set(CALAMITY_ROOT "${CMAKE_CURRENT_LIST_DIR}" CACHE INTERNAL "Path to engine root")
+message(STATUS "CALAMITY_ROOT = ${CALAMITY_ROOT}")
+function(calamity_apply_assets target)
+    if(BUILD_TARGET STREQUAL "EMSCRIPTEN")
+        target_link_options(${target} PRIVATE
+                --embed-file=${CALAMITY_ROOT}/vendored/SDL_GameControllerDB/gamecontrollerdb.txt@calamity/gamecontrollerdb.txt
+                --embed-file=${CALAMITY_ROOT}/assets/default.ttf@calamity/default.ttf
+        )
+    else()
+        configure_file(${CALAMITY_ROOT}/vendored/SDL_GameControllerDB/gamecontrollerdb.txt ${CMAKE_CURRENT_BINARY_DIR}/calamity/gamecontrollerdb.txt COPYONLY)
+        configure_file(${CALAMITY_ROOT}/assets/default.ttf ${CMAKE_CURRENT_BINARY_DIR}/calamity/default.ttf COPYONLY)
+    endif()
+endfunction()
 
-    target_link_libraries(${PROJECT_NAME} PUBLIC
-        SDL3::SDL3
-        SDL3_image::SDL3_image
-        SDL3_ttf::SDL3_ttf
-    )
-elseif(BUILD_TARGET STREQUAL "NATIVE")
-    target_compile_definitions(${PROJECT_NAME} PUBLIC PLATFORM_NATIVE)
-    message(STATUS "Building for native")
-    find_package(SDL3 REQUIRED CONFIG REQUIRED COMPONENTS SDL3-shared)
-    find_package(SDL3_image REQUIRED CONFIG)
-    find_package(SDL3_ttf REQUIRED CONFIG)
+if(BUILD_TARGET STREQUAL "EMSCRIPTEN")
+    set_property(CALAMITY_VENDORED ON)
+endif()
 
-    # box2d
-    find_package(box2d)
-    target_link_libraries(${PROJECT_NAME} PUBLIC box2d)
+if(CALAMITY_VENDORED)
+    if (BUILD_TARGET STREQUAL "EMSCRIPTEN")
+        set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/$<CONFIGURATION>")
+        set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/$<CONFIGURATION>")
+    endif()
 
-    target_link_libraries(${PROJECT_NAME} PUBLIC
-        SDL3::SDL3
-        SDL3_image::SDL3_image
-        SDL3_ttf::SDL3_ttf
-    )
-elseif(BUILD_TARGET STREQUAL "EMSCRIPTEN")
-    message(STATUS "Building for Emscripten")
-    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/$<CONFIGURATION>")
-    set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/$<CONFIGURATION>")
     add_subdirectory(vendored/SDL EXCLUDE_FROM_ALL)
     add_subdirectory(vendored/SDL_image EXCLUDE_FROM_ALL)
     set(SDLTTF_VENDORED ON CACHE BOOL "" FORCE)
     add_subdirectory(vendored/SDL_ttf EXCLUDE_FROM_ALL)
 
     target_link_libraries(${PROJECT_NAME} PUBLIC SDL3::SDL3 SDL3_image::SDL3_image SDL3_ttf::SDL3_ttf)
-    target_compile_definitions(${PROJECT_NAME} PUBLIC __EMSCRIPTEN__)
-    target_compile_options(${PROJECT_NAME} PUBLIC -sUSE_SDL=3 -sUSE_SDL_IMAGE=3)
-    target_link_options(${PROJECT_NAME} PUBLIC -sUSE_SDL=3 -sUSE_SDL_IMAGE=3 -sUSE_SDL_TTF=3 -sUSE_FREETYPE=1 -sUSE_HARFBUZZ=1 -sALLOW_MEMORY_GROWTH=1)
-else()
-    message(FATAL_ERROR "Unknown BUILD_TARGET: ${BUILD_TARGET}")
-endif()
+    if (BUILD_TARGET STREQUAL "EMSCRIPTEN")
+        target_compile_definitions(${PROJECT_NAME} PUBLIC __EMSCRIPTEN__)
+        target_compile_options(${PROJECT_NAME} PUBLIC -sUSE_SDL=3 -sUSE_SDL_IMAGE=3)
+        target_link_options(${PROJECT_NAME} PUBLIC -sUSE_SDL=3 -sUSE_SDL_IMAGE=3 -sUSE_SDL_TTF=3 -sUSE_FREETYPE=1 -sUSE_HARFBUZZ=1 -sALLOW_MEMORY_GROWTH=1)
+    endif()
 
-if(BUILD_TARGET STREQUAL "EMSCRIPTEN")
     target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)
 
     add_subdirectory(vendored/fmt)
@@ -103,16 +94,24 @@ if(BUILD_TARGET STREQUAL "EMSCRIPTEN")
     set(BOX2D_UNIT_TESTS OFF CACHE BOOL "" FORCE)
     add_subdirectory(vendored/box2d EXCLUDE_FROM_ALL)
     target_link_libraries(${PROJECT_NAME} PUBLIC box2d)
-
-    set(CALAMITY_ROOT "${CMAKE_CURRENT_LIST_DIR}" CACHE INTERNAL "Path to engine root")
-    message(STATUS "CALAMITY_ROOT = ${CALAMITY_ROOT}")
-    function(calamity_apply_assets target)
-        target_link_options(${target} PRIVATE
-                --embed-file=${CALAMITY_ROOT}/vendored/SDL_GameControllerDB/gamecontrollerdb.txt@calamity/gamecontrollerdb.txt
-                --embed-file=${CALAMITY_ROOT}/assets/default.ttf@calamity/default.ttf
-        )
-    endfunction()
 else()
+    if(BUILD_TARGET STREQUAL "NATIVE")
+        find_package(SDL3 REQUIRED CONFIG REQUIRED COMPONENTS SDL3-shared)
+    else()
+        find_package(SDL3 REQUIRED CONFIG REQUIRED COMPONENTS SDL3-static)
+    endif()
+
+    find_package(SDL3_image REQUIRED CONFIG)
+    find_package(SDL3_ttf REQUIRED CONFIG)
+    find_package(box2d)
+    target_link_libraries(${PROJECT_NAME} PUBLIC box2d)
+
+    target_link_libraries(${PROJECT_NAME} PUBLIC
+            SDL3::SDL3
+            SDL3_image::SDL3_image
+            SDL3_ttf::SDL3_ttf
+    )
+
     find_package(fmt REQUIRED)
     target_link_libraries(${PROJECT_NAME} PUBLIC fmt::fmt)
 
@@ -121,7 +120,4 @@ else()
 
     find_package(cereal REQUIRED)
     target_link_libraries(${PROJECT_NAME} PUBLIC cereal::cereal)
-
-    configure_file(${CMAKE_CURRENT_SOURCE_DIR}/vendored/SDL_GameControllerDB/gamecontrollerdb.txt ${CMAKE_CURRENT_BINARY_DIR}/gamecontrollerdb.txt COPYONLY)
-    configure_file(${CMAKE_CURRENT_SOURCE_DIR}/assets/default.ttf ${CMAKE_CURRENT_BINARY_DIR}/default.ttf COPYONLY)
 endif()
