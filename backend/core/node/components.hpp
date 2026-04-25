@@ -4,6 +4,7 @@
 #include "../../services/input/keycode.hpp"
 #include "../../services/input/input.hpp"
 #include "../ui/definitions.hpp"
+#include "backend/core/signal.hpp"
 
 class Node; // Forward declaration'
 
@@ -53,26 +54,92 @@ class Sprite : public Component
 {
 public:
     Sprite();
-    Sprite(std::string texturePath);
+    explicit Sprite(std::string texturePath);
 
     Vector2 origin = {0.5f, 0.5f};
     Texture texture;
-    Transform sourceTransform;
+    // TODO: do something about source rects
+    // i kinda want the size thing to be in pixels but im not entirely sure how i would properly handle that...s
+    Rect sourceRect = Rect({0, 0},{1, 1});
     bool visible = true;
-    int zIndex = 1;
+    //int zIndex = 1;
     bool screenSpace = false;
+    Color modulate = Color::WHITE;
 
     template <class Archive>
     void save(Archive &ar) const
     {
-        ar(CEREAL_NVP(origin), CEREAL_NVP(sourceTransform), CEREAL_NVP(zIndex), CEREAL_NVP(visible), CEREAL_NVP(texture));
+        ar(CEREAL_NVP(origin), CEREAL_NVP(sourceRect), CEREAL_NVP(visible), CEREAL_NVP(texture), CEREAL_NVP(screenSpace), CEREAL_NVP(modulate));
     }
 
     template <class Archive>
     void load(Archive &ar)
     {
-        ar(CEREAL_NVP(origin), CEREAL_NVP(sourceTransform), CEREAL_NVP(zIndex), CEREAL_NVP(visible), CEREAL_NVP(texture));
+        ar(CEREAL_NVP(origin), CEREAL_NVP(sourceRect), CEREAL_NVP(visible), CEREAL_NVP(texture), CEREAL_NVP(screenSpace), CEREAL_NVP(modulate));
     }
+};
+
+struct Frame
+{
+    Rect rect;
+    Vector2 origin;
+    Color modulate = Color::WHITE;
+
+    template <class Archive>
+    void serialize(Archive &ar)
+    {
+        ar(CEREAL_NVP(rect), CEREAL_NVP(origin), CEREAL_NVP(modulate));
+    }
+};
+
+class Animation
+{
+    int fps = 15;
+    std::vector<Frame> frames;
+    Texture texture;
+
+    template <class Archive>
+    void serialize(Archive &ar)
+    {
+        ar(CEREAL_NVP(fps), CEREAL_NVP(frames), CEREAL_NVP(texture));
+    }
+};
+
+class AnimatedSprite : public Component
+{
+public:
+    AnimatedSprite();
+    explicit AnimatedSprite(std::string texturePath);
+
+    void initialize() override;
+
+    void play(std::string animation);
+    void stop();
+
+    Signal<std::string> finished;
+    Signal<std::string> looped;
+
+    std::map<std::string, Animation> animations;
+    bool visible = true;
+    //int zIndex = 1; I'm not implementing this rn
+    bool screenSpace = false;
+    Color modulate = Color::WHITE;
+
+    template <class Archive>
+    void save(Archive &ar) const
+    {
+        ar(CEREAL_NVP(animations), CEREAL_NVP(visible), CEREAL_NVP(screenSpace), CEREAL_NVP(frame), CEREAL_NVP(playing), CEREAL_NVP(currentAnimation));
+    }
+
+    template <class Archive>
+    void load(Archive &ar)
+    {
+        ar(CEREAL_NVP(animations), CEREAL_NVP(visible), CEREAL_NVP(screenSpace), CEREAL_NVP(frame), CEREAL_NVP(playing), CEREAL_NVP(currentAnimation));
+    }
+private:
+    int frame;
+    std::unique_ptr<Animation> currentAnimation;
+    bool playing;
 };
 
 /**
@@ -88,29 +155,30 @@ public:
  * spriteNode->addComponent(sprite);
  * ```
  */
+// TODO: fix
 class ShapeSprite : public Component
 {
 public:
     ShapeSprite();
-    ShapeSprite(Polygon shape);
+    explicit ShapeSprite(Polygon shape);
 
     Vector2 origin = {0.5f, 0.5f};
     Polygon shape;
     bool visible = true;
-    int zIndex = 1;
+    //int zIndex = 1;
     bool screenSpace = false;
-    Color color = Color::WHITE;
+    Color modulate = Color::WHITE;
 
     template <class Archive>
     void save(Archive &ar) const
     {
-        ar(CEREAL_NVP(origin), CEREAL_NVP(shape), CEREAL_NVP(zIndex), CEREAL_NVP(visible));
+        ar(CEREAL_NVP(origin), CEREAL_NVP(shape), CEREAL_NVP(visible), CEREAL_NVP(screenSpace), CEREAL_NVP(modulate));
     }
 
     template <class Archive>
     void load(Archive &ar)
     {
-        ar(CEREAL_NVP(origin), CEREAL_NVP(shape), CEREAL_NVP(zIndex), CEREAL_NVP(visible));
+        ar(CEREAL_NVP(origin), CEREAL_NVP(shape), CEREAL_NVP(visible), CEREAL_NVP(screenSpace), CEREAL_NVP(modulate));
     }
 };
 
@@ -187,7 +255,7 @@ public:
     bool active = true;
     Vector2 origin = {0.5f, 0.5f};
 
-    void initialize();
+    void initialize() override;
 
     Vector2 screenToWorld(Vector2 screen);
 
@@ -211,7 +279,9 @@ CEREAL_REGISTER_TYPE(Sprite)
 CEREAL_REGISTER_TYPE(Camera)
 CEREAL_REGISTER_TYPE(Script)
 CEREAL_REGISTER_TYPE(ShapeSprite)
+CEREAL_REGISTER_TYPE(AnimatedSprite)
 CEREAL_REGISTER_POLYMORPHIC_RELATION(Component, Sprite)
 CEREAL_REGISTER_POLYMORPHIC_RELATION(Component, ShapeSprite)
+CEREAL_REGISTER_POLYMORPHIC_RELATION(Component, AnimatedSprite)
 CEREAL_REGISTER_POLYMORPHIC_RELATION(Component, Camera)
 CEREAL_REGISTER_POLYMORPHIC_RELATION(Component, Script)

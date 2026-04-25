@@ -14,10 +14,10 @@
  */
 class Color {
 public:
-    int r; // Red value. Goes up to 255.
-    int g; // Green value. Goes up to 255.
-    int b; // Blue value. Goes up to 255.
-    int a; // Alpha value. Goes up to 255.
+    Uint8 r; // Red value. Goes up to 255.
+    Uint8 g; // Green value. Goes up to 255.
+    Uint8 b; // Blue value. Goes up to 255.
+    Uint8 a; // Alpha value. Goes up to 255.
 
     Color(int r, int g, int b);
     Color(int r, int g, int b, int a);
@@ -26,7 +26,8 @@ public:
     Color(std::string hexCode);
     Color(std::string hexCode, int a);
 
-    operator SDL_Color() const { return {(Uint8)r, (Uint8)g, (Uint8)b, (Uint8)a}; };
+    operator SDL_Color() const { return {r, g, b, a}; };
+    operator SDL_FColor() const { return {r / 255.0f, g / 255.0f, b / 255.0f, a / 255.0f}; };
 
     static const Color WHITE;
     static const Color BLACK;

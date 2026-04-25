@@ -1,6 +1,7 @@
 #pragma once
 #include <functional>
 #include <algorithm>
+#include <vector>
 
 // btw, this signal class is genuinely so simple that it doesn't need to have a c++ file, i do have a signal.cpp file but it's there for "futureproofing" lmao
 

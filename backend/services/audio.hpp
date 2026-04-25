@@ -70,6 +70,8 @@ public:
     Signal<> looped;
 
     void play();
+    void stop();
+    void pause();
     bool loadAudio();
     void update(float deltaTime);
     void shutdown();

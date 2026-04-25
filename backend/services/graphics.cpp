@@ -9,11 +9,11 @@
 #include "engine.hpp"
 #include "../core/ui/label.hpp"
 
-Graphics::Graphics(Vector2 s, std::string t, RenderLogicalPresentation p, Color cc, WindowFlags flags)
-    : screenSize(s)
+Graphics::Graphics(Vector2 _screenSize, const std::string& _title, RenderLogicalPresentation _presentation, Color _clearColor, WindowFlags _flags)
+    : screenSize(_screenSize), clearColor(_clearColor), presentation(_presentation)
 {
-    presentation = p;
-    clearColor = cc;
+    presentation = _presentation;
+    clearColor = _clearColor;
     SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMEPAD | SDL_INIT_AUDIO | SDL_INIT_GAMEPAD);
     TTF_Init();
 
@@ -24,22 +24,22 @@ Graphics::Graphics(Vector2 s, std::string t, RenderLogicalPresentation p, Color 
 #endif
 
     this->window = SDL_CreateWindow(
-        t.c_str(),
-        screenSize.x,
-        screenSize.y,
-        (SDL_WindowFlags)flags
+        _title.c_str(),
+        static_cast<int>(screenSize.x),
+        static_cast<int>(screenSize.y),
+        static_cast<SDL_WindowFlags>(_flags)
     );
 
-    this->renderer = SDL_CreateRenderer(window, NULL);
-    SDL_SetRenderLogicalPresentation(renderer, screenSize.x, screenSize.y, (SDL_RendererLogicalPresentation)presentation);
+    this->renderer = SDL_CreateRenderer(window, nullptr);
+    SDL_SetRenderLogicalPresentation(renderer, static_cast<int>(screenSize.x), static_cast<int>(screenSize.y), static_cast<SDL_RendererLogicalPresentation>(presentation));
     this->textEngine = TTF_CreateSurfaceTextEngine();
 }
 
 void Graphics::resetLogicalPresentation() {
-    SDL_SetRenderLogicalPresentation(renderer, screenSize.x, screenSize.y, (SDL_RendererLogicalPresentation)presentation);
+    SDL_SetRenderLogicalPresentation(renderer, static_cast<int>(screenSize.x), static_cast<int>(screenSize.y), static_cast<SDL_RendererLogicalPresentation>(presentation));
 }
 
-SDL_Texture *Graphics::loadTexture(const std::string &path)
+SDL_Texture *Graphics::loadTexture(const std::string &path) const
 {
     SDL_Surface *pixels = IMG_Load(path.c_str());
     if (!pixels) {
@@ -51,79 +51,85 @@ SDL_Texture *Graphics::loadTexture(const std::string &path)
     return tex;
 }
 
-SDL_Renderer* Graphics::getRenderer()
+SDL_Renderer* Graphics::getRenderer() const
 {
     return renderer;
 }
 
-void Graphics::renderSprite(Node &node, Engine *engine)
+void Graphics::renderComponent(Sprite &sprite) const
 {
-    if (!node.currentSprite) return;
-    if (!node.currentSprite->texture.handle) return;
+    if (!sprite.getNode()) return;
+    const Node *node = sprite.getNode();
 
-    Camera *activeCamera = engine->getActiveCamera();
-    Transform cameraTransform = activeCamera->getNode()->globalTransform;
-    Sprite *sprite = node.currentSprite;
+    if (!sprite.texture.handle) return;
+
+    Camera *activeCamera = Services::engine()->getActiveCamera();
+    const Transform cameraTransform = activeCamera->getNode()->globalTransform;
     SDL_Vertex vertices[4];
-    vertices[0] = {{-(sprite->texture.width * sprite->origin.x), -(sprite->texture.height * sprite->origin.y)}, {1, 1, 1, 1}, {0, 0}};
-    vertices[1] = {{sprite->texture.width * (1 - sprite->origin.x), -(sprite->texture.height * sprite->origin.y)}, {1, 1, 1, 1}, {1, 0}};
-    vertices[2] = {{sprite->texture.width * (1 - sprite->origin.x), sprite->texture.height * (1 - sprite->origin.y)}, {1, 1, 1, 1}, {1, 1}};
-    vertices[3] = {{-(sprite->texture.width * sprite->origin.x), sprite->texture.height * (1 - sprite->origin.y)}, {1, 1, 1, 1}, {0, 1}};
+    vertices[0] = {{-(sprite.texture.width * sprite.origin.x), -(sprite.texture.height * sprite.origin.y)}, {1, 1, 1, 1}, {0, 0}};
+    vertices[1] = {{sprite.texture.width * (1 - sprite.origin.x), -(sprite.texture.height * sprite.origin.y)}, {1, 1, 1, 1}, {1, 0}};
+    vertices[2] = {{sprite.texture.width * (1 - sprite.origin.x), sprite.texture.height * (1 - sprite.origin.y)}, {1, 1, 1, 1}, {1, 1}};
+    vertices[3] = {{-(sprite.texture.width * sprite.origin.x), sprite.texture.height * (1 - sprite.origin.y)}, {1, 1, 1, 1}, {0, 1}};
 
-    Vector2 originOffset = Vector2{screenSize.x * activeCamera->origin.x, screenSize.y * activeCamera->origin.y};
+    const auto originOffset = Vector2{screenSize.x * activeCamera->origin.x, screenSize.y * activeCamera->origin.y};
 
-    for (int i = 0; i < 4; i++)
+    for (auto & vertice : vertices)
     {
-        Vector2 pos = {vertices[i].position.x, vertices[i].position.y};
-        pos = node.globalTransform.applyTo(pos);
+        Vector2 pos = {vertice.position.x, vertice.position.y};
+        pos = node->globalTransform.applyTo(pos);
 
         // translate to camera space or wtv
-        if (!sprite->screenSpace)
+        if (!sprite.screenSpace)
         {
             pos = pos - cameraTransform.position;
-            Transform cameraInverse = cameraTransform.inverse();
-            pos = cameraInverse.transformation * pos;
+            auto [position, transformation] = cameraTransform.inverse();
+            pos = transformation * pos;
         }
         pos = pos + originOffset;
-        vertices[i].position.x = pos.x;
-        vertices[i].position.y = pos.y;
+        vertice.position.x = pos.x;
+        vertice.position.y = pos.y;
 
-        Transform sourceTransform = sprite->sourceTransform;
-        Vector2 texturePos = {vertices[i].tex_coord.x, vertices[i].tex_coord.y};
-        texturePos = texturePos * sourceTransform.getScale() + Vector2{sourceTransform.position.x / (float)sprite->texture.width, sourceTransform.position.y / (float)sprite->texture.height};
-        vertices[i].tex_coord.x = texturePos.x;
-        vertices[i].tex_coord.y = texturePos.y;
+        const Rect sourceRect = sprite.sourceRect;
+        Vector2 texturePos = {vertice.tex_coord.x, vertice.tex_coord.y};
+        // todo:
+        // i kinda want source rects to be in pixels but that means like initializing them with the default texture coordinates
+        // and im not sure if thats the right move
+        texturePos = texturePos * sourceRect.size + Vector2{sourceRect.position.x / static_cast<float>(sprite.texture.width), sourceRect.position.y / static_cast<float>(sprite.texture.height)};
+        vertice.tex_coord.x = texturePos.x;
+        vertice.tex_coord.y = texturePos.y;
     }
 
     int indices[6] = {0, 1, 2, 2, 3, 0};
 
-    SDL_RenderGeometry(this->renderer, sprite->texture.handle, vertices, 4, indices, 6);
+    SDL_SetTextureColorMod(sprite.texture.handle, sprite.modulate.r, sprite.modulate.g, sprite.modulate.b);
+    SDL_RenderGeometry(this->renderer, sprite.texture.handle, vertices, 4, indices, 6);
 }
 
-void Graphics::renderPolygonSprite(Node &node, Engine *engine) {
-    std::shared_ptr<ShapeSprite> polySprite = node.getComponent<ShapeSprite>();
-    if (!polySprite) return;
+void Graphics::renderComponent(ShapeSprite &sprite) const
+{
+    if (!sprite.getNode()) return;
+    const Node *node = sprite.getNode();
 
-    Camera *activeCamera = engine->getActiveCamera();
-    Transform cameraTransform = activeCamera->getNode()->globalTransform;
-    Vector2 originOffset = {screenSize.x * activeCamera->origin.x, screenSize.y * activeCamera->origin.y};
+    Camera *activeCamera = Services::engine()->getActiveCamera();
+    const Transform cameraTransform = activeCamera->getNode()->globalTransform;
+    const Vector2 originOffset = {screenSize.x * activeCamera->origin.x, screenSize.y * activeCamera->origin.y};
 
-    Polygon &poly = polySprite->shape;
-    int count = poly.count;
+    const Polygon &poly = sprite.shape;
+    const int count = poly.count;
     if (count < 3) return;
 
-    SDL_FColor col = {polySprite->color.r / 255.0f, polySprite->color.g / 255.0f, polySprite->color.b / 255.0f, polySprite->color.a / 255.0f};
     std::vector<SDL_Vertex> vertices(count);
     for (int i = 0; i < count; i++) {
         Vector2 pos = poly.vertices[i];
-        pos = node.globalTransform.applyTo(pos);
-        if (!polySprite->screenSpace)
+        pos = node->globalTransform.applyTo(pos);
+        if (!sprite.screenSpace)
         {
             pos = pos - cameraTransform.position;
             pos = cameraTransform.inverse().transformation * pos;
         }
         pos = pos + originOffset;
-        vertices[i] = {{pos.x, pos.y}, col, {0, 0}};
+
+        vertices[i] = {{pos.x, pos.y}, static_cast<SDL_FColor>(sprite.modulate), {0, 0}};
     }
 
     // fan triangulation from vertex 0
@@ -134,68 +140,117 @@ void Graphics::renderPolygonSprite(Node &node, Engine *engine) {
         indices.push_back(i + 1);
     }
 
-    SDL_RenderGeometry(renderer, nullptr, vertices.data(), count, indices.data(), indices.size());
+    SDL_RenderGeometry(renderer, nullptr, vertices.data(), count, indices.data(), static_cast<int>(indices.size()));
 }
 
-void Graphics::renderLabel(Label *label) {
-    if(!label->getNode()) return;
+void Graphics::renderComponent(Label &label) const
+{
+    if(!label.getNode()) return;
 
     // hopefully this works
-    SDL_Texture *texture = label->getTexture();
+    SDL_Texture *texture = label.getTexture();
     if(!texture) return;
 
-    Node *lnode = label->getNode();
+    const Node *lnode = label.getNode();
 
     Camera *activeCamera = Services::engine()->getActiveCamera();
-    Transform cameraTransform = activeCamera->getNode()->globalTransform;
+    const Transform cameraTransform = activeCamera->getNode()->globalTransform;
     SDL_Vertex vertices[4];
 
     float w;
     float h;
     SDL_GetTextureSize(texture, &w, &h);
-    vertices[0] = {{-(w * label->origin.x), -(h * label->origin.y)}, {1, 1, 1, 1}, {0, 0}};
-    vertices[1] = {{w * (1 - label->origin.x), -(h * label->origin.y)}, {1, 1, 1, 1}, {1, 0}};
-    vertices[2] = {{w * (1 - label->origin.x), h * (1 - label->origin.y)}, {1, 1, 1, 1}, {1, 1}};
-    vertices[3] = {{-(w * label->origin.x), h * (1 - label->origin.y)}, {1, 1, 1, 1}, {0, 1}};
+    vertices[0] = {{-(w * label.origin.x), -(h * label.origin.y)}, {1, 1, 1, 1}, {0, 0}};
+    vertices[1] = {{w * (1 - label.origin.x), -(h * label.origin.y)}, {1, 1, 1, 1}, {1, 0}};
+    vertices[2] = {{w * (1 - label.origin.x), h * (1 - label.origin.y)}, {1, 1, 1, 1}, {1, 1}};
+    vertices[3] = {{-(w * label.origin.x), h * (1 - label.origin.y)}, {1, 1, 1, 1}, {0, 1}};
 
-    Vector2 originOffset = Vector2{screenSize.x * activeCamera->origin.x, screenSize.y * activeCamera->origin.y};
-    Transform cameraInverse = cameraTransform.inverse();
+    const auto originOffset = Vector2{screenSize.x * activeCamera->origin.x, screenSize.y * activeCamera->origin.y};
+    auto [position, transformation] = cameraTransform.inverse();
 
-    for (int i = 0; i < 4; i++)
+    for (auto & vertice : vertices)
     {
-        Vector2 pos = {vertices[i].position.x, vertices[i].position.y};
+        Vector2 pos = {vertice.position.x, vertice.position.y};
         pos = lnode->globalTransform.applyTo(pos);
 
-        if (!label->screenSpace) {
+        if (!label.screenSpace) {
             pos = pos - cameraTransform.position;
-            pos = cameraInverse.transformation * pos;
+            pos = transformation * pos;
         }
         pos = pos + originOffset;
 
-        vertices[i].position.x = pos.x;
-        vertices[i].position.y = pos.y;
+        vertice.position.x = pos.x;
+        vertice.position.y = pos.y;
 
-        Vector2 texturePos = {vertices[i].tex_coord.x, vertices[i].tex_coord.y};
-        vertices[i].tex_coord.x = texturePos.x;
-        vertices[i].tex_coord.y = texturePos.y;
+        const Vector2 texturePos = {vertice.tex_coord.x, vertice.tex_coord.y};
+        vertice.tex_coord.x = texturePos.x;
+        vertice.tex_coord.y = texturePos.y;
     }
 
-    int indices[6] = {0, 1, 2, 2, 3, 0};
+    const int indices[6] = {0, 1, 2, 2, 3, 0};
 
     SDL_RenderGeometry(this->renderer, texture, vertices, 4, indices, 6);
 }
 
-TTF_TextEngine *Graphics::getTextEngine() {
+void Graphics::renderComponent(AnimatedSprite &sprite) const
+{
+    if (!sprite.getNode()) return;
+    const Node *node = sprite.getNode();
+
+    Camera *activeCamera = Services::engine()->getActiveCamera();
+    const Transform cameraTransform = activeCamera->getNode()->globalTransform;
+    SDL_Vertex vertices[4];
+    vertices[0] = {{-(sprite.texture.width * sprite.origin.x), -(sprite.texture.height * sprite.origin.y)}, {1, 1, 1, 1}, {0, 0}};
+    vertices[1] = {{sprite.texture.width * (1 - sprite.origin.x), -(sprite.texture.height * sprite.origin.y)}, {1, 1, 1, 1}, {1, 0}};
+    vertices[2] = {{sprite.texture.width * (1 - sprite.origin.x), sprite.texture.height * (1 - sprite.origin.y)}, {1, 1, 1, 1}, {1, 1}};
+    vertices[3] = {{-(sprite.texture.width * sprite.origin.x), sprite.texture.height * (1 - sprite.origin.y)}, {1, 1, 1, 1}, {0, 1}};
+
+    const auto originOffset = Vector2{screenSize.x * activeCamera->origin.x, screenSize.y * activeCamera->origin.y};
+
+    for (auto & vertice : vertices)
+    {
+        Vector2 pos = {vertice.position.x, vertice.position.y};
+        pos = node->globalTransform.applyTo(pos);
+
+        // translate to camera space or wtv
+        if (!sprite.screenSpace)
+        {
+            pos = pos - cameraTransform.position;
+            auto [position, transformation] = cameraTransform.inverse();
+            pos = transformation * pos;
+        }
+        pos = pos + originOffset;
+        vertice.position.x = pos.x;
+        vertice.position.y = pos.y;
+
+        const Rect sourceRect = sprite.sourceRect;
+        Vector2 texturePos = {vertice.tex_coord.x, vertice.tex_coord.y};
+        // todo:
+        // i kinda want source rects to be in pixels but that means like initializing them with the default texture coordinates
+        // and im not sure if thats the right move
+        texturePos = texturePos * sourceRect.size + Vector2{sourceRect.position.x / static_cast<float>(sprite.texture.width), sourceRect.position.y / static_cast<float>(sprite.texture.height)};
+        vertice.tex_coord.x = texturePos.x;
+        vertice.tex_coord.y = texturePos.y;
+    }
+
+    int indices[6] = {0, 1, 2, 2, 3, 0};
+
+    SDL_SetTextureColorMod(sprite.texture.handle, sprite.modulate.r, sprite.modulate.g, sprite.modulate.b);
+    SDL_RenderGeometry(this->renderer, sprite.texture.handle, vertices, 4, indices, 6);
+}
+
+TTF_TextEngine *Graphics::getTextEngine() const
+{
     return textEngine;
 }
 
-void Graphics::preRender()
+void Graphics::preRender() const
 {
     SDL_SetRenderDrawColor(this->renderer, clearColor.r, clearColor.g, clearColor.b, clearColor.a);
     SDL_RenderClear(this->renderer);
 }
 
-void Graphics::postRender()
+void Graphics::postRender() const
 {
     SDL_RenderPresent(this->renderer);
 }

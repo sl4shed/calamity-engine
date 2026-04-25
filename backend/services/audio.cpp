@@ -34,6 +34,7 @@ AudioSource::AudioSource(std::string path)
 
 void AudioSource::play() {
     this->playing = true;
+    this->finishedFeeding = false;
 
     if (this->handle.stream)
     {
@@ -105,6 +106,21 @@ bool AudioSource::getPlaying()
     return playing;
 }
 
+void AudioSource::stop()
+{
+    finishedFeeding = true;
+    playing = false;
+    cursor = 0;
+    SDL_FlushAudioStream(this->handle.stream);
+    finished.fire();
+}
+
+void AudioSource::pause()
+{
+    playing = false;
+    SDL_FlushAudioStream(this->handle.stream);
+}
+
 void AudioSource::update(float deltaTime)
 {
     // ok here the loop is making sure that the audio stream data never dips below the wav data length
@@ -113,7 +129,7 @@ void AudioSource::update(float deltaTime)
     // and feed it more data based on the buffer
     int queued = SDL_GetAudioStreamQueued(this->handle.stream);
 
-    if (!finishedFeeding)
+    if (!finishedFeeding && playing == true)
     {
         while (queued < Audio::bufferSize)
         {
@@ -143,6 +159,7 @@ void AudioSource::update(float deltaTime)
     if (finishedFeeding && queued <= Audio::chunkSize && this->playing == true)
     {
         this->playing = false;
+        SDL_FlushAudioStream(this->handle.stream);
         finished.fire();
     }
 }

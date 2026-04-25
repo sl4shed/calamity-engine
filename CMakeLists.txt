@@ -1,9 +1,26 @@
 cmake_minimum_required(VERSION 3.11)
 
+if (MSVC)
+    message("Building for Windows")
+
+    set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
+    set(CMAKE_C_STANDARD_LIBRARIES "" CACHE STRING "" FORCE)
+    set(CMAKE_EXE_LINKER_FLAGS "" CACHE STRING "" FORCE)
+    set(CMAKE_SHARED_LINKER_FLAGS "" CACHE STRING "" FORCE)
+    set(CMAKE_MODULE_LINKER_FLAGS "" CACHE STRING "" FORCE)
+    set(SDLIMAGE_VENDORED ON CACHE BOOL "" FORCE)
+    set(SDLIMAGE_AVIF OFF CACHE BOOL "" FORCE)
+    set(SDLIMAGE_WEBP OFF CACHE BOOL "" FORCE)
+    set(SDLIMAGE_TIF OFF CACHE BOOL "" FORCE)
+    set(SDLTTF_VENDORED ON CACHE BOOL "" FORCE)
+    set(DAV1D_ASM OFF CACHE BOOL "" FORCE)
+endif()
+
 project(calamity)
 
-set(BUILD_TARGET "NATIVE" CACHE STRING "Build target: NATIVE | PSP | EMSCRIPTEN")
-set_property(CACHE BUILD_TARGET PROPERTY STRINGS NATIVE PSP EMSCRIPTEN)
+set(CMAKE_CXX_STANDARD 17)
+set(BUILD_TARGET "NATIVE" CACHE STRING "Build target: NATIVE | PSP | EMSCRIPTEN | WINDOWS")
+set_property(CACHE BUILD_TARGET PROPERTY STRINGS NATIVE PSP EMSCRIPTEN WINDOWS)
 
 option(CALAMITY_VENDORED "Use vendored dependencies" OFF)
 
@@ -49,8 +66,10 @@ function(calamity_apply_assets target)
     endif()
 endfunction()
 
-if(BUILD_TARGET STREQUAL "EMSCRIPTEN")
-    set_property(CALAMITY_VENDORED ON)
+if(BUILD_TARGET STREQUAL "EMSCRIPTEN" OR MSVC)
+    message("Set build type to Release since Emscripten and Windows require the release build type.")
+    set(CMAKE_BUILD_TYPE Release CACHE STRING "" FORCE)
+    set(CALAMITY_VENDORED ON)
 endif()
 
 if(CALAMITY_VENDORED)

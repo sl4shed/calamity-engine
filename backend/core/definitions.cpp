@@ -105,9 +105,15 @@ Matrix2 Matrix2::scale(Vector2 s)
 // transform //////////////////////////////
 ///////////////////////////////////////////
 
+const double PI = 3.14159265358979323846;
+
+double Transform::degToRad(double degrees) {
+    return degrees * (PI / 180.0);
+}
+
 void Transform::rotate(float angle)
 {
-    transformation = Matrix2::rotation(angle) * transformation;
+    transformation = Matrix2::rotation(degToRad(angle)) * transformation;
 }
 
 void Transform::setScale(Vector2 s)
@@ -137,7 +143,7 @@ float Transform::getDegrees()
 
 void Transform::setAngle(float angle) {
     Vector2 currentScale = getScale();
-    transformation = Matrix2::rotation(angle) * Matrix2::scale(currentScale);
+    transformation = Matrix2::rotation(degToRad(angle)) * Matrix2::scale(currentScale);
 }
 
 Vector2 Transform::getScale()

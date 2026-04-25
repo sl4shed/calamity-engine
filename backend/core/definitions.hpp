@@ -148,12 +148,36 @@ struct Transform
     float getAngle();
     float getDegrees();
     Vector2 getScale();
+    static double degToRad(double degrees);
 
     template <class Archive>
     void serialize(Archive &ar)
     {
         ar(CEREAL_NVP(position), CEREAL_NVP(transformation));
     }
+};
+
+/**
+ * # Rect
+ * A simple rect class. It detrermines two Vector2's: position and size.
+ */
+struct Rect
+{
+    Rect() {};
+    Rect(Vector2 pos, Vector2 s) : position(pos), size(s) {};
+    Vector2 position = {0, 0};
+    Vector2 size = {0, 0};
+
+    template <class Archive>
+    void serialize(Archive &ar)
+    {
+        ar(CEREAL_NVP(position), CEREAL_NVP(size));
+    }
+
+    operator SDL_Rect() const
+    {
+        return SDL_Rect{(int)position.x, (int)position.y, (int)size.x, (int)size.y};
+    };
 };
 
 /**

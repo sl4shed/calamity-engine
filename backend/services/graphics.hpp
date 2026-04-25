@@ -60,21 +60,24 @@ enum class WindowFlags {
 class Graphics
 {
 public:
-    Graphics(Vector2 screenSize = {480, 272}, std::string title = "Calamity App", RenderLogicalPresentation presentation = RenderLogicalPresentation::LETTERBOX, Color clearColor = Color::BLACK, WindowFlags flags = WindowFlags::RESIZABLE);
-    SDL_Texture *loadTexture(const std::string &path);
-    void renderSprite(Node &node, Engine *engine);
-    void renderPolygonSprite(Node &node, Engine *engine);
-    void renderLabel(Label *label);
-    void preRender();
-    void postRender();
+    Graphics(Vector2 screenSize = {480, 272}, const std::string& title = "Calamity App", RenderLogicalPresentation presentation = RenderLogicalPresentation::LETTERBOX, Color clearColor = Color::BLACK, WindowFlags _flags = WindowFlags::RESIZABLE);
+    SDL_Texture *loadTexture(const std::string &path) const;
+
+    // renderComponent is a general function that renders different components based on different function overloads.
+    void renderComponent(Sprite &sprite) const;
+    void renderComponent(ShapeSprite &sprite) const;
+    void renderComponent(Label &label) const;
+    void renderComponent(AnimatedSprite &sprite) const;
+    void preRender() const;
+    void postRender() const;
     void resetLogicalPresentation();
 
-    SDL_Renderer *getRenderer();
+    SDL_Renderer *getRenderer() const;
     const Vector2 screenSize;
     Color clearColor = Color::WHITE;
     RenderLogicalPresentation presentation = RenderLogicalPresentation::LETTERBOX;
 
-    TTF_TextEngine *getTextEngine();
+    TTF_TextEngine *getTextEngine() const;
 private:
     SDL_Window *window;
     SDL_Renderer *renderer;

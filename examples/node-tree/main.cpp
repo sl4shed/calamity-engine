@@ -39,11 +39,11 @@ void loop() {
 int main() {
     Logger::init();
 
+    graphics = new Graphics({480, 272}, "Node Tree Example");
     Input input;
     InputRegistry inputRegistry;
     Audio audio;
 
-    graphics = new Graphics({480, 272}, "Node Tree Example");
     Services::init(graphics, &physics, &engine, &input, &inputRegistry, &audio);
 
     inputRegistry.addAction("add", 0.2f);

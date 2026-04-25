@@ -38,11 +38,11 @@ void loop() {
 int main() {
     Logger::init();
 
+    graphics = new Graphics({480, 272});
     Input input;
     InputRegistry inputRegistry;
     Audio audio;
 
-    graphics = new Graphics({480, 272});
     Services::init(graphics, &physics, &engine, &input, &inputRegistry, &audio);
 
     inputRegistry.addAction("left", 0.2f);

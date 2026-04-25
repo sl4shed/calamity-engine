@@ -7,15 +7,11 @@
 #include <iostream>
 #include <cmath>
 
-Node::Node(std::string name)
-    : parent(nullptr)
-{
-    this->name = name;
-}
+Node::Node(std::string _name) : name(_name), parent(nullptr) {}
 
 Node::~Node()
 {
-    for (auto &child : children)
+    for (const auto &child : children)
         child->parent = nullptr;
     children.clear();
     components.clear();
@@ -31,8 +27,7 @@ void Node::free() {
 
 void Node::addChild(std::shared_ptr<Node> child)
 {
-    if (!child)
-        return;
+    if (!child) return;
 
     child->parent = this;
     children.push_back(child);
@@ -59,7 +54,7 @@ void Node::addComponent(std::shared_ptr<Component> component)
     component->setNode(this);
     components.push_back(component);
 
-    if (Sprite *sprite = dynamic_cast<Sprite *>(component.get()))
+    if (auto *sprite = dynamic_cast<Sprite *>(component.get()))
     {
         if (currentSprite)
         {
@@ -75,7 +70,7 @@ void Node::removeComponent(std::shared_ptr<Component> component)
     {
         if (components[i] == component)
         {
-            if (Sprite *sprite = dynamic_cast<Sprite *>(components[i].get()))
+            if (auto *sprite = dynamic_cast<Sprite *>(components[i].get()))
             {
                 if (currentSprite == sprite)
                     currentSprite = nullptr;
@@ -86,24 +81,21 @@ void Node::removeComponent(std::shared_ptr<Component> component)
     }
 }
 
-void Node::render(Graphics &graphics, Engine *engine)
+void Node::render(Graphics &graphics, Engine *engine) const
 {
     for (size_t i = 0; i < this->components.size(); i++)
     {
-        Sprite *sprite = dynamic_cast<Sprite *>(components[i].get());
-        if (sprite && sprite->visible)
+        if (auto *sprite = dynamic_cast<Sprite *>(components[i].get()); sprite && sprite->visible)
         {
-            graphics.renderSprite(*this, engine);
+            graphics.renderComponent(*sprite);
         }
 
-        ShapeSprite *polygonSprite = dynamic_cast<ShapeSprite *>(components[i].get());
-        if (polygonSprite && polygonSprite->visible) {
-            graphics.renderPolygonSprite(*this, engine);
+        if (auto *shapeSprite = dynamic_cast<ShapeSprite *>(components[i].get()); shapeSprite && shapeSprite->visible) {
+            graphics.renderComponent(*shapeSprite);
         }
 
-        Label *label = dynamic_cast<Label *>(components[i].get());
-        if(label && label->visible) {
-            graphics.renderLabel(label);
+        if(auto *label = dynamic_cast<Label *>(components[i].get()); label && label->visible) {
+            graphics.renderComponent(*label);
         }
     }
 
@@ -113,7 +105,7 @@ void Node::render(Graphics &graphics, Engine *engine)
     }
 }
 
-void Node::update(float deltaTime)
+void Node::update(const float deltaTime)
 {
     if (parent)
     {
@@ -125,46 +117,45 @@ void Node::update(float deltaTime)
         globalTransform.position = transform.position;
     }
 
-    for (size_t i = 0; i < components.size(); i++)
+    for (const auto & component : components)
     {
-        components[i]->update(deltaTime);
+        component->update(deltaTime);
     }
 
-    for (size_t i = 0; i < children.size(); i++)
+    for (const auto & i : children)
     {
-        children[i]->update(deltaTime);
+        i->update(deltaTime);
     }
 }
 
-void Node::exit()
+void Node::exit() const
 {
-    for (size_t i = 0; i < children.size(); i++)
+    for (auto & i : children)
     {
-        children[i]->exit();
+        i->exit();
     }
 
-    for (size_t i = 0; i < components.size(); i++)
+    for (const auto & component : components)
     {
-        components[i]->exit();
+        component->exit();
     }
 }
 
-void Node::physicsUpdate() {
-    //Logger::debug("physicsUpdate - {}", name);
-    for (size_t i = 0; i < components.size(); i++)
+void Node::physicsUpdate() const
+{
+    for (const auto & component : components)
     {
-        components[i]->physicsUpdate();
+        component->physicsUpdate();
     }
 
-    for (size_t i = 0; i < children.size(); i++)
+    for (const auto & i : children)
     {
-        children[i]->physicsUpdate();
+        i->physicsUpdate();
     }
 }
 
 void Node::initialize()
 {
-    // copied from update
     if (parent)
     {
         globalTransform = parent->globalTransform.applyTo(transform);
@@ -175,36 +166,37 @@ void Node::initialize()
         globalTransform.position = transform.position;
     }
 
-    for (size_t i = 0; i < children.size(); i++)
+    for (const auto & i : children)
     {
-        children[i]->initialize();
+        i->initialize();
     }
 
-    for (size_t i = 0; i < components.size(); i++)
+    for (const auto & component : components)
     {
-        components[i]->initialize();
+        component->initialize();
     }
 }
 
-void Node::input(InputEvent& event) {
-    for (size_t i = 0; i < children.size(); i++)
+void Node::input(InputEvent& event) const
+{
+    for (const auto & i : children)
     {
-        children[i]->input(event);
+        i->input(event);
     }
 
-    for (size_t i = 0; i < components.size(); i++)
+    for (const auto & component : components)
     {
-        components[i]->input(event);
+        component->input(event);
     }
 }
 
 std::shared_ptr<Node> Node::getChild(std::string name)
 {
-    for (size_t i = 0; i < children.size(); ++i)
+    for (auto & i : children)
     {
-        if (children[i]->name == name)
+        if (i->name == name)
         {
-            return children[i];
+            return i;
         }
     }
     return nullptr;

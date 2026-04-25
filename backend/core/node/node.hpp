@@ -62,12 +62,12 @@ public:
 	std::shared_ptr<Component> getComponentByIndex(int index);
 
 	// state functions
-	void render(Graphics &graphics, Engine *engine);
+	void render(Graphics &graphics, Engine *engine) const;
 	void update(float deltaTime);
-	void physicsUpdate(); // runs locked at 60fps
+	void physicsUpdate() const; // runs locked at 60fps
 	void initialize();
-	void input(InputEvent& event);
-	void exit();
+	void input(InputEvent& event) const;
+	void exit() const;
 
 	std::vector<Script *> activeScripts;
 

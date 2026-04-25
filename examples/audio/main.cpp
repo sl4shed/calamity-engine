@@ -9,6 +9,7 @@
 #include "backend/core/node/components.hpp"
 #include "backend/services/physics/physics.hpp"
 #include "backend/core/ui/label.hpp"
+#include "audioScript.hpp"
 
 #ifdef PSP
 // if you want psp support you have to have the psp module info thing
@@ -54,8 +55,9 @@ int main() {
     node->addComponent(std::make_shared<Sprite>("res://assets/speaker.png"));
     std::shared_ptr<AudioSource> sound = std::make_shared<AudioSource>("res://assets/sound.wav");
     node->transform.setScale({0.5f, 0.5f});
-    sound->loop = false;
+    sound->loop = true;
     node->addComponent(sound);
+    node->addComponent(std::make_shared<AudioScript>());
 
     std::shared_ptr<Node> lnode = std::make_shared<Node>();
     std::shared_ptr<Label> label = std::make_shared<Label>("Space - Play/Stop sound");
@@ -70,7 +72,6 @@ int main() {
     engine.initialize();
 
     // play sound
-    sound->play();
     sound->finished.connect([sound]() {
         Logger::info("Sound finished playing!");
         sound->finished.reset();
@@ -78,7 +79,7 @@ int main() {
 
     sound->looped.connect([sound]()
     {
-        Logger::info("audio looped");
+        Logger::info("Sound looped!");
         sound->looped.reset();
     });
 
