@@ -64,10 +64,10 @@ public:
     SDL_Texture *loadTexture(const std::string &path) const;
 
     // renderComponent is a general function that renders different components based on different function overloads.
-    void renderComponent(Sprite &sprite) const;
-    void renderComponent(ShapeSprite &sprite) const;
-    void renderComponent(Label &label) const;
-    void renderComponent(AnimatedSprite &sprite) const;
+    void renderComponent(const Sprite &sprite) const;
+    void renderComponent(const ShapeSprite &sprite) const;
+    void renderComponent(const Label &label) const;
+    void renderComponent(const AnimatedSprite &sprite) const;
     void preRender() const;
     void postRender() const;
     void resetLogicalPresentation();

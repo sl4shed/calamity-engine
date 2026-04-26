@@ -56,23 +56,24 @@ SDL_Renderer* Graphics::getRenderer() const
     return renderer;
 }
 
-void Graphics::renderComponent(Sprite &sprite) const
+void Graphics::renderComponent(const Sprite &sprite) const
 {
-    if (!sprite.getNode()) return;
     const Node *node = sprite.getNode();
-
+    if (!node) return;
     if (!sprite.texture.handle) return;
 
-    Camera *activeCamera = Services::engine()->getActiveCamera();
+    const Camera *activeCamera = Services::engine()->getActiveCamera();
     const Transform cameraTransform = activeCamera->getNode()->globalTransform;
     SDL_Vertex vertices[4];
-    vertices[0] = {{-(sprite.texture.width * sprite.origin.x), -(sprite.texture.height * sprite.origin.y)}, {1, 1, 1, 1}, {0, 0}};
-    vertices[1] = {{sprite.texture.width * (1 - sprite.origin.x), -(sprite.texture.height * sprite.origin.y)}, {1, 1, 1, 1}, {1, 0}};
-    vertices[2] = {{sprite.texture.width * (1 - sprite.origin.x), sprite.texture.height * (1 - sprite.origin.y)}, {1, 1, 1, 1}, {1, 1}};
-    vertices[3] = {{-(sprite.texture.width * sprite.origin.x), sprite.texture.height * (1 - sprite.origin.y)}, {1, 1, 1, 1}, {0, 1}};
+    const auto modulate = static_cast<SDL_FColor>(sprite.modulate);
+    vertices[0] = {{-(sprite.texture.width * sprite.origin.x), -(sprite.texture.height * sprite.origin.y)}, modulate, {0, 0}};
+    vertices[1] = {{sprite.texture.width * (1 - sprite.origin.x), -(sprite.texture.height * sprite.origin.y)}, modulate, {1, 0}};
+    vertices[2] = {{sprite.texture.width * (1 - sprite.origin.x), sprite.texture.height * (1 - sprite.origin.y)}, modulate, {1, 1}};
+    vertices[3] = {{-(sprite.texture.width * sprite.origin.x), sprite.texture.height * (1 - sprite.origin.y)}, modulate, {0, 1}};
 
     const auto originOffset = Vector2{screenSize.x * activeCamera->origin.x, screenSize.y * activeCamera->origin.y};
-
+    auto cameraInverse = cameraTransform.inverse();
+    const Rect sourceRect = sprite.sourceRect;
     for (auto & vertice : vertices)
     {
         Vector2 pos = {vertice.position.x, vertice.position.y};
@@ -82,35 +83,30 @@ void Graphics::renderComponent(Sprite &sprite) const
         if (!sprite.screenSpace)
         {
             pos = pos - cameraTransform.position;
-            auto [position, transformation] = cameraTransform.inverse();
-            pos = transformation * pos;
+            pos = cameraInverse.transformation * pos;
         }
         pos = pos + originOffset;
         vertice.position.x = pos.x;
         vertice.position.y = pos.y;
 
-        const Rect sourceRect = sprite.sourceRect;
         Vector2 texturePos = {vertice.tex_coord.x, vertice.tex_coord.y};
-        // todo:
-        // i kinda want source rects to be in pixels but that means like initializing them with the default texture coordinates
-        // and im not sure if thats the right move
-        texturePos = texturePos * sourceRect.size + Vector2{sourceRect.position.x / static_cast<float>(sprite.texture.width), sourceRect.position.y / static_cast<float>(sprite.texture.height)};
+        texturePos = texturePos * (sourceRect.size / Vector2{static_cast<float>(sprite.texture.textureWidth), static_cast<float>(sprite.texture.textureHeight)})
+           + Vector2{sourceRect.position.x / static_cast<float>(sprite.texture.textureWidth),
+                     sourceRect.position.y / static_cast<float>(sprite.texture.textureHeight)};
         vertice.tex_coord.x = texturePos.x;
         vertice.tex_coord.y = texturePos.y;
     }
 
-    int indices[6] = {0, 1, 2, 2, 3, 0};
-
-    SDL_SetTextureColorMod(sprite.texture.handle, sprite.modulate.r, sprite.modulate.g, sprite.modulate.b);
+    const int indices[6] = {0, 1, 2, 2, 3, 0};
     SDL_RenderGeometry(this->renderer, sprite.texture.handle, vertices, 4, indices, 6);
 }
 
-void Graphics::renderComponent(ShapeSprite &sprite) const
+void Graphics::renderComponent(const ShapeSprite &sprite) const
 {
-    if (!sprite.getNode()) return;
     const Node *node = sprite.getNode();
+    if (!node) return;
 
-    Camera *activeCamera = Services::engine()->getActiveCamera();
+    const Camera *activeCamera = Services::engine()->getActiveCamera();
     const Transform cameraTransform = activeCamera->getNode()->globalTransform;
     const Vector2 originOffset = {screenSize.x * activeCamera->origin.x, screenSize.y * activeCamera->origin.y};
 
@@ -118,6 +114,8 @@ void Graphics::renderComponent(ShapeSprite &sprite) const
     const int count = poly.count;
     if (count < 3) return;
 
+    const auto modulate = static_cast<SDL_FColor>(sprite.modulate);
+    auto cameraInverse = cameraTransform.inverse();
     std::vector<SDL_Vertex> vertices(count);
     for (int i = 0; i < count; i++) {
         Vector2 pos = poly.vertices[i];
@@ -125,11 +123,11 @@ void Graphics::renderComponent(ShapeSprite &sprite) const
         if (!sprite.screenSpace)
         {
             pos = pos - cameraTransform.position;
-            pos = cameraTransform.inverse().transformation * pos;
+            pos = cameraInverse.transformation * pos;
         }
         pos = pos + originOffset;
 
-        vertices[i] = {{pos.x, pos.y}, static_cast<SDL_FColor>(sprite.modulate), {0, 0}};
+        vertices[i] = {{pos.x, pos.y}, modulate, {0, 0}};
     }
 
     // fan triangulation from vertex 0
@@ -143,23 +141,21 @@ void Graphics::renderComponent(ShapeSprite &sprite) const
     SDL_RenderGeometry(renderer, nullptr, vertices.data(), count, indices.data(), static_cast<int>(indices.size()));
 }
 
-void Graphics::renderComponent(Label &label) const
+void Graphics::renderComponent(const Label &label) const
 {
-    if(!label.getNode()) return;
-
-    // hopefully this works
     SDL_Texture *texture = label.getTexture();
+    const Node *lnode = label.getNode();
+    if(!lnode) return;
     if(!texture) return;
 
-    const Node *lnode = label.getNode();
-
-    Camera *activeCamera = Services::engine()->getActiveCamera();
+    const Camera *activeCamera = Services::engine()->getActiveCamera();
     const Transform cameraTransform = activeCamera->getNode()->globalTransform;
     SDL_Vertex vertices[4];
 
     float w;
     float h;
     SDL_GetTextureSize(texture, &w, &h);
+
     vertices[0] = {{-(w * label.origin.x), -(h * label.origin.y)}, {1, 1, 1, 1}, {0, 0}};
     vertices[1] = {{w * (1 - label.origin.x), -(h * label.origin.y)}, {1, 1, 1, 1}, {1, 0}};
     vertices[2] = {{w * (1 - label.origin.x), h * (1 - label.origin.y)}, {1, 1, 1, 1}, {1, 1}};
@@ -188,55 +184,60 @@ void Graphics::renderComponent(Label &label) const
     }
 
     const int indices[6] = {0, 1, 2, 2, 3, 0};
-
     SDL_RenderGeometry(this->renderer, texture, vertices, 4, indices, 6);
 }
 
-void Graphics::renderComponent(AnimatedSprite &sprite) const
+void Graphics::renderComponent(const AnimatedSprite &sprite) const
 {
-    if (!sprite.getNode()) return;
-    const Node *node = sprite.getNode();
+    if (!sprite.isPlaying()) return;
 
-    Camera *activeCamera = Services::engine()->getActiveCamera();
+    const Node *node = sprite.getNode();
+    const auto frame = sprite.getCurrentFrame();
+    const auto texture = sprite.getCurrentTexture();
+    const Vector2 renderSize = sprite.getCurrentSize();
+    if (!node) return;
+    if (!frame) return;
+    if (!texture) return;
+
+    const Camera *activeCamera = Services::engine()->getActiveCamera();
     const Transform cameraTransform = activeCamera->getNode()->globalTransform;
+    const Rect sourceRect = frame->rect;
+
     SDL_Vertex vertices[4];
-    vertices[0] = {{-(sprite.texture.width * sprite.origin.x), -(sprite.texture.height * sprite.origin.y)}, {1, 1, 1, 1}, {0, 0}};
-    vertices[1] = {{sprite.texture.width * (1 - sprite.origin.x), -(sprite.texture.height * sprite.origin.y)}, {1, 1, 1, 1}, {1, 0}};
-    vertices[2] = {{sprite.texture.width * (1 - sprite.origin.x), sprite.texture.height * (1 - sprite.origin.y)}, {1, 1, 1, 1}, {1, 1}};
-    vertices[3] = {{-(sprite.texture.width * sprite.origin.x), sprite.texture.height * (1 - sprite.origin.y)}, {1, 1, 1, 1}, {0, 1}};
+    const auto modulate = static_cast<SDL_FColor>(frame->modulate);
+    vertices[0] = {{-(renderSize.x * frame->origin.x), -(renderSize.y * frame->origin.y)}, modulate, {0, 0}};
+    vertices[1] = {{renderSize.x * (1 - frame->origin.x), -(renderSize.y * frame->origin.y)}, modulate, {1, 0}};
+    vertices[2] = {{renderSize.x * (1 - frame->origin.x), renderSize.y * (1 - frame->origin.y)}, modulate, {1, 1}};
+    vertices[3] = {{-(renderSize.x * frame->origin.x), renderSize.y * (1 - frame->origin.y)}, modulate, {0, 1}};
 
     const auto originOffset = Vector2{screenSize.x * activeCamera->origin.x, screenSize.y * activeCamera->origin.y};
 
+    auto cameraInverse = cameraTransform.inverse();
     for (auto & vertice : vertices)
     {
         Vector2 pos = {vertice.position.x, vertice.position.y};
         pos = node->globalTransform.applyTo(pos);
 
-        // translate to camera space or wtv
         if (!sprite.screenSpace)
         {
             pos = pos - cameraTransform.position;
-            auto [position, transformation] = cameraTransform.inverse();
-            pos = transformation * pos;
+
+            pos = cameraInverse.transformation * pos;
         }
         pos = pos + originOffset;
         vertice.position.x = pos.x;
         vertice.position.y = pos.y;
 
-        const Rect sourceRect = sprite.sourceRect;
         Vector2 texturePos = {vertice.tex_coord.x, vertice.tex_coord.y};
-        // todo:
-        // i kinda want source rects to be in pixels but that means like initializing them with the default texture coordinates
-        // and im not sure if thats the right move
-        texturePos = texturePos * sourceRect.size + Vector2{sourceRect.position.x / static_cast<float>(sprite.texture.width), sourceRect.position.y / static_cast<float>(sprite.texture.height)};
+        texturePos = texturePos * (sourceRect.size / Vector2{static_cast<float>(texture->textureWidth), static_cast<float>(texture->textureHeight)})
+                   + Vector2{sourceRect.position.x / static_cast<float>(texture->textureWidth),
+                             sourceRect.position.y / static_cast<float>(texture->textureHeight)};
         vertice.tex_coord.x = texturePos.x;
         vertice.tex_coord.y = texturePos.y;
     }
 
-    int indices[6] = {0, 1, 2, 2, 3, 0};
-
-    SDL_SetTextureColorMod(sprite.texture.handle, sprite.modulate.r, sprite.modulate.g, sprite.modulate.b);
-    SDL_RenderGeometry(this->renderer, sprite.texture.handle, vertices, 4, indices, 6);
+    const int indices[6] = {0, 1, 2, 2, 3, 0};
+    SDL_RenderGeometry(this->renderer, texture->handle, vertices, 4, indices, 6);
 }
 
 TTF_TextEngine *Graphics::getTextEngine() const

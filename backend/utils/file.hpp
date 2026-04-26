@@ -50,9 +50,9 @@ public:
     std::string mode;
     std::string path;
 
-    void flush();
+    void flush() const;
     void close();
-    void seek(int offset, Whence whence);
+    void seek(int offset, Whence whence) const;
 
     int getSize() const;
     std::string getAsText();
@@ -60,13 +60,13 @@ public:
     int getPosition();
     std::string getLine();
     bool eofReached() const;
-    void storeString(std::string str);
-    void storeLine(std::string str);
+    void storeString(const std::string& str);
+    void storeLine(const std::string& str);
 
-    static std::string getAbsoluteFilePath(std::string path);
-    static File *open(std::string path, std::string mode);
-    static int getFileSize(std::string path);
-    static bool fileExists(std::string path);
+    static std::string getAbsoluteFilePath(const std::string& path);
+    static File *open(std::string path, const std::string& mode);
+    static int getFileSize(const std::string& path);
+    static bool fileExists(const std::string& path);
     static std::string getFileAsText(std::string path);
 
 private:
@@ -82,6 +82,6 @@ private:
 // std::string readFileText(std::string path);
 std::string exportNodeTree(std::shared_ptr<Node> node);
 std::string exportNodeTree();
-void loadNodeTree(std::shared_ptr<Node> parent, std::string jsonText);
-void loadNodeTree(std::string jsonText);
+void loadNodeTree(const std::shared_ptr<Node>& parent, const std::string& jsonText);
+void loadNodeTree(const std::string& jsonText);
 std::string parseFilePath(std::string path);

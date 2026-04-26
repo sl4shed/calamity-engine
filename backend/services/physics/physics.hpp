@@ -54,7 +54,7 @@ public:
     b2ShapeDef shapeDef;
     Vector2 origin;
 
-    void applyMaterial(Material material);
+    void applyMaterial(const Material& material);
 
     Shape *setSensor(bool sensor)
     {
@@ -134,13 +134,13 @@ class StaticBody : public Component
 public:
     StaticBody();
     ~StaticBody();
-    StaticBody(std::shared_ptr<Shape> shape);
+    StaticBody(const std::shared_ptr<Shape>& shape);
 
     void physicsUpdate();
     void initialize();
 
-    void setPosition(Vector2 pos);
-    void setAngle(float angle);
+    void setPosition(Vector2 pos) const;
+    void setAngle(float angle) const;
 
     std::shared_ptr<Shape> shape;
 
@@ -177,17 +177,17 @@ class RigidBody : public Component
 public:
     RigidBody();
     ~RigidBody();
-    RigidBody(std::shared_ptr<Shape> shape);
+    RigidBody(const std::shared_ptr<Shape>& shape);
 
     void physicsUpdate();
     void initialize();
 
-    void setPosition(Vector2 pos);
-    void setAngle(float angle);
+    void setPosition(Vector2 pos) const;
+    void setAngle(float angle) const;
 
-    void setLinearVelocity(Vector2 vel);
-    void applyForce(Vector2 force);
-    void applyImpulse(Vector2 impulse);
+    void setLinearVelocity(Vector2 vel) const;
+    void applyForce(Vector2 force) const;
+    void applyImpulse(Vector2 impulse) const;
 
     std::shared_ptr<Shape> shape;
     template <class Archive>

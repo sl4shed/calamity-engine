@@ -12,8 +12,8 @@ File::~File()
     }
 }
 
-File *File::open(std::string path, std::string mode) {
-    File *file = new File();
+File *File::open(std::string path, const std::string& mode) {
+    const auto file = new File();
     file->path = path;
     file->mode = mode;
     file->fsPath = parseFilePath(path);
@@ -27,7 +27,8 @@ File *File::open(std::string path, std::string mode) {
     return file;
 }
 
-void File::flush() {
+void File::flush() const
+{
     if(handle) {
         SDL_FlushIO(handle);
     }
@@ -40,9 +41,10 @@ void File::close() {
     }
 }
 
-void File::seek(int offset, Whence whence) {
+void File::seek(const int offset, Whence whence) const
+{
     if(handle) {
-        SDL_SeekIO(handle, offset, (SDL_IOWhence)whence);
+        SDL_SeekIO(handle, offset, static_cast<SDL_IOWhence>(whence));
     }
 }
 
@@ -58,18 +60,17 @@ int File::getPosition() {
 int File::getSize() const {
     SDL_PathInfo pathInfo;
     if(SDL_GetPathInfo(fsPath.c_str(), &pathInfo) == true) {
-        int size = pathInfo.size;
+        const int size = pathInfo.size;
         return size;
-    } else {
-        Logger::warn("Error encountered while getting file size for {}: {}", path, SDL_GetError());
     }
+    Logger::warn("Error encountered while getting file size for {}: {}", path, SDL_GetError());
 
     return -1;
 }
 
 std::string File::getAsText() {
     if(handle) {
-        int size = getSize();
+        const int size = getSize();
         if(size < 0) return "";
 
         std::string text(size, '\0');
@@ -110,7 +111,7 @@ bool File::eofReached() const {
     return true;
 }
 
-void File::storeString(std::string str) {
+void File::storeString(const std::string& str) {
     if (handle) {
         SDL_WriteIO(handle, str.c_str(), str.size());
         return;
@@ -118,7 +119,7 @@ void File::storeString(std::string str) {
     Logger::warn("Attempted to write string to file with no handle: {}", path);
 }
 
-void File::storeLine(std::string str) {
+void File::storeLine(const std::string& str) {
     if(!str.empty() && str.back() == '\n') {
         storeString(str);
         return;
@@ -127,30 +128,29 @@ void File::storeLine(std::string str) {
     storeString(str + "\n");
 }
 
-std::string File::getAbsoluteFilePath(std::string path) {
+std::string File::getAbsoluteFilePath(const std::string& path) {
     return parseFilePath(path);
 }
 
-int File::getFileSize(std::string path) {
-    std::string fsPath = parseFilePath(path);
+int File::getFileSize(const std::string& path) {
+    const std::string fsPath = parseFilePath(path);
     SDL_PathInfo pathInfo;
     if(SDL_GetPathInfo(fsPath.c_str(), &pathInfo) == true) {
-        int size = pathInfo.size;
+        const int size = pathInfo.size;
         return size;
     }
 
     return -1;
 }
 
-bool File::fileExists(std::string path) {
+bool File::fileExists(const std::string& path) {
     return SDL_GetPathInfo(parseFilePath(path).c_str(), nullptr);
 }
 
 std::string File::getFileAsText(std::string path) {
-    std::string fsPath = parseFilePath(path);
-    SDL_IOStream *stream = SDL_IOFromFile(fsPath.c_str(), "r");
-    if(stream) {
-        int size = File::getFileSize(path); // im too lazy and it's basically the same shit /shrug
+    const std::string fsPath = parseFilePath(path);
+    if(SDL_IOStream *stream = SDL_IOFromFile(fsPath.c_str(), "r")) {
+        const int size = getFileSize(path); // im too lazy and it's basically the same shit /shrug
         if(size < 0) return "";
 
         std::string text(size, '\0');
@@ -192,11 +192,11 @@ std::string exportNodeTree()
 /**
  * This function is for loading a node tree from JSON text.
  */
-void loadNodeTree(std::shared_ptr<Node> parent, std::string jsonText)
+void loadNodeTree(const std::shared_ptr<Node>& parent, const std::string& jsonText)
 {
     std::stringstream i(jsonText);
     cereal::JSONInputArchive archive(i);
-    std::shared_ptr<Node> node = std::make_shared<Node>();
+    auto node = std::make_shared<Node>();
     archive(node);
     parent->addChild(node);
 }
@@ -204,7 +204,7 @@ void loadNodeTree(std::shared_ptr<Node> parent, std::string jsonText)
 /**
  * This function is specifically for loading the root node of the engine.
  */
-void loadNodeTree(std::string jsonText)
+void loadNodeTree(const std::string& jsonText)
 {
     std::stringstream i(jsonText);
     cereal::JSONInputArchive archive(i);
@@ -219,11 +219,13 @@ std::string parseFilePath(std::string path) {
     if(path.rfind("user://", 0) == 0) {
         std::string userPath = SDL_GetPrefPath("Calamity Engine", Services::engine()->appName.c_str());
         return std::string(userPath) + path.substr(7);
-    } else if(path.rfind("res://", 0) == 0) {
+    }
+
+    if(path.rfind("res://", 0) == 0) {
         std::string basePath = SDL_GetBasePath();
         return std::string(basePath) + path.substr(6);
-    } else {
-        Logger::warn("File path {} does not start with a valid prefix (user:// or res://)", path);
-        return "";
     }
+
+    Logger::warn("File path {} does not start with a valid prefix (user:// or res://)", path);
+    return "";
 }

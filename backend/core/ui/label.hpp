@@ -23,8 +23,8 @@
  */
 class Label : public Component {
 public:
-    Label(std::string text, Font *font);
-    Label(std::string text);
+    Label(const std::string& text, Font *font);
+    Label(const std::string& text);
     ~Label();
 
     Vector2 size;
@@ -36,17 +36,17 @@ public:
     bool wrap = true; // text wrap. yes or no?
     bool screenSpace = false;
 
-    Label* setText(std::string text);
+    Label* setText(const std::string& text);
     std::string getText() const;
     TTF_Text* getHandle() const;
 
     Label* setColor(Color color);
-    Color getColor();
+    Color getColor() const;
     Label* setDirection(FontDirection direction);
     Label* setWrapWidth(int width);
-    int getWrapWidth();
+    int getWrapWidth() const;
     void rebuildTexture();
-    SDL_Texture *getTexture();
+    SDL_Texture *getTexture() const;
 
     template <class Archive>
     void save(Archive &ar) const

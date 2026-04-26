@@ -22,10 +22,7 @@ class AtlasScript : public Script
 
 public:
     template <class Archive>
-    void save(Archive &ar) const
-    {
-
-    }
+    void save(Archive &ar) const {}
 
     template <class Archive>
     void load(Archive &ar) {}
@@ -43,10 +40,10 @@ public:
             switch (inputKey->scancode)
             {
             case Keycode::W:
-                spr->sourceTransform.position = {0, 0};
+                spr->sourceRect.position = {0, 0};
                 break;
             case Keycode::A:
-                spr->sourceTransform.position = {160, 0};
+                spr->sourceRect.position = {160, 0};
                 break;
             default:
                 break;

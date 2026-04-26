@@ -39,7 +39,7 @@ public:
     void shutdown();
 
     void setActiveCamera(Camera *camera);
-    Camera *getActiveCamera();
+    Camera *getActiveCamera() const;
 
     float physicsTimestep  = 1.0f / 60.0f;
     float accumulator = 0.0f;

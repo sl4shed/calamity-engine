@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.11)
 
-project(atlas)
+project(animated-sprite)
 
 set(BUILD_TARGET "NATIVE" CACHE STRING "Build target: NATIVE | PSP | EMSCRIPTEN")
 set_property(CACHE BUILD_TARGET PROPERTY STRINGS NATIVE PSP EMSCRIPTEN)

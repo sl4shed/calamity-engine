@@ -11,6 +11,43 @@ class Graphics;
 class Services;
 
 /**
+ * # Color
+ * A simple class that defines a color using red, green, blue and alpha channels.
+ *
+ * You can construct it with a string hex code, an actual hex code, or provide individual channel values up to 255.
+ */
+class Color {
+public:
+    Uint8 r; // Red value. Goes up to 255.
+    Uint8 g; // Green value. Goes up to 255.
+    Uint8 b; // Blue value. Goes up to 255.
+    Uint8 a; // Alpha value. Goes up to 255.
+
+    Color(int r, int g, int b);
+    Color(int r, int g, int b, int a);
+    Color(int hexCode);
+    Color(int hexCode, int a);
+    Color(std::string hexCode);
+    Color(const std::string& hexCode, int a);
+
+    operator SDL_Color() const { return {r, g, b, a}; };
+    operator SDL_FColor() const { return {r / 255.0f, g / 255.0f, b / 255.0f, a / 255.0f}; };
+
+    static const Color WHITE;
+    static const Color BLACK;
+    static const Color RED;
+    static const Color GREEN;
+    static const Color BLUE;
+    static const Color TRANSPARENT;
+
+    template <class Archive>
+    void serialize(Archive &ar)
+    {
+        ar(r, g, b, a);
+    }
+};
+
+/**
  * # Vector2
  * A struct which holds an x and y float.
  */
@@ -54,12 +91,12 @@ struct Vector2
 class Texture
 {
 public:
-    Texture() : handle(nullptr), width(0), height(0) {};
-    Texture(std::string path);
+    Texture() : handle(nullptr), width(0), height(0), textureWidth(0), textureHeight(0) {};
+    Texture(const std::string& path);
     ~Texture();
     Texture(const Texture&) = delete;
     Texture& operator=(const Texture&) = delete;
-    Texture(Texture&& other) noexcept : handle(other.handle), width(other.width), height(other.height), path(std::move(other.path))
+    Texture(Texture&& other) noexcept : handle(other.handle), width(other.width), height(other.height), textureWidth(other.textureWidth), textureHeight(other.textureHeight), path(std::move(other.path))
     {
         other.handle = nullptr;
     }
@@ -72,6 +109,8 @@ public:
             handle = other.handle;
             width = other.width;
             height = other.height;
+            textureWidth = other.textureWidth;
+            textureHeight = other.textureHeight;
             path = std::move(other.path);
             other.handle = nullptr;
         }
@@ -96,6 +135,8 @@ public:
     SDL_Texture *handle;
     int width;
     int height;
+    int textureWidth;
+    int textureHeight;
     std::string path;
 };
 
@@ -145,9 +186,9 @@ struct Transform
     Vector2 applyTo(const Vector2 &point) const;
     Transform applyTo(const Transform &other) const;
     Transform inverse() const;
-    float getAngle();
-    float getDegrees();
-    Vector2 getScale();
+    float getAngle() const;
+    float getDegrees() const;
+    Vector2 getScale() const;
     static double degToRad(double degrees);
 
     template <class Archive>
@@ -164,7 +205,7 @@ struct Transform
 struct Rect
 {
     Rect() {};
-    Rect(Vector2 pos, Vector2 s) : position(pos), size(s) {};
+    Rect(const Vector2 _position, const Vector2 _size) : position(_position), size(_size) {};
     Vector2 position = {0, 0};
     Vector2 size = {0, 0};
 
@@ -176,8 +217,70 @@ struct Rect
 
     operator SDL_Rect() const
     {
-        return SDL_Rect{(int)position.x, (int)position.y, (int)size.x, (int)size.y};
+        return SDL_Rect{static_cast<int>(position.x), static_cast<int>(position.y), static_cast<int>(size.x), static_cast<int>(size.y)};
     };
+};
+
+/**
+ * # Frame
+ * An animation frame. It determines the source rectangle of the sprite, the origin of the rendered sprite and the modulate color of the rendered sprite.
+ */
+struct Frame
+{
+    Frame() = default;
+    Frame(const Rect _rect, const Vector2 _origin = {0.5, 0.5f}, const Color _modulate = Color::WHITE) : rect(_rect), origin(_origin), modulate(_modulate) {};
+
+    Rect rect;
+    Vector2 origin = {0.5f, 0.5f};
+    Color modulate = Color::WHITE;
+
+    template <class Archive>
+    void save(Archive &ar) const
+    {
+        ar(CEREAL_NVP(rect), CEREAL_NVP(origin), CEREAL_NVP(modulate));
+    }
+
+    template <class Archive>
+    void load(Archive &ar)
+    {
+        ar(CEREAL_NVP(rect), CEREAL_NVP(origin), CEREAL_NVP(modulate));
+    }
+};
+
+/**
+ * # Animation
+ * An animation that is used to AnimatedSprite.
+ */
+class Animation
+{
+public:
+    Animation(std::string _name = "Animation", int _fps = 30, Vector2 _size = {0, 0}, bool _loop = true, bool _autoplay = false) : name(_name), fps(_fps), size(_size), loop(_loop), autoplay(_autoplay) {};
+
+    std::string name;
+    int fps = 15;
+    std::vector<Frame> frames;
+    std::string texturePath;
+    Vector2 size;
+    bool loop = true;
+    bool autoplay = false;
+
+    template <typename... Args>
+    void addFrames(Args... frames)
+    {
+        (this->frames.push_back(frames), ...);
+    }
+
+    template <class Archive>
+    void save(Archive &ar) const
+    {
+        ar(CEREAL_NVP(fps), CEREAL_NVP(frames), CEREAL_NVP(texturePath), CEREAL_NVP(loop), CEREAL_NVP(autoplay));
+    }
+
+    template <class Archive>
+    void load(Archive &ar)
+    {
+        ar(CEREAL_NVP(fps), CEREAL_NVP(frames), CEREAL_NVP(texturePath), CEREAL_NVP(loop), CEREAL_NVP(autoplay));
+    }
 };
 
 /**

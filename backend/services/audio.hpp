@@ -19,7 +19,7 @@ public:
     static const int bufferSize = 4096 * 4;
     static const int chunkSize = 4096;
     void openAudioDevice(int id);
-    SDL_AudioDeviceID getAudioDevice();
+    SDL_AudioDeviceID getAudioDevice() const;
 
     void initialize();
     void shutdown();
@@ -56,18 +56,20 @@ typedef struct Sound
 class AudioSource : public Component
 {
 public:
-    AudioSource(std::string path);
+    AudioSource(const std::string& path);
     std::string path;
 
-    float getVolume();
-    float getPitch();
-    bool getPlaying();
+    float getVolume() const;
+    float getPitch() const;
+    bool getPlaying() const;
     void setPitch(float pitch);
     void setVolume(float volume);
 
     bool loop = false;
     Signal<> finished;
     Signal<> looped;
+    Signal<> stopped;
+    Signal<> paused;
 
     void play();
     void stop();

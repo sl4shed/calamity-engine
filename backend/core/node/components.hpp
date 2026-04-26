@@ -5,6 +5,9 @@
 #include "../../services/input/input.hpp"
 #include "../ui/definitions.hpp"
 #include "backend/core/signal.hpp"
+#include <cereal/types/map.hpp>
+#include <cereal/types/vector.hpp>
+#include <cereal/types/string.hpp>
 
 class Node; // Forward declaration'
 
@@ -23,7 +26,7 @@ struct Component
     virtual void input(InputEvent& event) {};
     virtual void exit() {};
 
-    Node *getNode();
+    Node *getNode() const;
     void setNode(Node *n);
 
     template <class Archive>
@@ -54,13 +57,13 @@ class Sprite : public Component
 {
 public:
     Sprite();
-    explicit Sprite(std::string texturePath);
+    explicit Sprite(const std::string& texturePath);
+
+    void initialize() override;
 
     Vector2 origin = {0.5f, 0.5f};
     Texture texture;
-    // TODO: do something about source rects
-    // i kinda want the size thing to be in pixels but im not entirely sure how i would properly handle that...s
-    Rect sourceRect = Rect({0, 0},{1, 1});
+    Rect sourceRect;
     bool visible = true;
     //int zIndex = 1;
     bool screenSpace = false;
@@ -79,67 +82,62 @@ public:
     }
 };
 
-struct Frame
-{
-    Rect rect;
-    Vector2 origin;
-    Color modulate = Color::WHITE;
-
-    template <class Archive>
-    void serialize(Archive &ar)
-    {
-        ar(CEREAL_NVP(rect), CEREAL_NVP(origin), CEREAL_NVP(modulate));
-    }
-};
-
-class Animation
-{
-    int fps = 15;
-    std::vector<Frame> frames;
-    Texture texture;
-
-    template <class Archive>
-    void serialize(Archive &ar)
-    {
-        ar(CEREAL_NVP(fps), CEREAL_NVP(frames), CEREAL_NVP(texture));
-    }
-};
-
 class AnimatedSprite : public Component
 {
 public:
-    AnimatedSprite();
-    explicit AnimatedSprite(std::string texturePath);
+    AnimatedSprite() {};
 
     void initialize() override;
+    void update(float deltaTime) override;
 
-    void play(std::string animation);
+    void addAnimation(Animation animation);
+    void removeAnimation(const std::string& name);
+
+    void play(const std::string& animation);
     void stop();
+    void pause();
 
+    Signal<std::string> changed;
     Signal<std::string> finished;
     Signal<std::string> looped;
+    Signal<std::string> stopped;
+    Signal<std::string> paused;
+
+    const Texture* getCurrentTexture() const;
+    Vector2 getCurrentSize() const;
+    bool isPlaying() const;
+    Frame *getCurrentFrame() const;
 
     std::map<std::string, Animation> animations;
     bool visible = true;
     //int zIndex = 1; I'm not implementing this rn
     bool screenSpace = false;
-    Color modulate = Color::WHITE;
 
     template <class Archive>
     void save(Archive &ar) const
     {
-        ar(CEREAL_NVP(animations), CEREAL_NVP(visible), CEREAL_NVP(screenSpace), CEREAL_NVP(frame), CEREAL_NVP(playing), CEREAL_NVP(currentAnimation));
+        std::string currentAnimName = currentAnimation ? currentAnimation->name : "";
+        ar(CEREAL_NVP(animations), CEREAL_NVP(visible), CEREAL_NVP(screenSpace),
+           CEREAL_NVP(frame), CEREAL_NVP(playing), currentAnimName);
     }
 
     template <class Archive>
     void load(Archive &ar)
     {
-        ar(CEREAL_NVP(animations), CEREAL_NVP(visible), CEREAL_NVP(screenSpace), CEREAL_NVP(frame), CEREAL_NVP(playing), CEREAL_NVP(currentAnimation));
+        std::string currentAnimName;
+        ar(CEREAL_NVP(animations), CEREAL_NVP(visible), CEREAL_NVP(screenSpace),
+           CEREAL_NVP(frame), CEREAL_NVP(playing), currentAnimName);
+
+        // reconstruct runtime state
+        if (!currentAnimName.empty())
+            play(currentAnimName);
     }
 private:
-    int frame;
-    std::unique_ptr<Animation> currentAnimation;
-    bool playing;
+    float elapsed = 0.0f;
+    int frame = 0;
+    std::unique_ptr<Animation> currentAnimation = nullptr;
+    Texture currentTexture;
+    bool playing = false;
 };
 
 /**
@@ -160,7 +158,7 @@ class ShapeSprite : public Component
 {
 public:
     ShapeSprite();
-    explicit ShapeSprite(Polygon shape);
+    explicit ShapeSprite(const Polygon& shape);
 
     Vector2 origin = {0.5f, 0.5f};
     Polygon shape;
@@ -257,7 +255,7 @@ public:
 
     void initialize() override;
 
-    Vector2 screenToWorld(Vector2 screen);
+    Vector2 screenToWorld(Vector2 screen) const;
 
     template <class Archive>
     void save(Archive &ar) const

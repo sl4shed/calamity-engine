@@ -48,7 +48,7 @@ Matrix2 Matrix2::operator-(const Matrix2 &other) const
     return result;
 }
 
-Matrix2 Matrix2::operator/(float scalar) const
+Matrix2 Matrix2::operator/(const float scalar) const
 {
     Matrix2 result;
     for (int i = 0; i < 2; i++)
@@ -81,8 +81,8 @@ Vector2 Matrix2::operator*(const Vector2 &other) const
 
 Matrix2 Matrix2::rotation(float angle)
 {
-    float cos = std::cos(angle);
-    float sin = std::sin(angle);
+    const float cos = std::cos(angle);
+    const float sin = std::sin(angle);
 
     Matrix2 result;
     result.m[0][0] = cos;
@@ -105,48 +105,48 @@ Matrix2 Matrix2::scale(Vector2 s)
 // transform //////////////////////////////
 ///////////////////////////////////////////
 
-const double PI = 3.14159265358979323846;
+constexpr double PI = 3.14159265358979323846;
 
-double Transform::degToRad(double degrees) {
+double Transform::degToRad(const double degrees) {
     return degrees * (PI / 180.0);
 }
 
-void Transform::rotate(float angle)
+void Transform::rotate(const float angle)
 {
     transformation = Matrix2::rotation(degToRad(angle)) * transformation;
 }
 
-void Transform::setScale(Vector2 s)
+void Transform::setScale(const Vector2 scale)
 {
     // Preserve current rotation, replace scale entirely
-    float angle = getAngle();
-    transformation = Matrix2::rotation(angle) * Matrix2::scale(s);
+    const float angle = getAngle();
+    transformation = Matrix2::rotation(angle) * Matrix2::scale(scale);
 }
 
-void Transform::scale(Vector2 s)
+void Transform::scale(const Vector2 scale)
 {
     // Multiply existing scale by s, preserving rotation
-    Vector2 currentScale = getScale();
-    float angle = getAngle();
-    transformation = Matrix2::rotation(angle) * Matrix2::scale({currentScale.x * s.x, currentScale.y * s.y});
+    const Vector2 currentScale = getScale();
+    const float angle = getAngle();
+    transformation = Matrix2::rotation(angle) * Matrix2::scale({currentScale.x * scale.x, currentScale.y * scale.y});
 }
 
-float Transform::getAngle()
+float Transform::getAngle() const
 {
     return std::atan2(transformation.m[1][0], transformation.m[0][0]);
 }
 
-float Transform::getDegrees()
+float Transform::getDegrees() const
 {
-    return getAngle() * (180.0f / 3.14159265f);
+    return getAngle() * (180.0f / PI);
 }
 
-void Transform::setAngle(float angle) {
-    Vector2 currentScale = getScale();
+void Transform::setAngle(const float angle) {
+    const Vector2 currentScale = getScale();
     transformation = Matrix2::rotation(degToRad(angle)) * Matrix2::scale(currentScale);
 }
 
-Vector2 Transform::getScale()
+Vector2 Transform::getScale() const
 {
     Vector2 scale;
     scale.x = std::sqrt(transformation.m[0][0] * transformation.m[0][0] +
@@ -173,7 +173,7 @@ Transform Transform::inverse() const
 {
     Transform result;
     // Inverse of rotation/scale matrix is its transpose divided by determinant
-    float det = transformation.m[0][0] * transformation.m[1][1] - transformation.m[0][1] * transformation.m[1][0];
+    const float det = transformation.m[0][0] * transformation.m[1][1] - transformation.m[0][1] * transformation.m[1][0];
     if (det == 0)
     {
         // Handle non-invertible case (could throw an error or return identity)
@@ -190,14 +190,9 @@ Transform Transform::inverse() const
 }
 
 // texture
-Texture::Texture(std::string p) : path(p), handle(nullptr), width(0), height(0)
+Texture::Texture(const std::string& _path) : handle(nullptr), width(0), height(0), path(_path)
 {
-    this->initialize();
-}
-
-Texture::~Texture()
-{
-    SDL_DestroyTexture(handle);
+    initialize();
 }
 
 void Texture::initialize()
@@ -205,5 +200,12 @@ void Texture::initialize()
     this->handle = Services::graphics()->loadTexture(File::getAbsoluteFilePath(this->path));
 
     this->width = handle->w;
-    this->height = (handle)->h;
+    this->height = handle->h;
+    this->textureWidth = handle->w;
+    this->textureHeight = handle->h;
+}
+
+Texture::~Texture()
+{
+    SDL_DestroyTexture(handle);
 }

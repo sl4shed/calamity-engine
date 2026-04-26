@@ -16,7 +16,8 @@ void Label::update(float dt) {
     rebuildTexture();
 }
 
-SDL_Texture *Label::getTexture() {
+SDL_Texture *Label::getTexture() const
+{
     return texture;
 }
 
@@ -27,10 +28,7 @@ void Label::rebuildTexture() {
     if(texture)
         SDL_DestroyTexture(texture);
 
-    SDL_Surface *surface;
-    // Pass size.x if wrapping, otherwise pass 0 to allow \n without horizontal wrapping
-    surface = TTF_RenderText_Blended_Wrapped(font->getHandle(), text.c_str(), text.size(), color, wrap ? size.x : 0);
-
+    SDL_Surface *surface = TTF_RenderText_Blended_Wrapped(font->getHandle(), text.c_str(), text.size(), color, wrap ? size.x : 0);
     texture = SDL_CreateTextureFromSurface(Services::graphics()->getRenderer(), surface);
     SDL_DestroySurface(surface);
 }
@@ -43,23 +41,24 @@ TTF_Text* Label::getHandle() const {
     return handle;
 }
 
-Color Label::getColor() {
+Color Label::getColor() const
+{
     Uint8 r, g, b, a;
     TTF_GetTextColor(handle, &r, &g, &b, &a);
-    return Color((int)r, (int)g, (int)b, (int)a);
+    return Color(r, g, b, a);
 }
 
-Label::Label(std::string text, Font *font) {
+Label::Label(const std::string& text, Font *font) {
     this->font = font;
     this->handle = TTF_CreateText(Services::graphics()->getTextEngine(), font->getHandle(), text.c_str(), text.size());
     this->text = text;
 }
 
-Label::Label(std::string text) {
+Label::Label(const std::string& text) {
 #ifdef EMSCRIPTEN
-    static Font dfont = Font("/calamity/default.ttf");
+    static auto dfont = Font("/calamity/default.ttf");
 #else
-    static Font dfont = Font("./calamity/default.ttf");
+    static auto dfont = Font("./calamity/default.ttf");
 #endif
     this->font = &dfont;
 
@@ -69,7 +68,7 @@ Label::Label(std::string text) {
 }
 
 Label::~Label() {
-    TTF_DestroyText((TTF_Text*)handle);
+    TTF_DestroyText(handle);
 }
 
 Label* Label::setColor(Color _color) {
@@ -82,24 +81,25 @@ Label* Label::setColor(Color _color) {
 Label* Label::setDirection(FontDirection _direction) {
     this->direction = _direction;
     dirty = true;
-    TTF_SetTextDirection(handle, (TTF_Direction)direction);
+    TTF_SetTextDirection(handle, static_cast<TTF_Direction>(direction));
     return this;
 }
 
-Label* Label::setText(std::string _text) {
+Label* Label::setText(const std::string& _text) {
     this->text = _text;
     dirty = true;
     TTF_SetTextString(handle, text.c_str(), text.size());
     return this;
 }
 
-Label* Label::setWrapWidth(int width) {
+Label* Label::setWrapWidth(const int width) {
     this->wrapWidth = width;
     dirty = true;
     TTF_SetTextWrapWidth(handle, wrapWidth);
     return this;
 }
 
-int Label::getWrapWidth() {
+int Label::getWrapWidth() const
+{
     return wrapWidth;
 }

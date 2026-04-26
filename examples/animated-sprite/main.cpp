@@ -9,7 +9,6 @@
 #include "backend/core/node/components.hpp"
 #include "backend/services/physics/physics.hpp"
 #include "backend/core/ui/label.hpp"
-#include "atlasScript.hpp"
 
 #ifdef PSP
 #include <pspuser.h>
@@ -25,7 +24,7 @@ PSP_MAIN_THREAD_ATTR(THREAD_ATTR_USER);
 #endif
 
 static Physics physics;
-static Engine engine = Engine("Atlas Example");
+static Engine engine = Engine("Animated Sprite Example");
 static Graphics* graphics = nullptr;
 
 void loop() {
@@ -49,16 +48,24 @@ int main() {
     engine.root.addChild(cameraNode);
 
     std::shared_ptr<Node> node = std::make_shared<Node>();
-    std::shared_ptr<Sprite> sprite = std::make_shared<Sprite>();
-    sprite->texture = Texture("res://assets/atlas.png");
-    sprite->sourceRect.size = {160, 160};
-    sprite->sourceRect.position = {160, 0};
-    sprite->texture.width = 160;
-    sprite->texture.height = 160;
+    std::shared_ptr<AnimatedSprite> sprite = std::make_shared<AnimatedSprite>();
+    Animation anim = Animation("test", 2, {128, 128}, true, true);
+    anim.texturePath = "res://assets/frames.png";
+    anim.addFrames(
+        Frame({{0,   0}, {32, 32}}, {0.5, 0.5}, Color::BLUE),
+        Frame({{32,  0}, {32, 32}}),
+        Frame({{64,  0}, {32, 32}}),
+        Frame({{64,  0}, {32, 32}}),
+        Frame({{64,  0}, {32, 32}}),
+        Frame({{64,  0}, {32, 32}}),
+        Frame({{96,  0}, {32, 32}}),
+        Frame({{128, 0}, {32, 32}})
+    );
+    sprite->addAnimation(anim);
     node->addComponent(sprite);
 
     std::shared_ptr<Node> lnode = std::make_shared<Node>();
-    std::shared_ptr<Label> label = std::make_shared<Label>("W - texture 1\nA - texture 2");
+    std::shared_ptr<Label> label = std::make_shared<Label>("Animated sprite example :)");
     label->font->setSize(12);
     label->size = {200, 500};
     label->screenSpace = true;
@@ -66,7 +73,6 @@ int main() {
     lnode->addComponent(label);
 
     engine.root.addChild(lnode);
-    node->addComponent(std::make_shared<AtlasScript>());
     engine.root.addChild(node);
     engine.initialize();
 

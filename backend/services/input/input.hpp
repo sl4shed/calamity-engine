@@ -74,9 +74,9 @@ public:
     virtual bool operator==(const InputEvent& other) const { return false; };
     virtual bool operator<=(const InputEvent& other) const { return false; };
 
-    bool isActionPressed(std::string action) const;
-    bool isActionReleased(std::string action) const;
-    bool isAction(std::string action) const;
+    bool isActionPressed(const std::string& action) const;
+    bool isActionReleased(const std::string& action) const;
+    bool isAction(const std::string& action) const;
     
     // float getActionStrength(std::string action) const;
     virtual bool isPressed() const { return false; }
@@ -209,17 +209,17 @@ struct InputRegistryAction {
 
 class InputRegistry {
 public:
-    int actionAddEvent(std::string name, std::unique_ptr<InputEvent> event);
-    void actionRemoveEvent(std::string action, int index);
-    void actionRemoveEvents(std::string action);
-    float actionGetDeadzone(std::string action);
+    int actionAddEvent(const std::string& name, std::unique_ptr<InputEvent> event);
+    void actionRemoveEvent(const std::string& action, int index);
+    void actionRemoveEvents(const std::string& action);
+    float actionGetDeadzone(const std::string& action) const;
     std::vector<InputEvent> actionGetEvents(std::string action);
-    void actionSetDeadzone(std::string action, float deadzone);
-    void addAction(std::string action, float deadzone = 0.1f);
-    void removeAction(std::string action);
-    bool eventIsAction(const InputEvent* event, std::string name, bool identityCheck = false);
+    void actionSetDeadzone(const std::string& action, float deadzone);
+    void addAction(const std::string& action, float deadzone = 0.1f);
+    void removeAction(const std::string& action);
+    bool eventIsAction(const InputEvent* event, const std::string& name, bool identityCheck = false);
     std::vector<std::string> getActions();
-    bool hasAction(std::string action) const;
+    bool hasAction(const std::string& action) const;
     std::unordered_map<std::string, InputRegistryAction> *getActionsArray();
 private:
     std::unordered_map<std::string, InputRegistryAction> actions;
@@ -252,20 +252,20 @@ public:
     //Vector2 getControllerVibrationStrength(int device);
 
     std::vector<int> getConnectedControllers();
-    void startControllerVibration(int device, float weakMagnitude, float strongMagnitude, int durationMs = 0);
+    void startControllerVibration(int device, float weakMagnitude, float strongMagnitude, int durationMs = 0) const;
     //void vibrateHandheld(int durationMs = 500, float amplitude = -1.0f); // no mobile support, yet :)
 
     // input getting methods //
-    Vector2 getVector(std::string minX, std::string maxX, std::string minY, std::string maxY, float deadzone = -1.0f) const;
-    float getAxis(std::string minAction, std::string maxAction) const;
-    bool isActionJustPressed(std::string name) const;
-    bool isActionJustReleased(std::string name) const;
-    bool isActionPressed(std::string name) const;
+    Vector2 getVector(const std::string& minX, const std::string& maxX, const std::string& minY, const std::string& maxY, float deadzone = -1.0f) const;
+    float getAxis(const std::string& minAction, const std::string& maxAction) const;
+    bool isActionJustPressed(const std::string& name) const;
+    bool isActionJustReleased(const std::string& name) const;
+    bool isActionPressed(const std::string& name) const;
 
     bool shouldQuit = false;
 private:
     std::vector<std::unique_ptr<InputEvent>> inputs;
-    int sdlKeyNum;
+    int sdlKeyNum = 0;
     const bool * sdlKeyArray = SDL_GetKeyboardState(&sdlKeyNum);
 
     std::unordered_map<std::string, float> actionStrength;

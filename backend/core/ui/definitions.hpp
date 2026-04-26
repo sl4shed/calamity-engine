@@ -7,43 +7,6 @@
 #include "../definitions.hpp"
 
 /**
- * # Color
- * A simple class that defines a color using red, green, blue and alpha channels.
- *
- * You can construct it with a string hex code, an actual hex code, or provide individual channel values up to 255.
- */
-class Color {
-public:
-    Uint8 r; // Red value. Goes up to 255.
-    Uint8 g; // Green value. Goes up to 255.
-    Uint8 b; // Blue value. Goes up to 255.
-    Uint8 a; // Alpha value. Goes up to 255.
-
-    Color(int r, int g, int b);
-    Color(int r, int g, int b, int a);
-    Color(int hexCode);
-    Color(int hexCode, int a);
-    Color(std::string hexCode);
-    Color(std::string hexCode, int a);
-
-    operator SDL_Color() const { return {r, g, b, a}; };
-    operator SDL_FColor() const { return {r / 255.0f, g / 255.0f, b / 255.0f, a / 255.0f}; };
-
-    static const Color WHITE;
-    static const Color BLACK;
-    static const Color RED;
-    static const Color GREEN;
-    static const Color BLUE;
-    static const Color TRANSPARENT;
-
-    template <class Archive>
-    void serialize(Archive &ar)
-    {
-        ar(r, g, b, a);
-    }
-};
-
-/**
  * Mirrors the [TTF_HintingFlags](https://wiki.libsdl.org/SDL3_ttf/TTF_HintingFlags) enum.
  * Dictates font hinting.
  */
@@ -104,14 +67,14 @@ enum class FontAlignment {
 class Font {
 public:
     Font();
-    Font(std::string path);
+    Font(const std::string& path);
     ~Font();
     std::string path; // File path of the font.
     int size = 30;
 
     Font* setKerning(bool enabled);
     Font* setHinting(FontHinting setting);
-    Font* setLanguage(std::string language); // bcp47 code please
+    Font* setLanguage(const std::string& language); // bcp47 code please
     Font* setLineSpacing(int spacing);
     Font* setOutline(int outline);
     Font* setSDF(bool enabled);
@@ -119,7 +82,7 @@ public:
     Font* setStyle(FontStyle style);
     Font* setAlignment(FontAlignment positioning);
 
-    TTF_Font* getHandle();
+    TTF_Font* getHandle() const;
 
     template <class Archive>
     void save(Archive &ar) const {

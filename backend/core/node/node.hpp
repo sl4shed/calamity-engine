@@ -37,7 +37,7 @@ public:
 	std::vector<std::shared_ptr<Node>> children;
 	std::vector<std::shared_ptr<Component>> components;
 
-	Node(std::string name = "Node");
+	Node(const std::string& name = "Node");
 	~Node();
 	void free();
 

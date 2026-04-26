@@ -7,7 +7,7 @@
 #include <iostream>
 #include <cmath>
 
-Node::Node(std::string _name) : name(_name), parent(nullptr) {}
+Node::Node(const std::string& _name) : name(_name), parent(nullptr) {}
 
 Node::~Node()
 {
@@ -85,17 +85,22 @@ void Node::render(Graphics &graphics, Engine *engine) const
 {
     for (size_t i = 0; i < this->components.size(); i++)
     {
-        if (auto *sprite = dynamic_cast<Sprite *>(components[i].get()); sprite && sprite->visible)
+        if (const auto *sprite = dynamic_cast<Sprite *>(components[i].get()); sprite && sprite->visible)
         {
             graphics.renderComponent(*sprite);
         }
 
-        if (auto *shapeSprite = dynamic_cast<ShapeSprite *>(components[i].get()); shapeSprite && shapeSprite->visible) {
+        if (const auto *shapeSprite = dynamic_cast<ShapeSprite *>(components[i].get()); shapeSprite && shapeSprite->visible) {
             graphics.renderComponent(*shapeSprite);
         }
 
-        if(auto *label = dynamic_cast<Label *>(components[i].get()); label && label->visible) {
+        if(const auto *label = dynamic_cast<Label *>(components[i].get()); label && label->visible) {
             graphics.renderComponent(*label);
+        }
+
+        if (const auto *animSprite = dynamic_cast<AnimatedSprite *>(components[i].get()); animSprite && animSprite->visible)
+        {
+            graphics.renderComponent(*animSprite);
         }
     }
 
@@ -105,7 +110,7 @@ void Node::render(Graphics &graphics, Engine *engine) const
     }
 }
 
-void Node::update(const float deltaTime)
+void Node::update(float deltaTime)
 {
     if (parent)
     {
@@ -202,7 +207,7 @@ std::shared_ptr<Node> Node::getChild(std::string name)
     return nullptr;
 }
 
-std::shared_ptr<Node> Node::getChildByIndex(int index)
+std::shared_ptr<Node> Node::getChildByIndex(const int index)
 {
     if (index < 0 || index >= children.size())
     {
@@ -211,7 +216,7 @@ std::shared_ptr<Node> Node::getChildByIndex(int index)
     return children[index];
 }
 
-std::shared_ptr<Component> Node::getComponentByIndex(int index)
+std::shared_ptr<Component> Node::getComponentByIndex(const int index)
 {
     if (index < 0 || index >= components.size())
     {

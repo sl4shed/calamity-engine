@@ -15,18 +15,19 @@ Audio::~Audio() {
 
 void Audio::initialize() {}
 
-void Audio::openAudioDevice(int id) {
+void Audio::openAudioDevice(const int id) {
     this->device = SDL_OpenAudioDevice(id, nullptr);
     if (this->device == 0) {
         Logger::error("Failed to open audio device: {}", SDL_GetError());
     }
 }
 
-SDL_AudioDeviceID Audio::getAudioDevice() {
+SDL_AudioDeviceID Audio::getAudioDevice() const
+{
     return this->device;
 }
 
-AudioSource::AudioSource(std::string path)
+AudioSource::AudioSource(const std::string& path)
 {
     this->path = path;
     this->fsPath = File::getAbsoluteFilePath(path);
@@ -79,29 +80,29 @@ bool AudioSource::loadAudio()
     return true;
 }
 
-void AudioSource::setVolume(float _volume)
+void AudioSource::setVolume(const float _volume)
 {
     this->volume = _volume;
     SDL_SetAudioStreamGain(this->handle.stream, this->volume);
 }
 
-void AudioSource::setPitch(float _pitch)
+void AudioSource::setPitch(const float _pitch)
 {
     this->pitch = _pitch;
     SDL_SetAudioStreamFrequencyRatio(this->handle.stream, this->pitch);
 }
 
-float AudioSource::getPitch()
+float AudioSource::getPitch() const
 {
     return pitch;
 }
 
-float AudioSource::getVolume()
+float AudioSource::getVolume() const
 {
     return volume;
 }
 
-bool AudioSource::getPlaying()
+bool AudioSource::getPlaying() const
 {
     return playing;
 }
@@ -112,12 +113,13 @@ void AudioSource::stop()
     playing = false;
     cursor = 0;
     SDL_FlushAudioStream(this->handle.stream);
-    finished.fire();
+    stopped.fire();
 }
 
 void AudioSource::pause()
 {
     playing = false;
+    paused.fire();
     SDL_FlushAudioStream(this->handle.stream);
 }
 
@@ -134,9 +136,9 @@ void AudioSource::update(float deltaTime)
         while (queued < Audio::bufferSize)
         {
             size_t remaining = this->handle.wav_data_len - cursor;
-            size_t toCopy = std::min((size_t)Audio::chunkSize, remaining);
+            const size_t toCopy = std::min(static_cast<size_t>(Audio::chunkSize), remaining);
 
-            SDL_PutAudioStreamData(this->handle.stream, this->handle.wav_data + cursor, (int)toCopy);
+            SDL_PutAudioStreamData(this->handle.stream, this->handle.wav_data + cursor, static_cast<int>(toCopy));
 
             cursor += toCopy;
             queued += toCopy;

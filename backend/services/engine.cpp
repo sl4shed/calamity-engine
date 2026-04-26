@@ -64,7 +64,7 @@ void Engine::update()
 {
     last = now;
     now = SDL_GetPerformanceCounter();
-    float deltaTime = (float)(now - last) / SDL_GetPerformanceFrequency();
+    const float deltaTime = static_cast<float>(now - last) / SDL_GetPerformanceFrequency();
 
     Services::input()->update(deltaTime);
     root.update(deltaTime);
@@ -106,7 +106,7 @@ void Engine::setActiveCamera(Camera *camera)
     activeCamera = camera;
 }
 
-Camera *Engine::getActiveCamera()
+Camera *Engine::getActiveCamera() const
 {
     return activeCamera;
 }
