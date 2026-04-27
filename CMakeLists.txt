@@ -25,26 +25,27 @@ set_property(CACHE BUILD_TARGET PROPERTY STRINGS NATIVE PSP EMSCRIPTEN WINDOWS)
 option(CALAMITY_VENDORED "Use vendored dependencies" OFF)
 
 add_library(${PROJECT_NAME} STATIC
-    # core
-    backend/core/definitions.cpp
-    backend/core/signal.cpp
-    backend/core/node/components.cpp
-    backend/core/node/node.cpp
-    backend/core/ui/definitions.cpp
-    backend/core/ui/label.cpp
+        # core
+        backend/core/definitions.cpp
+        backend/core/signal.cpp
+        backend/core/node/components.cpp
+        backend/core/node/node.cpp
+        backend/core/ui/definitions.cpp
+        backend/core/ui/label.cpp
 
-    # utils
-    backend/utils/utils.cpp
-    backend/utils/logger.cpp
-    backend/utils/file.cpp
+        # utils
+        backend/utils/utils.cpp
+        backend/utils/logger.cpp
+        backend/utils/file.cpp
 
-    # services
-    backend/services/audio.cpp
-    backend/services/services.cpp
-    backend/services/input/input.cpp
-    backend/services/graphics.cpp
-    backend/services/engine.cpp
-    backend/services/physics/physics.cpp
+        # services
+        backend/services/audio.cpp
+        backend/services/services.cpp
+        backend/services/input/input.cpp
+        backend/services/graphics.cpp
+        backend/services/engine.cpp
+        backend/services/physics/physics.cpp
+        backend/services/physics/definitions.cpp
 )
 
 target_include_directories(${PROJECT_NAME} PUBLIC
@@ -140,3 +141,10 @@ else()
     find_package(cereal REQUIRED)
     target_link_libraries(${PROJECT_NAME} PUBLIC cereal::cereal)
 endif()
+
+# sdl gfx
+# i need to include it vendored regardless lmao
+
+add_subdirectory(vendored/SDL3_gfx)
+target_link_libraries(${PROJECT_NAME} PUBLIC SDL3_gfx_Static)
+target_include_directories(${PROJECT_NAME} PUBLIC vendored/SDL3_gfx)

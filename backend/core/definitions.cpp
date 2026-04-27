@@ -105,15 +105,25 @@ Matrix2 Matrix2::scale(Vector2 s)
 // transform //////////////////////////////
 ///////////////////////////////////////////
 
-constexpr double PI = 3.14159265358979323846;
+constexpr float PI = 3.141592653;
 
-double Transform::degToRad(const double degrees) {
+float Transform::degToRad(const float degrees) {
     return degrees * (PI / 180.0);
+}
+
+float Transform::radToDeg(const float radians)
+{
+    return radians * (180.0 / PI);
 }
 
 void Transform::rotate(const float angle)
 {
     transformation = Matrix2::rotation(degToRad(angle)) * transformation;
+}
+
+void Transform::rotateRadians(const float radians)
+{
+    transformation = Matrix2::rotation(radians) * transformation;
 }
 
 void Transform::setScale(const Vector2 scale)
@@ -133,6 +143,11 @@ void Transform::scale(const Vector2 scale)
 
 float Transform::getAngle() const
 {
+    return radToDeg(std::atan2(transformation.m[1][0], transformation.m[0][0]));
+}
+
+float Transform::getAngleRadians() const
+{
     return std::atan2(transformation.m[1][0], transformation.m[0][0]);
 }
 
@@ -144,6 +159,12 @@ float Transform::getDegrees() const
 void Transform::setAngle(const float angle) {
     const Vector2 currentScale = getScale();
     transformation = Matrix2::rotation(degToRad(angle)) * Matrix2::scale(currentScale);
+}
+
+void Transform::setAngleRadians(const float radians)
+{
+    const Vector2 currentScale = getScale();
+    transformation = Matrix2::rotation(radians) * Matrix2::scale(currentScale);
 }
 
 Vector2 Transform::getScale() const
@@ -208,4 +229,85 @@ void Texture::initialize()
 Texture::~Texture()
 {
     SDL_DestroyTexture(handle);
+}
+
+// polygon
+
+Polygon::operator b2Polygon() const {
+    b2Polygon polygon;
+    polygon.centroid = centroid;
+    polygon.count = count;
+    for (int i = 0; i < count; i++) {
+        polygon.normals[i] = normals[i];
+        polygon.vertices[i] = vertices[i];
+    }
+    polygon.radius = radius;
+    return polygon;
+}
+
+Polygon::Polygon(const b2Polygon &p) {
+    centroid = Vector2(p.centroid);
+    count = p.count;
+    radius = p.radius;
+    for (int i = 0; i < count; i++) {
+        normals[i] = Vector2(p.normals[i]);
+        vertices[i] = Vector2(p.vertices[i]);
+    }
+}
+
+Polygon::Polygon() {
+    centroid = {0, 0};
+    count = 0;
+    radius = 0;
+    for (int i = 0; i < B2_MAX_POLYGON_VERTICES; i++) {
+        normals[i] = {0, 0};
+        vertices[i] = {0, 0};
+    }
+}
+
+// circle
+
+Circle::Circle()
+{
+    center = {0.5f, 0.5f};
+    radius = 0;
+}
+
+Circle::Circle(const b2Circle &circle)
+{
+    center = Vector2(circle.center);
+    radius = circle.radius;
+}
+
+Circle::operator b2Circle() const
+{
+    b2Circle circle;
+    circle.radius = radius;
+    circle.center = center;
+    return circle;
+}
+
+// capsule
+
+Capsule::Capsule()
+{
+    radius = 0;
+    center1 = {0.0f, 0.0f};
+    center2 = {0.0f, 0.0f};
+}
+
+Capsule::Capsule(const b2Capsule &capsule)
+{
+    radius = capsule.radius;
+    center1 = Vector2(capsule.center1);
+    center2 = Vector2(capsule.center2);
+}
+
+Capsule::operator b2Capsule() const
+{
+    b2Capsule capsule;
+    capsule.radius = radius;
+    capsule.center1 = center1;
+    capsule.center2 = center2;
+    return capsule;
 }

@@ -14,6 +14,7 @@
 #include "backend/services/services.hpp"
 #include "backend/core/node/components.hpp"
 #include "backend/services/input/keycode.hpp"
+#include "backend/services/physics/physics.hpp"
 
 class RootScript : public Script
 {
@@ -40,35 +41,19 @@ public:
             }
             fallingNodes.clear();
         }
-
-        InputEventControllerButton* controllerButtonEvent = dynamic_cast<InputEventControllerButton*>(&event);
-        if(controllerButtonEvent && controllerButtonEvent->pressed && controllerButtonEvent->button == ControllerButton::SOUTH) {
-            std::shared_ptr<Node> fallingNode = std::make_shared<Node>("fallingNode");
-            fallingNode->transform.position = {0, -100};
-            fallingNode->transform.setAngle(rand() % 100 / 100.0f - 0.5f); // random angle between -0.5 and 0.5 radians
-            auto fallingShape = std::make_shared<BoxShape>(Vector2{(float)(rand() % 75 + 25), (float)(rand() % 75 + 25)});
-            fallingNode->addComponent(std::make_shared<RigidBody>(fallingShape));
-            std::shared_ptr<ShapeSprite> fallingSprite = std::make_shared<ShapeSprite>(fallingShape->polygon);
-            fallingSprite->color = Color::RED;
-            fallingNode->addComponent(fallingSprite);
-
-            fallingNodes.push_back(fallingNode);
-            node->addChild(fallingNode);
-            fallingNode->initialize();
-        }
     }
 
     void update(float dt) {
         if(Services::input()->isActionJustPressed("add")) {
-            Logger::info("Adding box");
+            Logger::info("Adding circle");
             std::shared_ptr<Node> fallingNode = std::make_shared<Node>("fallingNode");
             fallingNode->transform.position = Services::input()->getMousePosition();
-            fallingNode->transform.setAngle(rand() % 100 / 100.0f - 0.5f); // random angle between -0.5 and 0.5 radians
+            //fallingNode->transform.setAngle(rand() % 100 / 100.0f - 0.5f); // random angle between -0.5 and 0.5 radians
 
-            auto fallingShape = std::make_shared<BoxShape>(Vector2{(float)(rand() % 75 + 25), (float)(rand() % 75 + 25)});
+            auto fallingShape = std::make_shared<CircleShape>((float)(rand() % 25 + 15));
             fallingNode->addComponent(std::make_shared<RigidBody>(fallingShape));
-            std::shared_ptr<ShapeSprite> fallingSprite = std::make_shared<ShapeSprite>(fallingShape->polygon);
-            fallingSprite->color = Color::RED;
+            std::shared_ptr<ShapeSprite> fallingSprite = std::make_shared<ShapeSprite>(fallingShape);
+            fallingSprite->modulate = Color::RED;
             fallingNode->addComponent(fallingSprite);
 
             fallingNodes.push_back(fallingNode);

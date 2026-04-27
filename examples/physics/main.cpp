@@ -7,6 +7,7 @@
 #include "backend/utils/logger.hpp"
 #include "backend/services/services.hpp"
 #include "backend/services/physics/physics.hpp"
+#include "backend/services/physics/definitions.hpp"
 #include "backend/core/node/components.hpp"
 #include "backend/core/ui/definitions.hpp"
 #include "backend/core/ui/label.hpp"
@@ -57,10 +58,10 @@ int main() {
 
     std::shared_ptr<Node> node = std::make_shared<Node>("floorNode");
     node->transform.position = {-150, 0};
-    node->transform.setAngle(0.1f);
+    node->transform.setAngle(20.0f);
     auto shape = std::make_shared<BoxShape>(Vector2{300, 50});
     node->addComponent(std::make_shared<StaticBody>(shape));
-    node->addComponent(std::make_shared<ShapeSprite>(shape->polygon));
+    node->addComponent(std::make_shared<ShapeSprite>(shape));
     engine.root.addChild(cameraNode);
     engine.root.addChild(node);
 
@@ -75,7 +76,7 @@ int main() {
     label->size = {200, 700};
     label->font->setSize(16);
     label->wrap = false;
-    labelNode->transform.position = {20, 20};
+    labelNode->transform.position = {-240, -136};
     labelNode->addComponent(label);
     engine.root.addChild(labelNode);
 

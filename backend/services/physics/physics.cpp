@@ -28,95 +28,59 @@ Physics::~Physics() {
     b2DestroyWorld(worldId);
 }
 
-Polygon::operator b2Polygon() const {
-    b2Polygon polygon;
-    polygon.centroid = centroid;
-    polygon.count = count;
-    for (int i = 0; i < count; i++) {
-        polygon.normals[i] = normals[i];
-        polygon.vertices[i] = vertices[i];
-    }
-    polygon.radius = radius;
-    return polygon;
-}
-
-Polygon::Polygon(const b2Polygon &p) {
-    centroid = Vector2(p.centroid);
-    count = p.count;
-    radius = p.radius;
-    for (int i = 0; i < count; i++) {
-        normals[i] = Vector2(p.normals[i]);
-        vertices[i] = Vector2(p.vertices[i]);
-    }
-}
-
-Polygon::Polygon() {
-    centroid = {0, 0};
-    count = 0;
-    radius = 0;
-    for (int i = 0; i < B2_MAX_POLYGON_VERTICES; i++) {
-        normals[i] = {0, 0};
-        vertices[i] = {0, 0};
-    }
-}
-
-BoxShape::BoxShape(const Vector2 size, const Vector2 center) {
-    this->size = size;
-    this->origin = center;
-
-    const Vector2 calculatedCenter = origin * size;
-    const b2Rot rotation = b2Rot_identity;
-
-    const b2Polygon poly = b2MakeOffsetBox(size.x / 2 * Physics::scale, size.y / 2 * Physics::scale, (calculatedCenter * Physics::scale), rotation);
-    const b2Polygon polyUnscaled = b2MakeOffsetBox(size.x / 2, size.y / 2, calculatedCenter, rotation);
-
-    this->polygon = static_cast<Polygon>(polyUnscaled);
-    this->shapeDef = b2DefaultShapeDef();
-    this->scaledPolygon = static_cast<Polygon>(poly);
-}
-
 ////////////////////
 // rigid body //////
 ///////////////////
 
-RigidBody::RigidBody() {}
-RigidBody::RigidBody(const std::shared_ptr<Shape>& shape) {
-    this->shape = shape;
-
+void RigidBody::initCompute()
+{
     bodyDef = b2DefaultBodyDef();
     bodyDef.type = b2_dynamicBody;
     bodyDef.linearDamping = 0.1f;
     bodyDef.angularDamping = 0.1f;
-
     bodyId = b2CreateBody(Services::physics()->worldId, &bodyDef);
 
-    const b2Polygon poly = shape->scaledPolygon;
-    b2CreatePolygonShape(bodyId, &shape->shapeDef, &poly);
+    if (const auto* box = dynamic_cast<BoxShape*>(shape.get()))
+    {
+        const b2Polygon poly = box->scaledPolygon;
+        b2CreatePolygonShape(bodyId, &box->shapeDef, &poly);
+    }
+    else if (const auto* circle = dynamic_cast<CircleShape*>(shape.get()))
+    {
+        const b2Circle c = circle->scaledCircle;
+        b2CreateCircleShape(bodyId, &circle->shapeDef, &c);
+    }
+}
+
+RigidBody::RigidBody() {}
+RigidBody::RigidBody(const std::shared_ptr<Shape>& shape) {
+    this->shape = shape;
+    initCompute();
 }
 
 void RigidBody::physicsUpdate() {
     Node* node = getNode();
 
     // send box2d pos to world pos
-    const Vector2 worldPos = Vector2(b2Body_GetPosition(bodyId)) / Physics::scale;
+    const Vector2 worldPos = Vector2(b2Body_GetPosition(bodyId)) / PhysicsConstants::scale;
     const float worldAngle = b2Rot_GetAngle(b2Body_GetRotation(bodyId));
 
     if (node->parent) {
         auto [position, transformation] = node->parent->globalTransform.inverse();
         node->transform.position = transformation * (worldPos - node->parent->globalTransform.position);
-        node->transform.setAngle(worldAngle - node->parent->globalTransform.getAngle());
+        node->transform.setAngleRadians(worldAngle - node->parent->globalTransform.getAngle());
     } else {
         node->transform.position = worldPos;
-        node->transform.setAngle(worldAngle);
+        node->transform.setAngleRadians(worldAngle);
     }
 
     storedTransform.position = Vector2(b2Body_GetPosition(bodyId));
-    storedTransform.setAngle(b2Rot_GetAngle(b2Body_GetRotation(bodyId)));
+    storedTransform.setAngleRadians(b2Rot_GetAngle(b2Body_GetRotation(bodyId)));
 }
 
 void RigidBody::setPosition(const Vector2 pos) const
 {
-    b2Body_SetTransform(bodyId, (b2Vec2)pos, b2Body_GetRotation(bodyId));
+    b2Body_SetTransform(bodyId, pos, b2Body_GetRotation(bodyId));
     // this is supposed to null velocity but i think it does that anyway?
 }
 
@@ -144,7 +108,7 @@ void RigidBody::applyImpulse(const Vector2 impulse) const
 
 void RigidBody::initialize() {
     const auto tr = this->getNode()->globalTransform;
-    b2Body_SetTransform(bodyId, tr.position * Physics::scale, {cos(tr.getAngle()), sin(tr.getAngle())});
+    b2Body_SetTransform(bodyId, tr.position * PhysicsConstants::scale, {cos(tr.getAngleRadians()), sin(tr.getAngleRadians())});
 }
 
 RigidBody::~RigidBody() {
@@ -155,23 +119,35 @@ RigidBody::~RigidBody() {
 // static body             //
 /////////////////////////////
 
-StaticBody::StaticBody() {}
-StaticBody::StaticBody(const std::shared_ptr<Shape>& shape) {
-    this->shape = shape;
-
+void StaticBody::initCompute()
+{
     bodyDef = b2DefaultBodyDef();
     bodyDef.type = b2_staticBody;
     bodyDef.linearDamping = 0.1f;
     bodyDef.angularDamping = 0.1f;
     bodyId = b2CreateBody(Services::physics()->worldId, &bodyDef);
 
-    const b2Polygon poly = shape->scaledPolygon;
-    b2CreatePolygonShape(bodyId, &shape->shapeDef, &poly);
+    if (const auto* box = dynamic_cast<BoxShape*>(shape.get()))
+    {
+        const b2Polygon poly = box->scaledPolygon;
+        b2CreatePolygonShape(bodyId, &box->shapeDef, &poly);
+    }
+    else if (const auto* circle = dynamic_cast<CircleShape*>(shape.get()))
+    {
+        const b2Circle c = circle->scaledCircle;
+        b2CreateCircleShape(bodyId, &circle->shapeDef, &c);
+    }
+}
+
+StaticBody::StaticBody() {}
+StaticBody::StaticBody(const std::shared_ptr<Shape>& shape) {
+    this->shape = shape;
+    initCompute();
 }
 
 void StaticBody::physicsUpdate() {
     storedTransform.position = Vector2(b2Body_GetPosition(bodyId));
-    storedTransform.setAngle(b2Rot_GetAngle(b2Body_GetRotation(bodyId)));
+    storedTransform.setAngleRadians(b2Rot_GetAngle(b2Body_GetRotation(bodyId)));
 }
 
 void StaticBody::setPosition(const Vector2 pos) const
@@ -189,7 +165,7 @@ void StaticBody::setAngle(const float angle) const
 
 void StaticBody::initialize() {
     const auto tr = this->getNode()->globalTransform;
-    b2Body_SetTransform(bodyId, tr.position * Physics::scale, {cos(tr.getAngle()), sin(tr.getAngle())});
+    b2Body_SetTransform(bodyId, tr.position * PhysicsConstants::scale, {cos(tr.getAngleRadians()), sin(tr.getAngleRadians())});
 }
 
 StaticBody::~StaticBody() {

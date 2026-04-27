@@ -12,6 +12,46 @@ File::~File()
     }
 }
 
+void File::fileCopy(const std::string& path1, const std::string& path2)
+{
+    if (!SDL_CopyFile(parseFilePath(path1).c_str(), parseFilePath(path2).c_str()))
+    {
+        Logger::error("Failed to copy file {} to {}: {}", path1, path2, SDL_GetError());
+    }
+}
+
+void File::fileDelete(const std::string& path)
+{
+    if (!SDL_RemovePath(parseFilePath(path).c_str()))
+    {
+        Logger::error("Failed to delete file {}: {}", path, SDL_GetError());
+    }
+}
+
+void File::directoryCreate(const std::string& path)
+{
+    if (!SDL_CreateDirectory(parseFilePath(path).c_str()))
+    {
+        Logger::error("Failed to create directory {}: {}", path, SDL_GetError());
+    }
+}
+
+std::vector<std::string> File::directoryEnumerate(const std::string& path)
+{
+    std::vector<std::string> entries;
+
+    SDL_EnumerateDirectory(path.c_str(),
+        [](void* userdata, const char* dirname, const char* name)
+        {
+            auto* vec = static_cast<std::vector<std::string>*>(userdata);
+            vec->emplace_back(name);
+            return SDL_ENUM_CONTINUE;
+        },
+        &entries);
+
+    return entries;
+}
+
 File *File::open(std::string path, const std::string& mode) {
     const auto file = new File();
     file->path = path;

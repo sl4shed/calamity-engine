@@ -11,6 +11,14 @@ class Graphics;
 class Services;
 
 /**
+ * this is needed for physics scale and to avoid a stupid circular import
+ */
+struct PhysicsConstants
+{
+    static constexpr float scale = 0.01f; // 100 pixels = 1 meter
+};
+
+/**
  * # Color
  * A simple class that defines a color using red, green, blue and alpha channels.
  *
@@ -179,17 +187,22 @@ struct Transform
     Matrix2 transformation = {{{1, 0}, {0, 1}}};
 
     void rotate(float angle);
+    void rotateRadians(float radians);
     void setScale(Vector2 scale);
     void scale(Vector2 scale);
     void setAngle(float angle);
+    void setAngleRadians(float radians);
 
     Vector2 applyTo(const Vector2 &point) const;
     Transform applyTo(const Transform &other) const;
     Transform inverse() const;
     float getAngle() const;
+    float getAngleRadians() const;
     float getDegrees() const;
     Vector2 getScale() const;
-    static double degToRad(double degrees);
+
+    static float degToRad(float degrees);
+    static float radToDeg(float radians);
 
     template <class Archive>
     void serialize(Archive &ar)
@@ -304,5 +317,45 @@ struct Polygon {
     void serialize(Archive &ar)
     {
         ar(CEREAL_NVP(centroid), CEREAL_NVP(count), CEREAL_NVP(normals), CEREAL_NVP(radius), CEREAL_NVP(vertices));
+    }
+};
+
+/**
+ * # Circle
+ *
+ * A simple circle class, which basically mirrors the Box2D circle class.
+ */
+struct Circle
+{
+    Circle();
+    explicit Circle(const b2Circle &circle);
+
+    Vector2 center = {0.5f, 0.5f};
+    float radius;
+
+    operator b2Circle() const;
+
+    template <class Archive>
+    void serialize(Archive &ar)
+    {
+        ar(CEREAL_NVP(center), CEREAL_NVP(radius));
+    }
+};
+
+struct Capsule
+{
+    Capsule();
+    explicit Capsule(const b2Capsule &capsule);
+
+    Vector2 center1;
+    Vector2 center2;
+    float radius;
+
+    operator b2Capsule() const;
+
+    template <class Archive>
+    void serialize(Archive &ar)
+    {
+        ar(CEREAL_NVP(center1), CEREAL_NVP(center2), CEREAL_NVP(radius));
     }
 };

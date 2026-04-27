@@ -141,46 +141,6 @@ private:
 };
 
 /**
- * # ShapeSprite
- * A dynamic sprite (mainly used for debugging) which can draw solid color filled shapes.
- *
- * Example usage:
- * ```cpp
- * std::shared_ptr<Node> spriteNode = std::make_shared<Node>();
- * Polygon shape = Polygon();
- * // populate polygon here, do whatever you want
- * std::shared_ptr<ShapeSprite> sprite = std::make_shared<ShapeSprite>(shape);
- * spriteNode->addComponent(sprite);
- * ```
- */
-// TODO: fix
-class ShapeSprite : public Component
-{
-public:
-    ShapeSprite();
-    explicit ShapeSprite(const Polygon& shape);
-
-    Vector2 origin = {0.5f, 0.5f};
-    Polygon shape;
-    bool visible = true;
-    //int zIndex = 1;
-    bool screenSpace = false;
-    Color modulate = Color::WHITE;
-
-    template <class Archive>
-    void save(Archive &ar) const
-    {
-        ar(CEREAL_NVP(origin), CEREAL_NVP(shape), CEREAL_NVP(visible), CEREAL_NVP(screenSpace), CEREAL_NVP(modulate));
-    }
-
-    template <class Archive>
-    void load(Archive &ar)
-    {
-        ar(CEREAL_NVP(origin), CEREAL_NVP(shape), CEREAL_NVP(visible), CEREAL_NVP(screenSpace), CEREAL_NVP(modulate));
-    }
-};
-
-/**
  * # Script component
  * A base class for all scripts attached to nodes to inherit from. It provides the necessary api's like update, initialize, physicsUpdate, input and exit.
  *
@@ -276,10 +236,8 @@ public:
 CEREAL_REGISTER_TYPE(Sprite)
 CEREAL_REGISTER_TYPE(Camera)
 CEREAL_REGISTER_TYPE(Script)
-CEREAL_REGISTER_TYPE(ShapeSprite)
 CEREAL_REGISTER_TYPE(AnimatedSprite)
 CEREAL_REGISTER_POLYMORPHIC_RELATION(Component, Sprite)
-CEREAL_REGISTER_POLYMORPHIC_RELATION(Component, ShapeSprite)
 CEREAL_REGISTER_POLYMORPHIC_RELATION(Component, AnimatedSprite)
 CEREAL_REGISTER_POLYMORPHIC_RELATION(Component, Camera)
 CEREAL_REGISTER_POLYMORPHIC_RELATION(Component, Script)

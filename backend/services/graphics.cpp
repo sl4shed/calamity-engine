@@ -8,6 +8,8 @@
 #include "../core/ui/definitions.hpp"
 #include "engine.hpp"
 #include "../core/ui/label.hpp"
+#include "physics/definitions.hpp"
+#include <SDL3_gfxPrimitives.h>
 
 Graphics::Graphics(Vector2 _screenSize, const std::string& _title, RenderLogicalPresentation _presentation, Color _clearColor, WindowFlags _flags)
     : screenSize(_screenSize), clearColor(_clearColor), presentation(_presentation)
@@ -109,17 +111,46 @@ void Graphics::renderComponent(const ShapeSprite &sprite) const
     const Camera *activeCamera = Services::engine()->getActiveCamera();
     const Transform cameraTransform = activeCamera->getNode()->globalTransform;
     const Vector2 originOffset = {screenSize.x * activeCamera->origin.x, screenSize.y * activeCamera->origin.y};
-
-    const Polygon &poly = sprite.shape;
-    const int count = poly.count;
-    if (count < 3) return;
-
     const auto modulate = static_cast<SDL_FColor>(sprite.modulate);
     auto cameraInverse = cameraTransform.inverse();
-    std::vector<SDL_Vertex> vertices(count);
-    for (int i = 0; i < count; i++) {
-        Vector2 pos = poly.vertices[i];
-        pos = node->globalTransform.applyTo(pos);
+
+    if (const auto* box = dynamic_cast<const BoxShape*>(sprite.shape.get()))
+    {
+        const Polygon &poly = box->polygon;
+        const int count = poly.count;
+        if (count < 3) return;
+
+        std::vector<SDL_Vertex> vertices(count);
+        for (int i = 0; i < count; i++) {
+            Vector2 pos = poly.vertices[i];
+            pos = node->globalTransform.applyTo(pos);
+            if (!sprite.screenSpace)
+            {
+                pos = pos - cameraTransform.position;
+                pos = cameraInverse.transformation * pos;
+            }
+            pos = pos + originOffset;
+
+            vertices[i] = {{pos.x, pos.y}, modulate, {0, 0}};
+        }
+
+        // fan triangulation from vertex 0
+        std::vector<int> indices;
+        for (int i = 1; i < count - 1; i++) {
+            indices.push_back(0);
+            indices.push_back(i);
+            indices.push_back(i + 1);
+        }
+
+        SDL_RenderGeometry(renderer, nullptr, vertices.data(), count, indices.data(), static_cast<int>(indices.size()));
+    } else if (const auto* circle = dynamic_cast<const CircleShape*>(sprite.shape.get()))
+    {
+        Vector2 pos = node->globalTransform.position;
+        // apply the circle's center offset in local space first
+        Vector2 centerOffset = {circle->circle.center.x, circle->circle.center.y};
+        centerOffset = node->globalTransform.applyTo(centerOffset) - node->globalTransform.position;
+        pos = pos + centerOffset;
+
         if (!sprite.screenSpace)
         {
             pos = pos - cameraTransform.position;
@@ -127,18 +158,9 @@ void Graphics::renderComponent(const ShapeSprite &sprite) const
         }
         pos = pos + originOffset;
 
-        vertices[i] = {{pos.x, pos.y}, modulate, {0, 0}};
+        filledCircleRGBA(renderer, pos.x, pos.y, circle->radius, sprite.modulate.r, sprite.modulate.g, sprite.modulate.b, sprite.modulate.a);
+        aacircleRGBA(renderer, pos.x, pos.y, circle->radius, sprite.modulate.r, sprite.modulate.g, sprite.modulate.b, sprite.modulate.a);
     }
-
-    // fan triangulation from vertex 0
-    std::vector<int> indices;
-    for (int i = 1; i < count - 1; i++) {
-        indices.push_back(0);
-        indices.push_back(i);
-        indices.push_back(i + 1);
-    }
-
-    SDL_RenderGeometry(renderer, nullptr, vertices.data(), count, indices.data(), static_cast<int>(indices.size()));
 }
 
 void Graphics::renderComponent(const Label &label) const

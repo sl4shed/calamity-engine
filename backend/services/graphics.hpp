@@ -5,6 +5,7 @@
 #include "../core/definitions.hpp"
 #include "../core/node/components.hpp"
 #include "../core/ui/definitions.hpp"
+#include "physics/definitions.hpp"
 
 class Label; //forward declare
 

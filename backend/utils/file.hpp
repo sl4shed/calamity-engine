@@ -69,6 +69,11 @@ public:
     static bool fileExists(const std::string& path);
     static std::string getFileAsText(std::string path);
 
+    static void fileCopy(const std::string& path1, const std::string& path2);
+    static void fileDelete(const std::string& path);
+    static void directoryCreate(const std::string& path);
+    static std::vector<std::string> directoryEnumerate(const std::string& path);
+
 private:
     std::string fsPath;
     SDL_IOStream *handle;

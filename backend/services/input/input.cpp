@@ -51,7 +51,7 @@ void Input::update(float deltaTime)
                 SDL_RenderCoordinatesFromWindow(Services::graphics()->getRenderer(), event.motion.x, event.motion.y, &lx, &ly);
 
                 ev->position = camera->screenToWorld({lx, ly});
-                ev->relative = (Vector2){event.motion.xrel, event.motion.yrel};
+                ev->relative = Vector2{event.motion.xrel, event.motion.yrel};
                 inputs.push_back(std::move(ev));
                 break;
             }

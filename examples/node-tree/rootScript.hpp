@@ -73,7 +73,7 @@ public:
             Logger::info("changing camera zoom");
             auto& transform = node->getChild("cameraNode")->transform;
             Logger::debug("x - {}, y - {}", transform.getScale().x, transform.getScale().y);
-            if (transform.getScale() == (Vector2){3.0f, 3.0f})
+            if (transform.getScale() == Vector2{3.0f, 3.0f})
             {
                 transform.setScale({1.0f, 1.0f});
             } else
@@ -102,7 +102,7 @@ public:
             fallingNode->addComponent(rigidBody);
 
             std::shared_ptr<ShapeSprite> shapeSprite = std::make_shared<ShapeSprite>(fallingShape->polygon);
-            shapeSprite->color = Color::RED;
+            shapeSprite->modulate = Color::RED;
             fallingNode->addComponent(shapeSprite);
 
             std::shared_ptr<Sprite> sprite = std::make_shared<Sprite>();

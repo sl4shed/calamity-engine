@@ -3,6 +3,7 @@
 #include "../../services/engine.hpp"
 #include "../../services/graphics.hpp"
 #include "../../services/services.hpp"
+#include "../../services/physics/physics.hpp"
 #include "../../utils/logger.hpp"
 #include <cereal/archives/json.hpp>
 
@@ -55,14 +56,6 @@ void Sprite::initialize()
     {
         sourceRect.size = Vector2{static_cast<float>(texture.textureWidth), static_cast<float>(texture.textureHeight)};
     }
-}
-
-// shape sprite
-
-ShapeSprite::ShapeSprite() = default;
-ShapeSprite::ShapeSprite(const Polygon& shape)
-{
-    this->shape = shape;
 }
 
 // animated sprite
