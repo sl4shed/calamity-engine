@@ -45,9 +45,9 @@ Vector2 Camera::screenToWorld(const Vector2 screen) const
 // sprite
 
 Sprite::Sprite() = default;
-Sprite::Sprite(const std::string& texturePath)
+Sprite::Sprite(const std::string& texturePath, TextureScaling scaling)
 {
-    texture = Texture(texturePath);
+    texture = Texture(texturePath, scaling);
 }
 
 void Sprite::initialize()
@@ -68,18 +68,24 @@ const Texture* AnimatedSprite::getCurrentTexture() const
 
 void AnimatedSprite::initialize()
 {
+    int counter = 0;
     for (auto & [name, anim] : animations)
     {
         if (anim.autoplay)
         {
+            counter++;
             // hello. if you have two different animations that are set to autoplay, the one added later into the animations vector will play.
             // this is not my fault. this is purely user error. please reconsider your actions. - Sl4shed, 2026
             play(name);
         }
     }
+    if (counter > 1)
+    {
+        Logger::warn("AnimatedSprite initialized with {} animations set to auto play.", counter);
+    }
 }
 
-void AnimatedSprite::addAnimation(Animation animation)
+void AnimatedSprite::addAnimation(const Animation& animation)
 {
     animations.insert(std::make_pair(animation.name, animation));
 }
@@ -98,7 +104,11 @@ void AnimatedSprite::play(const std::string& animation)
     }
 
     const auto it = animations.find(animation);
-    if (it == animations.end()) return;
+    if (it == animations.end())
+    {
+        Logger::warn("No animation found with the name {}.", animation);
+        return;
+    };
 
     currentAnimation = std::make_unique<Animation>(it->second);
     changed.fire(currentAnimation->name);

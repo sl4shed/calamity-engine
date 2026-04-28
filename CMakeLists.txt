@@ -74,6 +74,7 @@ if(BUILD_TARGET STREQUAL "EMSCRIPTEN" OR MSVC)
 endif()
 
 if(CALAMITY_VENDORED)
+    target_compile_definitions(${PROJECT_NAME} PUBLIC CALAMITY_VENDORED)
     if (BUILD_TARGET STREQUAL "EMSCRIPTEN")
         set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/$<CONFIGURATION>")
         set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/$<CONFIGURATION>")
@@ -114,6 +115,10 @@ if(CALAMITY_VENDORED)
     set(BOX2D_UNIT_TESTS OFF CACHE BOOL "" FORCE)
     add_subdirectory(vendored/box2d EXCLUDE_FROM_ALL)
     target_link_libraries(${PROJECT_NAME} PUBLIC box2d)
+
+    add_subdirectory(vendored/SDL3_gfx)
+    target_link_libraries(${PROJECT_NAME} PUBLIC SDL3_gfx_Static)
+    target_include_directories(${PROJECT_NAME} PUBLIC vendored/SDL3_gfx)
 else()
     if(BUILD_TARGET STREQUAL "NATIVE")
         find_package(SDL3 REQUIRED CONFIG REQUIRED COMPONENTS SDL3-shared)
@@ -140,11 +145,17 @@ else()
 
     find_package(cereal REQUIRED)
     target_link_libraries(${PROJECT_NAME} PUBLIC cereal::cereal)
+
+    find_package(SDL3_gfx REQUIRED)
+    if(BUILD_TARGET STREQUAL "PSP")
+        find_package(SDL3_gfx REQUIRED)
+        target_include_directories(${PROJECT_NAME} PUBLIC ${SDL3_gfx_INCLUDE_DIR})
+        target_link_libraries(${PROJECT_NAME} PUBLIC ${SDL3_gfx_LIB_DIR}/libSDL3_gfx.a)
+    else()
+        target_link_libraries(${PROJECT_NAME} PUBLIC SDL3_gfx)
+    endif()
 endif()
 
 # sdl gfx
 # i need to include it vendored regardless lmao
 
-add_subdirectory(vendored/SDL3_gfx)
-target_link_libraries(${PROJECT_NAME} PUBLIC SDL3_gfx_Static)
-target_include_directories(${PROJECT_NAME} PUBLIC vendored/SDL3_gfx)

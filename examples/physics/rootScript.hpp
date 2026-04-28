@@ -44,13 +44,33 @@ public:
     }
 
     void update(float dt) {
-        if(Services::input()->isActionJustPressed("add")) {
-            Logger::info("Adding circle");
+        if(Services::input()->isActionJustPressed("add"))
+        {
             std::shared_ptr<Node> fallingNode = std::make_shared<Node>("fallingNode");
+#ifdef PSP
+            fallingNode->transform.position = Vector2{rand() % 25 + 15, rand() % 25 + 15};
+#else
             fallingNode->transform.position = Services::input()->getMousePosition();
-            //fallingNode->transform.setAngle(rand() % 100 / 100.0f - 0.5f); // random angle between -0.5 and 0.5 radians
+#endif
 
-            auto fallingShape = std::make_shared<CircleShape>((float)(rand() % 25 + 15));
+            std::shared_ptr<Shape> fallingShape;
+            auto which = rand() % 3;
+            if (which == 0)
+            {
+                Logger::info("Adding circle");
+                fallingShape = std::make_shared<CircleShape>(static_cast<float>(rand() % 25 + 15));
+            } else if (which == 1)
+            {
+                Logger::info("Adding box");
+                fallingNode->transform.setAngle(rand() % 100); // random angle between -0.5 and 0.5 radians
+                fallingShape = std::make_shared<BoxShape>(Vector2{static_cast<float>(rand() % 25 + 15), static_cast<float>(rand() % 25 + 15)});
+            } else if (which == 2)
+            {
+                Logger::info("Adding capsule");
+                float radius = rand() % 10 + 15;
+                fallingNode->transform.setAngle(rand() % 100); // random angle between -0.5 and 0.5 radians
+                fallingShape = std::make_shared<CapsuleShape>(Vector2{0, -10}, Vector2{0, 10}, radius, Vector2{0.5f, 0.5f});
+            }
             fallingNode->addComponent(std::make_shared<RigidBody>(fallingShape));
             std::shared_ptr<ShapeSprite> fallingSprite = std::make_shared<ShapeSprite>(fallingShape);
             fallingSprite->modulate = Color::RED;

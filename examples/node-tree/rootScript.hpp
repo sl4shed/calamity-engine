@@ -101,7 +101,7 @@ public:
             std::shared_ptr<RigidBody> rigidBody = std::make_shared<RigidBody>(fallingShape);
             fallingNode->addComponent(rigidBody);
 
-            std::shared_ptr<ShapeSprite> shapeSprite = std::make_shared<ShapeSprite>(fallingShape->polygon);
+            std::shared_ptr<ShapeSprite> shapeSprite = std::make_shared<ShapeSprite>(fallingShape);
             shapeSprite->modulate = Color::RED;
             fallingNode->addComponent(shapeSprite);
 

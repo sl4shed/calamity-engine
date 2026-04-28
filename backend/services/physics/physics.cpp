@@ -14,9 +14,9 @@ void Shape::applyMaterial(const Material& mat)
 }
 
 Physics::Physics(const Vector2 gravity) {
-    worldDef = b2DefaultWorldDef();
-    worldDef.gravity = gravity;
-    worldId = b2CreateWorld(&worldDef);
+    this->worldDef = b2DefaultWorldDef();
+    this->worldDef.gravity = gravity;
+    this->worldId = b2CreateWorld(&worldDef);
 }
 
 void Physics::physicsUpdate(const float timeStep) {
@@ -24,7 +24,6 @@ void Physics::physicsUpdate(const float timeStep) {
 }
 
 Physics::~Physics() {
-    Logger::debug("Destroying world");
     b2DestroyWorld(worldId);
 }
 
@@ -49,6 +48,11 @@ void RigidBody::initCompute()
     {
         const b2Circle c = circle->scaledCircle;
         b2CreateCircleShape(bodyId, &circle->shapeDef, &c);
+    }
+    else if (const auto* capsule = dynamic_cast<CapsuleShape*>(shape.get()))
+    {
+        const b2Capsule c = capsule->scaledCapsule;
+        b2CreateCapsuleShape(bodyId, &capsule->shapeDef, &c);
     }
 }
 
@@ -136,6 +140,11 @@ void StaticBody::initCompute()
     {
         const b2Circle c = circle->scaledCircle;
         b2CreateCircleShape(bodyId, &circle->shapeDef, &c);
+    }
+    else if (const auto* capsule = dynamic_cast<CapsuleShape*>(shape.get()))
+    {
+        const b2Capsule c = capsule->scaledCapsule;
+        b2CreateCapsuleShape(bodyId, &capsule->shapeDef, &c);
     }
 }
 

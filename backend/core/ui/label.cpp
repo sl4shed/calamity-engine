@@ -10,7 +10,7 @@
 void Label::update(float dt) {
     if(size != prevSize) {
         prevSize = size;
-        this->setWrapWidth(size.x);
+        this->setWrapWidth(static_cast<int>(size.x));
     }
 
     rebuildTexture();
@@ -28,7 +28,7 @@ void Label::rebuildTexture() {
     if(texture)
         SDL_DestroyTexture(texture);
 
-    SDL_Surface *surface = TTF_RenderText_Blended_Wrapped(font->getHandle(), text.c_str(), text.size(), color, wrap ? size.x : 0);
+    SDL_Surface *surface = TTF_RenderText_Blended_Wrapped(font->getHandle(), text.c_str(), text.size(), color, wrap ? static_cast<int>(size.x) : 0);
     texture = SDL_CreateTextureFromSurface(Services::graphics()->getRenderer(), surface);
     SDL_DestroySurface(surface);
 }
@@ -45,7 +45,7 @@ Color Label::getColor() const
 {
     Uint8 r, g, b, a;
     TTF_GetTextColor(handle, &r, &g, &b, &a);
-    return Color(r, g, b, a);
+    return {r, g, b, a};
 }
 
 Label::Label(const std::string& text, Font *font) {

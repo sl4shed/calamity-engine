@@ -4,7 +4,6 @@
 #include "../../core/definitions.hpp"
 #include "../../core/node/components.hpp"
 
-// TODO: make this actually work with shapeDefs and shit
 class Material
 {
 public:
@@ -90,33 +89,12 @@ public:
     }
 };
 
-class RoundedBoxShape : public Shape
-{
-public:
-    RoundedBoxShape() = default;
-    RoundedBoxShape(Vector2 size, Vector2 origin = {0.5f, 0.5f}, float radius = 0.1f);
-    Vector2 size;
-    float radius;
-
-    template <class Archive>
-    void save(Archive &ar) const
-    {
-        ar(cereal::base_class<Shape>(this), CEREAL_NVP(size), CEREAL_NVP(radius));
-    }
-
-    template <class Archive>
-    void load(Archive &ar)
-    {
-        ar(cereal::base_class<Shape>(this), CEREAL_NVP(size), CEREAL_NVP(radius));
-    }
-};
-
 class CircleShape : public Shape
 {
 public:
     CircleShape() = default;
-    CircleShape(float radius, Vector2 origin = {0.0f, 0.0f});
-    float radius;
+    CircleShape(float radius, Vector2 center = {0, 0}, Vector2 origin = {0.5f, 0.5f});
+    float radius{};
 
     Circle circle;
     Circle scaledCircle;
@@ -138,53 +116,46 @@ class CapsuleShape : public Shape
 {
 public:
     CapsuleShape() = default;
-    CapsuleShape(Vector2 center1, Vector2 center2, float radius);
+    CapsuleShape(Vector2 center1, Vector2 center2, float radius, Vector2 origin);
 
-    Vector2 center1;
-    Vector2 center2;
-    float radius;
+    Capsule capsule;
+    Capsule scaledCapsule;
 
     template <class Archive>
     void save(Archive &ar) const
     {
-        ar(cereal::base_class<Shape>(this), CEREAL_NVP(radius), CEREAL_NVP(center1), CEREAL_NVP(center2));
+        ar(cereal::base_class<Shape>(this), CEREAL_NVP(capsule), CEREAL_NVP(scaledCapsule));
     }
 
     template <class Archive>
     void load(Archive &ar)
     {
-        ar(cereal::base_class<Shape>(this), CEREAL_NVP(radius), CEREAL_NVP(center1), CEREAL_NVP(center2));
+        ar(cereal::base_class<Shape>(this), CEREAL_NVP(capsule), CEREAL_NVP(scaledCapsule));
     }
 };
 
-class PolygonShape : public Shape
-{
-public:
-    PolygonShape() = default;
-    PolygonShape(Polygon polygon, Vector2 origin = {0.5f, 0.5f});
-
-    Polygon polygon;
-    Polygon scaledPolygon;
-
-    template <class Archive>
-    void save(Archive &ar) const
-    {
-        ar(cereal::base_class<Shape>(this), CEREAL_NVP(scaledPolygon), CEREAL_NVP(polygon));
-    }
-
-    template <class Archive>
-    void load(Archive &ar)
-    {
-        ar(cereal::base_class<Shape>(this), CEREAL_NVP(scaledPolygon), CEREAL_NVP(polygon));
-        this->shapeDef = b2DefaultShapeDef();
-    }
-};
-
-class RoundedPolygonShape : public Shape
-{
-public:
-
-};
+// class PolygonShape : public Shape
+// {
+// public:
+//     PolygonShape() = default;
+//     PolygonShape(Polygon polygon, Vector2 origin = {0.5f, 0.5f});
+//
+//     Polygon polygon;
+//     Polygon scaledPolygon;
+//
+//     template <class Archive>
+//     void save(Archive &ar) const
+//     {
+//         ar(cereal::base_class<Shape>(this), CEREAL_NVP(scaledPolygon), CEREAL_NVP(polygon));
+//     }
+//
+//     template <class Archive>
+//     void load(Archive &ar)
+//     {
+//         ar(cereal::base_class<Shape>(this), CEREAL_NVP(scaledPolygon), CEREAL_NVP(polygon));
+//         this->shapeDef = b2DefaultShapeDef();
+//     }
+// };
 
 
 /**

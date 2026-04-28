@@ -13,7 +13,7 @@
 
 Matrix2 Matrix2::operator*(const Matrix2 &other) const
 {
-    Matrix2 result;
+    Matrix2 result{};
 
     result.m[0][0] = m[0][0] * other.m[0][0] + m[0][1] * other.m[1][0];
     result.m[0][1] = m[0][0] * other.m[0][1] + m[0][1] * other.m[1][1];
@@ -24,7 +24,7 @@ Matrix2 Matrix2::operator*(const Matrix2 &other) const
 
 Matrix2 Matrix2::operator+(const Matrix2 &other) const
 {
-    Matrix2 result;
+    Matrix2 result{};
     for (int i = 0; i < 2; i++)
     {
         for (int j = 0; j < 2; j++)
@@ -37,7 +37,7 @@ Matrix2 Matrix2::operator+(const Matrix2 &other) const
 
 Matrix2 Matrix2::operator-(const Matrix2 &other) const
 {
-    Matrix2 result;
+    Matrix2 result{};
     for (int i = 0; i < 2; i++)
     {
         for (int j = 0; j < 2; j++)
@@ -50,7 +50,7 @@ Matrix2 Matrix2::operator-(const Matrix2 &other) const
 
 Matrix2 Matrix2::operator/(const float scalar) const
 {
-    Matrix2 result;
+    Matrix2 result{};
     for (int i = 0; i < 2; i++)
     {
         for (int j = 0; j < 2; j++)
@@ -69,22 +69,12 @@ Vector2 Matrix2::operator*(const Vector2 &other) const
     return result;
 }
 
-// Matrix2 Matrix2::translation(Vector2 t)
-// {
-//     Matrix2 result;
-//     result.m[0][0] = 1.0f;
-//     result.m[0][1] = t.x;
-//     result.m[1][0] = 0.0f;
-//     result.m[1][1] = t.y;
-//     return result;
-// }
-
-Matrix2 Matrix2::rotation(float angle)
+Matrix2 Matrix2::rotation(const float angle)
 {
     const float cos = std::cos(angle);
     const float sin = std::sin(angle);
 
-    Matrix2 result;
+    Matrix2 result{};
     result.m[0][0] = cos;
     result.m[0][1] = -sin;
     result.m[1][0] = sin;
@@ -92,9 +82,9 @@ Matrix2 Matrix2::rotation(float angle)
     return result;
 }
 
-Matrix2 Matrix2::scale(Vector2 s)
+Matrix2 Matrix2::scale(const Vector2 s)
 {
-    Matrix2 result;
+    Matrix2 result{};
     result.m[0][0] = s.x;
     result.m[0][1] = 0.0f;
     result.m[1][0] = 0.0f;
@@ -192,15 +182,15 @@ Transform Transform::applyTo(const Transform &other) const
 
 Transform Transform::inverse() const
 {
+    // this function is black magic idk what it does. matrix math is incomprehensible for me. shoutout google
     Transform result;
-    // Inverse of rotation/scale matrix is its transpose divided by determinant
+
     const float det = transformation.m[0][0] * transformation.m[1][1] - transformation.m[0][1] * transformation.m[1][0];
     if (det == 0)
     {
-        // Handle non-invertible case (could throw an error or return identity)
-        return Transform();
+        return {};
     }
-    Matrix2 invTrans;
+    Matrix2 invTrans{};
     invTrans.m[0][0] = transformation.m[1][1] / det;
     invTrans.m[0][1] = -transformation.m[0][1] / det;
     invTrans.m[1][0] = -transformation.m[1][0] / det;
@@ -211,14 +201,14 @@ Transform Transform::inverse() const
 }
 
 // texture
-Texture::Texture(const std::string& _path) : handle(nullptr), width(0), height(0), path(_path)
+Texture::Texture(const std::string& _path, TextureScaling _scaling) : handle(nullptr), width(0), height(0), textureWidth(0), textureHeight(0), path(_path), scaling(_scaling)
 {
     initialize();
 }
 
 void Texture::initialize()
 {
-    this->handle = Services::graphics()->loadTexture(File::getAbsoluteFilePath(this->path));
+    this->handle = Services::graphics()->loadTexture(File::getAbsoluteFilePath(this->path), this->scaling);
 
     this->width = handle->w;
     this->height = handle->h;

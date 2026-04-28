@@ -40,14 +40,17 @@ std::vector<std::string> File::directoryEnumerate(const std::string& path)
 {
     std::vector<std::string> entries;
 
-    SDL_EnumerateDirectory(path.c_str(),
+    if (!SDL_EnumerateDirectory(parseFilePath(path).c_str(),
         [](void* userdata, const char* dirname, const char* name)
         {
             auto* vec = static_cast<std::vector<std::string>*>(userdata);
             vec->emplace_back(name);
             return SDL_ENUM_CONTINUE;
         },
-        &entries);
+        &entries))
+    {
+        Logger::error("Failed to enumerate directory {}: {}", path, SDL_GetError());
+    }
 
     return entries;
 }
@@ -70,13 +73,19 @@ File *File::open(std::string path, const std::string& mode) {
 void File::flush() const
 {
     if(handle) {
-        SDL_FlushIO(handle);
+        if (!SDL_FlushIO(handle))
+        {
+            Logger::error("Failed to flush file {}: {}", path, SDL_GetError());
+        }
     }
 }
 
 void File::close() {
     if(handle) {
-        SDL_CloseIO(handle);
+        if (!SDL_CloseIO(handle))
+        {
+            Logger::error("Failed to close file {}: {}", path, SDL_GetError());
+        }
         handle = nullptr;
     }
 }
@@ -84,7 +93,10 @@ void File::close() {
 void File::seek(const int offset, Whence whence) const
 {
     if(handle) {
-        SDL_SeekIO(handle, offset, static_cast<SDL_IOWhence>(whence));
+        if (SDL_SeekIO(handle, offset, static_cast<SDL_IOWhence>(whence)) == -1)
+        {
+            Logger::error("Failed to seek file {}: {}", path, SDL_GetError());
+        }
     }
 }
 
@@ -153,7 +165,10 @@ bool File::eofReached() const {
 
 void File::storeString(const std::string& str) {
     if (handle) {
-        SDL_WriteIO(handle, str.c_str(), str.size());
+        if (!SDL_WriteIO(handle, str.c_str(), str.size()))
+        {
+            Logger::error("Failed to store string '{}' in file {}: {}", str, path, SDL_GetError());
+        }
         return;
     }
     Logger::warn("Attempted to write string to file with no handle: {}", path);
@@ -180,6 +195,7 @@ int File::getFileSize(const std::string& path) {
         return size;
     }
 
+    Logger::error("Failed to get file size of file {}: {}", path, SDL_GetError());
     return -1;
 }
 
@@ -191,15 +207,25 @@ std::string File::getFileAsText(std::string path) {
     const std::string fsPath = parseFilePath(path);
     if(SDL_IOStream *stream = SDL_IOFromFile(fsPath.c_str(), "r")) {
         const int size = getFileSize(path); // im too lazy and it's basically the same shit /shrug
-        if(size < 0) return "";
+        if(size < 0) {
+            Logger::error("Failed to get file {} as text: size is below 0", path);
+            return "";
+        };
 
         std::string text(size, '\0');
-        SDL_ReadIO(stream, &text[0], size);
-        SDL_CloseIO(stream);
+        if (!SDL_ReadIO(stream, &text[0], size))
+        {
+            Logger::error("Failed to read file {} as text: {}", path, SDL_GetError());
+        }
+
+        if (!SDL_CloseIO(stream))
+        {
+            Logger::error("Failed to close file {} while trying to get as text: {}", path, SDL_GetError());
+        }
         return text;
     }
 
-    Logger::debug("Failed to get file {} as text: {}", path, SDL_GetError());
+    Logger::error("Failed to get file {} as text: {}", path, SDL_GetError());
     return "";
 }
 

@@ -52,6 +52,12 @@ int main() {
     addEvent->buttonIndex = MouseButton::LEFT;
     inputRegistry.actionAddEvent("add", std::move(addEvent));
 
+    auto ctrEvent = std::make_unique<InputEventControllerButton>();
+    ctrEvent->pressed = true;
+    ctrEvent->button = ControllerButton::SOUTH;
+    ctrEvent->device = 0;
+    inputRegistry.actionAddEvent("add", std::move(ctrEvent));
+
     std::shared_ptr<Node> cameraNode = std::make_shared<Node>("cameraNode");
     std::shared_ptr<Camera> camera = std::make_shared<Camera>();
     cameraNode->addComponent(camera);

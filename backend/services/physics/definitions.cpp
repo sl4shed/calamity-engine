@@ -16,20 +16,42 @@ BoxShape::BoxShape(const Vector2 size, const Vector2 center) {
     this->scaledPolygon = static_cast<Polygon>(poly);
 }
 
-CircleShape::CircleShape(const float radius, const Vector2 origin)
+CircleShape::CircleShape(const float radius, const Vector2 center, const Vector2 origin)
 {
     this->radius = radius;
     this->origin = origin;
 
-    const Vector2 calculatedCenter = origin * Vector2{radius * 2, radius * 2};
-
-    this->circle.center = calculatedCenter;
+    this->circle.center = center;
     this->circle.radius = radius;
 
     this->shapeDef = b2DefaultShapeDef();
-    this->scaledCircle.center = calculatedCenter * PhysicsConstants::scale;
+    this->scaledCircle.center = center * PhysicsConstants::scale;
     this->scaledCircle.radius = radius * PhysicsConstants::scale;
 }
+
+CapsuleShape::CapsuleShape(const Vector2 center1, const Vector2 center2, const float radius, const Vector2 origin)
+{
+    capsule.center1 = center1;
+    capsule.center2 = center2;
+    capsule.radius = radius;
+    this->origin = origin;
+
+    scaledCapsule.center1 = center1 * PhysicsConstants::scale;
+    scaledCapsule.center2 = center2 * PhysicsConstants::scale;
+    scaledCapsule.radius = radius * PhysicsConstants::scale;
+
+    this->shapeDef = b2DefaultShapeDef();
+}
+
+// PolygonShape::PolygonShape(Polygon polygon, Vector2 origin)
+// {
+//     this->origin = origin;
+//     this->polygon = polygon;
+//     this->shapeDef = b2DefaultShapeDef();
+//
+//     this->scaledPolygon = polygon;
+//     this->scaledPolygon = polygon;
+// }
 
 // shape sprite
 

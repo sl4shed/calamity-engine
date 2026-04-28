@@ -9,7 +9,13 @@
 #include "engine.hpp"
 #include "../core/ui/label.hpp"
 #include "physics/definitions.hpp"
+
+#ifdef CALAMITY_VENDORED
 #include <SDL3_gfxPrimitives.h>
+#else
+#include <SDL3_gfx/SDL3_gfxPrimitives.h>
+#endif
+
 
 Graphics::Graphics(Vector2 _screenSize, const std::string& _title, RenderLogicalPresentation _presentation, Color _clearColor, WindowFlags _flags)
     : screenSize(_screenSize), clearColor(_clearColor), presentation(_presentation)
@@ -32,23 +38,49 @@ Graphics::Graphics(Vector2 _screenSize, const std::string& _title, RenderLogical
         static_cast<SDL_WindowFlags>(_flags)
     );
 
+    if (!this->window)
+    {
+        Logger::error("Failed to create window: {}", SDL_GetError());
+    }
+
     this->renderer = SDL_CreateRenderer(window, nullptr);
-    SDL_SetRenderLogicalPresentation(renderer, static_cast<int>(screenSize.x), static_cast<int>(screenSize.y), static_cast<SDL_RendererLogicalPresentation>(presentation));
+    if (!this->renderer)
+    {
+        Logger::error("Failed to create renderer: {}", SDL_GetError());
+    }
+    if (!SDL_SetRenderLogicalPresentation(renderer, static_cast<int>(screenSize.x), static_cast<int>(screenSize.y), static_cast<SDL_RendererLogicalPresentation>(presentation)))
+    {
+        Logger::error("Failed to set render logical presentation: {}", SDL_GetError());
+    }
     this->textEngine = TTF_CreateSurfaceTextEngine();
+    if (!this->textEngine)
+    {
+        Logger::error("Failed to create text engine: {}", SDL_GetError());
+    }
 }
 
 void Graphics::resetLogicalPresentation() {
     SDL_SetRenderLogicalPresentation(renderer, static_cast<int>(screenSize.x), static_cast<int>(screenSize.y), static_cast<SDL_RendererLogicalPresentation>(presentation));
 }
 
-SDL_Texture *Graphics::loadTexture(const std::string &path) const
+SDL_Texture *Graphics::loadTexture(const std::string &path, TextureScaling scaling) const
 {
     SDL_Surface *pixels = IMG_Load(path.c_str());
     if (!pixels) {
-        Logger::error("Failed to load texture '{}': {}", path, SDL_GetError());
+        Logger::error("Failed to load image {}: {}", path, SDL_GetError());
         return nullptr;
     }
     SDL_Texture *tex = SDL_CreateTextureFromSurface(renderer, pixels);
+    if (!tex)
+    {
+        Logger::error("Failed to create texture {}: {}", path, SDL_GetError());
+    }
+
+    if (!SDL_SetTextureScaleMode(tex, static_cast<SDL_ScaleMode>(scaling)))
+    {
+        Logger::error("Failed to set scale mode for texture {}: {}", path, SDL_GetError());
+    }
+
     SDL_DestroySurface(pixels);
     return tex;
 }
@@ -159,7 +191,42 @@ void Graphics::renderComponent(const ShapeSprite &sprite) const
         pos = pos + originOffset;
 
         filledCircleRGBA(renderer, pos.x, pos.y, circle->radius, sprite.modulate.r, sprite.modulate.g, sprite.modulate.b, sprite.modulate.a);
-        aacircleRGBA(renderer, pos.x, pos.y, circle->radius, sprite.modulate.r, sprite.modulate.g, sprite.modulate.b, sprite.modulate.a);
+    } else if (const auto* capsule = dynamic_cast<const CapsuleShape*>(sprite.shape.get()))
+    {
+        Vector2 c1 = node->globalTransform.applyTo(capsule->capsule.center1);
+        Vector2 c2 = node->globalTransform.applyTo(capsule->capsule.center2);
+
+        auto toScreen = [&](Vector2 p) -> Vector2 {
+            if (!sprite.screenSpace) {
+                p = p - cameraTransform.position;
+                p = cameraInverse.transformation * p;
+            }
+            return p + originOffset;
+        };
+
+        c1 = toScreen(c1);
+        c2 = toScreen(c2);
+
+        float rad = capsule->capsule.radius;
+
+        // direction and perpendicular
+        Vector2 dir = {c2.x - c1.x, c2.y - c1.y};
+        float len = sqrtf(dir.x * dir.x + dir.y * dir.y);
+        Vector2 norm = {dir.x / len, dir.y / len};
+        Vector2 perp = {-norm.y * rad, norm.x * rad};
+
+        // rectangle between the circles
+        const SDL_Vertex verts[4] = {
+            {{c1.x + perp.x, c1.y + perp.y}, modulate, {0, 0}},
+            {{c1.x - perp.x, c1.y - perp.y}, modulate, {0, 0}},
+            {{c2.x - perp.x, c2.y - perp.y}, modulate, {0, 0}},
+            {{c2.x + perp.x, c2.y + perp.y}, modulate, {0, 0}},
+        };
+
+        const int indices[6] = {0, 1, 2, 2, 3, 0};
+        SDL_RenderGeometry(renderer, nullptr, verts, 4, indices, 6);
+        filledCircleRGBA(renderer, c1.x, c1.y, rad, sprite.modulate.r, sprite.modulate.g, sprite.modulate.b, sprite.modulate.a);
+        filledCircleRGBA(renderer, c2.x, c2.y, rad, sprite.modulate.r, sprite.modulate.g, sprite.modulate.b, sprite.modulate.a);
     }
 }
 

@@ -79,7 +79,7 @@ void Engine::update()
 
 void Engine::shutdown()
 {
-    for (const auto child : root.children)
+    for (const auto& child : root.children)
     {
         root.removeChild(child);
     }

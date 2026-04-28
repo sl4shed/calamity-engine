@@ -25,6 +25,7 @@ Color::Color(const int hexCode, const int a) : Color(hexCode) {
 }
 
 Color::Color(std::string hexCode) {
+    // black magic
     if (!hexCode.empty() && hexCode[0] == '#')
         hexCode = hexCode.substr(1);
     const unsigned int hex = std::stoul(hexCode, nullptr, 16);
@@ -46,8 +47,8 @@ Color::Color(const std::string& hexCode, const int a) : Color(hexCode) {
 }
 
 Font::Font(const std::string& path) {
-    this->handle = TTF_OpenFont(path.c_str(), size);
-    if(!this->handle) Logger::debug("font load failed: {}", SDL_GetError());
+    this->handle = TTF_OpenFont(path.c_str(), static_cast<float>(size));
+    if(!this->handle) Logger::debug("Loading font {} failed: {}", path, SDL_GetError());
 
     this->lineSpacing = TTF_GetFontLineSkip(handle);
 }
@@ -99,7 +100,7 @@ Font* Font::setSDF(const bool enabled) {
 
 Font* Font::setSize(const int ptSize) {
     size = ptSize;
-    TTF_SetFontSize(handle, size);
+    TTF_SetFontSize(handle, static_cast<float>(ptSize));
     return this;
 }
 

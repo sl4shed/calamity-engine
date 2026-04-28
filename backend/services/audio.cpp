@@ -125,10 +125,6 @@ void AudioSource::pause()
 
 void AudioSource::update(float deltaTime)
 {
-    // ok here the loop is making sure that the audio stream data never dips below the wav data length
-    // which is kinda aids
-    // i should probably just have a buffer length
-    // and feed it more data based on the buffer
     int queued = SDL_GetAudioStreamQueued(this->handle.stream);
 
     if (!finishedFeeding && playing == true)

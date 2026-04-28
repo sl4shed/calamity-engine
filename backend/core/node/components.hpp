@@ -57,7 +57,7 @@ class Sprite : public Component
 {
 public:
     Sprite();
-    explicit Sprite(const std::string& texturePath);
+    explicit Sprite(const std::string& texturePath, TextureScaling scaling = TextureScaling::NEAREST);
 
     void initialize() override;
 
@@ -90,7 +90,7 @@ public:
     void initialize() override;
     void update(float deltaTime) override;
 
-    void addAnimation(Animation animation);
+    void addAnimation(const Animation& animation);
     void removeAnimation(const std::string& name);
 
     void play(const std::string& animation);

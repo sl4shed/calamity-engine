@@ -62,7 +62,7 @@ class Graphics
 {
 public:
     Graphics(Vector2 screenSize = {480, 272}, const std::string& title = "Calamity App", RenderLogicalPresentation presentation = RenderLogicalPresentation::LETTERBOX, Color clearColor = Color::BLACK, WindowFlags _flags = WindowFlags::RESIZABLE);
-    SDL_Texture *loadTexture(const std::string &path) const;
+    SDL_Texture *loadTexture(const std::string &path, TextureScaling scaling = TextureScaling::NEAREST) const;
 
     // renderComponent is a general function that renders different components based on different function overloads.
     void renderComponent(const Sprite &sprite) const;

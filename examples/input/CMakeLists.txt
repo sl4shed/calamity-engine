@@ -22,9 +22,8 @@ add_custom_target(copy_assets
 )
 add_dependencies(${PROJECT_NAME} copy_assets)
 
+calamity_apply_assets(${PROJECT_NAME})
 if(BUILD_TARGET STREQUAL "EMSCRIPTEN")
-    calamity_apply_assets(${PROJECT_NAME})
-
     set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/$<CONFIGURATION>")
     set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/$<CONFIGURATION>")
 

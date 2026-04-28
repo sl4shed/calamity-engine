@@ -49,7 +49,7 @@ int main() {
 
     std::shared_ptr<Node> node = std::make_shared<Node>();
     std::shared_ptr<AnimatedSprite> sprite = std::make_shared<AnimatedSprite>();
-    Animation anim = Animation("test", 2, {128, 128}, true, true);
+    Animation anim = Animation("test", 2, {128, 128}, true, true, TextureScaling::PIXELART);
     anim.texturePath = "res://assets/frames.png";
     anim.addFrames(
         Frame({{0,   0}, {32, 32}}, {0.5, 0.5}, Color::BLUE),

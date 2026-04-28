@@ -87,6 +87,14 @@ struct Vector2
     }
 };
 
+enum class TextureScaling
+{
+    INVALID = -1,
+    NEAREST,
+    LINEAR,
+    PIXELART
+};
+
 /**
  * # Texture class
  * Stores an image, its path, its width and its size.
@@ -100,7 +108,7 @@ class Texture
 {
 public:
     Texture() : handle(nullptr), width(0), height(0), textureWidth(0), textureHeight(0) {};
-    Texture(const std::string& path);
+    Texture(const std::string& path, TextureScaling scaling = TextureScaling::NEAREST);
     ~Texture();
     Texture(const Texture&) = delete;
     Texture& operator=(const Texture&) = delete;
@@ -128,7 +136,7 @@ public:
     template <class Archive>
     void load(Archive &ar)
     {
-        ar(CEREAL_NVP(path));
+        ar(CEREAL_NVP(path), CEREAL_NVP(scaling));
         this->initialize();
         ar(CEREAL_NVP(width), CEREAL_NVP(height));
     }
@@ -136,7 +144,7 @@ public:
     template <class Archive>
     void save(Archive &ar) const
     {
-        ar(CEREAL_NVP(path), CEREAL_NVP(width), CEREAL_NVP(height));
+        ar(CEREAL_NVP(path), CEREAL_NVP(scaling), CEREAL_NVP(width), CEREAL_NVP(height));
     }
     void initialize();
 
@@ -146,6 +154,8 @@ public:
     int textureWidth;
     int textureHeight;
     std::string path;
+private:
+    TextureScaling scaling;
 };
 
 /**
@@ -267,12 +277,15 @@ struct Frame
 class Animation
 {
 public:
-    Animation(std::string _name = "Animation", int _fps = 30, Vector2 _size = {0, 0}, bool _loop = true, bool _autoplay = false) : name(_name), fps(_fps), size(_size), loop(_loop), autoplay(_autoplay) {};
+    Animation(std::string _name = "Animation", int _fps = 30, Vector2 _size = {0, 0}, bool _loop = true, bool _autoplay = false, TextureScaling scaling = TextureScaling::NEAREST) : name(_name), fps(_fps), textureScaling(scaling), size(_size), loop(_loop), autoplay(_autoplay) {};
 
     std::string name;
     int fps = 15;
     std::vector<Frame> frames;
+
     std::string texturePath;
+    TextureScaling textureScaling;
+
     Vector2 size;
     bool loop = true;
     bool autoplay = false;

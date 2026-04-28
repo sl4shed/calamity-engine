@@ -62,19 +62,19 @@ int main() {
     node2->transform.position = {-200, -300};
     auto shape2 = std::make_shared<BoxShape>(Vector2{50, 350});
     node2->addComponent(std::make_shared<StaticBody>(shape2));
-    node2->addComponent(std::make_shared<ShapeSprite>(shape2->polygon));
+    node2->addComponent(std::make_shared<ShapeSprite>(shape2));
 
     std::shared_ptr<Node> node3 = std::make_shared<Node>("floorNode3");
     node3->transform.position = {150, -300};
     auto shape3 = std::make_shared<BoxShape>(Vector2{50, 350});
     node3->addComponent(std::make_shared<StaticBody>(shape3));
-    node3->addComponent(std::make_shared<ShapeSprite>(shape3->polygon));
+    node3->addComponent(std::make_shared<ShapeSprite>(shape3));
 
     std::shared_ptr<Node> node = std::make_shared<Node>("floorNode");
     node->transform.position = {-150, 0};
     auto shape = std::make_shared<BoxShape>(Vector2{300, 50});
     node->addComponent(std::make_shared<StaticBody>(shape));
-    node->addComponent(std::make_shared<ShapeSprite>(shape->polygon));
+    node->addComponent(std::make_shared<ShapeSprite>(shape));
 
     engine.root.addChild(cameraNode);
     engine.root.addChild(node2);
