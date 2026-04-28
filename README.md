@@ -8,7 +8,6 @@
 
 ![hackatime badge](https://hackatime-badge.hackclub.com/U0A9S13HQF3/calamity-engine?label=time+spent+working+on+ts&style=flat)
 ![documentation badge](https://img.shields.io/badge/documentation-available?style=flat&label=go+read+the&link=https%3A%2F%2Fcalamity.sl4shed.xyz)
-![example game badge](https://img.shields.io/badge/game-available?style=flat&label=go+play+the+example&link=https%3A%2F%2Fgame.sl4shed.xyz)
 
 </div>
 
@@ -17,9 +16,8 @@ A modular and cross-platform 2D game engine made in SDL3 and C++ built in mind w
 
 # Index
 
- - [Creating a new project](https://calamity.sl4shed.xyz/creating_a_new_project.html)
- - [Your first project](https://calamity.sl4shed.xyz/your_first_project.html)
- - [Compiling a project](https://calamity.sl4shed.xyz/compiling_a_project.html)
+ - [Getting Started]()
+ - [Basic Notions]()
 
 # [Supported Platforms](https://calamity.sl4shed.xyz)
 
@@ -33,6 +31,7 @@ A modular and cross-platform 2D game engine made in SDL3 and C++ built in mind w
  - [SDL3](https://github.com/libsdl-org/SDL)
  - [SDL3_image](https://github.com/libsdl-org/SDL_image)
  - [SDL3_ttf](https://github.com/libsdl-org/SDL_ttf)
+ - [SDL3_gfx](https://github.com/sabdul-khabir/SDL3_gfx)
  - [cereal](https://github.com/USCiLab/cereal)
  - [spdlog](https://github.com/gabime/spdlog)
  - [box2d](https://github.com/erincatto/box2d)
@@ -48,7 +47,7 @@ Components and children are stored in `std::vector`s, so iterating over them in 
 
 The active sprite on each node is cached (`currentSprite`) so the renderer doesn't have to search the full component vector every frame just to find the sprite.
 
-On the physics side, Box2D's substepping is exposed and set to 4 substeps by default. Also, the pixel-to-meter scaling that Box2D requires is baked into the shape at creation time (`scaledPolygon`) rather than being multiplied in every physics update.
+On the physics side, Box2D's substepping is exposed and set to 4 substeps by default. Also, the pixel-to-meter scaling that Box2D requires is baked into the shape at creation time (`scaledPolygon`, `scaledCircle`) rather than being multiplied in every physics update.
 
 A lot of the end-user API is also function-based rather than property-based specifically to avoid having to diff previous values to detect changes in update loops which I did to optimize cycles for the more underpowered platforms like the PSP.
 

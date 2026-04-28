@@ -4,22 +4,21 @@ A modular and cross-platform 2D game engine made in SDL3 and C++ built in mind w
 
 ## Index
 
- - \subpage creating_a_new_project
- - \subpage your_first_project
- - \subpage compiling_a_project
- - \subpage example_game
+ - \subpage getting_started
+ - \subpage basic_notions
 
 ## Platforms Supported
 
- - [Linux](compiling_a_project#linux)
- - [Windows](compiling_a_project#windows)
- - [Sony PSP](compiling_a_project#psp)
- - [Web browsers (emscripten)](compiling_a_project#web)
+ - [Linux](getting_started#linux)
+ - [Windows](getting_started#windows)
+ - [Sony PSP](getting_started#psp)
+ - [Web browsers (emscripten)](getting_started#emscripten)
 
 ## Libraries used
 
  - [SDL3](https://github.com/libsdl-org/SDL)
  - [SDL3_image](https://github.com/libsdl-org/SDL_image)
+ - [SDL3_gfx](https://github.com/sabdul-khabir/SDL3_gfx)
  - [SDL3_ttf](https://github.com/libsdl-org/SDL_ttf)
  - [cereal](https://github.com/USCiLab/cereal)
  - [spdlog](https://github.com/gabime/spdlog)
@@ -36,7 +35,7 @@ Components and children are stored in `std::vector`s, so iterating over them in 
 
 The active sprite on each node is cached (`currentSprite`) so the renderer doesn't have to search the full component vector every frame just to find the sprite.
 
-On the physics side, Box2D's substepping is exposed and set to 4 substeps by default. Also, the pixel-to-meter scaling that Box2D requires is baked into the shape at creation time (`scaledPolygon`) rather than being multiplied in every physics update.
+On the physics side, Box2D's substepping is exposed and set to 4 substeps by default. Also, the pixel-to-meter scaling that Box2D requires is baked into the shape at creation time (`scaledPolygon`, `scaledCircle`) rather than being multiplied in every physics update.
 
 A lot of the end-user API is also function-based rather than property-based specifically to avoid having to diff previous values to detect changes in update loops which I did to optimize cycles for the more underpowered platforms like the PSP.
 
