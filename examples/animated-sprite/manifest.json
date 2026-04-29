@@ -1,0 +1,10 @@
+{
+  "title": "Animated Sprite example",
+  "description": "An example of an AnimatedSprite. It demonstrates how to utilize animations and frames.",
+  "sourceFiles": [
+    "main.cpp", "CMakeLists.txt"
+  ],
+  "width": 480,
+  "height": 272,
+  "tags": ["AnimatedSprite", "Animation", "Frame", "Label"]
+}

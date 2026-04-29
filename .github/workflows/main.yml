@@ -1,54 +1,62 @@
-name: Doxygen → GitHub Pages
+name: Build and Deploy
 
 on:
   push:
     branches: [main]
-  workflow_dispatch:
-
-permissions:
-  contents: read
-  pages: write
-  id-token: write
-
-# Only one deployment at a time; don't cancel in-progress runs.
-concurrency:
-  group: pages
-  cancel-in-progress: false
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          submodules: recursive
+      - uses: actions/checkout@v6
 
       - name: Install Doxygen
-        run: |
-          sudo apt-get update -qq
-          sudo apt-get install -y doxygen graphviz
+        run: sudo apt-get install -y doxygen
 
-      - name: Generate docs
+      - name: Build docs
         run: doxygen Doxyfile
 
-      - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v3
+      - name: Install Emscripten
+        uses: emscripten-core/setup-emsdk@v14
         with:
-          # Doxygen writes HTML to OUTPUT_DIRECTORY/html by default.
-          # Adjust the path below if you changed OUTPUT_DIRECTORY in your Doxyfile.
-          path: docs-out/html
+          version: latest
 
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
+      - name: Build examples
+        run: bash build-examples.sh --web-only
 
-    environment:
-      name: github-pages
-      url: ${{ steps.deploy.outputs.page_url }}
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: 'latest'
 
-    steps:
-      - name: Deploy to GitHub Pages
-        id: deploy
-        uses: actions/deploy-pages@v4
+      - name: Install pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          version: latest
+
+      - name: Install dependencies
+        working-directory: website
+        run: pnpm install
+
+      - name: Run pre-build script
+        working-directory: website
+        run: node build.js
+
+      - name: Build website
+        working-directory: website
+        run: pnpm build
+
+      - name: Deploy main site
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy website/.output/public --project-name=calamity-website
+
+      - name: Deploy docs
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy docs-out/html --project-name=calamity-docs

@@ -25,3 +25,4 @@ logs
 
 # make sure to not push the example shi twice
 public/examples
+public/docs

@@ -7,7 +7,7 @@ const items = [
 </script>
 <template>
   <div>
-    <UPageHero :links="[{ label: 'Get Started', to: 'https://calamity.sl4shed.xyz/docs/getting_started.html', trailingIcon: 'i-lucide-book', size: 'xl' },
+    <UPageHero :links="[{ label: 'Get Started', to: '/docs/html/getting_started.html', target: '_blank', trailingIcon: 'i-lucide-book', size: 'xl' },
                         { label: 'Examples', to: 'examples', icon: 'i-lucide-code', size: 'xl', color: 'neutral', variant: 'subtle' }]"
                description="A small, portable game engine written in C++ with SDL3."
                title="Calamity Engine"/>
@@ -36,9 +36,9 @@ const items = [
 
     <UPageSection>
       <UPageCTA title="Ready to start using Calamity Engine?"
-                description="I wrote enough documentation for two lifetimes, and plenty of examples."
+                description="I wrote some pretty cool documentation and examples. so maybe you should"
                 variant="subtle"
-                :links="[{ label: 'Documentation', to: 'https://calamity.sl4shed.xyz/docs', trailingIcon: 'i-lucide-book', size: 'xl' },
+                :links="[{ label: 'Documentation', to: '/docs/html/getting_started.html', target: '_blank', trailingIcon: 'i-lucide-book', size: 'xl' },
                         { label: 'Examples', to: 'examples', icon: 'i-lucide-code', size: 'xl', color: 'neutral', variant: 'subtle' }]"
 
       />

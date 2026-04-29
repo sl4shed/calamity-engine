@@ -6,8 +6,10 @@ export default defineNuxtConfig({
   },
   modules: ['@nuxt/eslint', '@nuxt/ui'],
 
-  devtools: {
-    enabled: true
+  router: {
+    options: {
+      strict: true  // preserves trailing slashes
+    }
   },
 
   css: ['~/assets/css/main.css'],
