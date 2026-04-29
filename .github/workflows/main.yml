@@ -11,7 +11,7 @@ jobs:
       image: ubuntu:25.04
     steps:
       - name: Install Git and dependencies
-        run: apt-get update && apt-get install -y git cmake make ninja-build libsdl3-dev libsdl3-image-dev libsdl3-ttf-dev libfmt-dev libspdlog-dev libcereal-dev doxygen
+        run: apt-get update && apt-get install -y git cmake make ninja-build libsdl3-dev libsdl3-image-dev libsdl3-ttf-dev libfmt-dev libspdlog-dev libcereal-dev doxygen unzip tar
 
       - uses: actions/checkout@v6
         with:
