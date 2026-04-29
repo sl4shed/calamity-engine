@@ -1,0 +1,10 @@
+{
+  "title": "Platformer example",
+  "description": "An example game - a platformer! Move around your character with WASD.",
+  "sourceFiles": [
+    "main.cpp", "CMakeLists.txt", "playerScript.hpp"
+  ],
+  "width": 480,
+  "height": 272,
+  "tags": ["AnimatedSprite", "Animation", "Frame", "Tilemap", "Sprite"]
+}

@@ -34,7 +34,7 @@ public:
 
     void input(InputEvent& event) {
         InputEventMouseButton* mouseButtonEvent = dynamic_cast<InputEventMouseButton*>(&event);
-        if(mouseButtonEvent && mouseButtonEvent->pressed && mouseButtonEvent->buttonIndex == MouseButton::RIGHT) {
+        if(mouseButtonEvent && mouseButtonEvent->pressed && mouseButtonEvent->button == MouseButton::RIGHT) {
             auto children = node->getChild("catNode")->children;
             for (auto n : children)
             {

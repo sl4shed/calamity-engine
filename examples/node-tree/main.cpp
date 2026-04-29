@@ -49,7 +49,7 @@ int main() {
     inputRegistry.addAction("add", 0.2f);
     auto addEvent = std::make_unique<InputEventMouseButton>();
     addEvent->pressed = true;
-    addEvent->buttonIndex = MouseButton::LEFT;
+    addEvent->button = MouseButton::LEFT;
     inputRegistry.actionAddEvent("add", std::move(addEvent));
 
     std::shared_ptr<Node> cameraNode = std::make_shared<Node>("cameraNode");

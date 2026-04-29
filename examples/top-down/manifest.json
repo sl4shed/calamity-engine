@@ -1,0 +1,10 @@
+{
+    "title": "Top Down example",
+    "description": "An example of a top down player control scheme, demonstrating rigidbodies.",
+    "sourceFiles": [
+        "main.cpp", "playerScript.hpp", "CMakeLists.txt"
+    ],
+    "width": 480,
+    "height": 272,
+    "tags": ["Sprite", "Script", "Camera", "Input", "InputRegistry", "RigidBody", "Shape"]
+}

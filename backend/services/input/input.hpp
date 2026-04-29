@@ -140,7 +140,7 @@ public:
     bool operator==(const InputEvent& other) const;
     bool operator<=(const InputEvent& other) const;
 
-    MouseButton buttonIndex = MouseButton::NONE;
+    MouseButton button = MouseButton::NONE;
     bool doubleClick = false;
     Vector2 factor = {0, 0};
     bool pressed = false;

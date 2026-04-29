@@ -88,6 +88,11 @@ void Node::render(Graphics &graphics, Engine *engine) const
         {
             graphics.renderComponent(*animSprite);
         }
+
+        if (const auto *tilemap = dynamic_cast<Tilemap *>(components[i].get()); tilemap && tilemap->visible)
+        {
+            graphics.renderComponent(*tilemap);
+        }
     }
 
     for (size_t i = 0; i < this->children.size(); i++)

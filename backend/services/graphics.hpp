@@ -69,6 +69,7 @@ public:
     void renderComponent(const ShapeSprite &sprite) const;
     void renderComponent(const Label &label) const;
     void renderComponent(const AnimatedSprite &sprite) const;
+    void renderComponent(const Tilemap &tilemap) const;
     void preRender() const;
     void postRender() const;
     void resetLogicalPresentation();

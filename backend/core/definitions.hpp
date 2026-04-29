@@ -372,3 +372,12 @@ struct Capsule
         ar(CEREAL_NVP(center1), CEREAL_NVP(center2), CEREAL_NVP(radius));
     }
 };
+
+struct Tile
+{
+    Tile(Vector2 gridPosition, Rect sourceRect = {{0, 0}, {64, 64}}, Color modulate = Color::WHITE) : gridPosition(gridPosition), sourceRect(sourceRect), modulate(modulate) {};
+
+    Vector2 gridPosition;
+    Rect sourceRect;
+    Color modulate;
+};

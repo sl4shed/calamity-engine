@@ -115,6 +115,11 @@ void RigidBody::initialize() {
     b2Body_SetTransform(bodyId, tr.position * PhysicsConstants::scale, {cos(tr.getAngleRadians()), sin(tr.getAngleRadians())});
 }
 
+void RigidBody::fixRotation(const bool value) const
+{
+    b2Body_SetFixedRotation(bodyId, value);
+}
+
 RigidBody::~RigidBody() {
     b2DestroyBody(bodyId);
 }
@@ -178,5 +183,87 @@ void StaticBody::initialize() {
 }
 
 StaticBody::~StaticBody() {
+    b2DestroyBody(bodyId);
+}
+
+////////////////////
+// kinematic body //
+///////////////////
+
+void KinematicBody::initCompute()
+{
+    bodyDef = b2DefaultBodyDef();
+    bodyDef.type = b2_kinematicBody;
+    bodyDef.linearDamping = 0.1f;
+    bodyDef.angularDamping = 0.1f;
+    bodyId = b2CreateBody(Services::physics()->worldId, &bodyDef);
+
+    if (const auto* box = dynamic_cast<BoxShape*>(shape.get()))
+    {
+        const b2Polygon poly = box->scaledPolygon;
+        b2CreatePolygonShape(bodyId, &box->shapeDef, &poly);
+    }
+    else if (const auto* circle = dynamic_cast<CircleShape*>(shape.get()))
+    {
+        const b2Circle c = circle->scaledCircle;
+        b2CreateCircleShape(bodyId, &circle->shapeDef, &c);
+    }
+    else if (const auto* capsule = dynamic_cast<CapsuleShape*>(shape.get()))
+    {
+        const b2Capsule c = capsule->scaledCapsule;
+        b2CreateCapsuleShape(bodyId, &capsule->shapeDef, &c);
+    }
+}
+
+KinematicBody::KinematicBody() {}
+KinematicBody::KinematicBody(const std::shared_ptr<Shape>& shape) {
+    this->shape = shape;
+    initCompute();
+}
+
+void KinematicBody::physicsUpdate() {
+    Node* node = getNode();
+
+    // send box2d pos to world pos
+    const Vector2 worldPos = Vector2(b2Body_GetPosition(bodyId)) / PhysicsConstants::scale;
+    const float worldAngle = b2Rot_GetAngle(b2Body_GetRotation(bodyId));
+
+    if (node->parent) {
+        auto [position, transformation] = node->parent->globalTransform.inverse();
+        node->transform.position = transformation * (worldPos - node->parent->globalTransform.position);
+        node->transform.setAngleRadians(worldAngle - node->parent->globalTransform.getAngle());
+    } else {
+        node->transform.position = worldPos;
+        node->transform.setAngleRadians(worldAngle);
+    }
+
+    storedTransform.position = Vector2(b2Body_GetPosition(bodyId));
+    storedTransform.setAngleRadians(b2Rot_GetAngle(b2Body_GetRotation(bodyId)));
+}
+
+void KinematicBody::setLinearVelocity(const Vector2 vel) const
+{
+    b2Body_SetLinearVelocity(bodyId, vel);
+}
+
+void KinematicBody::applyForce(const Vector2 force) const
+{
+    b2Body_ApplyForce(bodyId, force, shape->origin, true);
+    // i guess, always wake the body? that makes the most sense
+}
+
+void KinematicBody::applyImpulse(const Vector2 impulse) const
+{
+    b2Body_ApplyLinearImpulse(bodyId, impulse, shape->origin, true);
+}
+
+// this is the one exception or something?
+// i have zero idea if this will work :uuh:
+void KinematicBody::initialize() {
+    const auto tr = this->getNode()->globalTransform;
+    b2Body_SetTransform(bodyId, tr.position * PhysicsConstants::scale, {cos(tr.getAngleRadians()), sin(tr.getAngleRadians())});
+}
+
+KinematicBody::~KinematicBody() {
     b2DestroyBody(bodyId);
 }

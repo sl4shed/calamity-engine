@@ -59,7 +59,7 @@ void Input::update(float deltaTime)
             {
                 auto ev = std::make_unique<InputEventMouseButton>();
                 ev->pressed = true;
-                ev->buttonIndex = static_cast<MouseButton>(event.button.button);
+                ev->button = static_cast<MouseButton>(event.button.button);
                 if(event.button.clicks > 1) ev->doubleClick = true;
                 inputs.push_back(std::move(ev));
                 break;
@@ -68,7 +68,7 @@ void Input::update(float deltaTime)
             {
                 auto ev = std::make_unique<InputEventMouseButton>();
                 ev->pressed = false;
-                ev->buttonIndex = static_cast<MouseButton>(event.button.button);
+                ev->button = static_cast<MouseButton>(event.button.button);
                 if(event.button.clicks > 1) ev->doubleClick = true;
                 inputs.push_back(std::move(ev));
                 break;
@@ -79,11 +79,11 @@ void Input::update(float deltaTime)
                 ev->pressed = true;
 
                 if (std::abs(event.wheel.x) > std::abs(event.wheel.y)) {
-                    ev->buttonIndex = event.wheel.x > 0
+                    ev->button = event.wheel.x > 0
                         ? MouseButton::WHEEL_RIGHT
                         : MouseButton::WHEEL_LEFT;
                 } else {
-                    ev->buttonIndex = event.wheel.y > 0
+                    ev->button = event.wheel.y > 0
                         ? MouseButton::WHEEL_UP
                         : MouseButton::WHEEL_DOWN;
                 }
@@ -346,7 +346,7 @@ bool InputEventKey::operator==(const InputEvent& other) const {
 bool InputEventMouseButton::operator==(const InputEvent& other) const {
     const auto* o = dynamic_cast<const InputEventMouseButton*>(&other);
     if(!o) return false;
-    return (buttonIndex == o->buttonIndex && pressed == o->pressed && factor == o->factor && doubleClick == o->doubleClick);
+    return (button == o->button && pressed == o->pressed && factor == o->factor && doubleClick == o->doubleClick);
 }
 
 bool InputEventMouseMotion::operator==(const InputEvent& other) const {
@@ -382,7 +382,7 @@ bool InputEventKey::operator<=(const InputEvent& other) const {
 bool InputEventMouseButton::operator<=(const InputEvent& other) const {
     const auto* o = dynamic_cast<const InputEventMouseButton*>(&other);
     if(!o) return false;
-    return (buttonIndex == o->buttonIndex);
+    return (button == o->button);
 }
 
 bool InputEventMouseMotion::operator<=(const InputEvent& other) const {

@@ -178,3 +178,62 @@ bool AnimatedSprite::isPlaying() const
 {
     return this->playing;
 }
+
+// Tilemap
+
+Tilemap::Tilemap(const std::string& texturePath, const TextureScaling scaling, const Vector2 tileSize)
+{
+    this->texture = Texture(texturePath, scaling);
+    this->tileSize = tileSize;
+}
+
+void Tilemap::bake()
+{
+    vertexBuffer.clear();
+    indexBuffer.clear();
+
+    const auto atlasW = static_cast<float>(texture.textureWidth);
+    const auto atlasH = static_cast<float>(texture.textureHeight);
+
+    for (const auto& tile : tiles)
+    {
+        const float x = tile.gridPosition.x * tileSize.x;
+        const float y = tile.gridPosition.y * tileSize.y;
+
+        const float u0 = tile.sourceRect.position.x / atlasW;
+        const float v0 = tile.sourceRect.position.y / atlasH;
+        const float u1 = (tile.sourceRect.position.x + tile.sourceRect.size.x) / atlasW;
+        const float v1 = (tile.sourceRect.position.y + tile.sourceRect.size.y) / atlasH;
+
+        const auto color = static_cast<SDL_FColor>(tile.modulate);
+
+        const int base = static_cast<int>(vertexBuffer.size());
+        vertexBuffer.push_back({{x, y}, color, {u0, v0}});
+        vertexBuffer.push_back({{x + tileSize.x, y }, color, {u1, v0}});
+        vertexBuffer.push_back({{x + tileSize.x, y + tileSize.y}, color, {u1, v1}});
+        vertexBuffer.push_back({{x, y + tileSize.y}, color, {u0, v1}});
+
+        for (const int i : {0, 1, 2, 2, 3, 0}) indexBuffer.push_back(base + i);
+    }
+
+    dirty = false;
+}
+
+void Tilemap::update()
+{
+    if (dirty) bake();
+}
+
+int Tilemap::addTile(const Tile& tile)
+{
+    tiles.push_back(tile);
+    dirty = true;
+    return static_cast<int>(tiles.size()) - 1;
+}
+
+void Tilemap::removeTile(int index)
+{
+    if (index < 0 || index >= static_cast<int>(tiles.size())) return;
+    tiles.erase(tiles.begin() + index);
+    dirty = true;
+}

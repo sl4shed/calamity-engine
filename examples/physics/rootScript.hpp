@@ -35,7 +35,7 @@ public:
 
     void input(InputEvent& event) {
         InputEventMouseButton* mouseButtonEvent = dynamic_cast<InputEventMouseButton*>(&event);
-        if(mouseButtonEvent && mouseButtonEvent->pressed && mouseButtonEvent->buttonIndex == MouseButton::RIGHT) {
+        if(mouseButtonEvent && mouseButtonEvent->pressed && mouseButtonEvent->button == MouseButton::RIGHT) {
             for(auto node : fallingNodes) {
                 node->free();
             }

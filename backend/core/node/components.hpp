@@ -63,6 +63,8 @@ public:
 
     Vector2 origin = {0.5f, 0.5f};
     Texture texture;
+    Vector2 tileSize = {0, 0}; // this means no tiling
+
     Rect sourceRect;
     bool visible = true;
     //int zIndex = 1;
@@ -138,6 +140,30 @@ private:
     std::unique_ptr<Animation> currentAnimation = nullptr;
     Texture currentTexture;
     bool playing = false;
+};
+
+class Tilemap : public Component
+{
+public:
+    Tilemap(const std::string& texturePath, TextureScaling scaling, Vector2 tileSize);
+
+    bool visible = true;
+    Texture texture;
+    Vector2 tileSize;
+    std::vector<Tile> tiles;
+
+    // sdl bullshit
+    std::vector<SDL_Vertex> vertexBuffer;
+    std::vector<int> indexBuffer;
+
+    int addTile(const Tile& tile);
+    void removeTile(int index);
+
+    void update();
+    void initialize() { bake(); };
+    void bake();
+private:
+    bool dirty = false;
 };
 
 /**

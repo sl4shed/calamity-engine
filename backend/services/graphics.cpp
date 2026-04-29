@@ -329,6 +329,34 @@ void Graphics::renderComponent(const AnimatedSprite &sprite) const
     SDL_RenderGeometry(this->renderer, texture->handle, vertices, 4, indices, 6);
 }
 
+void Graphics::renderComponent(const Tilemap& tilemap) const
+{
+    const Node *node = tilemap.getNode();
+    if (!node) return;
+    if (!tilemap.texture.handle) return;
+    if (tilemap.vertexBuffer.empty()) return;
+
+    const Camera *activeCamera = Services::engine()->getActiveCamera();
+    const Transform cameraTransform = activeCamera->getNode()->globalTransform;
+    const Vector2 originOffset = {screenSize.x * activeCamera->origin.x, screenSize.y * activeCamera->origin.y};
+    auto [position, transformation] = cameraTransform.inverse();
+
+    std::vector<SDL_Vertex> transformed = tilemap.vertexBuffer;
+
+    for (auto& v : transformed)
+    {
+        Vector2 pos = {v.position.x, v.position.y};
+        pos = node->globalTransform.applyTo(pos);
+        pos = pos - cameraTransform.position;
+        pos = transformation * pos;
+        pos = pos + originOffset;
+        v.position.x = pos.x;
+        v.position.y = pos.y;
+    }
+
+    SDL_RenderGeometry(renderer, tilemap.texture.handle, transformed.data(), static_cast<int>(transformed.size()), tilemap.indexBuffer.data(), static_cast<int>(tilemap.indexBuffer.size()));
+}
+
 TTF_TextEngine *Graphics::getTextEngine() const
 {
     return textEngine;

@@ -77,6 +77,8 @@ public:
     void initialize() override;
     void initCompute();
 
+    void fixRotation(bool value) const;
+
     void setPosition(Vector2 pos) const;
     void setAngle(float angle) const;
 
@@ -107,6 +109,46 @@ private:
 
     Transform storedTransform;
 };
+
+class KinematicBody : public Component
+{
+public:
+    KinematicBody();
+    ~KinematicBody() override;
+    explicit KinematicBody(const std::shared_ptr<Shape>& shape);
+
+    void physicsUpdate() override;
+    void initialize() override;
+    void initCompute();
+
+    void setLinearVelocity(Vector2 vel) const;
+    void applyForce(Vector2 force) const;
+    void applyImpulse(Vector2 impulse) const;
+
+    std::shared_ptr<Shape> shape;
+    template <class Archive>
+    void save(Archive &ar) const
+    {
+        ar(CEREAL_NVP(shape), CEREAL_NVP(storedTransform));
+    }
+
+    template <class Archive>
+    void load(Archive &ar)
+    {
+        ar(CEREAL_NVP(shape), CEREAL_NVP(storedTransform));
+        initCompute();
+
+        const float angle = storedTransform.getAngleRadians();
+        b2Body_SetTransform(bodyId, storedTransform.position, {cos(angle), sin(angle)});
+    }
+
+private:
+    b2BodyDef bodyDef;
+    b2BodyId bodyId;
+
+    Transform storedTransform;
+};
+
 
 CEREAL_REGISTER_TYPE(RigidBody);
 CEREAL_REGISTER_TYPE(StaticBody);
