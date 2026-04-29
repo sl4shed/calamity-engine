@@ -18,6 +18,7 @@
 class PlayerScript : public Script
 {
     const int SPEED = 5;
+    const int JUMP = 50;
 
     Input *pe;
     Node *node;
@@ -37,10 +38,20 @@ public:
         body = node->getComponent<RigidBody>();
     }
 
+    void input(InputEvent& event) override
+    {
+        if (event.isActionPressed("up"))
+        {
+            Vector2 vel = body->getLinearVelocity();
+            body->setLinearVelocity(Vector2{vel.x, vel.y - JUMP});
+        }
+    }
+
     void physicsUpdate()
     {
-        auto vec = pe->getVector("left", "right", "up", "down");
-        body->setLinearVelocity(vec * SPEED);
+        auto vec = pe->getAxis("left", "right");
+        body->setLinearVelocity({vec * SPEED, 0});
+
     }
 };
 

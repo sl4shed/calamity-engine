@@ -24,7 +24,7 @@ PSP_MAIN_THREAD_ATTR(THREAD_ATTR_USER);
 #include <emscripten.h>
 #endif
 
-static Physics physics = Physics({0.0f, 0.0f});
+static Physics physics = Physics({0.0f, 98.1f * 3});
 static Engine engine = Engine("Platformer Example");
 static Graphics* graphics = nullptr;
 
@@ -86,22 +86,97 @@ int main() {
     cameraNode->addComponent(camera);
 
     // player node
-    std::shared_ptr<Node> node = std::make_shared<Node>("playerNode");
-    std::shared_ptr<Sprite> sprite = std::make_shared<Sprite>("res://assets/cactus.png", TextureScaling::PIXELART);
-    sprite->texture.width = 128;
-    sprite->texture.height = 128;
+    auto node = std::make_shared<Node>("playerNode");
+    node->transform.position = {0, -40};
+    auto sprite = std::make_shared<AnimatedSprite>();
+
+    // player animations
+    auto idle = Animation("idle", 5, Vector2{13, 19} * 4, true, true, TextureScaling::PIXELART);
+    idle.texturePath = "res://assets/knight.png";
+    idle.addFrames(
+        Frame(Rect{{9, 9}, {13, 19}}, {0.5, 0.5}),
+        Frame(Rect{{41, 9}, {13, 19}}, {0.5, 0.5}),
+        Frame(Rect{{73, 9}, {13, 19}}, {0.5, 0.5}),
+        Frame(Rect{{105, 9}, {13, 19}}, {0.5, 0.5})
+    );
+    sprite->addAnimation(idle);
+
+    // rest of player node code
     node->addComponent(sprite);
-    auto shape = std::make_shared<BoxShape>(Vector2{128, 128});
+    auto shape = std::make_shared<BoxShape>(Vector2{13, 19} * 4);
+    Material mat = Material();
+    mat.density = 10.0f;
+    shape->applyMaterial(mat);
     auto rbody = std::make_shared<RigidBody>(shape);
     rbody->fixRotation(true);
+
     node->addComponent(rbody);
     node->addComponent(std::make_shared<PlayerScript>());
-    node->addChild(cameraNode); // parent the camera to the player so that it follows the player around :+1:
+    node->addComponent(camera);
 
     // other nodes
     auto map = std::make_shared<Node>("map");
     map->transform.position = {0, 0};
+    auto tilemap = std::make_shared<Tilemap>("res://assets/world_tileset.png", TextureScaling::PIXELART, Vector2{64, 64});
+    // 896x192
+    tilemap->addTiles(
+        // grass
+        Tile(Vector2{-7, 0}, Rect{{0, 0}, {16, 16}}),
+        Tile(Vector2{-6, 0}, Rect{{0, 0}, {16, 16}}),
+        Tile(Vector2{-5, 0}, Rect{{0, 0}, {16, 16}}),
+        Tile(Vector2{-4, 0}, Rect{{0, 0}, {16, 16}}),
+        Tile(Vector2{-3, 0}, Rect{{0, 0}, {16, 16}}),
+        Tile(Vector2{-2, 0}, Rect{{0, 0}, {16, 16}}),
+        Tile(Vector2{-1, 0}, Rect{{0, 0}, {16, 16}}),
+        Tile(Vector2{0, 0}, Rect{{0, 0}, {16, 16}}),
+        Tile(Vector2{1, 0}, Rect{{0, 0}, {16, 16}}),
+        Tile(Vector2{2, 0}, Rect{{0, 0}, {16, 16}}),
+        Tile(Vector2{3, 0}, Rect{{0, 0}, {16, 16}}),
+        Tile(Vector2{4, 0}, Rect{{0, 0}, {16, 16}}),
+        Tile(Vector2{5, 0}, Rect{{0, 0}, {16, 16}}),
+        Tile(Vector2{6, 0}, Rect{{0, 0}, {16, 16}}),
+        Tile(Vector2{7, 0}, Rect{{0, 0}, {16, 16}}),
 
+        // dirt layer 1
+        Tile(Vector2{-7, 1}, Rect{{0, 16}, {16, 16}}),
+        Tile(Vector2{-6, 1}, Rect{{0, 16}, {16, 16}}),
+        Tile(Vector2{-5, 1}, Rect{{0, 16}, {16, 16}}),
+        Tile(Vector2{-4, 1}, Rect{{0, 16}, {16, 16}}),
+        Tile(Vector2{-3, 1}, Rect{{0, 16}, {16, 16}}),
+        Tile(Vector2{-2, 1}, Rect{{0, 16}, {16, 16}}),
+        Tile(Vector2{-1, 1}, Rect{{0, 16}, {16, 16}}),
+        Tile(Vector2{0, 1}, Rect{{0, 16}, {16, 16}}),
+        Tile(Vector2{1, 1}, Rect{{0, 16}, {16, 16}}),
+        Tile(Vector2{2, 1}, Rect{{0, 16}, {16, 16}}),
+        Tile(Vector2{3, 1}, Rect{{0, 16}, {16, 16}}),
+        Tile(Vector2{4, 1}, Rect{{0, 16}, {16, 16}}),
+        Tile(Vector2{5, 1}, Rect{{0, 16}, {16, 16}}),
+        Tile(Vector2{6, 1}, Rect{{0, 16}, {16, 16}}),
+        Tile(Vector2{7, 1}, Rect{{0, 16}, {16, 16}}),
+
+        // dirt layer 2
+        Tile(Vector2{-7, 2}, Rect{{0, 16}, {16, 16}}),
+        Tile(Vector2{-6, 2}, Rect{{0, 16}, {16, 16}}),
+        Tile(Vector2{-5, 2}, Rect{{0, 16}, {16, 16}}),
+        Tile(Vector2{-4, 2}, Rect{{0, 16}, {16, 16}}),
+        Tile(Vector2{-3, 2}, Rect{{0, 16}, {16, 16}}),
+        Tile(Vector2{-2, 2}, Rect{{0, 16}, {16, 16}}),
+        Tile(Vector2{-1, 2}, Rect{{0, 16}, {16, 16}}),
+        Tile(Vector2{0, 2}, Rect{{0, 16}, {16, 16}}),
+        Tile(Vector2{1, 2}, Rect{{0, 16}, {16, 16}}),
+        Tile(Vector2{2, 2}, Rect{{0, 16}, {16, 16}}),
+        Tile(Vector2{3, 2}, Rect{{0, 16}, {16, 16}}),
+        Tile(Vector2{4, 2}, Rect{{0, 16}, {16, 16}}),
+        Tile(Vector2{5, 2}, Rect{{0, 16}, {16, 16}}),
+        Tile(Vector2{6, 2}, Rect{{0, 16}, {16, 16}}),
+        Tile(Vector2{7, 2}, Rect{{0, 16}, {16, 16}})
+    );
+    auto mshape = std::make_shared<BoxShape>(Vector2{896.0f, 192.0f}, Vector2{0.5f, 1.0f});
+    map->addComponent(std::make_shared<StaticBody>(mshape));
+    map->addComponent(std::make_shared<ShapeSprite>(mshape));
+
+
+    map->addComponent(tilemap);
 
     engine.root.addChild(map);
     engine.root.addChild(node);

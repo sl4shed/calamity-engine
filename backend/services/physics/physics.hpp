@@ -86,6 +86,8 @@ public:
     void applyForce(Vector2 force) const;
     void applyImpulse(Vector2 impulse) const;
 
+    Vector2 getLinearVelocity() const;
+
     std::shared_ptr<Shape> shape;
     template <class Archive>
     void save(Archive &ar) const
@@ -124,6 +126,8 @@ public:
     void setLinearVelocity(Vector2 vel) const;
     void applyForce(Vector2 force) const;
     void applyImpulse(Vector2 impulse) const;
+
+    Vector2 getLinearVelocity() const;
 
     std::shared_ptr<Shape> shape;
     template <class Archive>

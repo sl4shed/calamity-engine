@@ -145,6 +145,7 @@ private:
 class Tilemap : public Component
 {
 public:
+    Tilemap() = default;
     Tilemap(const std::string& texturePath, TextureScaling scaling, Vector2 tileSize);
 
     bool visible = true;
@@ -159,9 +160,29 @@ public:
     int addTile(const Tile& tile);
     void removeTile(int index);
 
+    template <typename... Args>
+    void addTiles(Args... tiles)
+    {
+        (this->tiles.push_back(tiles), ...);
+        dirty = true;
+    }
+
     void update();
     void initialize() { bake(); };
     void bake();
+
+    template <class Archive>
+    void save(Archive &ar) const
+    {
+        ar(CEREAL_NVP(visible), CEREAL_NVP(texture), CEREAL_NVP(tileSize), CEREAL_NVP(tiles));
+    }
+
+    template <class Archive>
+    void load(Archive &ar)
+    {
+        ar(CEREAL_NVP(visible), CEREAL_NVP(texture), CEREAL_NVP(tileSize), CEREAL_NVP(tiles));
+        bake();
+    }
 private:
     bool dirty = false;
 };

@@ -120,6 +120,11 @@ void RigidBody::fixRotation(const bool value) const
     b2Body_SetFixedRotation(bodyId, value);
 }
 
+Vector2 RigidBody::getLinearVelocity() const
+{
+    return Vector2(b2Body_GetLinearVelocity(bodyId));
+}
+
 RigidBody::~RigidBody() {
     b2DestroyBody(bodyId);
 }
@@ -255,6 +260,11 @@ void KinematicBody::applyForce(const Vector2 force) const
 void KinematicBody::applyImpulse(const Vector2 impulse) const
 {
     b2Body_ApplyLinearImpulse(bodyId, impulse, shape->origin, true);
+}
+
+Vector2 KinematicBody::getLinearVelocity() const
+{
+    return Vector2(b2Body_GetLinearVelocity(bodyId));
 }
 
 // this is the one exception or something?

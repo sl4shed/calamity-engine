@@ -380,4 +380,16 @@ struct Tile
     Vector2 gridPosition;
     Rect sourceRect;
     Color modulate;
+
+    template <class Archive>
+    void save(Archive &ar) const
+    {
+        ar(gridPosition, sourceRect, modulate);
+    }
+
+    template <class Archive>
+    void load(Archive &ar)
+    {
+        ar(gridPosition, sourceRect, modulate);
+    }
 };
