@@ -7,14 +7,15 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-
+    container:
+      image: ubuntu:25.04
     steps:
       - uses: actions/checkout@v6
         with:
           submodules: recursive
 
       - name: Install dependencies
-        run: sudo apt-get install -y git cmake make ninja-build libsdl3-dev libsdl3-image-dev libsdl3-ttf-dev libfmt-dev libspdlog-dev libcereal-dev doxygen
+        run: sudo apt-get update && sudo apt-get install -y git cmake make ninja-build libsdl3-dev libsdl3-image-dev libsdl3-ttf-dev libfmt-dev libspdlog-dev libcereal-dev doxygen
 
       - name: Build docs
         run: doxygen Doxyfile
