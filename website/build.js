@@ -13,7 +13,7 @@ const junkFiles = [
   'Makefile'
 ];
 
-const junkDirs = ['build', 'build-psp'];
+const junkDirs = ['build', 'build-psp', 'build-web/CMakeFiles', 'build-web/calamity'];
 
 const totalManifest = { examples: [] };
 
@@ -70,7 +70,7 @@ for (const file of files) {
 
   // clean up
   for (const junkDir of junkDirs) {
-    const junkPath = path.join(buildWebPath, junkDir);
+    const junkPath = path.join(publicExamplePath, junkDir);
     if (fs.existsSync(junkPath)) {
       fs.rmSync(junkPath, { recursive: true, force: true });
       console.log(`${file} -> deleted junk dir: ${junkDir}`);

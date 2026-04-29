@@ -108,7 +108,7 @@ int main() {
     std::shared_ptr<Label> label = std::make_shared<Label>("WASD/Left Joystick - Move the glass around");
     label->font->setSize(12);
     label->size = {100, 500};
-    lnode->transform.position = {20, 20};
+    lnode->transform.position = {-240, -136};
     lnode->addComponent(label);
     engine.root.addChild(lnode);
 
