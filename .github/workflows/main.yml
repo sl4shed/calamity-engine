@@ -10,12 +10,12 @@ jobs:
     container:
       image: ubuntu:25.04
     steps:
+      - name: Install Git and dependencies
+        run: apt-get update && apt-get install -y git cmake make ninja-build libsdl3-dev libsdl3-image-dev libsdl3-ttf-dev libfmt-dev libspdlog-dev libcereal-dev doxygen
+
       - uses: actions/checkout@v6
         with:
           submodules: recursive
-
-      - name: Install dependencies
-        run: sudo apt-get update && sudo apt-get install -y git cmake make ninja-build libsdl3-dev libsdl3-image-dev libsdl3-ttf-dev libfmt-dev libspdlog-dev libcereal-dev doxygen
 
       - name: Build docs
         run: doxygen Doxyfile
