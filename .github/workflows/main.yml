@@ -10,9 +10,11 @@ jobs:
 
     steps:
       - uses: actions/checkout@v6
+        with:
+          submodules: recursive
 
-      - name: Install Doxygen
-        run: sudo apt-get install -y doxygen
+      - name: Install dependencies
+        run: sudo apt-get install -y git cmake make ninja-build libsdl3-dev libsdl3-image-dev libsdl3-ttf-dev libfmt-dev libspdlog-dev libcereal-dev doxygen
 
       - name: Build docs
         run: doxygen Doxyfile
