@@ -1,0 +1,5 @@
+name = "calamity-docs"
+compatibility_date = "2026-04-29"
+
+[assets]
+directory = "docs-out/"

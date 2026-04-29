@@ -13,7 +13,7 @@ const junkFiles = [
   'Makefile'
 ];
 
-const junkDirs = ['build', 'build-psp', 'build-web/CMakeFiles', 'build-web/calamity'];
+const junkDirs = ['build', 'build-psp', 'build-win', 'build-web/CMakeFiles', 'build-web/calamity'];
 
 const totalManifest = { examples: [] };
 

@@ -16,8 +16,8 @@ A modular and cross-platform 2D game engine made in SDL3 and C++ built in mind w
 
 # Index
 
- - [Getting Started](https://calamity.sl4shed.xyz/docs/html/getting_started.html)
- - [Basic Notions](https://calamity.sl4shed.xyz/docs/html/basic_notions.html)
+ - [Getting Started](https://calamity.sl4shed.xyz/html/getting_started.html)
+ - [Basic Notions](https://calamity.sl4shed.xyz/html/basic_notions.html)
 
 # [Supported Platforms](https://calamity.sl4shed.xyz)
 

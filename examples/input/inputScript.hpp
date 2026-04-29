@@ -35,7 +35,7 @@ public:
     }
 
     void update(float dt) {
-        auto vec = Services::input()->getVector("left", "right", "up", "down");
+        auto vec = pe->getVector("left", "right", "up", "down");
         node->transform.position = node->transform.position + (vec * dt * SPEED);
     }
 

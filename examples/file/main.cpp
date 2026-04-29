@@ -6,13 +6,12 @@
 #include "backend/services/graphics.hpp"
 #include "backend/utils/logger.hpp"
 #include "backend/services/services.hpp"
-#include "backend/services/physics/physics.hpp"
 #include "backend/core/node/components.hpp"
-#include "backend/core/ui/definitions.hpp"
+#include "backend/services/physics/physics.hpp"
 #include "backend/core/ui/label.hpp"
+#include "backend/utils/file.hpp"
 
 #ifdef PSP
-// if you want psp support you have to have the psp module info thing
 #include <pspuser.h>
 #include <pspctrl.h>
 #include <pspdisplay.h>
@@ -26,11 +25,10 @@ PSP_MAIN_THREAD_ATTR(THREAD_ATTR_USER);
 #endif
 
 static Physics physics;
-static Engine engine = Engine("Text Example");
+static Engine engine = Engine("File Example");
 static Graphics* graphics = nullptr;
 
-void loop()
-{
+void loop() {
     engine.update();
     engine.render(*graphics);
 }
@@ -50,22 +48,32 @@ int main() {
     cameraNode->addComponent(camera);
     engine.root.addChild(cameraNode);
 
-    std::shared_ptr<Node> node = std::make_shared<Node>();
-    std::shared_ptr<Label> label = std::make_shared<Label>("test text");
-    label->size = {100, 500};
-    node->transform.position = {-240, -136};
-    node->addComponent(label);
+    File *file = File::open("res://assets/label.txt", "r");
+    std::string text = file->getAsText();
+    file->close();
 
-    engine.root.addChild(node);
+    std::shared_ptr<Node> lnode = std::make_shared<Node>();
+    std::shared_ptr<Label> label = std::make_shared<Label>(text);
+    label->font->setSize(20);
+    label->font->setAlignment(FontAlignment::CENTER);
+    label->size = {400, 272};
+    label->origin = {0.5f, 0.5f};
+    label->screenSpace = true;
+    lnode->transform.position = {0, 0};
+    lnode->addComponent(label);
+
+    engine.root.addChild(lnode);
     engine.initialize();
 
 #ifdef EMSCRIPTEN
     emscripten_set_main_loop(loop, 0, 1);
 #else
-    while(!input.shouldQuit) {
+    while (!input.shouldQuit) {
         loop();
     }
+    engine.shutdown();
+    delete graphics;
 #endif
 
-    engine.shutdown();
+    return 0;
 }

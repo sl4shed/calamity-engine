@@ -1,0 +1,10 @@
+{
+    "title": "Camera Control example",
+    "description": "An example of the camera's transform property and Input service.",
+    "sourceFiles": [
+        "main.cpp", "cameraScript.hpp", "CMakeLists.txt"
+    ],
+    "width": 480,
+    "height": 272,
+    "tags": ["Sprite", "Script", "Camera", "Input", "InputRegistry"]
+}

@@ -1,0 +1,10 @@
+{
+  "title": "File example",
+  "description": "An example of the File API. It demonstrates how to read a file as a string and output it to the screen using a label.",
+  "sourceFiles": [
+    "main.cpp", "CMakeLists.txt", "assets/label.txt"
+  ],
+  "width": 480,
+  "height": 272,
+  "tags": ["File", "Label"]
+}

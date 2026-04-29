@@ -1,0 +1,2 @@
+this is the content of the label on screen!
+take a look at label.txt in the source code

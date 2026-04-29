@@ -53,15 +53,6 @@ void Node::addComponent(std::shared_ptr<Component> component)
         return;
     component->setNode(this);
     components.push_back(component);
-
-    if (auto *sprite = dynamic_cast<Sprite *>(component.get()))
-    {
-        if (currentSprite)
-        {
-            // todo throw an error here...
-        }
-        currentSprite = sprite;
-    }
 }
 
 void Node::removeComponent(std::shared_ptr<Component> component)
@@ -70,11 +61,6 @@ void Node::removeComponent(std::shared_ptr<Component> component)
     {
         if (components[i] == component)
         {
-            if (auto *sprite = dynamic_cast<Sprite *>(components[i].get()))
-            {
-                if (currentSprite == sprite)
-                    currentSprite = nullptr;
-            }
             components.erase(components.begin() + i);
             return;
         }

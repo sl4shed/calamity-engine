@@ -33,7 +33,6 @@ public:
 	Transform globalTransform;
 
 	Node *parent;
-	Sprite *currentSprite = nullptr;
 	std::vector<std::shared_ptr<Node>> children;
 	std::vector<std::shared_ptr<Component>> components;
 
@@ -69,8 +68,6 @@ public:
 	void input(InputEvent& event) const;
 	void exit() const;
 
-	std::vector<Script *> activeScripts;
-
 	template <class Archive>
 	void save(Archive &ar) const
 	{
@@ -87,10 +84,6 @@ public:
 		for (auto &c : components)
 		{
 			c->setNode(this);
-			if (Script *s = dynamic_cast<Script *>(c.get()))
-				activeScripts.push_back(s);
-			if (Sprite *s = dynamic_cast<Sprite *>(c.get()))
-				currentSprite = s;
 		}
 
 		// rewire child parent pointers
