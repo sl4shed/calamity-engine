@@ -187,7 +187,7 @@ public:
     int textureHeight;
     std::string path;
 private:
-    TextureScaling scaling;
+    TextureScaling scaling = TextureScaling::LINEAR;
 };
 
 /**
@@ -372,13 +372,13 @@ public:
     template <class Archive>
     void save(Archive &ar) const
     {
-        ar(CEREAL_NVP(fps), CEREAL_NVP(frames), CEREAL_NVP(texturePath), CEREAL_NVP(loop), CEREAL_NVP(autoplay));
+        ar(CEREAL_NVP(fps), CEREAL_NVP(frames), CEREAL_NVP(texturePath), CEREAL_NVP(textureScaling), CEREAL_NVP(loop), CEREAL_NVP(autoplay));
     }
 
     template <class Archive>
     void load(Archive &ar)
     {
-        ar(CEREAL_NVP(fps), CEREAL_NVP(frames), CEREAL_NVP(texturePath), CEREAL_NVP(loop), CEREAL_NVP(autoplay));
+        ar(CEREAL_NVP(fps), CEREAL_NVP(frames), CEREAL_NVP(texturePath), CEREAL_NVP(textureScaling), CEREAL_NVP(loop), CEREAL_NVP(autoplay));
     }
 };
 

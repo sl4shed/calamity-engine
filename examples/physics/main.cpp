@@ -63,7 +63,7 @@ int main() {
     cameraNode->addComponent(camera);
 
     std::shared_ptr<Node> node = std::make_shared<Node>("floorNode");
-    node->transform.position = {-150, 0};
+    node->transform.position = {0, 0};
     node->transform.setAngle(20.0f);
     auto shape = std::make_shared<BoxShape>(Vector2{300, 50});
     node->addComponent(std::make_shared<StaticBody>(shape));

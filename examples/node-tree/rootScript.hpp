@@ -109,7 +109,7 @@ public:
             sprite->texture = Texture("res://assets/cat.png");
             sprite->texture.width = size.x;
             sprite->texture.height = size.y;
-            sprite->origin = {0.0f, 0.0f};
+            //sprite->origin = {0.0f, 0.0f};
             fallingNode->addComponent(sprite);
 
             node->getChild("catNode")->addChild(fallingNode);

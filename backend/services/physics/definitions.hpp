@@ -92,7 +92,7 @@ public:
         ar(cereal::base_class<Shape>(this), CEREAL_NVP(size), CEREAL_NVP(scaledPolygon), CEREAL_NVP(polygon));
 
         // just reconstruct everything from size and center like the constructor does
-        Vector2 calculatedCenter = origin * size;
+        Vector2 calculatedCenter = (origin - Vector2{0.5f, 0.5f}) * size;
         b2Rot rotation = {cos(0.0f), sin(0.0f)};
 
         b2Polygon poly = b2MakeOffsetBox(size.x / 2 * PhysicsConstants::scale, size.y / 2 * PhysicsConstants::scale, (calculatedCenter * PhysicsConstants::scale), rotation);

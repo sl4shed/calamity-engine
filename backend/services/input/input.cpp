@@ -161,6 +161,7 @@ void Input::update(float deltaTime)
         }
     }
 
+    prevActionStrength = actionStrength;
     actionStrength.clear();
 
     // send events and pull action strengths and held actions
@@ -180,8 +181,6 @@ void Input::update(float deltaTime)
             }
         }
     }
-
-    prevActionStrength = actionStrength;
 
     for (auto& [name, action] : *actionsArrayPointer) {
         float evStrength = actionStrength.count(name) ? actionStrength[name] : 0.0f;
