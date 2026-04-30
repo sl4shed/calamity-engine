@@ -79,3 +79,4 @@ web-build/
 .vscode/
 docs-out/
 */build
+.wrangler
