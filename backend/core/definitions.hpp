@@ -277,7 +277,7 @@ struct Frame
 class Animation
 {
 public:
-    Animation(std::string _name = "Animation", int _fps = 30, Vector2 _size = {0, 0}, bool _loop = true, bool _autoplay = false, TextureScaling scaling = TextureScaling::NEAREST) : name(_name), fps(_fps), textureScaling(scaling), size(_size), loop(_loop), autoplay(_autoplay) {};
+    Animation(std::string _name = "Animation", int _fps = 30, Vector2 _size = {0, 0}, bool _loop = true, bool _autoplay = false) : name(_name), fps(_fps), size(_size), loop(_loop), autoplay(_autoplay) {};
 
     std::string name;
     int fps = 15;

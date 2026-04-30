@@ -13,9 +13,9 @@ class Node; // Forward declaration'
 
 /**
  * # Component class
- * Kinda self-explanatory. You have the ``update()`` and ``initialize()`` methods which should be ran by the parent node correspondingly.
+ * Base class for any component that can be attached to a Node. It exposes several virtual functiosn that are called across any components lifetime, such as `update(float deltaTime)`, `initialize()`, `input(InputEvent &event)`, `physicsUpdate()` and `exit()`.
  *
- * For serialization of any class that is based on Component, you need to implement the ``save()`` and ``load()`` methods, which are used by cereal for serialization.
+ * For serialization of any class that is based on Component, you need to implement the ``save()`` and ``load()`` methods, which are used by [cereal](https://uscilab.github.io/cereal/) for serialization and deserialization.
  */
 struct Component
 {
@@ -41,17 +41,54 @@ private:
 
 /**
  * # Sprite component
- * The sprite component renders a texture.
+ * The sprite component renders a texture to the screen.
  *
  * Example usage:
  * ```cpp
- * std::shared_ptr<Node> spriteNode = std::make_shared<Node>();
- * std::shared_ptr<Sprite> sprite = std::make_shared<Sprite>();
- * sprite->texture = Texture("path/to/texture.png");
+ * std::shared_ptr<Node> spriteNode = std::make_shared<Node>("spriteNode");
+ * std::shared_ptr<Sprite> sprite = std::make_shared<Sprite>("res://path/to/texture.png");
  * spriteNode->addComponent(sprite);
  * ```
+ * 
+ * ## Properties and usages
+ * 
+ * You can also modify it's origin:
+ * ```cpp
+ * sprite->origin = {0.0f, 0.0f} // instead of the center of the sprite being at the position of the node, now the top left will be at the position of the node.
+ * ```
+ * 
+ * The sprites Texture also has a width and height attribute. These define the size of the final rendered texture on the screen.
+ * ```cpp 
+ * sprite->texture.width = 64;
+ * sprite->texture.height = 64;
+ * ```
+ * 
+ * When you define the sprite, you can also define the TextureScaling mode:
+ * ```cpp
+ * std::shared_ptr<Sprite> sprite = std::make_shared<Sprite>("res://path/to/texture.png", TextureScaling::PIXELART);
+ * ```
+ * 
+ * You can also define the sprites source rectangle in a texture atlas. This allows you to pack a bunch of textures in one image which you can load all at once!
+ * ```cpp
+ * sprite->sourceRect = Rect{Vector2{0.0f, 0.0f}, Vector2{16.0f, 16.0f}};
+ * ```
+ * 
+ * Sprites also have a modulate property, which allows you to modify their color when theyre rendered:
+ * ```cpp
+ * sprite->modulate = Color::BLUE; // The sprite will now become blue
+ * ```
+ * 
+ * You can also make sprites render using screen space positioning. This can be used for UI elements and things like that:
+ * ```cpp
+ * sprite->screenSpace = true; // Now, the position of the sprite will directly translate to screen coordinates!
+ * ```
+ * 
+ * Sprites also define `flipH` and `flipV` variables. You can use these when animating a sprite, for example.
+ * ```cpp
+ * sprite->flipV = true; // The sprite will now render vertically flipped!
+ * ```
  *
- * Be sure to also check out the atlas example in the examples folder!
+ * Make sure to also check out the [atlas example](https://calamity.sl4shed.xyz/example-atlas)!
  */
 class Sprite : public Component
 {
@@ -63,7 +100,6 @@ public:
 
     Vector2 origin = {0.5f, 0.5f};
     Texture texture;
-    Vector2 tileSize = {0, 0}; // this means no tiling
 
     Rect sourceRect;
     bool visible = true;
@@ -77,16 +113,74 @@ public:
     template <class Archive>
     void save(Archive &ar) const
     {
-        ar(CEREAL_NVP(origin), CEREAL_NVP(sourceRect), CEREAL_NVP(visible), CEREAL_NVP(texture), CEREAL_NVP(screenSpace), CEREAL_NVP(modulate));
+        ar(CEREAL_NVP(origin), CEREAL_NVP(sourceRect), CEREAL_NVP(visible), CEREAL_NVP(texture), CEREAL_NVP(screenSpace), CEREAL_NVP(modulate), CEREAL_NVP(flipH), CEREAL_NVP(flipV));
     }
 
     template <class Archive>
     void load(Archive &ar)
     {
-        ar(CEREAL_NVP(origin), CEREAL_NVP(sourceRect), CEREAL_NVP(visible), CEREAL_NVP(texture), CEREAL_NVP(screenSpace), CEREAL_NVP(modulate));
+        ar(CEREAL_NVP(origin), CEREAL_NVP(sourceRect), CEREAL_NVP(visible), CEREAL_NVP(texture), CEREAL_NVP(screenSpace), CEREAL_NVP(modulate), CEREAL_NVP(flipH), CEREAL_NVP(flipV));
     }
 };
 
+/**
+ * # Animated Sprite 
+ * The AnimatedSprite class allows you to define \ref Animation ["animations"] composed of \ref Frame ["frames"] which will get rendered on screen.
+ * 
+ * Example usage:
+ * ```
+ * std::shared_ptr<Node> node = std::make_shared<Node>("myNode");
+ * std::shared_ptr<AnimatedSprite> sprite = std::make_shared<AnimatedSprite>();
+ * // arguments: animation name, FPS, size, loop and autoplay
+ * Animation anim = Animation("test", 2, Vector2{15, 15}, true, false);
+ * anim.texturePath = "res://assets/frames.png";
+ * anim.textureScaling = TextureScaling::PIXELART;
+ * 
+ * // append several frames to the sprite
+ * anim.addFrames(
+ *     // This adds a frame, with a sourceRect, a centered origin and the modulate color of blue.
+ *     Frame({{0,   0}, {32, 32}}, {0.5, 0.5}, Color::BLUE),
+ *     Frame({{32,  0}, {32, 32}}),
+ *     Frame({{64,  0}, {32, 32}}),
+ *     Frame({{64,  0}, {32, 32}}),
+ *     Frame({{64,  0}, {32, 32}}),
+ *     Frame({{64,  0}, {32, 32}}),
+ *     Frame({{96,  0}, {32, 32}}),
+ *     Frame({{128, 0}, {32, 32}})
+ * );
+ * 
+ * sprite->addAnimation(anim);
+ * node->addComponent(sprite);
+ * 
+ * sprite->play("test"); // The animation will now play and loop... forever!
+ * ```
+ * 
+ * ## Properties and usages
+ * 
+ * You can start, stop and pause animations:
+ * ```cpp
+ * sprite->play("test");
+ * 
+ * sprite->pause(); // the animation is now paused.
+ * sprite->play("test"); // you can resume it by firing play with the same animation name (in this case, "test")
+ * 
+ * sprite->stop();
+ * ```
+ * 
+ * AnimatedSprites also have a bunch of signals that you can register to callbacks. For example, you can register a callback when the animation is finished!
+ * ```cpp
+ * sprite->finished.connect([]() {
+ *     Logger::info("Animation finished playing!");
+ * });
+ * ```
+ * 
+ * And, just like regular \ref Sprite ["Sprites"], AnimatedSprites have the `flipV` and `flipH `attributes. This is useful when animating the sprite!
+ * ```cpp
+ * sprite->flipV = true; // The sprite will now render vertically flipped!
+ * ```
+ * 
+ * Make sure to also check out the [animated sprite example](https://calamity.sl4shed.xyz/example-animated-sprite)!
+ */
 class AnimatedSprite : public Component
 {
 public:
@@ -151,6 +245,31 @@ private:
     bool playing = false;
 };
 
+/**
+ * # Tilemap
+ * Using the Tilemap class, you can draw \ref Tile ["Tiles"] to the screen. Tiles define a sourceRect, among other things.
+ * 
+ * Here is a basic example:
+ * 
+ * ```cpp
+ * std::shared_ptr<Node> node = std::make_shared<Node>("tileNode");
+ * // The tilesize Vector2 in the constructor represents the tile size that is rendered to the screen!
+ * std::shared_ptr<Tilemap> map = std::make_shared<Tilemap>("res://path/to/texture.png", TextureScaling::PIXELART, Vector2{64.0f, 64.0f});
+ * 
+ * tilemap->addTiles(
+ *       Tile(Vector2{-5, 0}, Rect{{0, 0}, {16, 16}}),
+ *       Tile(Vector2{-4, 0}, Rect{{0, 0}, {16, 16}}),
+ *       Tile(Vector2{-3, 0}, Rect{{0, 0}, {16, 16}}),
+ *       Tile(Vector2{-2, 0}, Rect{{0, 0}, {16, 16}}),
+ *       Tile(Vector2{-1, 0}, Rect{{0, 0}, {16, 16}}),
+ *       Tile(Vector2{0, 0}, Rect{{0, 0}, {16, 16}}),
+ * );
+ * 
+ * node->addComponent(map);
+ * ```
+ * 
+ * Make sure to check out the [platformer example](https://calamity.sl4shed.xyz/example-platformer) too! It uses the Tilemap component for its map rendering.
+ */
 class Tilemap : public Component
 {
 public:
@@ -198,7 +317,7 @@ private:
 
 /**
  * # Script component
- * A base class for all scripts attached to nodes to inherit from. It provides the necessary api's like update, initialize, physicsUpdate, input and exit.
+ * A base class for all scripts attached to nodes. It exposes the \ref Component ["Components"] lifetime functions, which the user can override and change.
  *
  * To create a script and attach it to a node, create a header file somewhere like `scripts/ExampleScript.hpp`:
  * ```cpp
@@ -261,6 +380,8 @@ public:
 
 /**
  * # Camera component
+ * 
+ * 
  */
 class Camera : public Component
 {

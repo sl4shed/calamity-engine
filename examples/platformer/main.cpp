@@ -95,7 +95,8 @@ int main() {
     auto sprite = std::make_shared<AnimatedSprite>();
 
     // player animations
-    auto idle = Animation("idle", 5, Vector2{14, 19} * 4, true, true, TextureScaling::PIXELART);
+    auto idle = Animation("idle", 5, Vector2{14, 19} * 4, true, true);
+    idle.textureScaling = TextureScaling::PIXELART;
     idle.texturePath = "res://assets/knight.png";
     idle.addFrames(
         Frame(Rect{{9, 9}, {14, 19}}, {0.5, 0.5}),
@@ -105,7 +106,8 @@ int main() {
     );
     sprite->addAnimation(idle);
 
-    auto run = Animation("run", 10, Vector2{14, 19} * 4, true, false, TextureScaling::PIXELART);
+    auto run = Animation("run", 10, Vector2{14, 19} * 4, true, false);
+    run.textureScaling = TextureScaling::PIXELART;
     run.texturePath = "res://assets/knight.png";
     run.addFrames(
         Frame(Rect{{8, 73}, {14, 19}}, {0.5, 0.5}),

@@ -23,6 +23,7 @@ set(BUILD_TARGET "NATIVE" CACHE STRING "Build target: NATIVE | PSP | EMSCRIPTEN"
 set_property(CACHE BUILD_TARGET PROPERTY STRINGS NATIVE PSP EMSCRIPTEN)
 
 option(CALAMITY_VENDORED "Use vendored dependencies" OFF)
+option(CALAMITY_FIND_SDL3 OFF)
 
 add_library(${PROJECT_NAME} STATIC
         # core
@@ -80,7 +81,12 @@ if(CALAMITY_VENDORED)
         set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/$<CONFIGURATION>")
     endif()
 
-    add_subdirectory(vendored/SDL EXCLUDE_FROM_ALL)
+    if(CALAMITY_FIND_SDL3)
+        find_package(SDL3 REQUIRED CONFIG REQUIRED COMPONENTS SDL3-shared)
+    else()
+        add_subdirectory(vendored/SDL EXCLUDE_FROM_ALL)
+    endif()
+    
     add_subdirectory(vendored/SDL_image EXCLUDE_FROM_ALL)
     set(SDLTTF_VENDORED ON CACHE BOOL "" FORCE)
     add_subdirectory(vendored/SDL_ttf EXCLUDE_FROM_ALL)

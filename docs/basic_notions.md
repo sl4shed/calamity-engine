@@ -12,8 +12,8 @@ assets/
     # assets go here
 ```
 Obviously this isn't 100% required, but I heavily recommend it.
-Also, while I did write a lot of documentation for every class (documentation which I think is decent), make sure to also look at the examples folder for different features of the engine for actual real code examples which compile!
 
+By the way, the main way of navigating Calamity Engine's documentation is checking the documentation for a specific class you want info on. There are also the basic examples which you can find in the `examples` folder of the [Calamity Engine repository](https://github.com/sl4shed/calamity-engine) or on the [Calamity Engine website](https://calamity.sl4shed.xyz/examples).
 ## Initializing nodes and components
 
 ### Preface
@@ -24,7 +24,7 @@ Cereal does NOT like raw pointers, so, every node and component has to be a shar
 Let's take, for example, initializing the camera:
 ```cpp
 std::shared_ptr<Node> cameraNode = std::make_shared<Node>(); // make the node
-cameraNode->addComponent(std::make_shared<Camera>();); // add the camera component to the node
+cameraNode->addComponent(std::make_shared<Camera>()); // add the camera component to the node
 engine.root.addChild(cameraNode); // adding the node as a child to the root node of the engine
 ```
 
@@ -47,12 +47,11 @@ Here is an example script for moving the camera using the input system:
 // you HAVE to include these two
 #include <cereal/types/polymorphic.hpp>
 #include <cereal/archives/json.hpp>
-// other includes go here
 
 class CameraScript : public Script
 {
     Node *node;
-    Input *pe;
+    const int SPEED = 500;
 
 public:
     template <class Archive>
@@ -63,20 +62,18 @@ public:
 
     void initialize()
     {
-        // usually you initialize variables in the initialize function
         node = this->getNode();
-        pe = Services::input();
     }
 
     void update(float deltaTime) {
-        // PS, you have to add these actions yourself to the input registry, look at the input example's main.cpp file.
+        // PS, you have to add these actions yourself to the input registry. For more info, look at the input example's main.cpp file.
         auto vec = Services::input()->getVector("left", "right", "up", "down");
-        node->transform.position = node->transform.position + (vec * deltaTime);
+        node->transform.position = node->transform.position + (vec * deltaTime * SPEED);
     }
 };
 
 // you also have to do this at the bottom of your script file
-// otherwise your game won't compile
+// otherwise your game won't compile due to cereal
 CEREAL_REGISTER_TYPE(CameraScript);
 CEREAL_REGISTER_POLYMORPHIC_RELATION(Script, CameraScript);
 ```
