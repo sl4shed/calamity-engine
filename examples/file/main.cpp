@@ -16,7 +16,7 @@
 #include <pspctrl.h>
 #include <pspdisplay.h>
 #include <pspgu.h>
-PSP_MODULE_INFO("texture", 0, 1, 0);
+PSP_MODULE_INFO("File Example", 0, 1, 0);
 PSP_MAIN_THREAD_ATTR(THREAD_ATTR_USER);
 #endif
 
@@ -71,7 +71,7 @@ int main() {
     while (!input.shouldQuit) {
         loop();
     }
-    engine.shutdown();
+    engine.exit();
     delete graphics;
 #endif
 

@@ -1,4 +1,7 @@
 #include "services.hpp"
+#include "backend/services/audio.hpp"
+#include "backend/services/physics/physics.hpp"
+#include "backend/services/graphics.hpp"
 
 Graphics *Services::s_graphics = nullptr;
 Engine *Services::s_engine = nullptr;
@@ -45,8 +48,12 @@ Audio *Services::audio() {
     return s_audio;
 }
 
-void Services::shutdown()
+void Services::exit()
 {
+    s_audio->exit();
+    s_physics->exit();
+    s_graphics->exit();
+
     s_graphics = nullptr;
     s_engine = nullptr;
     s_input = nullptr;

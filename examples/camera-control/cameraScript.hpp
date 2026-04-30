@@ -44,8 +44,7 @@ public:
         float angle = node->transform.getAngleRadians();
         float cos_a = std::cos(angle);
         float sin_a = std::sin(angle);
-
-        // Assuming vec has x and y components
+        
         float rotatedX = vec.x * cos_a - vec.y * sin_a;
         float rotatedY = vec.x * sin_a + vec.y * cos_a;
 

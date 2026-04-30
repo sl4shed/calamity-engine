@@ -10,7 +10,7 @@ void Logger::init(const std::string &name)
     s_Logger->set_pattern("%^[%T] %n: %v%$");
 }
 
-void Logger::shutdown()
+void Logger::exit()
 {
     s_Logger.reset();
 }

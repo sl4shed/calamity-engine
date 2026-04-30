@@ -77,14 +77,17 @@ void Engine::update()
     }
 }
 
-void Engine::shutdown()
+void Engine::exit()
 {
-    for (const auto& child : root.children)
-    {
-        root.removeChild(child);
-    }
+    root.exit();
+    root.children.clear();
+    root.components.clear();
+
+    Services::exit();
+    Logger::exit();
 
 #ifdef PSP
+    Logger::debug("exiting");
     sceKernelSleepThread();
     sceKernelExitGame();
 #endif

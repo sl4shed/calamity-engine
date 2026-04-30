@@ -23,7 +23,7 @@
 #include <pspctrl.h>
 #include <pspdisplay.h>
 #include <pspgu.h>
-PSP_MODULE_INFO("texture", 0, 1, 0);
+PSP_MODULE_INFO("Node Tree Example", 0, 1, 0);
 PSP_MAIN_THREAD_ATTR(THREAD_ATTR_USER);
 #endif
 
@@ -120,5 +120,5 @@ int main() {
     }
 #endif
 
-    engine.shutdown();
+    engine.exit();
 }

@@ -14,15 +14,14 @@ class Audio
 {
 public:
     Audio();
-    ~Audio();
 
     static const int bufferSize = 4096 * 4;
     static const int chunkSize = 4096;
     void openAudioDevice(int id);
     SDL_AudioDeviceID getAudioDevice() const;
 
+    void exit();
     void initialize();
-    void shutdown();
 private:
     SDL_AudioDeviceID device;
 };
@@ -76,7 +75,7 @@ public:
     void pause();
     bool loadAudio();
     void update(float deltaTime);
-    void shutdown();
+    void exit();
 
     template <class Archive>
     void save(Archive &ar) const

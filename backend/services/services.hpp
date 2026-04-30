@@ -38,7 +38,7 @@ public:
     static Physics *physics();
     static Audio *audio();
 
-    static void shutdown();
+    static void exit();
 
 private:
     static Graphics *s_graphics;

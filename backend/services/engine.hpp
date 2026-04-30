@@ -20,7 +20,7 @@
  *  engine.render(Services::graphics());
  * }
  *
- * engine.shutdown();
+ * engine.exit();
  * ```
  *
  */
@@ -36,7 +36,7 @@ public:
     void update();
     void render(Graphics &graphics);
     void initialize();
-    void shutdown();
+    void exit();
 
     void setActiveCamera(Camera *camera);
     Camera *getActiveCamera() const;

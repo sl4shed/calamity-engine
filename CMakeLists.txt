@@ -128,6 +128,7 @@ else()
 
     find_package(SDL3_image REQUIRED CONFIG)
     find_package(SDL3_ttf REQUIRED CONFIG)
+
     find_package(box2d)
     target_link_libraries(${PROJECT_NAME} PUBLIC box2d)
 
@@ -148,14 +149,11 @@ else()
 
     find_package(SDL3_gfx REQUIRED)
     if(BUILD_TARGET STREQUAL "PSP")
-        find_package(SDL3_gfx REQUIRED)
+        # idk why but i have to do this with the psp sdl package
+        # i have no idea if its an issue with the package but maybe it is idk
         target_include_directories(${PROJECT_NAME} PUBLIC ${SDL3_gfx_INCLUDE_DIR})
         target_link_libraries(${PROJECT_NAME} PUBLIC ${SDL3_gfx_LIB_DIR}/libSDL3_gfx.a)
     else()
         target_link_libraries(${PROJECT_NAME} PUBLIC SDL3_gfx)
     endif()
 endif()
-
-# sdl gfx
-# i need to include it vendored regardless lmao
-

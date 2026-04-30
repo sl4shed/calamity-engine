@@ -16,7 +16,7 @@
 #include <pspctrl.h>
 #include <pspdisplay.h>
 #include <pspgu.h>
-PSP_MODULE_INFO("texture", 0, 1, 0);
+PSP_MODULE_INFO("Platformer Example", 0, 1, 0);
 PSP_MAIN_THREAD_ATTR(THREAD_ATTR_USER);
 #endif
 
@@ -70,19 +70,20 @@ int main() {
     inputRegistry.addAction("up", 0.2f);
     auto upEvent = std::make_unique<InputEventControllerButton>();
     upEvent->device = 0;
-    upEvent->button = ControllerButton::DPAD_UP;
+    upEvent->button = ControllerButton::SOUTH;
     inputRegistry.actionAddEvent("up", std::move(upEvent));
 
     auto upEventK = std::make_unique<InputEventKey>();
     upEventK->pressed = true;
-    upEventK->scancode = Keycode::W;
+    upEventK->scancode = Keycode::SPACE;
     inputRegistry.actionAddEvent("up", std::move(upEventK));
 
     // node stuff
 
-    std::shared_ptr<Node> cameraNode = std::make_shared<Node>();
+    std::shared_ptr<Node> cameraNode = std::make_shared<Node>("cameraNode");
     cameraNode->transform.setScale({3, 3});
     std::shared_ptr<Camera> camera = std::make_shared<Camera>();
+    camera->smoothing = 0.3f;
     cameraNode->addComponent(camera);
 
     // player node
@@ -91,15 +92,38 @@ int main() {
     auto sprite = std::make_shared<AnimatedSprite>();
 
     // player animations
-    auto idle = Animation("idle", 5, Vector2{13, 19} * 4, true, true, TextureScaling::PIXELART);
+    auto idle = Animation("idle", 5, Vector2{14, 19} * 4, true, true, TextureScaling::PIXELART);
     idle.texturePath = "res://assets/knight.png";
     idle.addFrames(
-        Frame(Rect{{9, 9}, {13, 19}}, {0.5, 0.5}),
-        Frame(Rect{{41, 9}, {13, 19}}, {0.5, 0.5}),
-        Frame(Rect{{73, 9}, {13, 19}}, {0.5, 0.5}),
-        Frame(Rect{{105, 9}, {13, 19}}, {0.5, 0.5})
+        Frame(Rect{{9, 9}, {14, 19}}, {0.5, 0.5}),
+        Frame(Rect{{41, 9}, {14, 19}}, {0.5, 0.5}),
+        Frame(Rect{{73, 9}, {14, 19}}, {0.5, 0.5}),
+        Frame(Rect{{105, 9}, {14, 19}}, {0.5, 0.5})
     );
     sprite->addAnimation(idle);
+
+    auto run = Animation("run", 10, Vector2{14, 19} * 4, true, false, TextureScaling::PIXELART);
+    run.texturePath = "res://assets/knight.png";
+    run.addFrames(
+        Frame(Rect{{8, 73}, {14, 19}}, {0.5, 0.5}),
+        Frame(Rect{{41, 73}, {14, 19}}, {0.5, 0.5}),
+        Frame(Rect{{73, 73}, {14, 19}}, {0.5, 0.5}),
+        Frame(Rect{{104, 73}, {14, 19}}, {0.5, 0.5}),
+        Frame(Rect{{136, 73}, {14, 19}}, {0.5, 0.5}),
+        Frame(Rect{{169, 73}, {14, 19}}, {0.5, 0.5}),
+        Frame(Rect{{200, 73}, {14, 19}}, {0.5, 0.5}),
+        Frame(Rect{{232, 73}, {14, 19}}, {0.5, 0.5}),
+
+        Frame(Rect{{8, 104}, {14, 19}}, {0.5, 0.5}),
+        Frame(Rect{{41, 105}, {14, 19}}, {0.5, 0.5}),
+        Frame(Rect{{72, 105}, {14, 19}}, {0.5, 0.5}),
+        Frame(Rect{{104, 105}, {14, 19}}, {0.5, 0.5}),
+        Frame(Rect{{136, 105}, {14, 19}}, {0.5, 0.5}),
+        Frame(Rect{{168, 105}, {14, 19}}, {0.5, 0.5}),
+        Frame(Rect{{200, 105}, {14, 19}}, {0.5, 0.5}),
+        Frame(Rect{{232, 105}, {14, 19}}, {0.5, 0.5})
+    );
+    sprite->addAnimation(run);
 
     // rest of player node code
     node->addComponent(sprite);
@@ -108,11 +132,11 @@ int main() {
     mat.density = 10.0f;
     shape->applyMaterial(mat);
     auto rbody = std::make_shared<RigidBody>(shape);
-    rbody->fixRotation(true);
+    rbody->lockRotation(true);
 
     node->addComponent(rbody);
     node->addComponent(std::make_shared<PlayerScript>());
-    node->addComponent(camera);
+    node->addChild(cameraNode);
 
     // other nodes
     auto map = std::make_shared<Node>("map");
@@ -135,7 +159,6 @@ int main() {
         Tile(Vector2{4, 0}, Rect{{0, 0}, {16, 16}}),
         Tile(Vector2{5, 0}, Rect{{0, 0}, {16, 16}}),
         Tile(Vector2{6, 0}, Rect{{0, 0}, {16, 16}}),
-        Tile(Vector2{7, 0}, Rect{{0, 0}, {16, 16}}),
 
         // dirt layer 1
         Tile(Vector2{-7, 1}, Rect{{0, 16}, {16, 16}}),
@@ -152,7 +175,6 @@ int main() {
         Tile(Vector2{4, 1}, Rect{{0, 16}, {16, 16}}),
         Tile(Vector2{5, 1}, Rect{{0, 16}, {16, 16}}),
         Tile(Vector2{6, 1}, Rect{{0, 16}, {16, 16}}),
-        Tile(Vector2{7, 1}, Rect{{0, 16}, {16, 16}}),
 
         // dirt layer 2
         Tile(Vector2{-7, 2}, Rect{{0, 16}, {16, 16}}),
@@ -168,13 +190,10 @@ int main() {
         Tile(Vector2{3, 2}, Rect{{0, 16}, {16, 16}}),
         Tile(Vector2{4, 2}, Rect{{0, 16}, {16, 16}}),
         Tile(Vector2{5, 2}, Rect{{0, 16}, {16, 16}}),
-        Tile(Vector2{6, 2}, Rect{{0, 16}, {16, 16}}),
-        Tile(Vector2{7, 2}, Rect{{0, 16}, {16, 16}})
+        Tile(Vector2{6, 2}, Rect{{0, 16}, {16, 16}})
     );
     auto mshape = std::make_shared<BoxShape>(Vector2{896.0f, 192.0f}, Vector2{0.5f, 1.0f});
     map->addComponent(std::make_shared<StaticBody>(mshape));
-    map->addComponent(std::make_shared<ShapeSprite>(mshape));
-
 
     map->addComponent(tilemap);
 
@@ -189,7 +208,8 @@ int main() {
     while (!input.shouldQuit) {
         loop();
     }
-    engine.shutdown();
+
+    engine.exit();
     delete graphics;
 #endif
 

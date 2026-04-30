@@ -23,6 +23,7 @@ class PlayerScript : public Script
     Input *pe;
     Node *node;
     std::shared_ptr<RigidBody> body;
+    std::shared_ptr<AnimatedSprite> sprite;
 
 public:
     template <class Archive>
@@ -36,11 +37,12 @@ public:
         node = this->getNode();
         pe = Services::input();
         body = node->getComponent<RigidBody>();
+        sprite = node->getComponent<AnimatedSprite>();
     }
 
     void input(InputEvent& event) override
     {
-        if (event.isActionPressed("up"))
+        if (event.isActionPressed("up") && body->isOnGround())
         {
             Vector2 vel = body->getLinearVelocity();
             body->setLinearVelocity(Vector2{vel.x, vel.y - JUMP});
@@ -52,6 +54,27 @@ public:
         auto vec = pe->getAxis("left", "right");
         body->setLinearVelocity({vec * SPEED, 0});
 
+        if (vec < 0)
+        {
+            if(sprite->getCurrentAnimationName() == "idle") {
+                sprite->stop();
+                sprite->play("run");
+            }
+
+            sprite->flipH = true;
+        } else if (vec > 0)
+        {
+            if(sprite->getCurrentAnimationName() == "idle") {
+                sprite->play("run");
+            }
+
+            sprite->flipH = false;
+        } else if (vec == 0) {
+            if(sprite->getCurrentAnimationName() == "run") {
+                sprite->stop();
+                sprite->play("idle");
+            }
+        }
     }
 };
 

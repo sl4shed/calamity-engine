@@ -108,7 +108,7 @@ int main() {
     node->addComponent(sprite);
     auto shape = std::make_shared<BoxShape>(Vector2{128, 128});
     auto rbody = std::make_shared<RigidBody>(shape);
-    rbody->fixRotation(true);
+    rbody->lockRotation(true);
     node->addComponent(rbody);
     node->addComponent(std::make_shared<PlayerScript>());
     node->addChild(cameraNode); // parent the camera to the player so that it follows the player around :+1:
@@ -153,7 +153,7 @@ int main() {
     while (!input.shouldQuit) {
         loop();
     }
-    engine.shutdown();
+    engine.exit();
     delete graphics;
 #endif
 

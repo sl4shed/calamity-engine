@@ -32,6 +32,31 @@ void Camera::initialize()
     }
 }
 
+void Camera::update(float deltaTime) {
+    const Vector2 target = getNode()->globalTransform.position;
+    
+    if (smoothing <= 0.0f)
+    {
+        globalPos = target;
+        return;
+    }
+    
+    const float t = 1.0f - std::exp(-deltaTime / smoothing);
+    globalPos = globalPos + (target - globalPos) * t;
+}
+
+Transform Camera::getCameraTransform() const 
+{
+    Transform t = getNode()->globalTransform;
+    t.position = globalPos;
+    return t;
+}
+
+Vector2 Camera::getGlobalPosition()
+{
+    return globalPos;
+}
+
 Vector2 Camera::screenToWorld(const Vector2 screen) const
 {
     const auto screenSize = Services::graphics()->screenSize;
@@ -146,6 +171,18 @@ Vector2 AnimatedSprite::getCurrentSize() const
 {
     if (!currentAnimation) return {0, 0};
     return currentAnimation->size;
+}
+
+std::string AnimatedSprite::getCurrentAnimationName() const
+{
+    if(!currentAnimation) return "";
+    return currentAnimation->name;
+}
+
+Animation *AnimatedSprite::getCurrentAnimation() const
+{
+    if(!currentAnimation) return nullptr;
+    return currentAnimation.get();
 }
 
 void AnimatedSprite::update(float deltaTime)

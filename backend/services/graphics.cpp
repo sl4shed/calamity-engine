@@ -97,7 +97,7 @@ void Graphics::renderComponent(const Sprite &sprite) const
     if (!sprite.texture.handle) return;
 
     const Camera *activeCamera = Services::engine()->getActiveCamera();
-    const Transform cameraTransform = activeCamera->getNode()->globalTransform;
+    const Transform cameraTransform = activeCamera->getCameraTransform();
     SDL_Vertex vertices[4];
     const auto modulate = static_cast<SDL_FColor>(sprite.modulate);
     vertices[0] = {{-(sprite.texture.width * sprite.origin.x), -(sprite.texture.height * sprite.origin.y)}, modulate, {0, 0}};
@@ -131,6 +131,18 @@ void Graphics::renderComponent(const Sprite &sprite) const
         vertice.tex_coord.y = texturePos.y;
     }
 
+    // flip horizontally or vertically
+    if (sprite.flipH)
+    {
+        std::swap(vertices[0].tex_coord.x, vertices[1].tex_coord.x);
+        std::swap(vertices[2].tex_coord.x, vertices[3].tex_coord.x);
+    }
+    if (sprite.flipV)
+    {
+        std::swap(vertices[0].tex_coord.y, vertices[3].tex_coord.y);
+        std::swap(vertices[1].tex_coord.y, vertices[2].tex_coord.y);
+    }
+
     const int indices[6] = {0, 1, 2, 2, 3, 0};
     SDL_RenderGeometry(this->renderer, sprite.texture.handle, vertices, 4, indices, 6);
 }
@@ -141,7 +153,7 @@ void Graphics::renderComponent(const ShapeSprite &sprite) const
     if (!node) return;
 
     const Camera *activeCamera = Services::engine()->getActiveCamera();
-    const Transform cameraTransform = activeCamera->getNode()->globalTransform;
+    const Transform cameraTransform = activeCamera->getCameraTransform();
     const Vector2 originOffset = {screenSize.x * activeCamera->origin.x, screenSize.y * activeCamera->origin.y};
     const auto modulate = static_cast<SDL_FColor>(sprite.modulate);
     auto cameraInverse = cameraTransform.inverse();
@@ -238,7 +250,7 @@ void Graphics::renderComponent(const Label &label) const
     if(!texture) return;
 
     const Camera *activeCamera = Services::engine()->getActiveCamera();
-    const Transform cameraTransform = activeCamera->getNode()->globalTransform;
+    const Transform cameraTransform = activeCamera->getCameraTransform();
     SDL_Vertex vertices[4];
 
     float w;
@@ -289,7 +301,7 @@ void Graphics::renderComponent(const AnimatedSprite &sprite) const
     if (!texture) return;
 
     const Camera *activeCamera = Services::engine()->getActiveCamera();
-    const Transform cameraTransform = activeCamera->getNode()->globalTransform;
+    const Transform cameraTransform = activeCamera->getCameraTransform();
     const Rect sourceRect = frame->rect;
 
     SDL_Vertex vertices[4];
@@ -325,6 +337,18 @@ void Graphics::renderComponent(const AnimatedSprite &sprite) const
         vertice.tex_coord.y = texturePos.y;
     }
 
+    // flip horizontally or vertically
+    if (sprite.flipH)
+    {
+        std::swap(vertices[0].tex_coord.x, vertices[1].tex_coord.x);
+        std::swap(vertices[2].tex_coord.x, vertices[3].tex_coord.x);
+    }
+    if (sprite.flipV)
+    {
+        std::swap(vertices[0].tex_coord.y, vertices[3].tex_coord.y);
+        std::swap(vertices[1].tex_coord.y, vertices[2].tex_coord.y);
+    }
+
     const int indices[6] = {0, 1, 2, 2, 3, 0};
     SDL_RenderGeometry(this->renderer, texture->handle, vertices, 4, indices, 6);
 }
@@ -337,7 +361,7 @@ void Graphics::renderComponent(const Tilemap& tilemap) const
     if (tilemap.vertexBuffer.empty()) return;
 
     const Camera *activeCamera = Services::engine()->getActiveCamera();
-    const Transform cameraTransform = activeCamera->getNode()->globalTransform;
+    const Transform cameraTransform = activeCamera->getCameraTransform();
     const Vector2 originOffset = {screenSize.x * activeCamera->origin.x, screenSize.y * activeCamera->origin.y};
     auto [position, transformation] = cameraTransform.inverse();
 
@@ -371,4 +395,8 @@ void Graphics::preRender() const
 void Graphics::postRender() const
 {
     SDL_RenderPresent(this->renderer);
+}
+
+void Graphics::exit() {
+    SDL_Quit();
 }

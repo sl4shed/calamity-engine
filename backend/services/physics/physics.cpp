@@ -23,7 +23,7 @@ void Physics::physicsUpdate(const float timeStep) {
     b2World_Step(worldId, timeStep, subSteps);
 }
 
-Physics::~Physics() {
+void Physics::exit() {
     b2DestroyWorld(worldId);
 }
 
@@ -35,8 +35,8 @@ void RigidBody::initCompute()
 {
     bodyDef = b2DefaultBodyDef();
     bodyDef.type = b2_dynamicBody;
-    bodyDef.linearDamping = 0.1f;
     bodyDef.angularDamping = 0.1f;
+
     bodyId = b2CreateBody(Services::physics()->worldId, &bodyDef);
 
     if (const auto* box = dynamic_cast<BoxShape*>(shape.get()))
@@ -115,17 +115,41 @@ void RigidBody::initialize() {
     b2Body_SetTransform(bodyId, tr.position * PhysicsConstants::scale, {cos(tr.getAngleRadians()), sin(tr.getAngleRadians())});
 }
 
-void RigidBody::fixRotation(const bool value) const
-{
-    b2Body_SetFixedRotation(bodyId, value);
-}
-
 Vector2 RigidBody::getLinearVelocity() const
 {
     return Vector2(b2Body_GetLinearVelocity(bodyId));
 }
 
-RigidBody::~RigidBody() {
+bool RigidBody::isOnGround() {
+    b2ContactData contactData[8]; // max contacts to check
+    int count = b2Body_GetContactData(bodyId, contactData, 8);
+
+    for (int i = 0; i < count; i++)
+    {
+        b2Manifold& manifold = contactData[i].manifold;
+
+        if (manifold.normal.y < -0.5f)
+            return true;
+    }
+    return false;
+}
+
+void RigidBody::lockRotation(bool value)
+{
+    this->rotationLocked = value;
+
+    // here i have to account for different box2d versions (yay!!)
+#ifdef CALAMITY_VENDORED
+    b2MotionLocks m = b2MotionLocks();
+    m.angularZ = value;
+    b2Body_SetMotionLocks(bodyId, m);
+#else
+    b2Body_SetFixedRotation(bodyId, value);
+#endif
+
+}
+
+void RigidBody::exit() {
     b2DestroyBody(bodyId);
 }
 
@@ -137,7 +161,6 @@ void StaticBody::initCompute()
 {
     bodyDef = b2DefaultBodyDef();
     bodyDef.type = b2_staticBody;
-    bodyDef.linearDamping = 0.1f;
     bodyDef.angularDamping = 0.1f;
     bodyId = b2CreateBody(Services::physics()->worldId, &bodyDef);
 
@@ -187,7 +210,7 @@ void StaticBody::initialize() {
     b2Body_SetTransform(bodyId, tr.position * PhysicsConstants::scale, {cos(tr.getAngleRadians()), sin(tr.getAngleRadians())});
 }
 
-StaticBody::~StaticBody() {
+void StaticBody::exit() {
     b2DestroyBody(bodyId);
 }
 
@@ -199,7 +222,6 @@ void KinematicBody::initCompute()
 {
     bodyDef = b2DefaultBodyDef();
     bodyDef.type = b2_kinematicBody;
-    bodyDef.linearDamping = 0.1f;
     bodyDef.angularDamping = 0.1f;
     bodyId = b2CreateBody(Services::physics()->worldId, &bodyDef);
 
@@ -274,6 +296,6 @@ void KinematicBody::initialize() {
     b2Body_SetTransform(bodyId, tr.position * PhysicsConstants::scale, {cos(tr.getAngleRadians()), sin(tr.getAngleRadians())});
 }
 
-KinematicBody::~KinematicBody() {
+void KinematicBody::exit() {
     b2DestroyBody(bodyId);
 }

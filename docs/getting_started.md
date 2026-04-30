@@ -7,7 +7,7 @@ sudo pacman -Syu git cmake make ninja sdl3 sdl3_image sdl3_ttf fmt spdlog cereal
 yay -S sdl3_gfx-git # on arch, I created this aur package for sdl3_gfx
 
 # On any other distro that does not have sdl3_gfx packaged, you will have to build vendored. Sorry :(
-# Debian/Ubuntu
+# Debian/Ubuntu 25 (older ubuntu does not have sdl3 packaged)
 sudo apt install git cmake make ninja-build libsdl3-dev libsdl3-image-dev libsdl3-ttf-dev libfmt-dev libspdlog-dev libcereal-dev
 
 # Fedora
@@ -17,7 +17,7 @@ sudo dnf install git cmake make ninja-build SDL3-devel SDL3_image-devel SDL3_ttf
 
 3. Build the project:
 
-### Windows MSVC
+### Windows Mingw64
 <a id="windows"></a>
 Keep in mind, Windows MSVC builds are still very much experimental. Maybe they will work, maybe they won't.
 The only testing environment I had available was a Windows 10 LTSC virtual machine.
@@ -44,7 +44,10 @@ After you have WSL set up, follow the regular Linux building guide. (Of course, 
 ```bash
 mkdir build
 cd build
+# If you're on arch and have sdl3_gfx-git installed:
 cmake -G Ninja -DCMAKE_BUILD_TYPE=Debug ..
+# If you're on any other distro and don't have sdl3_gfx installed:
+cmake -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCALAMITY_VENDORED=ON ..
 ninja
 ```
 

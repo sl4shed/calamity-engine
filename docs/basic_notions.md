@@ -32,7 +32,7 @@ Any nodes that you want to be visible on screen have to be a child of the engine
 
 ## Scripts and other components
 
-Scripts are genuinely just classes in header files that extend components. Since scripts extend components you get convenient virtual functions such as: initialize, update, physics update and shutdown.
+Scripts are genuinely just classes in header files that extend components. Since scripts extend components you get convenient virtual functions such as: initialize, update, physics update and exit.
 
 Since [cereal](https://uscilab.github.io/cereal/) doesn't like it when components don't have save and load functions, scripts have to include them. I decided that's probably the best way to go about it since developers (YOU) get more control over what's saved and what isn't.
 

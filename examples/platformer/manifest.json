@@ -1,6 +1,6 @@
 {
   "title": "Platformer example",
-  "description": "An example game - a platformer! Move around your character with WASD.",
+  "description": "An example game - a platformer! Move around your character with WASD. Credits to Brackeys for the asset pack used in this example!",
   "sourceFiles": [
     "main.cpp", "CMakeLists.txt", "playerScript.hpp"
   ],

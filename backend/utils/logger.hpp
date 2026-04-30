@@ -7,7 +7,7 @@ class Logger
 {
 public:
     static void init(const std::string &name = "Calamity");
-    static void shutdown();
+    static void exit();
 
     template <typename... Args>
     static void info(fmt::format_string<Args...> fmt, Args &&...args)

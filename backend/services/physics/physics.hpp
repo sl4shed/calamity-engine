@@ -17,7 +17,7 @@ class Physics
 {
 public:
     Physics(Vector2 gravity = {0.0f, 9.81f});
-    ~Physics();
+    void exit();
 
     void physicsUpdate(float timeStep);
     int subSteps = 4;
@@ -31,9 +31,9 @@ class StaticBody : public Component
 {
 public:
     StaticBody();
-    ~StaticBody() override;
     StaticBody(const std::shared_ptr<Shape>& shape);
 
+    void exit() override;
     void physicsUpdate() override;
     void initialize() override;
     void initCompute();
@@ -70,14 +70,12 @@ class RigidBody : public Component
 {
 public:
     RigidBody();
-    ~RigidBody() override;
     explicit RigidBody(const std::shared_ptr<Shape>& shape);
 
+    void exit() override;
     void physicsUpdate() override;
     void initialize() override;
     void initCompute();
-
-    void fixRotation(bool value) const;
 
     void setPosition(Vector2 pos) const;
     void setAngle(float angle) const;
@@ -86,19 +84,21 @@ public:
     void applyForce(Vector2 force) const;
     void applyImpulse(Vector2 impulse) const;
 
+    bool isOnGround();
+    void lockRotation(bool value);
     Vector2 getLinearVelocity() const;
 
     std::shared_ptr<Shape> shape;
     template <class Archive>
     void save(Archive &ar) const
     {
-        ar(CEREAL_NVP(shape), CEREAL_NVP(storedTransform));
+        ar(CEREAL_NVP(shape), CEREAL_NVP(storedTransform), CEREAL_NVP(rotationLocked));
     }
 
     template <class Archive>
     void load(Archive &ar)
     {
-        ar(CEREAL_NVP(shape), CEREAL_NVP(storedTransform));
+        ar(CEREAL_NVP(shape), CEREAL_NVP(storedTransform), CEREAL_NVP(rotationLocked));
         initCompute();
 
         const float angle = storedTransform.getAngleRadians();
@@ -110,15 +110,16 @@ private:
     b2BodyId bodyId;
 
     Transform storedTransform;
+    bool rotationLocked = false;
 };
 
 class KinematicBody : public Component
 {
 public:
     KinematicBody();
-    ~KinematicBody() override;
     explicit KinematicBody(const std::shared_ptr<Shape>& shape);
 
+    void exit() override;
     void physicsUpdate() override;
     void initialize() override;
     void initCompute();

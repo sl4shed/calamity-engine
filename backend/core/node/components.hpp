@@ -71,6 +71,9 @@ public:
     bool screenSpace = false;
     Color modulate = Color::WHITE;
 
+    bool flipH = false;
+    bool flipV = false;
+
     template <class Archive>
     void save(Archive &ar) const
     {
@@ -105,10 +108,16 @@ public:
     Signal<std::string> stopped;
     Signal<std::string> paused;
 
+    bool flipH = false;
+    bool flipV = false;
+
     const Texture* getCurrentTexture() const;
     Vector2 getCurrentSize() const;
     bool isPlaying() const;
     Frame *getCurrentFrame() const;
+    
+    std::string getCurrentAnimationName() const;
+    Animation *getCurrentAnimation() const;
 
     std::map<std::string, Animation> animations;
     bool visible = true;
@@ -259,9 +268,13 @@ public:
     void setActive();
     bool active = true;
     Vector2 origin = {0.5f, 0.5f};
+    float smoothing = 0.0f;
 
+    void update(float deltaTime) override;
     void initialize() override;
 
+    Vector2 getGlobalPosition();
+    Transform getCameraTransform() const;
     Vector2 screenToWorld(Vector2 screen) const;
 
     template <class Archive>
@@ -275,6 +288,8 @@ public:
     {
         ar(CEREAL_NVP(active), CEREAL_NVP(origin));
     }
+private:
+    Vector2 globalPos = Vector2{0.0f, 0.0f};
 };
 
 #include <cereal/archives/json.hpp>

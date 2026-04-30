@@ -9,7 +9,7 @@ Audio::Audio()
     this->openAudioDevice(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK);
 }
 
-Audio::~Audio() {
+void Audio::exit() {
     SDL_CloseAudioDevice(this->device);
 }
 
@@ -162,7 +162,7 @@ void AudioSource::update(float deltaTime)
     }
 }
 
-void AudioSource::shutdown()
+void AudioSource::exit()
 {
     if (this->handle.stream) {
         SDL_DestroyAudioStream(this->handle.stream);
