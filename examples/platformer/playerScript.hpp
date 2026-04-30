@@ -18,7 +18,7 @@
 class PlayerScript : public Script
 {
     const int SPEED = 5;
-    const int JUMP = 50;
+    const int JUMP = 6;
 
     Input *pe;
     Node *node;
@@ -40,20 +40,20 @@ public:
         sprite = node->getComponent<AnimatedSprite>();
     }
 
-    void input(InputEvent& event) override
+    void input(InputEvent &event)
     {
-        if (event.isActionPressed("up") && body->isOnGround())
-        {
+        if(event.isActionPressed("up") && body->isOnGround()) {
             Vector2 vel = body->getLinearVelocity();
-            body->setLinearVelocity(Vector2{vel.x, vel.y - JUMP});
+            body->setLinearVelocity({vel.x, vel.y - JUMP});
         }
     }
 
     void physicsUpdate()
     {
+        Vector2 vel = body->getLinearVelocity();
         auto vec = pe->getAxis("left", "right");
-        body->setLinearVelocity({vec * SPEED, 0});
 
+        body->setLinearVelocity({vec * SPEED, vel.y});
         if (vec < 0)
         {
             if(sprite->getCurrentAnimationName() == "idle") {

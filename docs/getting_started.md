@@ -6,6 +6,7 @@
 sudo pacman -Syu git cmake make ninja sdl3 sdl3_image sdl3_ttf fmt spdlog cereal
 yay -S sdl3_gfx-git # on arch, I created this aur package for sdl3_gfx
 
+
 # On any other distro that does not have sdl3_gfx packaged, you will have to build vendored. Sorry :(
 # Debian/Ubuntu 25 (older ubuntu does not have sdl3 packaged)
 sudo apt install git cmake make ninja-build libsdl3-dev libsdl3-image-dev libsdl3-ttf-dev libfmt-dev libspdlog-dev libcereal-dev

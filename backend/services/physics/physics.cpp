@@ -54,6 +54,11 @@ void RigidBody::initCompute()
         const b2Capsule c = capsule->scaledCapsule;
         b2CreateCapsuleShape(bodyId, &capsule->shapeDef, &c);
     }
+    else if (const auto* polygon = dynamic_cast<PolygonShape*>(shape.get()))
+    {
+        const b2Polygon p = polygon->scaledPolygon;
+        b2CreatePolygonShape(bodyId, &polygon->shapeDef, &p);
+    }
 }
 
 RigidBody::RigidBody() {}
@@ -128,7 +133,7 @@ bool RigidBody::isOnGround() {
     {
         b2Manifold& manifold = contactData[i].manifold;
 
-        if (manifold.normal.y < -0.5f)
+        if (std::abs(manifold.normal.y) > 0.5f)
             return true;
     }
     return false;
@@ -178,6 +183,11 @@ void StaticBody::initCompute()
     {
         const b2Capsule c = capsule->scaledCapsule;
         b2CreateCapsuleShape(bodyId, &capsule->shapeDef, &c);
+    }
+    else if (const auto* polygon = dynamic_cast<PolygonShape*>(shape.get()))
+    {
+        const b2Polygon p = polygon->scaledPolygon;
+        b2CreatePolygonShape(bodyId, &polygon->shapeDef, &p);
     }
 }
 
@@ -239,6 +249,11 @@ void KinematicBody::initCompute()
     {
         const b2Capsule c = capsule->scaledCapsule;
         b2CreateCapsuleShape(bodyId, &capsule->shapeDef, &c);
+    }
+    else if (const auto* polygon = dynamic_cast<PolygonShape*>(shape.get()))
+    {
+        const b2Polygon p = polygon->scaledPolygon;
+        b2CreatePolygonShape(bodyId, &polygon->shapeDef, &p);
     }
 }
 

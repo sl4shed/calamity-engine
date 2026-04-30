@@ -134,28 +134,28 @@ public:
     }
 };
 
-// class PolygonShape : public Shape
-// {
-// public:
-//     PolygonShape() = default;
-//     PolygonShape(Polygon polygon, Vector2 origin = {0.5f, 0.5f});
-//
-//     Polygon polygon;
-//     Polygon scaledPolygon;
-//
-//     template <class Archive>
-//     void save(Archive &ar) const
-//     {
-//         ar(cereal::base_class<Shape>(this), CEREAL_NVP(scaledPolygon), CEREAL_NVP(polygon));
-//     }
-//
-//     template <class Archive>
-//     void load(Archive &ar)
-//     {
-//         ar(cereal::base_class<Shape>(this), CEREAL_NVP(scaledPolygon), CEREAL_NVP(polygon));
-//         this->shapeDef = b2DefaultShapeDef();
-//     }
-// };
+class PolygonShape : public Shape
+{
+public:
+    PolygonShape() = default;
+    PolygonShape(std::vector<Vector2> points);
+
+    Polygon polygon;
+    Polygon scaledPolygon;
+
+    template <class Archive>
+    void save(Archive &ar) const
+    {
+        ar(cereal::base_class<Shape>(this), CEREAL_NVP(scaledPolygon), CEREAL_NVP(polygon));
+    }
+
+    template <class Archive>
+    void load(Archive &ar)
+    {
+        ar(cereal::base_class<Shape>(this), CEREAL_NVP(scaledPolygon), CEREAL_NVP(polygon));
+        this->shapeDef = b2DefaultShapeDef();
+    }
+};
 
 
 /**

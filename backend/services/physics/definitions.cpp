@@ -1,5 +1,6 @@
 #include "definitions.hpp"
 #include "../../core/definitions.hpp"
+#include "../../utils/logger.hpp"
 
 BoxShape::BoxShape(const Vector2 size, const Vector2 center) {
     this->size = size;
@@ -43,15 +44,34 @@ CapsuleShape::CapsuleShape(const Vector2 center1, const Vector2 center2, const f
     this->shapeDef = b2DefaultShapeDef();
 }
 
-// PolygonShape::PolygonShape(Polygon polygon, Vector2 origin)
-// {
-//     this->origin = origin;
-//     this->polygon = polygon;
-//     this->shapeDef = b2DefaultShapeDef();
-//
-//     this->scaledPolygon = polygon;
-//     this->scaledPolygon = polygon;
-// }
+PolygonShape::PolygonShape(std::vector<Vector2> points)
+{
+    if(points.size() < 3) {
+        Logger::error("Cannot create a polygon with less than 3 points!");
+        return;
+    }
+
+    this->shapeDef = b2DefaultShapeDef();
+
+    b2Vec2 p[B2_MAX_POLYGON_VERTICES]{};
+    b2Vec2 pScaled[B2_MAX_POLYGON_VERTICES]{};
+
+    for(int i = 0; i < (int)points.size(); i++) {
+        p[i] = { points[i].x, points[i].y };
+        pScaled[i] = { points[i].x * PhysicsConstants::scale, points[i].y * PhysicsConstants::scale };
+    }
+
+    b2Hull hull = b2ComputeHull(p, (int)points.size());
+    b2Hull hullScaled = b2ComputeHull(pScaled, (int)points.size());
+
+    if (!b2ValidateHull(&hull) || !b2ValidateHull(&hullScaled)) {
+        Logger::error("PolygonShape: invalid hull!");
+        return;
+    }
+
+    this->polygon = Polygon(b2MakePolygon(&hull, 0));
+    this->scaledPolygon = Polygon(b2MakePolygon(&hullScaled, 0));
+}
 
 // shape sprite
 

@@ -24,6 +24,7 @@ void Input::update(float deltaTime)
         {
         case SDL_EVENT_KEY_DOWN:
             {
+                if (event.key.repeat) break; // ignore key repeat events
                 auto ev = std::make_unique<InputEventKey>();
                 ev->pressed = true;
                 ev->keycode = static_cast<Keycode>(event.key.key);
@@ -160,7 +161,6 @@ void Input::update(float deltaTime)
         }
     }
 
-    prevActionStrength = actionStrength;
     actionStrength.clear();
 
     // send events and pull action strengths and held actions
@@ -181,7 +181,8 @@ void Input::update(float deltaTime)
         }
     }
 
-    // special cases for action strengths and held actions
+    prevActionStrength = actionStrength;
+
     for (auto& [name, action] : *actionsArrayPointer) {
         float evStrength = actionStrength.count(name) ? actionStrength[name] : 0.0f;
 

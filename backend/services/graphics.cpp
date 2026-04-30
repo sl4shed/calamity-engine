@@ -239,6 +239,34 @@ void Graphics::renderComponent(const ShapeSprite &sprite) const
         SDL_RenderGeometry(renderer, nullptr, verts, 4, indices, 6);
         filledCircleRGBA(renderer, c1.x, c1.y, rad, sprite.modulate.r, sprite.modulate.g, sprite.modulate.b, sprite.modulate.a);
         filledCircleRGBA(renderer, c2.x, c2.y, rad, sprite.modulate.r, sprite.modulate.g, sprite.modulate.b, sprite.modulate.a);
+    } else if(const auto* polygon = dynamic_cast<const PolygonShape*>(sprite.shape.get())) {
+        const Polygon &poly = polygon->polygon;
+        const int count = poly.count;
+        if (count < 3) return;
+
+        std::vector<SDL_Vertex> vertices(count);
+        for (int i = 0; i < count; i++) {
+            Vector2 pos = poly.vertices[i];
+            pos = node->globalTransform.applyTo(pos);
+            if (!sprite.screenSpace)
+            {
+                pos = pos - cameraTransform.position;
+                pos = cameraInverse.transformation * pos;
+            }
+            pos = pos + originOffset;
+
+            vertices[i] = {{pos.x, pos.y}, modulate, {0, 0}};
+        }
+
+        // fan triangulation from vertex 0
+        std::vector<int> indices;
+        for (int i = 1; i < count - 1; i++) {
+            indices.push_back(0);
+            indices.push_back(i);
+            indices.push_back(i + 1);
+        }
+
+        SDL_RenderGeometry(renderer, nullptr, vertices.data(), count, indices.data(), static_cast<int>(indices.size()));
     }
 }
 

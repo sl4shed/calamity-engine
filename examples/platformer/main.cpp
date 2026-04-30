@@ -24,7 +24,7 @@ PSP_MAIN_THREAD_ATTR(THREAD_ATTR_USER);
 #include <emscripten.h>
 #endif
 
-static Physics physics = Physics({0.0f, 98.1f * 3});
+static Physics physics = Physics({0.0f, 9.81f});
 static Engine engine = Engine("Platformer Example");
 static Graphics* graphics = nullptr;
 
@@ -49,6 +49,7 @@ int main() {
     auto leftEvent = std::make_unique<InputEventControllerButton>();
     leftEvent->device = 0;
     leftEvent->button = ControllerButton::DPAD_LEFT;
+    leftEvent->pressed = true;
     inputRegistry.actionAddEvent("left", std::move(leftEvent));
 
     auto leftEventK = std::make_unique<InputEventKey>();
@@ -60,6 +61,7 @@ int main() {
     auto rightEvent = std::make_unique<InputEventControllerButton>();
     rightEvent->device = 0;
     rightEvent->button = ControllerButton::DPAD_RIGHT;
+    rightEvent->pressed = true;
     inputRegistry.actionAddEvent("right", std::move(rightEvent));
 
     auto rightEventK = std::make_unique<InputEventKey>();
@@ -71,6 +73,7 @@ int main() {
     auto upEvent = std::make_unique<InputEventControllerButton>();
     upEvent->device = 0;
     upEvent->button = ControllerButton::SOUTH;
+    upEvent->pressed = true;
     inputRegistry.actionAddEvent("up", std::move(upEvent));
 
     auto upEventK = std::make_unique<InputEventKey>();
@@ -81,7 +84,7 @@ int main() {
     // node stuff
 
     std::shared_ptr<Node> cameraNode = std::make_shared<Node>("cameraNode");
-    cameraNode->transform.setScale({3, 3});
+    cameraNode->transform.setScale({2, 2});
     std::shared_ptr<Camera> camera = std::make_shared<Camera>();
     camera->smoothing = 0.3f;
     cameraNode->addComponent(camera);
@@ -145,6 +148,9 @@ int main() {
     // 896x192
     tilemap->addTiles(
         // grass
+        Tile(Vector2{-10, 0}, Rect{{0, 0}, {16, 16}}),
+        Tile(Vector2{-9, 0}, Rect{{0, 0}, {16, 16}}),
+        Tile(Vector2{-8, 0}, Rect{{0, 0}, {16, 16}}),
         Tile(Vector2{-7, 0}, Rect{{0, 0}, {16, 16}}),
         Tile(Vector2{-6, 0}, Rect{{0, 0}, {16, 16}}),
         Tile(Vector2{-5, 0}, Rect{{0, 0}, {16, 16}}),
@@ -159,8 +165,15 @@ int main() {
         Tile(Vector2{4, 0}, Rect{{0, 0}, {16, 16}}),
         Tile(Vector2{5, 0}, Rect{{0, 0}, {16, 16}}),
         Tile(Vector2{6, 0}, Rect{{0, 0}, {16, 16}}),
+        Tile(Vector2{7, 0}, Rect{{0, 0}, {16, 16}}),
+        Tile(Vector2{8, 0}, Rect{{0, 0}, {16, 16}}),
+        Tile(Vector2{9, 0}, Rect{{0, 0}, {16, 16}}),
+        Tile(Vector2{10, 0}, Rect{{0, 0}, {16, 16}}),
 
-        // dirt layer 1
+        // dirt 1
+        Tile(Vector2{-10, 1}, Rect{{0, 16}, {16, 16}}),
+        Tile(Vector2{-9, 1}, Rect{{0, 16}, {16, 16}}),
+        Tile(Vector2{-8, 1}, Rect{{0, 16}, {16, 16}}),
         Tile(Vector2{-7, 1}, Rect{{0, 16}, {16, 16}}),
         Tile(Vector2{-6, 1}, Rect{{0, 16}, {16, 16}}),
         Tile(Vector2{-5, 1}, Rect{{0, 16}, {16, 16}}),
@@ -175,25 +188,75 @@ int main() {
         Tile(Vector2{4, 1}, Rect{{0, 16}, {16, 16}}),
         Tile(Vector2{5, 1}, Rect{{0, 16}, {16, 16}}),
         Tile(Vector2{6, 1}, Rect{{0, 16}, {16, 16}}),
+        Tile(Vector2{7, 1}, Rect{{0, 16}, {16, 16}}),
+        Tile(Vector2{8, 1}, Rect{{0, 16}, {16, 16}}),
+        Tile(Vector2{9, 1}, Rect{{0, 16}, {16, 16}}),
+        Tile(Vector2{10, 1}, Rect{{0, 16}, {16, 16}}),
 
-        // dirt layer 2
-        Tile(Vector2{-7, 2}, Rect{{0, 16}, {16, 16}}),
-        Tile(Vector2{-6, 2}, Rect{{0, 16}, {16, 16}}),
-        Tile(Vector2{-5, 2}, Rect{{0, 16}, {16, 16}}),
-        Tile(Vector2{-4, 2}, Rect{{0, 16}, {16, 16}}),
-        Tile(Vector2{-3, 2}, Rect{{0, 16}, {16, 16}}),
-        Tile(Vector2{-2, 2}, Rect{{0, 16}, {16, 16}}),
-        Tile(Vector2{-1, 2}, Rect{{0, 16}, {16, 16}}),
-        Tile(Vector2{0, 2}, Rect{{0, 16}, {16, 16}}),
-        Tile(Vector2{1, 2}, Rect{{0, 16}, {16, 16}}),
-        Tile(Vector2{2, 2}, Rect{{0, 16}, {16, 16}}),
-        Tile(Vector2{3, 2}, Rect{{0, 16}, {16, 16}}),
-        Tile(Vector2{4, 2}, Rect{{0, 16}, {16, 16}}),
-        Tile(Vector2{5, 2}, Rect{{0, 16}, {16, 16}}),
-        Tile(Vector2{6, 2}, Rect{{0, 16}, {16, 16}})
+        // dirt 2
+        Tile(Vector2{-10, 2}, Rect{{16, 16}, {16, 16}}),
+        Tile(Vector2{-9, 2}, Rect{{16, 0}, {16, 16}}),
+        Tile(Vector2{-8, 2}, Rect{{16, 16}, {16, 16}}),
+        Tile(Vector2{-7, 2}, Rect{{16, 0}, {16, 16}}),
+        Tile(Vector2{-6, 2}, Rect{{16, 16}, {16, 16}}),
+        Tile(Vector2{-5, 2}, Rect{{16, 0}, {16, 16}}),
+        Tile(Vector2{-4, 2}, Rect{{16, 16}, {16, 16}}),
+        Tile(Vector2{-3, 2}, Rect{{16, 0}, {16, 16}}),
+        Tile(Vector2{-2, 2}, Rect{{16, 16}, {16, 16}}),
+        Tile(Vector2{-1, 2}, Rect{{16, 0}, {16, 16}}),
+        Tile(Vector2{0, 2}, Rect{{16, 16}, {16, 16}}),
+        Tile(Vector2{1, 2}, Rect{{16, 0}, {16, 16}}),
+        Tile(Vector2{2, 2}, Rect{{16, 16}, {16, 16}}),
+        Tile(Vector2{3, 2}, Rect{{16, 0}, {16, 16}}),
+        Tile(Vector2{4, 2}, Rect{{16, 16}, {16, 16}}),
+        Tile(Vector2{5, 2}, Rect{{16, 0}, {16, 16}}),
+        Tile(Vector2{6, 2}, Rect{{16, 16}, {16, 16}}),
+        Tile(Vector2{7, 2}, Rect{{16, 0}, {16, 16}}),
+        Tile(Vector2{8, 2}, Rect{{16, 16}, {16, 16}}),
+        Tile(Vector2{9, 2}, Rect{{16, 0}, {16, 16}}),
+        Tile(Vector2{10, 2}, Rect{{16, 16}, {16, 16}}),
+
+        // bridge
+        Tile(Vector2{11, 0}, Rect{{144, 0}, {16, 16}}),
+        Tile(Vector2{12, 0}, Rect{{161, 0}, {16, 16}}),
+        Tile(Vector2{13, 0}, Rect{{161, 0}, {16, 16}}),
+        Tile(Vector2{14, 0}, Rect{{176, 0}, {16, 16}}),
+
+        // sandstone
+        Tile(Vector2{15, 0}, Rect{{32, 0}, {16, 16}}),
+        Tile(Vector2{16, 0}, Rect{{32, 0}, {16, 16}}),
+        Tile(Vector2{17, 0}, Rect{{32, 0}, {16, 16}}),
+        Tile(Vector2{15, 1}, Rect{{32, 16}, {16, 16}}),
+        Tile(Vector2{16, 1}, Rect{{32, 16}, {16, 16}}),
+        Tile(Vector2{17, 1}, Rect{{32, 16}, {16, 16}}),
+        Tile(Vector2{15, 2}, Rect{{48, 0}, {16, 16}}),
+        Tile(Vector2{16, 2}, Rect{{48, 16}, {16, 16}}),
+        Tile(Vector2{17, 2}, Rect{{48, 0}, {16, 16}})
     );
-    auto mshape = std::make_shared<BoxShape>(Vector2{896.0f, 192.0f}, Vector2{0.5f, 1.0f});
+
+    std::vector<Vector2> groundPoints;
+    groundPoints.emplace_back(Vector2{-640, 0});
+    groundPoints.emplace_back(Vector2{704, 0});
+    groundPoints.emplace_back(Vector2{704, 192});
+    groundPoints.emplace_back(Vector2{-640, 192});
+    auto mshape = std::make_shared<PolygonShape>(groundPoints);
     map->addComponent(std::make_shared<StaticBody>(mshape));
+
+    std::vector<Vector2> bridgePoints;
+    bridgePoints.emplace_back(Vector2{704, 64});
+    bridgePoints.emplace_back(Vector2{960, 64});
+    bridgePoints.emplace_back(Vector2{960, 0});
+    bridgePoints.emplace_back(Vector2{704, 0});
+    auto bridgeShape = std::make_shared<PolygonShape>(bridgePoints);
+    map->addComponent(std::make_shared<StaticBody>(bridgeShape));
+
+    std::vector<Vector2> sandpoints;
+    sandpoints.emplace_back(Vector2{960, 0});
+    sandpoints.emplace_back(Vector2{1152, 0});
+    sandpoints.emplace_back(Vector2{1152, 192});
+    sandpoints.emplace_back(Vector2{960, 192});
+    auto sandshape = std::make_shared<PolygonShape>(sandpoints);
+    map->addComponent(std::make_shared<StaticBody>(sandshape));
 
     map->addComponent(tilemap);
 
