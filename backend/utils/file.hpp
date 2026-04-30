@@ -79,14 +79,25 @@ private:
     SDL_IOStream *handle;
 };
 
-/**
- * # File handling functions
- * Literally just ``exportNodeTree()`` and ``loadNodeTree()`` for now.
- */
 
-// std::string readFileText(std::string path);
+/**
+ * Exports a specific node and its children/components to an `std::string`.
+ */
 std::string exportNodeTree(std::shared_ptr<Node> node);
+
+/**
+ * Exports the current scene to an `std::string`.
+ */
 std::string exportNodeTree();
+
+/**
+ * Imports a specific node from an `std::string`.
+ */
 void loadNodeTree(const std::shared_ptr<Node>& parent, const std::string& jsonText);
+
+/**
+ * Loads a scene export from an `std::string`.
+ */
 void loadNodeTree(const std::string& jsonText);
-std::string parseFilePath(std::string path);
+
+std::string parseFilePath(std::string path); // meant for internal use

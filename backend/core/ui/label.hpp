@@ -5,10 +5,8 @@
 
 /**
  * # Label
- * A component which renders text (wow, amazing. I know.)
+ * The Label component renders text to the screen.
  * You can construct it with or without a font, in which case a default font will be used.
- *
- * Also dictates a size and origin, similar to a Sprite.
  *
  * Example Usage:
  * ```cpp
@@ -18,8 +16,31 @@
  * node->transform.position = {20, 20};
  * node->addComponent(label);
  * ```
+ * 
+ * ## Properties and usages
+ * 
+ * You can change the Label components origin. I'm really tired of saying what origin does over and over again...
+ * ```cpp
+ * label->origin = {0.0f, 0.5f};
+ * ```
  *
- * Make sure to also check out the text example in the examples folder!
+ * The Label component also exposes a `wrap` attribute. This defines if the text is rendered using text wrap or not.
+ * ```cpp
+ * label->wrap = false; // Disable text wrapping
+ * ```
+ * 
+ * You can also make Labels render using screen space positioning. This can be used for UI elements and things like that:
+ * ```cpp
+ * label->screenSpace = true; // Now, the position of the label will directly translate to screen coordinates!
+ * ```
+ * 
+ * You can also...
+ * ```cpp
+ * label->setColor(Color(255, 0, 0)); // Set the labels color!
+ * label->setDirection(FontDirection::LTR); // And set the text direction.
+ * ```
+ * 
+ * Make sure to also check out the [text example](https://calamity.sl4shed.xyz/example-text)!
  */
 class Label : public Component {
 public:
@@ -43,7 +64,7 @@ public:
     Label* setColor(Color color);
     Color getColor() const;
     Label* setDirection(FontDirection direction);
-    Label* setWrapWidth(int width);
+    Label* setWrapWidth(int width); // meant for internal use
     int getWrapWidth() const;
     void rebuildTexture();
     SDL_Texture *getTexture() const;

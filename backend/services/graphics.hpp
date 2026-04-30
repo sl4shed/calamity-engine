@@ -42,20 +42,13 @@ enum class WindowFlags {
 };
 
 /**
- * Here is your modular graphics class, which you should technically be able to change out for another implementation
- * with another graphics API (OpenGL, for example). Right now it uses SDL3.
- *
- * This is typically initialized in the main function, and passed to the Services class, like this:
+ * # Graphics
+ * The Graphics service is mostly made for internal use. It allows rendering sprites, labels, and other components on screen.
+ * 
+ * When constructing this class, the user can define the screen size, window title, presentation type and clear color:
  * ```cpp
- * Graphics graphics = Graphics({480, 272}); // screen size vector2 (PSP screen size)
- * Engine engine = Engine();
- * Services::init(&graphics, &engine, ...); // imagine every other core class in here aswell
- *
- * // main loop (usually in a function for emscripten compatibility)
- * while (running) {
- *   engine.update();
- *   engine.render(graphics);
- * }
+ * // Create the graphics class with a 480x272 resolution, the window title of "my window title", letterbox presentation style and black clear color.
+ * Graphics graphics = Graphics({480, 272}, "my window title", RenderLogicalPresentation::LETTERBOX, Color(0, 0, 0));
  * ```
  */
 class Graphics

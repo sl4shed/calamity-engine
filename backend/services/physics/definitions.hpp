@@ -4,6 +4,11 @@
 #include "../../core/definitions.hpp"
 #include "../../core/node/components.hpp"
 
+/**
+ * # Material
+ * The Material class defines Physics properties for any Shape.
+ * To apply a material onto a Shape, use the `applyMaterial()` function of the Shape.
+ */
 class Material
 {
 public:
@@ -20,6 +25,16 @@ public:
     }
 };
 
+/**
+ * # Shape
+ * The base Shape class defines properties which are inherited by all Shapes, such as BoxShape, CircleShape, CapsuleShape and PolygonShape.
+ * 
+ * This class has two notable properties:
+ * ```cpp
+ * shape->origin = {0.5f, 0.5f}; // The origin of the shape. This is disabled for PolygonShape.
+ * shape->applyMaterial(myMaterial); // This is the main method of applying materials to shapes.
+ * ```
+ */
 class Shape
 {
 public:
@@ -165,10 +180,21 @@ public:
  * Example usage:
  * ```cpp
  * std::shared_ptr<Node> spriteNode = std::make_shared<Node>();
- * Polygon shape = Polygon();
- * // populate polygon here, do whatever you want
+ * auto boxShape = std::make_shared<BoxShape>(Vector2{0.5f, 0.5f});
  * std::shared_ptr<ShapeSprite> sprite = std::make_shared<ShapeSprite>(shape);
  * spriteNode->addComponent(sprite);
+ * ```
+ * 
+ * ## Properties and usages
+ * 
+ * You can make ShapeSprites render using screen space positioning. This can be used for UI elements and things like that:
+ * ```cpp
+ * sprite->screenSpace = true; // Now, the position of the sprite will directly translate to screen coordinates!
+ * ```
+ * 
+ * Also, you can modify the modulate variable of the sprite to change its color:
+ * ```cpp
+ * sprite->color = Color::RED;
  * ```
  */
 class ShapeSprite : public Component

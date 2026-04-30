@@ -4,18 +4,21 @@
 #include "services.hpp"
 
 /**
- * This class is mostly used to abstract stuff like the root node and obtaining deltaTime.
+ * # Engine
+ * This class is mostly used to abstract stuff like the root node and obtaining deltaTime. It determines when the lifetime functions of every other node and component is called.
  *
- * It should be initialized in the main function and have its update and render functions called in the main loop:
+ * The engine class should be initialized in the main function after nodes are setup and have its update and render functions called in the main loop. In the end, the `engine.exit()` function should be called.
+ * Also, the engines constructor defines the app name which is used when reading/writing to the user folder. All Calamity Engine apps are stored under the Calamity Engine base folder and the app name is used as the organization folder. For more information [read this SDL3 wiki page](https://wiki.libsdl.org/SDL3/SDL_GetUserFolder).
+ * 
  * ```cpp
  * Graphics graphics = Graphics({480, 272}); // screen size vector2
- * Engine engine = Engine();
- * Services::init(&graphics, &engine, ...); // imagine every other core class in here aswell
+ * Engine engine = Engine("Your app name goes here");
+ * Services::init(&graphics, &engine, ...); // imagine every other core service in here aswell
  *
  * // setup nodes, components, etc here
  *
  * engine->initialize();
- * while (running) {
+ * while (!input.shouldQuit) {
  *  engine.update();
  *  engine.render(Services::graphics());
  * }

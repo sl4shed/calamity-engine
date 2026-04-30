@@ -45,11 +45,11 @@ The physics and render loops are fully decoupled from one another. Physics runs 
 
 Components and children are stored in `std::vector`s, so iterating over them in update/render/physicsUpdate is sequential memory access, which matters a lot on platforms with limited cache.
 
-The active sprite on each node is cached (`currentSprite`) so the renderer doesn't have to search the full component vector every frame just to find the sprite.
-
-On the physics side, Box2D's substepping is exposed and set to 4 substeps by default. Also, the pixel-to-meter scaling that Box2D requires is baked into the shape at creation time (`scaledPolygon`, `scaledCircle`) rather than being multiplied in every physics update.
+On the physics side, Box2D's substepping is exposed and set to 4 substeps by default. Also, the pixel-to-meter scaling that Box2D requires is baked into the shape at creation time (`scaledPolygon`, `scaledCircle`, `scaledCapsule`) rather than being multiplied in every physics update.
 
 A lot of the end-user API is also function-based rather than property-based specifically to avoid having to diff previous values to detect changes in update loops which I did to optimize cycles for the more underpowered platforms like the PSP.
+
+In the end, I had no issues regarding performance on the PSP! Memory usage also remains < 60mb on desktop platforms. The engine runs efficiently, whilst maintaining a user-friendly API.
 
 # Aknowledgements
 

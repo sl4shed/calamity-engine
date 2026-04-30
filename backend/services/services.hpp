@@ -9,13 +9,15 @@ class Physics;
 class Audio;
 
 /**
- * # Services class
- * Singleton for accessing core services basically anywhere. Use as follows:
+ * # Services
+ * "Singleton wrapper" for accessing core services basically anywhere.
+ * 
+ * Example usage:
  * ```
  * // Example for getting the graphics services
  * #include "backend/services.hpp"
  * #include "backend/graphics.hpp"
- * Graphics graphics = Services::graphics();
+ * Graphics *graphics = Services::graphics();
  * ```
  *
  * For now, you can get the following services:
@@ -25,6 +27,8 @@ class Audio;
  *  - Input
  *  - InputRegistry
  *  - Audio
+ * 
+ * It should be initialized in the main function with a pointer to every service. You can find more details in the [project template's main.cpp](https://github.com/sl4shed/calamity-engine-template/blob/main/main.cpp).
  */
 class Services
 {

@@ -8,7 +8,7 @@
 
 /**
  * Mirrors the [TTF_HintingFlags](https://wiki.libsdl.org/SDL3_ttf/TTF_HintingFlags) enum.
- * Dictates font hinting.
+ * Defines font hinting.
  */
 enum class FontHinting {
     INVALID = -1,
@@ -21,7 +21,7 @@ enum class FontHinting {
 
 /**
  * Mirrors the [TTF_FontStyleFlags](https://wiki.libsdl.org/SDL3_ttf/TTF_FontStyleFlags) enum.
- * Dictates the font style used (bold, italic, underline, etc...).
+ * Defines the font style used (bold, italic, underline, etc...).
  */
 enum class FontStyle {
     NORMAL = 0x00,
@@ -33,7 +33,7 @@ enum class FontStyle {
 
 /**
  * Mirrors the [TTF_Direction](https://wiki.libsdl.org/SDL3_ttf/TTF_Direction) enum.
- * Dictates the direction of the text (left to right, right to left, etc...).
+ * Defines the direction of the text (left to right, right to left, etc...).
  */
 enum class FontDirection {
     INVALID,
@@ -45,7 +45,7 @@ enum class FontDirection {
 
 /**
  * Mirrors the [TTF_HorizontalAlignment](https://wiki.libsdl.org/SDL3_ttf/TTF_HorizontalAlignment) enum.
- * Dictates the horizontal alignment of the font.
+ * Defines the horizontal alignment of the font.
  */
 enum class FontAlignment {
     INVALID = -1,
@@ -56,12 +56,27 @@ enum class FontAlignment {
 
 /**
  * # Font
- * Allows the usage of TrueType fonts. Has plenty of settings aswell!
+ * Defines a TrueType font and a myriad of properties.
  *
  * Example usage:
  * ```cpp
  * Font font = Font("path/to/font");
  * font.setKerning(true)->setLineSpacing(10)->setSize(30)->setStyle(FontStyle::UNDERLINE);
+ * ```
+ * 
+ * ## Properties and usages
+ * You can...
+ * 
+ * ```
+ * font.setKerning(true); // Enable or disable kerning on the font
+ * font.setHinting(FontHinting::MONO); // Change the hinting of the font
+ * font.setLanguage("en-US"); // Set the language of the font
+ * font.setLineSpacing(20); // Set the amount of spacing between lines
+ * font.setOutline(true); // Enable/Disable an outline
+ * font.setSDF(false); // DISABLE SDF. It's bad... please don't use it :(
+ * font.setSize(40); // Set the font size
+ * font.setStyle(FontStyle::UNDERLINE); // Change the font style!
+ * font.setAlignment(FontAlignment::CENTER) // And finally, set the alingment of the font!
  * ```
  */
 class Font {

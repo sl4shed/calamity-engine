@@ -125,7 +125,7 @@ public:
 
 /**
  * # Animated Sprite 
- * The AnimatedSprite class allows you to define \ref Animation ["animations"] composed of \ref Frame ["frames"] which will get rendered on screen.
+ * The AnimatedSprite class allows you to define \ref Animation "Animations" composed of \ref Frame "Frames" which will get rendered on screen.
  * 
  * Example usage:
  * ```
@@ -174,9 +174,14 @@ public:
  * });
  * ```
  * 
- * And, just like regular \ref Sprite ["Sprites"], AnimatedSprites have the `flipV` and `flipH `attributes. This is useful when animating the sprite!
+ * And, just like regular \ref Sprite "Sprites", AnimatedSprites have the `flipV` and `flipH` attributes. This is useful when animating the sprite!
  * ```cpp
  * sprite->flipV = true; // The sprite will now render vertically flipped!
+ * ```
+ * 
+ * You can also make AnimatedSprites render using screen space positioning. This can be used for UI elements and things like that:
+ * ```cpp
+ * sprite->screenSpace = true; // Now, the position of the sprite will directly translate to screen coordinates!
  * ```
  * 
  * Make sure to also check out the [animated sprite example](https://calamity.sl4shed.xyz/example-animated-sprite)!
@@ -247,7 +252,7 @@ private:
 
 /**
  * # Tilemap
- * Using the Tilemap class, you can draw \ref Tile ["Tiles"] to the screen. Tiles define a sourceRect, among other things.
+ * Using the Tilemap class, you can draw \ref Tile "Tiles" to the screen. Tiles define a sourceRect, among other things.
  * 
  * Here is a basic example:
  * 
@@ -317,7 +322,7 @@ private:
 
 /**
  * # Script component
- * A base class for all scripts attached to nodes. It exposes the \ref Component ["Components"] lifetime functions, which the user can override and change.
+ * A base class for all scripts attached to nodes. It exposes the \ref Component "Components" lifetime functions, which the user can override and change.
  *
  * To create a script and attach it to a node, create a header file somewhere like `scripts/ExampleScript.hpp`:
  * ```cpp
@@ -357,8 +362,11 @@ private:
  * CEREAL_REGISTER_POLYMORPHIC_RELATION(Script, ExampleScript);
  * ```
  *
- * and do this to your node:
+ * And do this to add your script to a node:
  * ```cpp
+ * // You must include the script before hand:
+ * #include "scripts/ExampleScript.hpp"
+ * 
  * std::shared_ptr<Node> exampleNode = std::make_shared<Node>();
  * exampleNode->addComponent(std::make_shared<ExampleScript>());
  * ```
@@ -381,7 +389,26 @@ public:
 /**
  * # Camera component
  * 
+ * The camera component it a virtual camera that defines the positions and scale/rotation of everything rendered on screen. Just like how cameras work in real life and in every other game engine!
  * 
+ * Example usage:
+ * ```cpp
+ * std::shared_ptr<Node> node = std::make_shared<Node>("cameraNode");
+ * std::shared_ptr<Camera> camera = std::make_shared<Camera>();
+ * 
+ * node->addComponent(camera);
+ * ```
+ * 
+ * ## Properties and usages
+ * The Camera component has an origin attribute, which allows you to render the camera offset depending on the position of its parent node:
+ * ```cpp
+ * camera->origin = {0.0f, 0.0f}; // The camera's top left position will now be the position of the node, as opposed to the default origin of {0.5f, 0.5f} which means the middle of the camera will be the position of the node.
+ * ```
+ * 
+ * The Camera component also exposes a smoothing attribute, which allows you to smooth the cameras position.
+ * ```cpp
+ * camera->smoothing = 0.3f; // Now, whenever you move the camera, instead of moving linearly the camera will smoothly move over to the target position.
+ * ```
  */
 class Camera : public Component
 {

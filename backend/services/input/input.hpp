@@ -3,16 +3,6 @@
 #include "../../core/definitions.hpp"
 #include "keycode.hpp"
 #include <map>
-
-// hello. here i just copied godot's homework because i love how godot input works its really good
-
-// massive todo kinda
-// if i ever continue working on this i need to encapsulate a lot of these values
-// such that they either only get set in the constructor
-// or they can only get set once
-// and theyre constants or whatever
-// just like in godot...
-
 // enums //
 
 enum class ControllerButton {
@@ -207,6 +197,32 @@ struct InputRegistryAction {
     float deadzone;
 };
 
+/**
+ * # InputRegistry
+ * The InputRegistry allows you to define actions which are binded to specific events (like, for example InputEventKey). Once you add an action, you can bind an event to it using `actionAddEvent()`.
+ * 
+ * ```cpp
+ * // Add an action called "left" which is binded to a InputEventControllerMotion event. This action has a deadzone of 0.2f
+ * InputRegistry.addAction("left", 0.2f);
+ * auto leftEvent = std::make_unique<InputEventControllerMotion>();
+ * leftEvent->device = 0;
+ * leftEvent->axis = ControllerAxis::LEFT_X;
+ * leftEvent->motion = -1.0f;
+ * inputRegistry.actionAddEvent("left", std::move(leftEvent));
+ * ```
+ * 
+ * Once you do that, you can check on a scripts input function if the event is a specific action:
+ * ```cpp
+ * void input(InputEvent &event)
+ * {
+ *      if(event.isActionPressed("left")) { // Since the action has
+ *           // code here
+ *      }
+ * }
+ * ```
+ * 
+ * Make sure to also check out the [input example](https://calamity.sl4shed.xyz/example-input)!
+ */
 class InputRegistry {
 public:
     int actionAddEvent(const std::string& name, std::unique_ptr<InputEvent> event);
@@ -230,7 +246,10 @@ private:
 /**
  * # Input class
  *
- * yo phone ringing
+ * The Input service lets you obtain information about \ref Action "Actions", current state of the mouse, current state of controller buttons, keys, etc...
+ * It's basically the same thing as the [Godot Input class](https://docs.godotengine.org/en/stable/classes/class_input.html). A lot of the functions are of the same name, and are pretty self explanatory.
+ *
+ * Make sure to also check out the [input example](https://calamity.sl4shed.xyz/example-input)!
  */
 class Input
 {
@@ -247,9 +266,6 @@ public:
     float getControllerAxis(int device, ControllerAxis axis) const;
     std::string getControllerGUID(int device) const;
     std::string getControllerName(int device) const;
-    // todo these two functions but i think theyre useless
-    //float getControllerVibrationDuration(int device); 
-    //Vector2 getControllerVibrationStrength(int device);
 
     std::vector<int> getConnectedControllers();
     void startControllerVibration(int device, float weakMagnitude, float strongMagnitude, int durationMs = 0) const;

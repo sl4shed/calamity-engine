@@ -17,7 +17,7 @@
 class AtlasScript : public Script
 {
     Node *node;
-    Sprite *spr;
+    std::shared_ptr<Sprite> spr;
 
 
 public:
@@ -30,7 +30,7 @@ public:
     void initialize()
     {
         node = this->getNode();
-        spr = node->currentSprite;
+        spr = node->getComponent<Sprite>();
     }
 
     void input(InputEvent& event) {

@@ -11,7 +11,8 @@ class Graphics;
 class Services;
 
 /**
- * this is needed for physics scale and to avoid a stupid circular import
+ * # this is needed for physics scale and to avoid a stupid circular import
+ * # meant for internal use
  */
 struct PhysicsConstants
 {
@@ -22,7 +23,17 @@ struct PhysicsConstants
  * # Color
  * A simple class that defines a color using red, green, blue and alpha channels.
  *
- * You can construct it with a string hex code, an actual hex code, or provide individual channel values up to 255.
+ * Example usage:
+ * ```cpp
+ * Color rgbColor = Color(255, 0, 0);
+ * Color rgbaColor = Color(255, 255, 0, 100);
+ * Color hexColor = Color(0xFFFFFF);
+ * Color ahexColor = Color(0xFFFFFF, 100); // second argument is the alpha value
+ * Color shexColor = Color("#FFFFFF");
+ * Color sahexColor = Color("#FFFFFF", 100); // second argument is alpha value
+ * ```
+ * 
+ * It also defines several pre-made static colors, like `Color::WHITE`, `Color::BLACK`, `Color::TRANSPARENT`, etc...
  */
 class Color {
 public:
@@ -57,7 +68,7 @@ public:
 
 /**
  * # Vector2
- * A struct which holds an x and y float.
+ * A struct which holds an x and y float. Used for a lot of things across Calamity Engine.
  */
 struct Vector2
 {
@@ -87,6 +98,12 @@ struct Vector2
     }
 };
 
+/**
+ * # Texture Scaling
+ * This enum defines how the texture is rendered and scaled.
+ * 
+ * Linear scaling will smooth the values between pixels, while nearest neighbour scaling will use an average. Pixel art scaling exists due to SDL3, and I recommend you use it for pixel art textures instead of nearest neighbour.
+ */
 enum class TextureScaling
 {
     INVALID = -1,
@@ -102,6 +119,21 @@ enum class TextureScaling
  * Example usage:
  * ```
  * Texture texture = Texture("res://path/to/texture.png");
+ * ```
+ * 
+ * ## Properties and usage
+ * 
+ * You can set the \ref TextureScaling ["TextureScaling"] of the texture:
+ * ```cpp
+ * Texture texture = Texture("res://path/to/texture.png", TextureScaling::PIXELART);
+ * ```
+ * 
+ * You can also define the size of the rendered texture on screen!
+ * ```cpp
+ * texture.width = 64;
+ * texture.height = 64;
+ * 
+ * // Now the texture will be 64x64 pixels when rendered, even if the texture is bigger or smaller.
  * ```
  */
 class Texture
@@ -188,8 +220,20 @@ struct Matrix2
 /**
  * # Transform struct
  *
- * This is the struct that represents the position, rotation and scale of a node (or anything else, for that matter. For example, sprites have source transforms).
- * The position is stored as a Vector2, and the rotation and scale are stored in a Matrix2.
+ * This is the struct that represents the position, rotation and scale of a node among other things.
+ * The position is stored as a Vector2, and the rotation and scale are stored in a transformation matrix.
+ * 
+ * There are a lot of operations you can do to a Transform:
+ * ```cpp
+ * Transform myTransform;
+ * myTransform.position = Vector2{0.0f, 0.0f};
+ * myTransform.setScale(Vector2{3.0f, 3.0f}); // make it 3 times as big!
+ * 
+ * Logger::log("{}", myTransform.getAngleRadians()); // print out the angle of the Transform in radians!
+ * myTransform.setAngleRadians(20.0f * (3.141592653f / 180.0f)) // set the angle to 20 degrees in radians
+ * 
+ * myTransform.rotate(-20.0f); // rotate it back 20 degrees, and now the rotation will be 0 degrees.
+ * ```
  */
 struct Transform
 {
@@ -223,7 +267,7 @@ struct Transform
 
 /**
  * # Rect
- * A simple rect class. It detrermines two Vector2's: position and size.
+ * A simple rect class. It detrermines two Vector2's: position and size. Its used mainly to define sourceRects of \ref Sprite ["Sprites"].
  */
 struct Rect
 {
@@ -247,6 +291,13 @@ struct Rect
 /**
  * # Frame
  * An animation frame. It determines the source rectangle of the sprite, the origin of the rendered sprite and the modulate color of the rendered sprite.
+ * 
+ * Example usage:
+ * ```cpp
+ * // This will create a frame a sourceRect which has the position of 0, 0 in the texture atlas and the size of 16x16 pixels.
+ * // It has an origin of {0.5f, 0.5f} and a modulate color of blue.
+ * Frame(Rect{Vector2{0.0f, 0.0f}, Vector2{16.0f, 16.0f}}, {0.5f, 0.5f}, Color::BLUE);
+ * ```
  */
 struct Frame
 {
@@ -272,7 +323,29 @@ struct Frame
 
 /**
  * # Animation
- * An animation that is used to AnimatedSprite.
+ * The Animation component represents a series of \ref Frame ["Frames"]. It is used with \ref AnimatedSprite ["AnimatedSprites"].
+ * 
+ * Example usage:
+ * ```
+ * // Create an animation which has the name "myAnimationName", runs at 15 FPS, has the size of 20x20 pixels, does not loop and does not autoplay.
+ * Animation anim = Animation("myAnimationName", 15, Vector2{20.0f, 20.0f}, false, false);
+ * ```
+ * 
+ * ## Properties and usages
+ * 
+ * For an animation to work on an AnimatedSprite, you must set it's texturePath:
+ * ```cpp
+ * anim.texturePath = "res://path/to/texture.png";
+ * ```
+ * Instead of directly storing a texture, Animations only store the path and scaling of the texture.
+ * The texture is eventually loaded when playing the animation to save on memory.
+ * 
+ * You can also define the TextureScaling type:
+ * ```cpp
+ * anim.textureScaling = TextureScaling::PIXELART;
+ * ```
+ * 
+ * Make sure to also check out the [animated sprite example](https://calamity.sl4shed.xyz/example-animated-sprite)!
  */
 class Animation
 {
@@ -311,8 +384,9 @@ public:
 
 /**
  * # Polygon
- *
  * A simple polygon class, which basically mirrors the [Box2D polygon class](https://box2d.org/documentation/group__geometry.html#structb2_polygon).
+ *
+ * By the way, you should never manually fill these out. Instead, when using \ref PolygonShape ["PolygonShapes"], use the PolygonShapes constructor.
  */
 struct Polygon {
     Polygon();
@@ -336,7 +410,7 @@ struct Polygon {
 /**
  * # Circle
  *
- * A simple circle class, which basically mirrors the Box2D circle class.
+ * A simple circle class.
  */
 struct Circle
 {
@@ -355,6 +429,10 @@ struct Circle
     }
 };
 
+/**
+ * # Capsule
+ * The capsule class defines the two ends of the capsule (in \ref Vector2 ["Vector2s"]), and the radius of the end circles.
+ */
 struct Capsule
 {
     Capsule();
@@ -373,6 +451,17 @@ struct Capsule
     }
 };
 
+/**
+ * # Tile
+ * 
+ * The tile class defines the position of the tile on the Tilemap grid, the sourceRect of the texture atlas and the modulate Color of the Tile.
+ * 
+ * Example usage:
+ * ```
+ * // Create a tile at the gridPosition of `{-1, 0}`.
+ * Tile myTile = Tile(Vector2{-1.0f, 0.0f}, Rect{Vector2{0.0f, 0.0f}, Vector2{64.0f, 64.0f}}, Color::RED);
+ * ```
+ */
 struct Tile
 {
     Tile(Vector2 gridPosition, Rect sourceRect = {{0, 0}, {64, 64}}, Color modulate = Color::WHITE) : gridPosition(gridPosition), sourceRect(sourceRect), modulate(modulate) {};

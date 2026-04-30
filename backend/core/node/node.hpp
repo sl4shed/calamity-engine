@@ -11,7 +11,7 @@
 /**
  * # Base node class
  * Everything in Calamity Engine is composed of nodes. An analogy would be that a node is like a GameObject in Unity.
- * It can have components, children, and a transform. It also has a name for easy identification.
+ * It can have components, children, and a transform. It also has a name for easy identification and lookup.
  * The node class is responsible for updating and rendering itself and its children, as well as managing its components.
  *
  * It has methods available for adding and removing children and components, as well as getting them by name/index.
@@ -21,8 +21,6 @@
  * std::shared_ptr<Sprite> sprite = std::make_shared<Sprite>();
  * node->addComponent(sprite);
  * node->addComponent(std::make_shared<MyScript>());
- *
- * node->initialize(); // Make sure to call initialize if this isn't a child of the root node!
  * ```
  */
 class Node : public std::enable_shared_from_this<Node>

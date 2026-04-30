@@ -3,6 +3,21 @@
 #include <memory>
 #include <string>
 
+/**
+ * # Logger
+ * 
+ * The logger class is a static wrapper around [spdlog](https://github.com/gabime/spdlog).
+ * 
+ * Example usage:
+ * ```cpp
+ * Logger::info("this is an info log");
+ * Logger::warn("this is a warning");
+ * Logger::error("this is an error!");
+ * 
+ * Logger::info("Here is a float: {}", 20.0f);
+ * Logger::warning("Here are two floats: {}... and {}!", 20.0f, 10.0f);
+ * ```
+ */
 class Logger
 {
 public:

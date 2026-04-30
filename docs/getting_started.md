@@ -29,7 +29,7 @@ cd calamity-engine-template
 
 ### Windows MinGW64
 <a id="windows"></a>
-Keep in mind, Windows builds are still HIGHLY experimental. As an alternative, building using the WSL is recommended.
+Right now, Windows builds are broken. Unfortunately, due to time constraints, I couldn't figure out a consistent way to get games building on Windows. I left some of the steps I took here. As an alternative, building using the WSL is recommended.
 
 1. Download MinGW64 from [this link](https://github.com/brechtsanders/winlibs_mingw/releases/download/11.2.0-10.0.0-ucrt-r1/winlibs-x86_64-posix-seh-gcc-11.2.0-mingw-w64ucrt-10.0.0-r1.zip). Extract it anywhere, and add the `bin` folder to your environment variables. 
 2. Download this [SDL3 MinGW release](https://github.com/libsdl-org/SDL/releases/download/release-3.4.4/SDL3-devel-3.4.4-mingw.zip). Extract it anywhere and note down the path.

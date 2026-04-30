@@ -44,13 +44,39 @@ typedef struct Sound
  * Example Usage:
  * ```
  * std::shared_ptr<Node> node = std::make_shared<Node>();
- * node->addComponent(std::make_shared<AudioSource>("assets/sound.wav"));
+ * node->addComponent(std::make_shared<AudioSource>("res://assets/sound.wav"));
  *
  * // play sound (make sure to do this AFTER the audio source was initialized)
  * sound->play();
  * ```
- *
- * Make sure to also check out the audio example in the examples folder!
+ * 
+ * ## Properties and usages
+ * You can set and get its pitch:
+ * ```cpp
+ * sound->setPitch(sound->getPitch() + 0.2f); // up the pitch by 0.2
+ * ```
+ * 
+ * You can also modify its volume:
+ * ```cpp
+ * sound->setVolume(0.4f); // set the volume to 40%;
+ * ```
+ * 
+ * It also has a loop attribute:
+ * ```cpp
+ * sound->loop = true; // The sound now loops!
+ * ```
+ * 
+ * You can also register callbacks to all of the events it has for when the sound is finished, looped, stopped and paused.
+ * ```cpp
+ * sound->paused.connect([]() {
+ *      Logger::info("sound paused!");
+ * });
+ * 
+ * sound->pause();
+ * // Output: sound paused!
+ * ```
+ * 
+ * Make sure to also check out the [audio example](https://calamity.sl4shed.xyz/example-audio) for more information!
  */
 class AudioSource : public Component
 {
