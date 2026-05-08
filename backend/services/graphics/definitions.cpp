@@ -1,10 +1,15 @@
 #include "graphics.hpp"
 #include "definitions.hpp"
 #include "../../utils/logger.hpp"
+#include "../../core/node/node.hpp"
+#include "../../core/definitions.hpp"
+#include "../../core/node/node.hpp"
+#include "../../core/node/node.hpp"
+#include "../../core/node/components.hpp"
 
 Window::Window(std::string name, Rect dimensions, RenderLogicalPresentation presentation, WindowFlags flags, Color clearColor, bool fullscreen) : title(title), dimensions(dimensions), presentation(presentation), flags(flags), clearColor(clearColor), fullscreen(fullscreen) {
-    root = Node("root");
-    root.transform.position = {0, 0};
+    root = std::make_unique<Node>("root");
+    root->transform.position = {0, 0};
     
     SDL_PropertiesID props = SDL_CreateProperties();
 
@@ -52,29 +57,30 @@ void Window::postRender() const
 }
 
 void Window::update(float deltaTime) {
-    root.update(deltaTime);
+    root->update(deltaTime);
 }
 
 void Window::render(Graphics &graphics, Engine *engine) {
     preRender();
 
-    root.render(graphics, engine, this);
+    root->render(graphics, engine, shared_from_this());
 
     postRender();
 }
 
 void Window::exit() {
-    root.exit();
-    root.children.clear();
-    root.components.clear();
+    root->exit();
+    root->children.clear();
+    root->components.clear();
 }
 
 void Window::initialize() {
-    root.initialize();
+    root->setWindow(shared_from_this());
+    root->initialize();
 }
 
 void Window::physicsUpdate() {
-    root.physicsUpdate();
+    root->physicsUpdate();
 }
 
 void Window::resetLogicalPresentation() {

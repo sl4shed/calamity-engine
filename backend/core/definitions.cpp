@@ -2,6 +2,7 @@
 #include <cmath>
 #include <SDL3/SDL.h>
 #include "../services/graphics/graphics.hpp"
+#include "../services/graphics/definitions.hpp"
 #include "../services/services.hpp"
 #include "../utils/file.hpp"
 #include <cereal/archives/json.hpp>

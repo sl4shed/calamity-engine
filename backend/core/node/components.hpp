@@ -94,7 +94,7 @@ class Sprite : public Component
 {
 public:
     Sprite();
-    explicit Sprite(const std::string& texturePath, TextureScaling scaling = TextureScaling::NEAREST);
+    explicit Sprite(const std::string& texturePath, std::shared_ptr<Window> window, TextureScaling scaling = TextureScaling::NEAREST);
 
     void initialize() override;
 
@@ -189,7 +189,8 @@ public:
 class AnimatedSprite : public Component
 {
 public:
-    AnimatedSprite() {};
+    AnimatedSprite() = default;
+    AnimatedSprite(std::shared_ptr<Window> window) : window(window) {};
 
     void initialize() override;
     void update(float deltaTime) override;
@@ -248,6 +249,7 @@ private:
     std::unique_ptr<Animation> currentAnimation = nullptr;
     Texture currentTexture;
     bool playing = false;
+    std::shared_ptr<Window> window = nullptr;
 };
 
 /**
@@ -279,7 +281,7 @@ class Tilemap : public Component
 {
 public:
     Tilemap() = default;
-    Tilemap(const std::string& texturePath, TextureScaling scaling, Vector2 tileSize);
+    Tilemap(const std::string& texturePath, Vector2 tileSize, std::shared_ptr<Window> window, TextureScaling scaling = TextureScaling::PIXELART);
 
     bool visible = true;
     Texture texture;
@@ -439,15 +441,3 @@ public:
 private:
     Vector2 globalPos = Vector2{0.0f, 0.0f};
 };
-
-#include <cereal/archives/json.hpp>
-#include <cereal/types/polymorphic.hpp>
-
-CEREAL_REGISTER_TYPE(Sprite)
-CEREAL_REGISTER_TYPE(Camera)
-CEREAL_REGISTER_TYPE(Script)
-CEREAL_REGISTER_TYPE(AnimatedSprite)
-CEREAL_REGISTER_POLYMORPHIC_RELATION(Component, Sprite)
-CEREAL_REGISTER_POLYMORPHIC_RELATION(Component, AnimatedSprite)
-CEREAL_REGISTER_POLYMORPHIC_RELATION(Component, Camera)
-CEREAL_REGISTER_POLYMORPHIC_RELATION(Component, Script)

@@ -2,10 +2,11 @@
 #include "../../utils/logger.hpp"
 #include "../services.hpp"
 #include "../engine.hpp"
-#include "../graphics.hpp"
+#include "../graphics/graphics.hpp"
 #include "keycode.hpp"
 #include <iostream>
 #include <SDL3/SDL.h>
+#include <SDL3/SDL_video.h>
 #include <vector>
 #include <algorithm>
 
@@ -19,13 +20,16 @@ void Input::update(float deltaTime)
 
     // bullshit
     SDL_Event event;
+    std::shared_ptr<Window> window = nullptr;
     while (SDL_PollEvent(&event)) {
         switch (event.type)
         {
         case SDL_EVENT_KEY_DOWN:
             {
                 if (event.key.repeat) break; // ignore key repeat events
+                window = Services::engine()->getWindow(static_cast<int>(event.key.windowID));
                 auto ev = std::make_unique<InputEventKey>();
+
                 ev->pressed = true;
                 ev->keycode = static_cast<Keycode>(event.key.key);
                 ev->scancode = static_cast<Keycode>(event.key.scancode);
@@ -35,7 +39,9 @@ void Input::update(float deltaTime)
             }
         case SDL_EVENT_KEY_UP:
             {
+                window = Services::engine()->getWindow(static_cast<int>(event.key.windowID));
                 auto ev = std::make_unique<InputEventKey>();
+
                 ev->pressed = false;
                 ev->keycode = static_cast<Keycode>(event.key.key);
                 ev->scancode = static_cast<Keycode>(event.key.scancode);
@@ -45,11 +51,12 @@ void Input::update(float deltaTime)
             }
         case SDL_EVENT_MOUSE_MOTION:
             {
+                window = Services::engine()->getWindow(static_cast<int>(event.motion.windowID));
                 auto ev = std::make_unique<InputEventMouseMotion>();
-                const auto camera = Services::engine()->getActiveCamera();
+                const auto camera = window->getActiveCamera();
 
                 float lx, ly;
-                SDL_RenderCoordinatesFromWindow(Services::graphics()->getRenderer(), event.motion.x, event.motion.y, &lx, &ly);
+                SDL_RenderCoordinatesFromWindow(window->renderer, event.motion.x, event.motion.y, &lx, &ly);
 
                 ev->position = camera->screenToWorld({lx, ly});
                 ev->relative = Vector2{event.motion.xrel, event.motion.yrel};
@@ -58,7 +65,9 @@ void Input::update(float deltaTime)
             }
         case SDL_EVENT_MOUSE_BUTTON_DOWN:
             {
+                window = Services::engine()->getWindow(static_cast<int>(event.button.windowID));
                 auto ev = std::make_unique<InputEventMouseButton>();
+
                 ev->pressed = true;
                 ev->button = static_cast<MouseButton>(event.button.button);
                 if(event.button.clicks > 1) ev->doubleClick = true;
@@ -67,7 +76,9 @@ void Input::update(float deltaTime)
             }
         case SDL_EVENT_MOUSE_BUTTON_UP:
             {
+                window = Services::engine()->getWindow(static_cast<int>(event.button.windowID));
                 auto ev = std::make_unique<InputEventMouseButton>();
+
                 ev->pressed = false;
                 ev->button = static_cast<MouseButton>(event.button.button);
                 if(event.button.clicks > 1) ev->doubleClick = true;
@@ -76,7 +87,9 @@ void Input::update(float deltaTime)
             }
         case SDL_EVENT_MOUSE_WHEEL:
             {
+                window = Services::engine()->getWindow(static_cast<int>(event.wheel.windowID));
                 auto ev = std::make_unique<InputEventMouseButton>();
+
                 ev->pressed = true;
 
                 if (std::abs(event.wheel.x) > std::abs(event.wheel.y)) {
@@ -153,7 +166,8 @@ void Input::update(float deltaTime)
             }
         case SDL_EVENT_WINDOW_RESIZED:
             {
-                Services::graphics()->resetLogicalPresentation();
+                //std::shared_ptr<Window> window = Services::engine()->getWindow(static_cast<int>(event.motion.windowID));
+                // nothing, for now. i think.
                 break;
             }
         default:
@@ -166,7 +180,9 @@ void Input::update(float deltaTime)
 
     // send events and pull action strengths and held actions
     for (auto& e : inputs) {
-        Services::engine()->root.input(*e);
+        if(window) { // TODO: is this ok?
+            window->root->input(*e);
+        }
 
         if (const auto* motion = dynamic_cast<InputEventControllerMotion*>(e.get())) {
             for (auto& [name, action] : *actionsArrayPointer)
@@ -221,13 +237,15 @@ Vector2 Input::getMousePosition() const {
     float wx, wy;
     SDL_GetMouseState(&wx, &wy);
 
+    std::shared_ptr<Window> window = Services::engine()->getWindow(SDL_GetWindowID(SDL_GetMouseFocus()));
+
     float lx, ly;
     SDL_RenderCoordinatesFromWindow(
-        Services::graphics()->getRenderer(),
+        window->renderer,
         wx, wy, &lx, &ly
     );
 
-    return Services::engine()
+    return window
         ->getActiveCamera()
         ->screenToWorld({lx, ly});
 }

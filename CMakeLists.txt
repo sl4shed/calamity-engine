@@ -44,7 +44,7 @@ add_library(${PROJECT_NAME} STATIC
         backend/services/services.cpp
         backend/services/input/input.cpp
         backend/services/graphics/graphics.cpp
-        backend/services/graphics/definitions.hpp
+        backend/services/graphics/definitions.cpp
         backend/services/engine.cpp
         backend/services/physics/physics.cpp
         backend/services/physics/definitions.cpp

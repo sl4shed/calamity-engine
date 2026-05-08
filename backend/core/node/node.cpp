@@ -232,4 +232,11 @@ std::shared_ptr<Window> Node::getWindow() {
         Node *root = getOwner();
         return root->getWindow();
     }
+
+    return nullptr;
+}
+
+void Node::setWindow(std::shared_ptr<Window> win) {
+    if(!win) return;
+    this->window = win;
 }

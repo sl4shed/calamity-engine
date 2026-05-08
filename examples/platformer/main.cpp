@@ -97,7 +97,7 @@ int main()
     // player node
     auto node = std::make_shared<Node>("playerNode");
     node->transform.position = {0, -40};
-    auto sprite = std::make_shared<AnimatedSprite>();
+    auto sprite = std::make_shared<AnimatedSprite>(window);
 
     // player animations
     auto idle = Animation("idle", 5, Vector2{14, 19} * 4, true, true);
@@ -149,7 +149,7 @@ int main()
     // other nodes
     auto map = std::make_shared<Node>("map");
     map->transform.position = {0, 0};
-    auto tilemap = std::make_shared<Tilemap>("res://assets/world_tileset.png", TextureScaling::PIXELART, Vector2{64, 64});
+    auto tilemap = std::make_shared<Tilemap>("res://assets/world_tileset.png", Vector2{64, 64}, window);
     // 896x192
     tilemap->addTiles(
         // grass
@@ -264,8 +264,8 @@ int main()
 
     map->addComponent(tilemap);
 
-    window->root.addChild(map);
-    window->root.addChild(node);
+    window->root->addChild(map);
+    window->root->addChild(node);
 
     engine.initialize();
 

@@ -71,9 +71,9 @@ Vector2 Camera::screenToWorld(const Vector2 screen) const
 // sprite
 
 Sprite::Sprite() = default;
-Sprite::Sprite(const std::string& texturePath, TextureScaling scaling)
+Sprite::Sprite(const std::string& texturePath, std::shared_ptr<Window> window, TextureScaling scaling)
 {
-    texture = Texture(texturePath, scaling);
+    texture = Texture(texturePath, window, scaling);
 }
 
 void Sprite::initialize()
@@ -140,7 +140,7 @@ void AnimatedSprite::play(const std::string& animation)
     changed.fire(currentAnimation->name);
 
     if (currentAnimation->texturePath != currentTexture.path)
-        currentTexture = Texture(currentAnimation->texturePath);
+        currentTexture = Texture(currentAnimation->texturePath, window);
 
     frame = 0;
     elapsed = 0.0f;
@@ -219,9 +219,9 @@ bool AnimatedSprite::isPlaying() const
 
 // Tilemap
 
-Tilemap::Tilemap(const std::string& texturePath, const TextureScaling scaling, const Vector2 tileSize)
+Tilemap::Tilemap(const std::string& texturePath, Vector2 tileSize, std::shared_ptr<Window> window, TextureScaling scaling)
 {
-    this->texture = Texture(texturePath, scaling);
+    this->texture = Texture(texturePath, window, scaling);
     this->tileSize = tileSize;
 }
 
@@ -275,3 +275,15 @@ void Tilemap::removeTile(int index)
     tiles.erase(tiles.begin() + index);
     dirty = true;
 }
+
+#include <cereal/archives/json.hpp>
+#include <cereal/types/polymorphic.hpp>
+
+CEREAL_REGISTER_TYPE(Sprite)
+CEREAL_REGISTER_TYPE(Camera)
+CEREAL_REGISTER_TYPE(Script)
+CEREAL_REGISTER_TYPE(AnimatedSprite)
+CEREAL_REGISTER_POLYMORPHIC_RELATION(Component, Sprite)
+CEREAL_REGISTER_POLYMORPHIC_RELATION(Component, AnimatedSprite)
+CEREAL_REGISTER_POLYMORPHIC_RELATION(Component, Camera)
+CEREAL_REGISTER_POLYMORPHIC_RELATION(Component, Script)

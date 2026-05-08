@@ -5,8 +5,10 @@
 #include "audio.hpp"
 #include "services.hpp"
 #include "input/input.hpp"
-#include "graphics.hpp"
+#include "graphics/graphics.hpp"
 #include "physics/physics.hpp"
+#include <SDL3/SDL.h>
+#include <SDL3/SDL_video.h>
 
 #ifdef PSP
 #include <pspuser.h>
@@ -109,17 +111,19 @@ void Engine::render(Graphics &graphics)
 }
 
 int Engine::appendWindow(std::shared_ptr<Window> window) {
+    int id = SDL_GetWindowID(window->window);
+    window->id = id;
     windows.emplace_back(window);
-    return (windows.size() - 1);
+    return id;
 }
 
 void Engine::removeWindow(int id) {
-    if(id < 0 || id >= windows.size()) return;
-    // todo
+    // TODO: implement
 }
 
 std::shared_ptr<Window> Engine::getWindow(int id) {
-    if (id < 0 || id >= windows.size())
-        return;
-    return windows[id];
+    for (auto &window : windows) {
+        if (window->id == id) return window;
+    }
+    return nullptr;
 }

@@ -5,11 +5,11 @@
 #include <SDL3/SDL.h>
 #include <cereal/archives/json.hpp>
 #include <box2d/types.h>
-#include "../services/graphics/definitions.hpp"
 
 // Forward declarations
 class Graphics;
 class Services;
+class Window;
 
 /**
  * # this is needed for physics scale and to avoid a stupid circular import

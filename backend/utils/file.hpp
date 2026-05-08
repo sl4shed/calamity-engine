@@ -78,7 +78,10 @@ private:
     std::string fsPath;
     SDL_IOStream *handle;
 };
-
+/**
+ * Imports a specific node from an `std::string`.
+ */
+void loadNodeTree(const std::shared_ptr<Node>& parent, const std::string& jsonText);
 
 /**
  * Exports a specific node and its children/components to an `std::string`.
@@ -86,18 +89,13 @@ private:
 std::string exportNodeTree(std::shared_ptr<Node> node);
 
 /**
- * Exports the current scene to an `std::string`.
+ * This function is specifically for loading the root node of the engine.
  */
-std::string exportNodeTree();
+std::string exportWindow(std::shared_ptr<Window> window);
 
 /**
- * Imports a specific node from an `std::string`.
+ * This function loads the root node of the provided window from the provided json text.
  */
-void loadNodeTree(const std::shared_ptr<Node>& parent, const std::string& jsonText);
-
-/**
- * Loads a scene export from an `std::string`.
- */
-void loadNodeTree(const std::string& jsonText);
+void loadWindow(const std::string& jsonText, std::shared_ptr<Window> window);
 
 std::string parseFilePath(std::string path); // meant for internal use

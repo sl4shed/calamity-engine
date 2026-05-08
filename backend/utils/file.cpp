@@ -243,17 +243,29 @@ std::string exportNodeTree(std::shared_ptr<Node> node)
 }
 
 /**
- * This function is specifically for exporting the root node of the engine.
+ * This function exports the root node of the provided window. You can think of the root node of a window as a "scene" system that other engines would have.
  */
-std::string exportNodeTree()
+std::string exportWindow(std::shared_ptr<Window> window)
 {
     std::stringstream o;
     {
         cereal::JSONOutputArchive archive(o);
-        archive(Services::engine()->root);
+        archive(window->root);
     }
     return o.str();
 }
+
+/**
+ * This function loads the root node of the provided window from the provided json text.
+ */
+void loadWindow(const std::string& jsonText, std::shared_ptr<Window> window)
+{
+    std::stringstream i(jsonText);
+    cereal::JSONInputArchive archive(i);
+    window->root = std::make_unique<Node>("root");
+    archive(window->root);
+}
+
 
 /**
  * This function is for loading a node tree from JSON text.
@@ -265,17 +277,6 @@ void loadNodeTree(const std::shared_ptr<Node>& parent, const std::string& jsonTe
     auto node = std::make_shared<Node>();
     archive(node);
     parent->addChild(node);
-}
-
-/**
- * This function is specifically for loading the root node of the engine.
- */
-void loadNodeTree(const std::string& jsonText)
-{
-    std::stringstream i(jsonText);
-    cereal::JSONInputArchive archive(i);
-    Services::engine()->root = Node();
-    archive(Services::engine()->root);
 }
 
 /**

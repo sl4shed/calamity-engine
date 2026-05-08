@@ -2,14 +2,14 @@
 #include <SDL3_image/SDL_image.h>
 #include <SDL3_ttf/SDL_ttf.h>
 #include "graphics.hpp"
-#include "../core/definitions.hpp"
-#include "../core/node/node.hpp"
-#include "../utils/logger.hpp"
-#include "../core/ui/definitions.hpp"
-#include "engine.hpp"
-#include "../core/ui/label.hpp"
+#include "../../core/definitions.hpp"
+#include "../../core/node/node.hpp"
+#include "../../utils/logger.hpp"
+#include "../../core/ui/definitions.hpp"
+#include "../engine.hpp"
+#include "../../core/ui/label.hpp"
 #include "definitions.hpp"
-#include "physics/definitions.hpp"
+#include "../physics/definitions.hpp"
 
 #ifdef CALAMITY_VENDORED
 #include <SDL3_gfxPrimitives.h>

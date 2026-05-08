@@ -1,7 +1,11 @@
 #pragma once
 #include <string>
 #include "../../core/definitions.hpp"
-#include "../../core/node/node.hpp"
+
+class Node;
+class Camera;
+class Graphics;
+class Engine;
 
 enum class RenderLogicalPresentation
 {
@@ -35,7 +39,7 @@ enum class WindowFlags {
     TRANSPARENT = 0x0000000040000000
 };
 
-class Window {
+class Window : public std::enable_shared_from_this<Window> {
 public:
     Window(std::string title = "Calamity App", Rect dimensions = Rect({0, 0}, {480, 272}), RenderLogicalPresentation presentation = RenderLogicalPresentation::LETTERBOX, WindowFlags flags = WindowFlags::RESIZABLE, Color clearColor = Color::BLACK, bool fullscreen = false);
     ~Window();
@@ -45,7 +49,7 @@ public:
     RenderLogicalPresentation presentation;
     Rect dimensions;
     Color clearColor;
-    Node root;
+    std::unique_ptr<Node> root;
     bool fullscreen;
     int id = 0; // this is set when appending the window to the Engine service.
 

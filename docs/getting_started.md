@@ -3,7 +3,7 @@
 ## 1. Install dependencies and required build tools:
 ```bash
 # Arch Linux
-sudo pacman -Syu git cmake make ninja sdl3 sdl3_image sdl3_ttf fmt spdlog cereal
+sudo pacman -Syu git cmake make ninja sdl3 sdl3_image sdl3_ttf fmt spdlog cereal box2d
 yay -S sdl3_gfx-git # on arch, I created this aur package for sdl3_gfx
 
 
