@@ -1,7 +1,7 @@
 #pragma once
 #include "../node/components.hpp"
 #include "../definitions.hpp"
-#include "../../services/graphics.hpp"
+#include "../../services/graphics/graphics.hpp"
 
 /**
  * # Label

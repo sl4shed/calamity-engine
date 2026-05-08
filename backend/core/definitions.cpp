@@ -1,7 +1,7 @@
 #include "definitions.hpp"
 #include <cmath>
 #include <SDL3/SDL.h>
-#include "../services/graphics.hpp"
+#include "../services/graphics/graphics.hpp"
 #include "../services/services.hpp"
 #include "../utils/file.hpp"
 #include <cereal/archives/json.hpp>
@@ -201,14 +201,14 @@ Transform Transform::inverse() const
 }
 
 // texture
-Texture::Texture(const std::string& _path, TextureScaling _scaling) : handle(nullptr), width(0), height(0), textureWidth(0), textureHeight(0), path(_path), scaling(_scaling)
+Texture::Texture(const std::string& _path, std::shared_ptr<Window> window, TextureScaling _scaling) : handle(nullptr), window(window), width(0), height(0), textureWidth(0), textureHeight(0), path(_path), scaling(_scaling)
 {
     initialize();
 }
 
 void Texture::initialize()
 {
-    this->handle = Services::graphics()->loadTexture(File::getAbsoluteFilePath(this->path), this->scaling);
+    this->handle = Services::graphics()->loadTexture(File::getAbsoluteFilePath(this->path), window.get(), this->scaling);
 
     this->width = handle->w;
     this->height = handle->h;

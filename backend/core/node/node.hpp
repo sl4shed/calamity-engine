@@ -4,9 +4,13 @@
 #include "../../utils/utils.hpp"
 #include "components.hpp"
 #include "../../services/input/keycode.hpp"
+//#include "../../services/graphics/definitions.hpp"
 #include <iostream>
 #include <cereal/types/vector.hpp>
 #include <cereal/types/memory.hpp>
+
+class Window;
+struct Transform;
 
 /**
  * # Base node class
@@ -31,12 +35,17 @@ public:
 	Transform globalTransform;
 
 	Node *parent;
+
 	std::vector<std::shared_ptr<Node>> children;
 	std::vector<std::shared_ptr<Component>> components;
 
 	Node(const std::string& name = "Node");
 	~Node();
 	void free();
+
+	Node *getOwner();
+	std::shared_ptr<Window> getWindow();
+	void setWindow(std::shared_ptr<Window> window);
 
 	// children
 	void addChild(std::shared_ptr<Node> child);
@@ -59,7 +68,7 @@ public:
 	std::shared_ptr<Component> getComponentByIndex(int index);
 
 	// state functions
-	void render(Graphics &graphics, Engine *engine) const;
+	void render(Graphics &graphics, Engine *engine, std::shared_ptr<Window> window) const;
 	void update(float deltaTime);
 	void physicsUpdate() const; // runs locked at 60fps
 	void initialize();
@@ -88,4 +97,6 @@ public:
 		for (auto &child : children)
 			child->parent = this;
 	}
+private:
+	std::shared_ptr<Window> window;
 };

@@ -19,8 +19,8 @@ endif()
 project(calamity)
 
 set(CMAKE_CXX_STANDARD 17)
-set(BUILD_TARGET "NATIVE" CACHE STRING "Build target: NATIVE | PSP | EMSCRIPTEN")
-set_property(CACHE BUILD_TARGET PROPERTY STRINGS NATIVE PSP EMSCRIPTEN)
+set(BUILD_TARGET "NATIVE" CACHE STRING "Build target: NATIVE | PSP | EMSCRIPTEN | 3DS")
+set_property(CACHE BUILD_TARGET PROPERTY STRINGS NATIVE PSP EMSCRIPTEN 3DS)
 
 option(CALAMITY_VENDORED "Use vendored dependencies" OFF)
 option(CALAMITY_FIND_SDL3 OFF)
@@ -43,7 +43,8 @@ add_library(${PROJECT_NAME} STATIC
         backend/services/audio.cpp
         backend/services/services.cpp
         backend/services/input/input.cpp
-        backend/services/graphics.cpp
+        backend/services/graphics/graphics.cpp
+        backend/services/graphics/definitions.hpp
         backend/services/engine.cpp
         backend/services/physics/physics.cpp
         backend/services/physics/definitions.cpp

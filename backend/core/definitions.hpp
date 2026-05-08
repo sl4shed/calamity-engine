@@ -5,6 +5,7 @@
 #include <SDL3/SDL.h>
 #include <cereal/archives/json.hpp>
 #include <box2d/types.h>
+#include "../services/graphics/definitions.hpp"
 
 // Forward declarations
 class Graphics;
@@ -140,11 +141,11 @@ class Texture
 {
 public:
     Texture() : handle(nullptr), width(0), height(0), textureWidth(0), textureHeight(0) {};
-    Texture(const std::string& path, TextureScaling scaling = TextureScaling::NEAREST);
+    Texture(const std::string& path, std::shared_ptr<Window> window, TextureScaling scaling = TextureScaling::NEAREST);
     ~Texture();
     Texture(const Texture&) = delete;
     Texture& operator=(const Texture&) = delete;
-    Texture(Texture&& other) noexcept : handle(other.handle), width(other.width), height(other.height), textureWidth(other.textureWidth), textureHeight(other.textureHeight), path(std::move(other.path))
+    Texture(Texture&& other) noexcept : handle(other.handle), window(other.window), width(other.width), height(other.height), textureWidth(other.textureWidth), textureHeight(other.textureHeight), path(std::move(other.path))
     {
         other.handle = nullptr;
     }
@@ -155,6 +156,7 @@ public:
         {
             SDL_DestroyTexture(handle);
             handle = other.handle;
+            window = other.window;
             width = other.width;
             height = other.height;
             textureWidth = other.textureWidth;
@@ -168,7 +170,7 @@ public:
     template <class Archive>
     void load(Archive &ar)
     {
-        ar(CEREAL_NVP(path), CEREAL_NVP(scaling));
+        ar(CEREAL_NVP(path), CEREAL_NVP(scaling), CEREAL_NVP(window));
         this->initialize();
         ar(CEREAL_NVP(width), CEREAL_NVP(height));
     }
@@ -176,7 +178,7 @@ public:
     template <class Archive>
     void save(Archive &ar) const
     {
-        ar(CEREAL_NVP(path), CEREAL_NVP(scaling), CEREAL_NVP(width), CEREAL_NVP(height));
+        ar(CEREAL_NVP(path), CEREAL_NVP(scaling), CEREAL_NVP(window), CEREAL_NVP(width), CEREAL_NVP(height));
     }
     void initialize();
 
@@ -188,6 +190,7 @@ public:
     std::string path;
 private:
     TextureScaling scaling = TextureScaling::LINEAR;
+    std::shared_ptr<Window> window;
 };
 
 /**
@@ -267,7 +270,7 @@ struct Transform
 
 /**
  * # Rect
- * A simple rect class. It detrermines two Vector2's: position and size. Its used mainly to define sourceRects of \ref Sprite ["Sprites"].
+ * A simple rect class. It detrermines two Vector2's: position and size. Its used mainly to define sourceRects of \ref Sprite "Sprites".
  */
 struct Rect
 {

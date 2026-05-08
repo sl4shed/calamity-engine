@@ -5,6 +5,7 @@
 #include <SDL3_ttf/SDL_ttf.h>
 #include <string>
 #include "../definitions.hpp"
+#include "../../services/graphics/definitions.hpp"
 
 /**
  * Mirrors the [TTF_HintingFlags](https://wiki.libsdl.org/SDL3_ttf/TTF_HintingFlags) enum.

@@ -1,6 +1,7 @@
 #pragma once
 #include "../core/definitions.hpp"
 #include "../core/node/node.hpp"
+#include "graphics/definitions.hpp"
 #include "services.hpp"
 
 /**
@@ -32,17 +33,16 @@ class Engine
 public:
     Engine(std::string _appName = "Calamity App");
     ~Engine();
-
-    Node root;
     const std::string appName;
+
+    int appendWindow(std::shared_ptr<Window> window);
+    void removeWindow(int id);
+    std::shared_ptr<Window> getWindow(int id);
 
     void update();
     void render(Graphics &graphics);
     void initialize();
     void exit();
-
-    void setActiveCamera(Camera *camera);
-    Camera *getActiveCamera() const;
 
     float physicsTimestep  = 1.0f / 60.0f;
     float accumulator = 0.0f;
@@ -52,9 +52,9 @@ public:
     template <class Archive>
     void serialize(Archive &ar)
     {
-        ar(CEREAL_NVP(root));
+        ar(CEREAL_NVP(windows));
     }
 
 private:
-    Camera *activeCamera = nullptr;
+    std::vector<std::shared_ptr<Window>> windows;
 };

@@ -1,10 +1,11 @@
 #include "components.hpp"
 #include "node.hpp"
 #include "../../services/engine.hpp"
-#include "../../services/graphics.hpp"
+#include "../../services/graphics/graphics.hpp"
 #include "../../services/services.hpp"
 #include "../../services/physics/physics.hpp"
 #include "../../utils/logger.hpp"
+#include "node.hpp"
 #include <cereal/archives/json.hpp>
 
 Node* Component::getNode() const
@@ -20,7 +21,7 @@ void Component::setNode(Node* n)
 
 void Camera::setActive()
 {
-    Services::engine()->setActiveCamera(this);
+    getNode()->getWindow()->setActiveCamera(this);
     this->active = true;
 }
 
@@ -59,7 +60,7 @@ Vector2 Camera::getGlobalPosition()
 
 Vector2 Camera::screenToWorld(const Vector2 screen) const
 {
-    const auto screenSize = Services::graphics()->screenSize;
+    const auto screenSize = getNode()->getWindow()->dimensions.size;
     const auto originOffset = screenSize * origin;
     Vector2 v = screen - originOffset;
     v = getNode()->globalTransform.transformation * v;

@@ -15,8 +15,8 @@ class Audio;
  * Example usage:
  * ```
  * // Example for getting the graphics services
- * #include "backend/services.hpp"
- * #include "backend/graphics.hpp"
+ * #include "backend/services/services.hpp"
+ * #include "backend/services/graphics/graphics.hpp"
  * Graphics *graphics = Services::graphics();
  * ```
  *

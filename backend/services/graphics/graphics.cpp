@@ -8,6 +8,7 @@
 #include "../core/ui/definitions.hpp"
 #include "engine.hpp"
 #include "../core/ui/label.hpp"
+#include "definitions.hpp"
 #include "physics/definitions.hpp"
 
 #ifdef CALAMITY_VENDORED
@@ -17,11 +18,8 @@
 #endif
 
 
-Graphics::Graphics(Vector2 _screenSize, const std::string& _title, RenderLogicalPresentation _presentation, Color _clearColor, WindowFlags _flags)
-    : screenSize(_screenSize), clearColor(_clearColor), presentation(_presentation)
+Graphics::Graphics()
 {
-    presentation = _presentation;
-    clearColor = _clearColor;
     SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMEPAD | SDL_INIT_AUDIO | SDL_INIT_GAMEPAD);
     TTF_Init();
 
@@ -31,27 +29,6 @@ Graphics::Graphics(Vector2 _screenSize, const std::string& _title, RenderLogical
     SDL_AddGamepadMappingsFromFile("./calamity/gamecontrollerdb.txt");
 #endif
 
-    this->window = SDL_CreateWindow(
-        _title.c_str(),
-        static_cast<int>(screenSize.x),
-        static_cast<int>(screenSize.y),
-        static_cast<SDL_WindowFlags>(_flags)
-    );
-
-    if (!this->window)
-    {
-        Logger::error("Failed to create window: {}", SDL_GetError());
-    }
-
-    this->renderer = SDL_CreateRenderer(window, nullptr);
-    if (!this->renderer)
-    {
-        Logger::error("Failed to create renderer: {}", SDL_GetError());
-    }
-    if (!SDL_SetRenderLogicalPresentation(renderer, static_cast<int>(screenSize.x), static_cast<int>(screenSize.y), static_cast<SDL_RendererLogicalPresentation>(presentation)))
-    {
-        Logger::error("Failed to set render logical presentation: {}", SDL_GetError());
-    }
     this->textEngine = TTF_CreateSurfaceTextEngine();
     if (!this->textEngine)
     {
@@ -59,18 +36,14 @@ Graphics::Graphics(Vector2 _screenSize, const std::string& _title, RenderLogical
     }
 }
 
-void Graphics::resetLogicalPresentation() {
-    SDL_SetRenderLogicalPresentation(renderer, static_cast<int>(screenSize.x), static_cast<int>(screenSize.y), static_cast<SDL_RendererLogicalPresentation>(presentation));
-}
-
-SDL_Texture *Graphics::loadTexture(const std::string &path, TextureScaling scaling) const
+SDL_Texture *Graphics::loadTexture(const std::string &path, Window *window, TextureScaling scaling) const
 {
     SDL_Surface *pixels = IMG_Load(path.c_str());
     if (!pixels) {
         Logger::error("Failed to load image {}: {}", path, SDL_GetError());
         return nullptr;
     }
-    SDL_Texture *tex = SDL_CreateTextureFromSurface(renderer, pixels);
+    SDL_Texture *tex = SDL_CreateTextureFromSurface(window->renderer, pixels);
     if (!tex)
     {
         Logger::error("Failed to create texture {}: {}", path, SDL_GetError());
@@ -85,18 +58,13 @@ SDL_Texture *Graphics::loadTexture(const std::string &path, TextureScaling scali
     return tex;
 }
 
-SDL_Renderer* Graphics::getRenderer() const
-{
-    return renderer;
-}
-
-void Graphics::renderComponent(const Sprite &sprite) const
+void Graphics::renderComponent(const Sprite &sprite, Window *window) const
 {
     const Node *node = sprite.getNode();
     if (!node) return;
     if (!sprite.texture.handle) return;
 
-    const Camera *activeCamera = Services::engine()->getActiveCamera();
+    const Camera *activeCamera = window->getActiveCamera();
     const Transform cameraTransform = activeCamera->getCameraTransform();
     SDL_Vertex vertices[4];
     const auto modulate = static_cast<SDL_FColor>(sprite.modulate);
@@ -104,6 +72,7 @@ void Graphics::renderComponent(const Sprite &sprite) const
     vertices[1] = {{sprite.texture.width * (1 - sprite.origin.x), -(sprite.texture.height * sprite.origin.y)}, modulate, {1, 0}};
     vertices[2] = {{sprite.texture.width * (1 - sprite.origin.x), sprite.texture.height * (1 - sprite.origin.y)}, modulate, {1, 1}};
     vertices[3] = {{-(sprite.texture.width * sprite.origin.x), sprite.texture.height * (1 - sprite.origin.y)}, modulate, {0, 1}};
+    const Vector2 screenSize = window->dimensions.size;
 
     const auto originOffset = Vector2{screenSize.x * activeCamera->origin.x, screenSize.y * activeCamera->origin.y};
     auto cameraInverse = cameraTransform.inverse();
@@ -144,16 +113,17 @@ void Graphics::renderComponent(const Sprite &sprite) const
     }
 
     const int indices[6] = {0, 1, 2, 2, 3, 0};
-    SDL_RenderGeometry(this->renderer, sprite.texture.handle, vertices, 4, indices, 6);
+    SDL_RenderGeometry(window->renderer, sprite.texture.handle, vertices, 4, indices, 6);
 }
 
-void Graphics::renderComponent(const ShapeSprite &sprite) const
+void Graphics::renderComponent(const ShapeSprite &sprite, Window *window) const
 {
     const Node *node = sprite.getNode();
     if (!node) return;
 
-    const Camera *activeCamera = Services::engine()->getActiveCamera();
+    const Camera *activeCamera = window->getActiveCamera();
     const Transform cameraTransform = activeCamera->getCameraTransform();
+    const Vector2 screenSize = window->dimensions.size;
     const Vector2 originOffset = {screenSize.x * activeCamera->origin.x, screenSize.y * activeCamera->origin.y};
     const auto modulate = static_cast<SDL_FColor>(sprite.modulate);
     auto cameraInverse = cameraTransform.inverse();
@@ -186,7 +156,7 @@ void Graphics::renderComponent(const ShapeSprite &sprite) const
             indices.push_back(i + 1);
         }
 
-        SDL_RenderGeometry(renderer, nullptr, vertices.data(), count, indices.data(), static_cast<int>(indices.size()));
+        SDL_RenderGeometry(window->renderer, nullptr, vertices.data(), count, indices.data(), static_cast<int>(indices.size()));
     } else if (const auto* circle = dynamic_cast<const CircleShape*>(sprite.shape.get()))
     {
         Vector2 pos = node->globalTransform.position;
@@ -202,7 +172,7 @@ void Graphics::renderComponent(const ShapeSprite &sprite) const
         }
         pos = pos + originOffset;
 
-        filledCircleRGBA(renderer, pos.x, pos.y, circle->radius, sprite.modulate.r, sprite.modulate.g, sprite.modulate.b, sprite.modulate.a);
+        filledCircleRGBA(window->renderer, pos.x, pos.y, circle->radius, sprite.modulate.r, sprite.modulate.g, sprite.modulate.b, sprite.modulate.a);
     } else if (const auto* capsule = dynamic_cast<const CapsuleShape*>(sprite.shape.get()))
     {
         Vector2 c1 = node->globalTransform.applyTo(capsule->capsule.center1);
@@ -236,9 +206,9 @@ void Graphics::renderComponent(const ShapeSprite &sprite) const
         };
 
         const int indices[6] = {0, 1, 2, 2, 3, 0};
-        SDL_RenderGeometry(renderer, nullptr, verts, 4, indices, 6);
-        filledCircleRGBA(renderer, c1.x, c1.y, rad, sprite.modulate.r, sprite.modulate.g, sprite.modulate.b, sprite.modulate.a);
-        filledCircleRGBA(renderer, c2.x, c2.y, rad, sprite.modulate.r, sprite.modulate.g, sprite.modulate.b, sprite.modulate.a);
+        SDL_RenderGeometry(window->renderer, nullptr, verts, 4, indices, 6);
+        filledCircleRGBA(window->renderer, c1.x, c1.y, rad, sprite.modulate.r, sprite.modulate.g, sprite.modulate.b, sprite.modulate.a);
+        filledCircleRGBA(window->renderer, c2.x, c2.y, rad, sprite.modulate.r, sprite.modulate.g, sprite.modulate.b, sprite.modulate.a);
     } else if(const auto* polygon = dynamic_cast<const PolygonShape*>(sprite.shape.get())) {
         const Polygon &poly = polygon->polygon;
         const int count = poly.count;
@@ -266,18 +236,18 @@ void Graphics::renderComponent(const ShapeSprite &sprite) const
             indices.push_back(i + 1);
         }
 
-        SDL_RenderGeometry(renderer, nullptr, vertices.data(), count, indices.data(), static_cast<int>(indices.size()));
+        SDL_RenderGeometry(window->renderer, nullptr, vertices.data(), count, indices.data(), static_cast<int>(indices.size()));
     }
 }
 
-void Graphics::renderComponent(const Label &label) const
+void Graphics::renderComponent(const Label &label, Window *window) const
 {
     SDL_Texture *texture = label.getTexture();
     const Node *lnode = label.getNode();
     if(!lnode) return;
     if(!texture) return;
 
-    const Camera *activeCamera = Services::engine()->getActiveCamera();
+    const Camera *activeCamera = window->getActiveCamera();
     const Transform cameraTransform = activeCamera->getCameraTransform();
     SDL_Vertex vertices[4];
 
@@ -290,6 +260,7 @@ void Graphics::renderComponent(const Label &label) const
     vertices[2] = {{w * (1 - label.origin.x), h * (1 - label.origin.y)}, {1, 1, 1, 1}, {1, 1}};
     vertices[3] = {{-(w * label.origin.x), h * (1 - label.origin.y)}, {1, 1, 1, 1}, {0, 1}};
 
+    const Vector2 screenSize = window->dimensions.size;
     const auto originOffset = Vector2{screenSize.x * activeCamera->origin.x, screenSize.y * activeCamera->origin.y};
     auto [position, transformation] = cameraTransform.inverse();
 
@@ -313,10 +284,10 @@ void Graphics::renderComponent(const Label &label) const
     }
 
     const int indices[6] = {0, 1, 2, 2, 3, 0};
-    SDL_RenderGeometry(this->renderer, texture, vertices, 4, indices, 6);
+    SDL_RenderGeometry(window->renderer, texture, vertices, 4, indices, 6);
 }
 
-void Graphics::renderComponent(const AnimatedSprite &sprite) const
+void Graphics::renderComponent(const AnimatedSprite &sprite, Window *window) const
 {
     if (!sprite.isPlaying()) return;
 
@@ -328,7 +299,8 @@ void Graphics::renderComponent(const AnimatedSprite &sprite) const
     if (!frame) return;
     if (!texture) return;
 
-    const Camera *activeCamera = Services::engine()->getActiveCamera();
+    const Vector2 screenSize = window->dimensions.size;
+    const Camera *activeCamera = window->getActiveCamera();
     const Transform cameraTransform = activeCamera->getCameraTransform();
     const Rect sourceRect = frame->rect;
 
@@ -378,18 +350,19 @@ void Graphics::renderComponent(const AnimatedSprite &sprite) const
     }
 
     const int indices[6] = {0, 1, 2, 2, 3, 0};
-    SDL_RenderGeometry(this->renderer, texture->handle, vertices, 4, indices, 6);
+    SDL_RenderGeometry(window->renderer, texture->handle, vertices, 4, indices, 6);
 }
 
-void Graphics::renderComponent(const Tilemap& tilemap) const
+void Graphics::renderComponent(const Tilemap& tilemap, Window *window) const
 {
     const Node *node = tilemap.getNode();
     if (!node) return;
     if (!tilemap.texture.handle) return;
     if (tilemap.vertexBuffer.empty()) return;
 
-    const Camera *activeCamera = Services::engine()->getActiveCamera();
+    const Camera *activeCamera = window->getActiveCamera();
     const Transform cameraTransform = activeCamera->getCameraTransform();
+    const Vector2 screenSize = window->dimensions.size;
     const Vector2 originOffset = {screenSize.x * activeCamera->origin.x, screenSize.y * activeCamera->origin.y};
     auto [position, transformation] = cameraTransform.inverse();
 
@@ -406,7 +379,7 @@ void Graphics::renderComponent(const Tilemap& tilemap) const
         v.position.y = pos.y;
     }
 
-    SDL_RenderGeometry(renderer, tilemap.texture.handle, transformed.data(), static_cast<int>(transformed.size()), tilemap.indexBuffer.data(), static_cast<int>(tilemap.indexBuffer.size()));
+    SDL_RenderGeometry(window->renderer, tilemap.texture.handle, transformed.data(), static_cast<int>(transformed.size()), tilemap.indexBuffer.data(), static_cast<int>(tilemap.indexBuffer.size()));
 }
 
 TTF_TextEngine *Graphics::getTextEngine() const
@@ -414,16 +387,7 @@ TTF_TextEngine *Graphics::getTextEngine() const
     return textEngine;
 }
 
-void Graphics::preRender() const
-{
-    SDL_SetRenderDrawColor(this->renderer, clearColor.r, clearColor.g, clearColor.b, clearColor.a);
-    SDL_RenderClear(this->renderer);
-}
 
-void Graphics::postRender() const
-{
-    SDL_RenderPresent(this->renderer);
-}
 
 void Graphics::exit() {
     SDL_Quit();

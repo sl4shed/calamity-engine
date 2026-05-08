@@ -8,7 +8,7 @@
 #include "backend/core/definitions.hpp"
 #include "backend/services/input/input.hpp"
 #include "backend/services/audio.hpp"
-#include "backend/services/graphics.hpp"
+#include "backend/services/graphics/graphics.hpp"
 #include "backend/utils/logger.hpp"
 #include "backend/services/services.hpp"
 #include "backend/core/node/components.hpp"

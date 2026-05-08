@@ -1,7 +1,7 @@
 #include "services.hpp"
 #include "backend/services/audio.hpp"
 #include "backend/services/physics/physics.hpp"
-#include "backend/services/graphics.hpp"
+#include "backend/services/graphics/graphics.hpp"
 
 Graphics *Services::s_graphics = nullptr;
 Engine *Services::s_engine = nullptr;

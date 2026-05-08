@@ -42,9 +42,6 @@ int SetupCallbacks(void)
 
 Engine::Engine(std::string _appName) : appName(std::move(_appName))
 {
-    root = Node();
-    root.transform.position = {0, 0};
-
 #ifdef PSP
     SetupCallbacks();
 #endif
@@ -56,7 +53,11 @@ Engine::~Engine()
 }
 
 void Engine::initialize() {
-    root.initialize();
+    for (auto &window : windows)
+    {
+        window->initialize();
+    }
+
     Services::audio()->initialize();
 }
 
@@ -67,27 +68,34 @@ void Engine::update()
     const float deltaTime = static_cast<float>(now - last) / SDL_GetPerformanceFrequency();
 
     Services::input()->update(deltaTime);
-    root.update(deltaTime);
+    for(auto &window : windows) {
+        window->update(deltaTime);
+    }
 
     accumulator += deltaTime;
     while (accumulator >= physicsTimestep) {
         Services::physics()->physicsUpdate(physicsTimestep);
-        root.physicsUpdate();
+
+        for (auto &window : windows)
+        {
+            window->physicsUpdate();
+        }
+
         accumulator -= physicsTimestep;
     }
 }
 
 void Engine::exit()
 {
-    root.exit();
-    root.children.clear();
-    root.components.clear();
+
+    for(auto &window : windows) {
+        window->exit();
+    }
 
     Services::exit();
     Logger::exit();
 
 #ifdef PSP
-    Logger::debug("exiting");
     sceKernelSleepThread();
     sceKernelExitGame();
 #endif
@@ -95,21 +103,23 @@ void Engine::exit()
 
 void Engine::render(Graphics &graphics)
 {
-    graphics.preRender();
-    root.render(graphics, this);
-    graphics.postRender();
-}
-
-void Engine::setActiveCamera(Camera *camera)
-{
-    if (activeCamera != nullptr)
-    {
-        activeCamera->active = false;
+    for(auto &window : windows) {
+        window->render(graphics, this);
     }
-    activeCamera = camera;
 }
 
-Camera *Engine::getActiveCamera() const
-{
-    return activeCamera;
+int Engine::appendWindow(std::shared_ptr<Window> window) {
+    windows.emplace_back(window);
+    return (windows.size() - 1);
+}
+
+void Engine::removeWindow(int id) {
+    if(id < 0 || id >= windows.size()) return;
+    // todo
+}
+
+std::shared_ptr<Window> Engine::getWindow(int id) {
+    if (id < 0 || id >= windows.size())
+        return;
+    return windows[id];
 }

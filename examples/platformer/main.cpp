@@ -3,7 +3,8 @@
 #include "backend/core/definitions.hpp"
 #include "backend/services/input/input.hpp"
 #include "backend/services/audio.hpp"
-#include "backend/services/graphics.hpp"
+#include "backend/services/graphics/graphics.hpp"
+#include "backend/services/graphics/definitions.hpp"
 #include "backend/utils/logger.hpp"
 #include "backend/services/services.hpp"
 #include "backend/core/node/components.hpp"
@@ -26,17 +27,21 @@ PSP_MAIN_THREAD_ATTR(THREAD_ATTR_USER);
 
 static Physics physics = Physics({0.0f, 9.81f});
 static Engine engine = Engine("Platformer Example");
-static Graphics* graphics = nullptr;
+static Graphics *graphics = nullptr;
 
-void loop() {
+void loop()
+{
     engine.update();
     engine.render(*graphics);
 }
 
-int main() {
+int main()
+{
     Logger::init();
 
-    graphics = new Graphics({480, 272}, "Platformer Example", RenderLogicalPresentation::LETTERBOX, Color(0x00b7ff));
+    std::shared_ptr<Window> window = std::make_unique<Window>("Platformer Example", Rect{{0, 0}, {480, 272}}, RenderLogicalPresentation::LETTERBOX, WindowFlags::RESIZABLE, Color(0x00b7ff));
+    engine.appendWindow(window);
+    graphics = new Graphics();
     Input input;
     InputRegistry inputRegistry;
     Audio audio;
@@ -102,8 +107,7 @@ int main() {
         Frame(Rect{{9, 9}, {14, 19}}, {0.5, 0.5}),
         Frame(Rect{{41, 9}, {14, 19}}, {0.5, 0.5}),
         Frame(Rect{{73, 9}, {14, 19}}, {0.5, 0.5}),
-        Frame(Rect{{105, 9}, {14, 19}}, {0.5, 0.5})
-    );
+        Frame(Rect{{105, 9}, {14, 19}}, {0.5, 0.5}));
     sprite->addAnimation(idle);
 
     auto run = Animation("run", 10, Vector2{14, 19} * 4, true, false);
@@ -126,8 +130,7 @@ int main() {
         Frame(Rect{{136, 105}, {14, 19}}, {0.5, 0.5}),
         Frame(Rect{{168, 105}, {14, 19}}, {0.5, 0.5}),
         Frame(Rect{{200, 105}, {14, 19}}, {0.5, 0.5}),
-        Frame(Rect{{232, 105}, {14, 19}}, {0.5, 0.5})
-    );
+        Frame(Rect{{232, 105}, {14, 19}}, {0.5, 0.5}));
     sprite->addAnimation(run);
 
     // rest of player node code
@@ -233,8 +236,7 @@ int main() {
         Tile(Vector2{17, 1}, Rect{{32, 16}, {16, 16}}),
         Tile(Vector2{15, 2}, Rect{{48, 0}, {16, 16}}),
         Tile(Vector2{16, 2}, Rect{{48, 16}, {16, 16}}),
-        Tile(Vector2{17, 2}, Rect{{48, 0}, {16, 16}})
-    );
+        Tile(Vector2{17, 2}, Rect{{48, 0}, {16, 16}}));
 
     std::vector<Vector2> groundPoints;
     groundPoints.emplace_back(Vector2{-640, 0});
@@ -262,15 +264,16 @@ int main() {
 
     map->addComponent(tilemap);
 
-    engine.root.addChild(map);
-    engine.root.addChild(node);
+    window->root.addChild(map);
+    window->root.addChild(node);
 
     engine.initialize();
 
 #ifdef EMSCRIPTEN
     emscripten_set_main_loop(loop, 0, 1);
 #else
-    while (!input.shouldQuit) {
+    while (!input.shouldQuit)
+    {
         loop();
     }
 

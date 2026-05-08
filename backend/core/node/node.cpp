@@ -2,12 +2,12 @@
 #include "../../utils/utils.hpp"
 #include "../../utils/logger.hpp"
 #include "../../services/input/input.hpp"
-#include "../../services/graphics.hpp"
+#include "../../services/graphics/graphics.hpp"
 #include "../ui/label.hpp"
 #include <iostream>
 #include <cmath>
 
-Node::Node(const std::string& _name) : name(_name), parent(nullptr) {}
+Node::Node(const std::string& _name) : name(_name), parent(nullptr), window(nullptr) {}
 
 Node::~Node()
 {
@@ -30,6 +30,7 @@ void Node::addChild(std::shared_ptr<Node> child)
     if (!child) return;
 
     child->parent = this;
+    child->window = this->window;
     children.push_back(child);
 }
 
@@ -67,37 +68,37 @@ void Node::removeComponent(std::shared_ptr<Component> component)
     }
 }
 
-void Node::render(Graphics &graphics, Engine *engine) const
+void Node::render(Graphics &graphics, Engine *engine, std::shared_ptr<Window> window) const
 {
     for (size_t i = 0; i < this->components.size(); i++)
     {
         if (const auto *sprite = dynamic_cast<Sprite *>(components[i].get()); sprite && sprite->visible)
         {
-            graphics.renderComponent(*sprite);
+            graphics.renderComponent(*sprite, window.get());
         }
 
         if (const auto *shapeSprite = dynamic_cast<ShapeSprite *>(components[i].get()); shapeSprite && shapeSprite->visible) {
-            graphics.renderComponent(*shapeSprite);
+            graphics.renderComponent(*shapeSprite, window.get());
         }
 
         if(const auto *label = dynamic_cast<Label *>(components[i].get()); label && label->visible) {
-            graphics.renderComponent(*label);
+            graphics.renderComponent(*label, window.get());
         }
 
         if (const auto *animSprite = dynamic_cast<AnimatedSprite *>(components[i].get()); animSprite && animSprite->visible)
         {
-            graphics.renderComponent(*animSprite);
+            graphics.renderComponent(*animSprite, window.get());
         }
 
         if (const auto *tilemap = dynamic_cast<Tilemap *>(components[i].get()); tilemap && tilemap->visible)
         {
-            graphics.renderComponent(*tilemap);
+            graphics.renderComponent(*tilemap, window.get());
         }
     }
 
     for (size_t i = 0; i < this->children.size(); i++)
     {
-        children[i]->render(graphics, engine);
+        children[i]->render(graphics, engine, window);
     }
 }
 
@@ -214,4 +215,21 @@ std::shared_ptr<Component> Node::getComponentByIndex(const int index)
         return nullptr;
     }
     return components[index];
+}
+
+Node *Node::getOwner() {
+    if(parent) {
+        return parent->getOwner();
+    }
+
+    return this;
+}
+
+std::shared_ptr<Window> Node::getWindow() {
+    if(window) {
+        return window;
+    } else if (parent) {
+        Node *root = getOwner();
+        return root->getWindow();
+    }
 }

@@ -2,7 +2,7 @@
 #include "label.hpp"
 #include "../definitions.hpp"
 #include "../../services/services.hpp"
-#include "../../services/graphics.hpp"
+#include "../../services/graphics/graphics.hpp"
 #include "../../utils/logger.hpp"
 #include "../node/components.hpp"
 #include "../node/node.hpp"
@@ -29,7 +29,7 @@ void Label::rebuildTexture() {
         SDL_DestroyTexture(texture);
 
     SDL_Surface *surface = TTF_RenderText_Blended_Wrapped(font->getHandle(), text.c_str(), text.size(), color, wrap ? static_cast<int>(size.x) : 0);
-    texture = SDL_CreateTextureFromSurface(Services::graphics()->getRenderer(), surface);
+    texture = SDL_CreateTextureFromSurface(getNode()->getWindow()->renderer, surface);
     SDL_DestroySurface(surface);
 }
 
