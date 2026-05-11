@@ -4,6 +4,7 @@
 #include "backend/services/input/input.hpp"
 #include "backend/services/audio.hpp"
 #include "backend/services/graphics/graphics.hpp"
+#include "backend/services/graphics/definitions.hpp"
 #include "backend/utils/logger.hpp"
 #include "backend/services/services.hpp"
 #include "backend/core/node/components.hpp"
@@ -36,7 +37,9 @@ void loop() {
 int main() {
     Logger::init();
 
-    graphics = new Graphics({480, 272}, "Top Down Example", RenderLogicalPresentation::LETTERBOX);
+    auto window = std::make_shared<Window>("Top Down Example", Rect({0, 0}, {480, 272}));
+    engine.appendWindow(window);
+    graphics = new Graphics();
     Input input;
     InputRegistry inputRegistry;
     Audio audio;
@@ -102,7 +105,7 @@ int main() {
 
     // player node
     std::shared_ptr<Node> node = std::make_shared<Node>("playerNode");
-    std::shared_ptr<Sprite> sprite = std::make_shared<Sprite>("res://assets/cactus.png", TextureScaling::PIXELART);
+    std::shared_ptr<Sprite> sprite = std::make_shared<Sprite>("res://assets/cactus.png", window, TextureScaling::PIXELART);
     sprite->texture.width = 128;
     sprite->texture.height = 128;
     node->addComponent(sprite);
@@ -116,7 +119,7 @@ int main() {
     // other nodes
     auto cat = std::make_shared<Node>("catNode");
     cat->transform.position = {200, 200};
-    auto csprite = std::make_shared<Sprite>("res://assets/cat.png", TextureScaling::LINEAR);
+    auto csprite = std::make_shared<Sprite>("res://assets/cat.png", window, TextureScaling::LINEAR);
     csprite->texture.width = 256;
     csprite->texture.height = 256;
     cat->addComponent(csprite);
@@ -125,13 +128,13 @@ int main() {
 
     auto hotdog = std::make_shared<Node>("hotdogNode");
     hotdog->transform.position = {-200, -250};
-    auto hsprite = std::make_shared<Sprite>("res://assets/hotdog.png", TextureScaling::LINEAR);
+    auto hsprite = std::make_shared<Sprite>("res://assets/hotdog.png", window, TextureScaling::LINEAR);
     hotdog->addComponent(hsprite);
     auto hshape = std::make_shared<BoxShape>(Vector2{500, 340}, Vector2{0.5f, 0.5f});
     //hotdog->addComponent(std::make_shared<ShapeSprite>(hshape));
     hotdog->addComponent(std::make_shared<StaticBody>(hshape));
 
-    engine.root.addChild(cat);
+    window->root->addChild(cat);
 
     std::shared_ptr<Node> lnode = std::make_shared<Node>();
     std::shared_ptr<Label> label = std::make_shared<Label>("WASD/Joystick - move player");
@@ -141,9 +144,9 @@ int main() {
     lnode->transform.position = {-240, -136};
     lnode->addComponent(label);
 
-    engine.root.addChild(node);
-    engine.root.addChild(hotdog);
-    engine.root.addChild(lnode);
+    window->root->addChild(node);
+    window->root->addChild(hotdog);
+    window->root->addChild(lnode);
 
     engine.initialize();
 

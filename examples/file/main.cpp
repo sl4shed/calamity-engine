@@ -36,7 +36,9 @@ void loop() {
 int main() {
     Logger::init();
 
-    graphics = new Graphics({480, 272});
+    auto window = std::make_shared<Window>("File Example", Rect({0, 0}, {480, 272}));
+    engine.appendWindow(window);
+    graphics = new Graphics();
     Input input;
     InputRegistry inputRegistry;
     Audio audio;
@@ -46,7 +48,7 @@ int main() {
     std::shared_ptr<Node> cameraNode = std::make_shared<Node>();
     std::shared_ptr<Camera> camera = std::make_shared<Camera>();
     cameraNode->addComponent(camera);
-    engine.root.addChild(cameraNode);
+    window->root->addChild(cameraNode);
 
     File *file = File::open("res://assets/label.txt", "r");
     std::string text = file->getAsText();
@@ -62,7 +64,7 @@ int main() {
     lnode->transform.position = {0, 0};
     lnode->addComponent(label);
 
-    engine.root.addChild(lnode);
+    window->root->addChild(lnode);
     engine.initialize();
 
 #ifdef EMSCRIPTEN

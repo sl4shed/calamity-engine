@@ -2,8 +2,8 @@ cmake_minimum_required(VERSION 3.11)
 
 project(animated-sprite)
 
-set(BUILD_TARGET "NATIVE" CACHE STRING "Build target: NATIVE | PSP | EMSCRIPTEN")
-set_property(CACHE BUILD_TARGET PROPERTY STRINGS NATIVE PSP EMSCRIPTEN)
+set(BUILD_TARGET "NATIVE" CACHE STRING "Build target: NATIVE | PSP | EMSCRIPTEN | 3DS")
+set_property(CACHE BUILD_TARGET PROPERTY STRINGS NATIVE PSP EMSCRIPTEN 3DS)
 
 add_executable(${PROJECT_NAME}
         main.cpp

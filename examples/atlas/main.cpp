@@ -3,6 +3,7 @@
 #include "backend/core/definitions.hpp"
 #include "backend/services/input/input.hpp"
 #include "backend/services/audio.hpp"
+#include "backend/services/graphics/definitions.hpp"
 #include "backend/services/graphics/graphics.hpp"
 #include "backend/utils/logger.hpp"
 #include "backend/services/services.hpp"
@@ -36,7 +37,9 @@ void loop() {
 int main() {
     Logger::init();
 
-    graphics = new Graphics({480, 272});
+    auto window = std::make_shared<Window>("Atlas Example", Rect({0, 0}, {480, 272}));
+    engine.appendWindow(window);
+    graphics = new Graphics();
     Input input;
     InputRegistry inputRegistry;
     Audio audio;
@@ -46,11 +49,10 @@ int main() {
     std::shared_ptr<Node> cameraNode = std::make_shared<Node>();
     std::shared_ptr<Camera> camera = std::make_shared<Camera>();
     cameraNode->addComponent(camera);
-    engine.root.addChild(cameraNode);
+    window->root->addChild(cameraNode);
 
     std::shared_ptr<Node> node = std::make_shared<Node>();
-    std::shared_ptr<Sprite> sprite = std::make_shared<Sprite>();
-    sprite->texture = Texture("res://assets/atlas.png");
+    std::shared_ptr<Sprite> sprite = std::make_shared<Sprite>("res://assets/atlas.png", window);
     sprite->sourceRect.size = {160, 160};
     sprite->sourceRect.position = {160, 0};
     sprite->texture.width = 160;
@@ -65,9 +67,9 @@ int main() {
     lnode->transform.position = {-240, -136};
     lnode->addComponent(label);
 
-    engine.root.addChild(lnode);
+    window->root->addChild(lnode);
     node->addComponent(std::make_shared<AtlasScript>());
-    engine.root.addChild(node);
+    window->root->addChild(node);
     engine.initialize();
 
 #ifdef EMSCRIPTEN

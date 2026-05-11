@@ -9,6 +9,7 @@
 #include "backend/core/definitions.hpp"
 #include "backend/services/input/input.hpp"
 #include "backend/services/audio.hpp"
+#include "backend/services/graphics/definitions.hpp"
 #include "backend/services/graphics/graphics.hpp"
 #include "backend/utils/logger.hpp"
 #include "backend/services/services.hpp"
@@ -20,6 +21,8 @@
 class RootScript : public Script
 {
     Node *node;
+    std::shared_ptr<Window> window;
+
 public:
     template <class Archive>
     void save(Archive &ar) const {}
@@ -30,6 +33,7 @@ public:
     void initialize()
     {
         node = this->getNode();
+        window = node->getWindow();
     }
 
     void input(InputEvent& event) {
@@ -68,20 +72,6 @@ public:
             {
                 Logger::info("no save data to load");
             }
-        } else if (keyEvent && keyEvent->pressed && keyEvent->scancode == Keycode::B)
-        {
-            Logger::info("changing camera zoom");
-            auto& transform = node->getChild("cameraNode")->transform;
-            Logger::debug("x - {}, y - {}", transform.getScale().x, transform.getScale().y);
-            if (transform.getScale() == Vector2{3.0f, 3.0f})
-            {
-                transform.setScale({1.0f, 1.0f});
-            } else
-            {
-                transform.setScale({3.0f, 3.0f});
-            }
-
-            Logger::debug("x - {}, y - {}", transform.getScale().x, transform.getScale().y);
         }
     }
 
@@ -105,8 +95,7 @@ public:
             shapeSprite->modulate = Color::RED;
             fallingNode->addComponent(shapeSprite);
 
-            std::shared_ptr<Sprite> sprite = std::make_shared<Sprite>();
-            sprite->texture = Texture("res://assets/cat.png");
+            std::shared_ptr<Sprite> sprite = std::make_shared<Sprite>("res://assets/cat.png", window);
             sprite->texture.width = size.x;
             sprite->texture.height = size.y;
             //sprite->origin = {0.0f, 0.0f};

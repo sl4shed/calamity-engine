@@ -3,6 +3,7 @@
 #include "backend/core/definitions.hpp"
 #include "backend/services/input/input.hpp"
 #include "backend/services/audio.hpp"
+#include "backend/services/graphics/definitions.hpp"
 #include "backend/services/graphics/graphics.hpp"
 #include "backend/utils/logger.hpp"
 #include "backend/services/services.hpp"
@@ -38,7 +39,10 @@ void loop()
 int main() {
     Logger::init();
 
-    graphics = new Graphics({480, 272});
+    auto window = std::make_shared<Window>("Audio Example", Rect({0, 0}, {480, 272}));
+    engine.appendWindow(window);
+    graphics = new Graphics();
+
     Input input;
     InputRegistry inputRegistry;
     Audio audio;
@@ -48,11 +52,11 @@ int main() {
     std::shared_ptr<Node> cameraNode = std::make_shared<Node>();
     std::shared_ptr<Camera> camera = std::make_shared<Camera>();
     cameraNode->addComponent(camera);
-    engine.root.addChild(cameraNode);
+    window->root->addChild(cameraNode);
 
     std::shared_ptr<Node> node = std::make_shared<Node>();
     node->transform.scale({4, 4});
-    node->addComponent(std::make_shared<Sprite>("res://assets/speaker.png"));
+    node->addComponent(std::make_shared<Sprite>("res://assets/speaker.png", window));
     std::shared_ptr<AudioSource> sound = std::make_shared<AudioSource>("res://assets/sound.wav");
     node->transform.setScale({0.5f, 0.5f});
     sound->loop = true;
@@ -66,8 +70,8 @@ int main() {
     lnode->transform.position = {-240, -136};
     lnode->addComponent(label);
 
-    engine.root.addChild(node);
-    engine.root.addChild(lnode);
+    window->root->addChild(node);
+    window->root->addChild(lnode);
 
     engine.initialize();
 

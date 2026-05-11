@@ -4,6 +4,7 @@
 #include "backend/services/input/input.hpp"
 #include "backend/services/audio.hpp"
 #include "backend/services/graphics/graphics.hpp"
+#include "backend/services/graphics/definitions.hpp"
 #include "backend/utils/logger.hpp"
 #include "backend/services/services.hpp"
 #include "backend/core/node/components.hpp"
@@ -35,7 +36,9 @@ void loop() {
 int main() {
     Logger::init();
 
-    graphics = new Graphics({480, 272});
+    auto window = std::make_shared<Window>("Animated Sprite Example", Rect({0, 0}, {480, 272}));
+    engine.appendWindow(window);
+    graphics = new Graphics();
     Input input;
     InputRegistry inputRegistry;
     Audio audio;
@@ -45,10 +48,10 @@ int main() {
     std::shared_ptr<Node> cameraNode = std::make_shared<Node>();
     std::shared_ptr<Camera> camera = std::make_shared<Camera>();
     cameraNode->addComponent(camera);
-    engine.root.addChild(cameraNode);
+    window->root->addChild(cameraNode);
 
     std::shared_ptr<Node> node = std::make_shared<Node>();
-    std::shared_ptr<AnimatedSprite> sprite = std::make_shared<AnimatedSprite>();
+    std::shared_ptr<AnimatedSprite> sprite = std::make_shared<AnimatedSprite>(window);
     Animation anim = Animation("test", 2, {128, 128}, true, true);
     anim.textureScaling = TextureScaling::PIXELART;
     anim.texturePath = "res://assets/frames.png";
@@ -73,8 +76,8 @@ int main() {
     lnode->transform.position = {-240, -136};
     lnode->addComponent(label);
 
-    engine.root.addChild(lnode);
-    engine.root.addChild(node);
+    window->root->addChild(lnode);
+    window->root->addChild(node);
     engine.initialize();
 
 #ifdef EMSCRIPTEN

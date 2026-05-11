@@ -3,6 +3,7 @@
 #include "backend/core/definitions.hpp"
 #include "backend/services/input/input.hpp"
 #include "backend/services/audio.hpp"
+#include "backend/services/graphics/definitions.hpp"
 #include "backend/services/graphics/graphics.hpp"
 #include "backend/utils/logger.hpp"
 #include "backend/services/services.hpp"
@@ -39,7 +40,9 @@ void loop() {
 int main() {
     Logger::init();
 
-    graphics = new Graphics({480, 272}, "Node Tree Example");
+    auto window = std::make_shared<Window>("Node Tree Example", Rect({0, 0}, {480, 272}));
+    engine.appendWindow(window);
+    graphics = new Graphics();
     Input input;
     InputRegistry inputRegistry;
     Audio audio;
@@ -76,10 +79,10 @@ int main() {
     node->addComponent(std::make_shared<StaticBody>(shape));
     node->addComponent(std::make_shared<ShapeSprite>(shape));
 
-    engine.root.addChild(cameraNode);
-    engine.root.addChild(node2);
-    engine.root.addChild(node3);
-    engine.root.addChild(node);
+    window->root->addChild(cameraNode);
+    window->root->addChild(node2);
+    window->root->addChild(node3);
+    window->root->addChild(node);
 
     std::shared_ptr<Node> labelNode = std::make_shared<Node>();
 
@@ -95,10 +98,10 @@ int main() {
     labelNode->transform.position = {-240, -136};
     labelNode->addComponent(label);
     label->screenSpace = true;
-    engine.root.addChild(labelNode);
+    window->root->addChild(labelNode);
 
     std::shared_ptr<Node> catNode = std::make_shared<Node>("catNode");
-    engine.root.addChild(catNode);
+    window->root->addChild(catNode);
 
     std::shared_ptr<Node> fpsNode = std::make_shared<Node>("fpsNode");
     std::shared_ptr<Label> fpsLabel = std::make_shared<Label>("");
@@ -107,9 +110,9 @@ int main() {
     fpsNode->transform.position = {-240, -60};
     fpsNode->addComponent(fpsLabel);
     fpsNode->addComponent(std::make_shared<FpsScript>());
-    engine.root.addChild(fpsNode);
+    window->root->addChild(fpsNode);
 
-    engine.root.addComponent(std::make_shared<RootScript>());
+    window->root->addComponent(std::make_shared<RootScript>());
     engine.initialize();
 
 #ifdef EMSCRIPTEN
