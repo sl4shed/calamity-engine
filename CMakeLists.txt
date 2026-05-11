@@ -69,10 +69,14 @@ function(calamity_apply_assets target)
     endif()
 endfunction()
 
-if(BUILD_TARGET STREQUAL "EMSCRIPTEN" OR MSVC)
+if(BUILD_TARGET STREQUAL "EMSCRIPTEN" OR MSVC OR BUILD_TARGET STREQUAL "3DS")
     message("Set build type to Release since Emscripten and Windows require the release build type.")
     set(CMAKE_BUILD_TYPE Release CACHE STRING "" FORCE)
     set(CALAMITY_VENDORED ON)
+endif()
+
+if(BUILD_TARGET STREQUAL "3DS")
+    set(SDLTTF_PLUTOSVG OFF)
 endif()
 
 if(CALAMITY_VENDORED)
@@ -122,10 +126,6 @@ if(CALAMITY_VENDORED)
     set(BOX2D_UNIT_TESTS OFF CACHE BOOL "" FORCE)
     add_subdirectory(vendored/box2d EXCLUDE_FROM_ALL)
     target_link_libraries(${PROJECT_NAME} PUBLIC box2d)
-
-    add_subdirectory(vendored/SDL3_gfx)
-    target_link_libraries(${PROJECT_NAME} PUBLIC SDL3_gfx_Static)
-    target_include_directories(${PROJECT_NAME} PUBLIC vendored/SDL3_gfx)
 else()
     if(BUILD_TARGET STREQUAL "NATIVE")
         find_package(SDL3 REQUIRED CONFIG REQUIRED COMPONENTS SDL3-shared)
@@ -153,14 +153,4 @@ else()
 
     find_package(cereal REQUIRED)
     target_link_libraries(${PROJECT_NAME} PUBLIC cereal::cereal)
-
-    find_package(SDL3_gfx REQUIRED)
-    if(BUILD_TARGET STREQUAL "PSP")
-        # idk why but i have to do this with the psp sdl package
-        # i have no idea if its an issue with the package but maybe it is idk
-        target_include_directories(${PROJECT_NAME} PUBLIC ${SDL3_gfx_INCLUDE_DIR})
-        target_link_libraries(${PROJECT_NAME} PUBLIC ${SDL3_gfx_LIB_DIR}/libSDL3_gfx.a)
-    else()
-        target_link_libraries(${PROJECT_NAME} PUBLIC SDL3_gfx)
-    endif()
 endif()

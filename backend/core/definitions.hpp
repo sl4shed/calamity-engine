@@ -82,6 +82,11 @@ struct Vector2
         x = v.x;
         y = v.y;
     };
+    explicit Vector2(const SDL_FPoint& v) {
+        x = v.x;
+        y = v.y;
+    }
+
     bool operator==(Vector2 o) const { return ( x == o.x && y == o.y ); };
     Vector2 operator*(float s) const { return {x * s, y * s}; }
     Vector2 operator/(float s) const { return {x / s, y / s}; }

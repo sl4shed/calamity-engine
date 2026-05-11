@@ -4,6 +4,7 @@
 #include "backend/services/input/input.hpp"
 #include "backend/services/audio.hpp"
 #include "backend/services/graphics/graphics.hpp"
+#include "backend/services/graphics/definitions.hpp"
 #include "backend/utils/logger.hpp"
 #include "backend/services/services.hpp"
 #include "backend/services/physics/physics.hpp"
@@ -11,6 +12,7 @@
 #include "backend/core/node/components.hpp"
 #include "backend/core/ui/definitions.hpp"
 #include "backend/core/ui/label.hpp"
+#include "backend/utils/utils.hpp"
 #include "rootScript.hpp"
 
 #ifdef EMSCRIPTEN
@@ -39,7 +41,9 @@ void loop() {
 int main() {
     Logger::init();
 
-    graphics = new Graphics({480, 272});
+    auto window = std::make_shared<Window>("Physics Example", Rect{{0, 0}, {480, 272}});
+    engine.appendWindow(window);
+    graphics = new Graphics();
     Input input;
     InputRegistry inputRegistry;
     Audio audio;
@@ -68,8 +72,8 @@ int main() {
     auto shape = std::make_shared<BoxShape>(Vector2{300, 50});
     node->addComponent(std::make_shared<StaticBody>(shape));
     node->addComponent(std::make_shared<ShapeSprite>(shape));
-    engine.root.addChild(cameraNode);
-    engine.root.addChild(node);
+    window->root->addChild(cameraNode);
+    window->root->addChild(node);
 
     std::shared_ptr<Node> labelNode = std::make_shared<Node>();
 
@@ -84,9 +88,9 @@ int main() {
     label->wrap = false;
     labelNode->transform.position = {-240, -136};
     labelNode->addComponent(label);
-    engine.root.addChild(labelNode);
+    window->root->addChild(labelNode);
 
-    engine.root.addComponent(std::make_shared<RootScript>());
+    window->root->addComponent(std::make_shared<RootScript>());
     engine.initialize();
 
 #ifdef EMSCRIPTEN

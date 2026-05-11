@@ -9,13 +9,8 @@
 #include "../engine.hpp"
 #include "../../core/ui/label.hpp"
 #include "definitions.hpp"
+#include "../../utils/utils.hpp"
 #include "../physics/definitions.hpp"
-
-#ifdef CALAMITY_VENDORED
-#include <SDL3_gfxPrimitives.h>
-#else
-#include <SDL3_gfx/SDL3_gfxPrimitives.h>
-#endif
 
 
 Graphics::Graphics()
@@ -172,7 +167,9 @@ void Graphics::renderComponent(const ShapeSprite &sprite, Window *window) const
         }
         pos = pos + originOffset;
 
-        filledCircleRGBA(window->renderer, pos.x, pos.y, circle->radius, sprite.modulate.r, sprite.modulate.g, sprite.modulate.b, sprite.modulate.a);
+        drawCircle(pos, circle->radius, sprite.modulate, window);
+
+
     } else if (const auto* capsule = dynamic_cast<const CapsuleShape*>(sprite.shape.get()))
     {
         Vector2 c1 = node->globalTransform.applyTo(capsule->capsule.center1);
@@ -207,8 +204,8 @@ void Graphics::renderComponent(const ShapeSprite &sprite, Window *window) const
 
         const int indices[6] = {0, 1, 2, 2, 3, 0};
         SDL_RenderGeometry(window->renderer, nullptr, verts, 4, indices, 6);
-        filledCircleRGBA(window->renderer, c1.x, c1.y, rad, sprite.modulate.r, sprite.modulate.g, sprite.modulate.b, sprite.modulate.a);
-        filledCircleRGBA(window->renderer, c2.x, c2.y, rad, sprite.modulate.r, sprite.modulate.g, sprite.modulate.b, sprite.modulate.a);
+        drawCircle(c1, rad, sprite.modulate, window);
+        drawCircle(c2, rad, sprite.modulate, window);
     } else if(const auto* polygon = dynamic_cast<const PolygonShape*>(sprite.shape.get())) {
         const Polygon &poly = polygon->polygon;
         const int count = poly.count;
