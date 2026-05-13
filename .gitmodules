@@ -31,3 +31,6 @@
 [submodule "vendored/SDL3_gfx"]
 	path = vendored/SDL3_gfx
 	url = https://github.com/sabdul-khabir/SDL3_gfx
+[submodule "vendored/tracy"]
+	path = vendored/tracy
+	url = https://github.com/wolfpld/tracy

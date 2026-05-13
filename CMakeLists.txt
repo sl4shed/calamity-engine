@@ -22,6 +22,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(BUILD_TARGET "NATIVE" CACHE STRING "Build target: NATIVE | PSP | EMSCRIPTEN | 3DS")
 set_property(CACHE BUILD_TARGET PROPERTY STRINGS NATIVE PSP EMSCRIPTEN 3DS)
 
+option(TRACY_ENABLE "" OFF)
 option(CALAMITY_VENDORED "Use vendored dependencies" OFF)
 option(CALAMITY_FIND_SDL3 OFF)
 
@@ -153,4 +154,11 @@ else()
 
     find_package(cereal REQUIRED)
     target_link_libraries(${PROJECT_NAME} PUBLIC cereal::cereal)
+endif()
+
+if(TRACY_ENABLE)
+    add_subdirectory(vendored/tracy)
+    target_link_libraries(${PROJECT_NAME} PUBLIC Tracy::TracyClient)
+else()
+    target_include_directories(${PROJECT_NAME} PUBLIC vendored/tracy/public)
 endif()

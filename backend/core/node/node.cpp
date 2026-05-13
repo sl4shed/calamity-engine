@@ -7,6 +7,8 @@
 #include <iostream>
 #include <cmath>
 
+#include <tracy/Tracy.hpp>
+
 Node::Node(const std::string& _name) : name(_name), parent(nullptr), window(nullptr) {}
 
 Node::~Node()
@@ -70,6 +72,8 @@ void Node::removeComponent(std::shared_ptr<Component> component)
 
 void Node::render(Graphics &graphics, Engine *engine, std::shared_ptr<Window> window) const
 {
+    ZoneScoped; // tracy
+
     for (size_t i = 0; i < this->components.size(); i++)
     {
         if (const auto *sprite = dynamic_cast<Sprite *>(components[i].get()); sprite && sprite->visible)

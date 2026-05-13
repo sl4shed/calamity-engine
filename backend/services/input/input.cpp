@@ -9,9 +9,12 @@
 #include <SDL3/SDL_video.h>
 #include <vector>
 #include <algorithm>
+#include <tracy/Tracy.hpp>
 
 void Input::update(float deltaTime)
 {
+    ZoneScoped; // tracy
+
     if (!actionsArrayPointer)
         actionsArrayPointer = Services::inputRegistry()->getActionsArray();
 
@@ -108,7 +111,11 @@ void Input::update(float deltaTime)
             }
         case SDL_EVENT_QUIT:
             {
-                Logger::debug("quit");
+                shouldQuit = true;
+                break;
+            }
+        case SDL_EVENT_WINDOW_CLOSE_REQUESTED:
+            {
                 shouldQuit = true;
                 break;
             }

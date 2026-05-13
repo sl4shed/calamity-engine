@@ -11,7 +11,7 @@
 #include "definitions.hpp"
 #include "../../utils/utils.hpp"
 #include "../physics/definitions.hpp"
-
+#include <tracy/Tracy.hpp>
 
 Graphics::Graphics()
 {
@@ -55,6 +55,8 @@ SDL_Texture *Graphics::loadTexture(const std::string &path, Window *window, Text
 
 void Graphics::renderComponent(const Sprite &sprite, Window *window) const
 {
+    ZoneScoped; // tracy
+
     const Node *node = sprite.getNode();
     if (!node) return;
     if (!sprite.texture.handle) return;
@@ -113,6 +115,8 @@ void Graphics::renderComponent(const Sprite &sprite, Window *window) const
 
 void Graphics::renderComponent(const ShapeSprite &sprite, Window *window) const
 {
+    ZoneScoped; // tracy
+
     const Node *node = sprite.getNode();
     if (!node) return;
 
@@ -239,6 +243,8 @@ void Graphics::renderComponent(const ShapeSprite &sprite, Window *window) const
 
 void Graphics::renderComponent(const Label &label, Window *window) const
 {
+    ZoneScoped; // tracy
+
     SDL_Texture *texture = label.getTexture();
     const Node *lnode = label.getNode();
     if(!lnode) return;
@@ -286,6 +292,8 @@ void Graphics::renderComponent(const Label &label, Window *window) const
 
 void Graphics::renderComponent(const AnimatedSprite &sprite, Window *window) const
 {
+    ZoneScoped; // tracy
+
     if (!sprite.isPlaying()) return;
 
     const Node *node = sprite.getNode();
@@ -352,6 +360,8 @@ void Graphics::renderComponent(const AnimatedSprite &sprite, Window *window) con
 
 void Graphics::renderComponent(const Tilemap& tilemap, Window *window) const
 {
+    ZoneScoped; // tracy
+
     const Node *node = tilemap.getNode();
     if (!node) return;
     if (!tilemap.texture.handle) return;
@@ -383,8 +393,6 @@ TTF_TextEngine *Graphics::getTextEngine() const
 {
     return textEngine;
 }
-
-
 
 void Graphics::exit() {
     SDL_Quit();
