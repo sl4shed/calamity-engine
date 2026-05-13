@@ -23,6 +23,8 @@ SDL_Texture *Label::getTexture() const
 
 void Label::rebuildTexture() {
     if(!dirty) return;
+    if (!getNode() || !getNode()->getWindow())
+        return;
     dirty = false;
 
     if(texture)

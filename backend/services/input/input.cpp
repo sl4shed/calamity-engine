@@ -108,6 +108,7 @@ void Input::update(float deltaTime)
             }
         case SDL_EVENT_QUIT:
             {
+                Logger::debug("quit");
                 shouldQuit = true;
                 break;
             }

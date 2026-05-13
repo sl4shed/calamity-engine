@@ -43,7 +43,7 @@ int main() {
 
     std::shared_ptr<Node> node = std::make_shared<Node>();
     std::shared_ptr<Label> label = std::make_shared<Label>("Window 1");
-    label->size = {100, 500};
+    label->size = {200, 200};
     node->transform.position = {-240, -136};
     node->addComponent(label);
     window1->root->addChild(node);
@@ -56,8 +56,8 @@ int main() {
 
     std::shared_ptr<Node> node2 = std::make_shared<Node>();
     std::shared_ptr<Label> label2 = std::make_shared<Label>("Window 2");
-    label2->size = {100, 500};
-    node2->transform.position = {240, -136};
+    label2->size = {200, 200};
+    node2->transform.position = {-240, -136};
     node2->addComponent(label2);
     window2->root->addChild(node2);
 
