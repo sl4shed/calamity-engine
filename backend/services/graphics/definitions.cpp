@@ -7,7 +7,9 @@
 #include "../../core/node/node.hpp"
 #include "../../core/node/components.hpp"
 
+#if TRACY_ENABLE
 #include <tracy/Tracy.hpp>
+#endif
 
 Window::Window(std::string name, Rect dimensions, RenderLogicalPresentation presentation, WindowFlags flags, Color clearColor, bool fullscreen) : title(name), dimensions(dimensions), presentation(presentation), flags(flags), clearColor(clearColor), fullscreen(fullscreen) {
     root = std::make_unique<Node>("root");
@@ -49,7 +51,9 @@ Window::~Window() {
 
 void Window::preRender() const
 {
-    ZoneScoped; // tracy
+#if TRACY_ENABLED
+    ZoneScoped;
+#endif
 
     SDL_SetRenderDrawColor(this->renderer, clearColor.r, clearColor.g, clearColor.b, clearColor.a);
     SDL_RenderClear(this->renderer);
@@ -57,7 +61,9 @@ void Window::preRender() const
 
 void Window::postRender() const
 {
-    ZoneScoped; // tracy
+#if TRACY_ENABLE
+    ZoneScoped;
+#endif
 
     SDL_RenderPresent(this->renderer);
 }
@@ -67,7 +73,9 @@ void Window::update(float deltaTime) {
 }
 
 void Window::render(Graphics &graphics, Engine *engine) {
-    ZoneScoped; // tracy
+#if TRACY_ENABLE
+    ZoneScoped;
+#endif
 
     preRender();
 

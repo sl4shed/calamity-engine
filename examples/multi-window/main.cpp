@@ -11,27 +11,34 @@
 #include "backend/core/ui/definitions.hpp"
 #include "backend/core/ui/label.hpp"
 
-static Physics physics;
-static Engine engine = Engine("Multi Window Example");
-static Graphics* graphics = nullptr;
+struct AppState {
+    Engine *engine;
+    Graphics* graphics;
+};
 
-void loop()
+void loop(AppState* state)
 {
-    engine.update();
-    engine.render(*graphics);
+    state->engine->update();
+    state->engine->render(*state->graphics);
 }
 
 int main() {
     Logger::init();
+    Engine engine = Engine("Multi Window Example");
+    Graphics *graphics = nullptr;
 
     auto window1 = std::make_shared<Window>("Window 1", Rect({0, 0}, {480, 272}));
     auto window2 = std::make_shared<Window>("Window 2", Rect({480, 0}, {480, 272}));
     engine.appendWindow(window1);
     engine.appendWindow(window2);
     graphics = new Graphics();
+    Physics physics;
     Input input;
     InputRegistry inputRegistry;
     Audio audio;
+    AppState appstate;
+    appstate.engine = &engine;
+    appstate.graphics = graphics;
 
     Services::init(graphics, &physics, &engine, &input, &inputRegistry, &audio);
 
@@ -63,13 +70,9 @@ int main() {
 
     engine.initialize();
 
-#ifdef EMSCRIPTEN
-    emscripten_set_main_loop(loop, 0, 1);
-#else
     while(!input.shouldQuit) {
-        loop();
+        loop(&appstate);
     }
-#endif
 
     engine.exit();
 }

@@ -9,11 +9,16 @@
 #include <SDL3/SDL_video.h>
 #include <vector>
 #include <algorithm>
+
+#if TRACY_ENABLE
 #include <tracy/Tracy.hpp>
+#endif
 
 void Input::update(float deltaTime)
 {
-    ZoneScoped; // tracy
+#if TRACY_ENABLE
+    ZoneScoped;
+#endif
 
     if (!actionsArrayPointer)
         actionsArrayPointer = Services::inputRegistry()->getActionsArray();

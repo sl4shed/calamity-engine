@@ -11,7 +11,10 @@
 #include "definitions.hpp"
 #include "../../utils/utils.hpp"
 #include "../physics/definitions.hpp"
+
+#if TRACY_ENABLE
 #include <tracy/Tracy.hpp>
+#endif
 
 Graphics::Graphics()
 {
@@ -55,7 +58,9 @@ SDL_Texture *Graphics::loadTexture(const std::string &path, Window *window, Text
 
 void Graphics::renderComponent(const Sprite &sprite, Window *window) const
 {
-    ZoneScoped; // tracy
+#if TRACY_ENABLE
+    ZoneScoped;
+#endif
 
     const Node *node = sprite.getNode();
     if (!node) return;
@@ -115,7 +120,9 @@ void Graphics::renderComponent(const Sprite &sprite, Window *window) const
 
 void Graphics::renderComponent(const ShapeSprite &sprite, Window *window) const
 {
-    ZoneScoped; // tracy
+#if TRACY_ENABLE
+    ZoneScoped;
+#endif
 
     const Node *node = sprite.getNode();
     if (!node) return;
@@ -243,7 +250,9 @@ void Graphics::renderComponent(const ShapeSprite &sprite, Window *window) const
 
 void Graphics::renderComponent(const Label &label, Window *window) const
 {
-    ZoneScoped; // tracy
+#if TRACY_ENABLE
+    ZoneScoped;
+#endif
 
     SDL_Texture *texture = label.getTexture();
     const Node *lnode = label.getNode();
@@ -292,7 +301,9 @@ void Graphics::renderComponent(const Label &label, Window *window) const
 
 void Graphics::renderComponent(const AnimatedSprite &sprite, Window *window) const
 {
-    ZoneScoped; // tracy
+#if TRACY_ENABLE
+    ZoneScoped;
+#endif
 
     if (!sprite.isPlaying()) return;
 
@@ -360,7 +371,9 @@ void Graphics::renderComponent(const AnimatedSprite &sprite, Window *window) con
 
 void Graphics::renderComponent(const Tilemap& tilemap, Window *window) const
 {
-    ZoneScoped; // tracy
+#if TRACY_ENABLE
+    ZoneScoped;
+#endif
 
     const Node *node = tilemap.getNode();
     if (!node) return;

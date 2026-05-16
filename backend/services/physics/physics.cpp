@@ -144,14 +144,13 @@ void RigidBody::lockRotation(bool value)
     this->rotationLocked = value;
 
     // here i have to account for different box2d versions (yay!!)
-#ifdef CALAMITY_VENDORED
+#if defined(CALAMITY_VENDORED) && !defined(CALAMITY_FIND_BOX2D)
     b2MotionLocks m = b2MotionLocks();
     m.angularZ = value;
     b2Body_SetMotionLocks(bodyId, m);
 #else
     b2Body_SetFixedRotation(bodyId, value);
 #endif
-
 }
 
 void RigidBody::exit() {

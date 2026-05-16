@@ -101,6 +101,7 @@ int main() {
     std::shared_ptr<Node> cameraNode = std::make_shared<Node>();
     cameraNode->transform.setScale({3, 3});
     std::shared_ptr<Camera> camera = std::make_shared<Camera>();
+    camera->smoothing = 0.1f;
     cameraNode->addComponent(camera);
 
     // player node

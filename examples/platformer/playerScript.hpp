@@ -41,7 +41,7 @@ public:
     }
 
     void input(InputEvent &event)
-    {
+    {   
         if(event.isActionPressed("up") && body->isOnGround()) {
             Vector2 vel = body->getLinearVelocity();
             body->setLinearVelocity({vel.x, vel.y - JUMP});

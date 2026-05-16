@@ -262,6 +262,7 @@ struct Transform
     float getAngleRadians() const;
     float getDegrees() const;
     Vector2 getScale() const;
+    void lookAt(const Vector2 &point);
 
     static float degToRad(float degrees);
     static float radToDeg(float radians);

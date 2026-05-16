@@ -201,6 +201,11 @@ Transform Transform::inverse() const
     return result;
 }
 
+void Transform::lookAt(const Vector2 &point) {
+    float angle = std::atan2(point.y - position.y, point.x - position.x);
+    setAngleRadians(angle);
+}
+
 // texture
 Texture::Texture(const std::string& _path, std::shared_ptr<Window> window, TextureScaling _scaling) : handle(nullptr), window(window), width(0), height(0), textureWidth(0), textureHeight(0), path(_path), scaling(_scaling)
 {

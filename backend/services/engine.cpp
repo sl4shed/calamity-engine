@@ -9,7 +9,10 @@
 #include "physics/physics.hpp"
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_video.h>
+
+#if TRACY_ENABLE
 #include <tracy/Tracy.hpp>
+#endif
 
 #ifdef PSP
 #include <pspuser.h>
@@ -66,7 +69,9 @@ void Engine::initialize() {
 
 void Engine::update()
 {
-    ZoneScoped; // tracy
+#if TRACY_ENABLE
+    ZoneScoped;
+#endif
 
     last = now;
     now = SDL_GetPerformanceCounter();
@@ -89,7 +94,9 @@ void Engine::update()
         accumulator -= physicsTimestep;
     }
 
-    FrameMark; // tracy
+#if TRACY_ENABLE
+    FrameMark;
+#endif
 }
 
 void Engine::exit()
@@ -110,7 +117,9 @@ void Engine::exit()
 
 void Engine::render(Graphics &graphics)
 {
-    ZoneScoped; // tracy
+#if TRACY_ENABLE
+    ZoneScoped;
+#endif
 
     for(auto &window : windows) {
         window->render(graphics, this);

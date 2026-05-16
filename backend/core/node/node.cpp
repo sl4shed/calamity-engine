@@ -7,7 +7,9 @@
 #include <iostream>
 #include <cmath>
 
+#if TRACY_ENABLE
 #include <tracy/Tracy.hpp>
+#endif
 
 Node::Node(const std::string& _name) : name(_name), parent(nullptr), window(nullptr) {}
 
@@ -72,7 +74,9 @@ void Node::removeComponent(std::shared_ptr<Component> component)
 
 void Node::render(Graphics &graphics, Engine *engine, std::shared_ptr<Window> window) const
 {
-    ZoneScoped; // tracy
+#if TRACY_ENABLE
+    ZoneScoped;
+#endif
 
     for (size_t i = 0; i < this->components.size(); i++)
     {
