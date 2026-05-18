@@ -11,9 +11,12 @@
  * The engine class should be initialized in the main function after nodes are setup and have its update and render functions called in the main loop. In the end, the `engine.exit()` function should be called.
  * Also, the engines constructor defines the app name which is used when reading/writing to the user folder. All Calamity Engine apps are stored under the Calamity Engine base folder and the app name is used as the organization folder. For more information [read this SDL3 wiki page](https://wiki.libsdl.org/SDL3/SDL_GetUserFolder).
  * 
+ * You also must append atleast 1 Window to the engine for anything to render to the screen.
  * ```cpp
- * Graphics graphics = Graphics({480, 272}); // screen size vector2
+ * Graphics graphics = Graphics(); 
  * Engine engine = Engine("Your app name goes here");
+ * auto window = std::make_shared<Window>("my window title", Rect({0, 0}, {480, 272}), RenderLogicalPresentation::LETTERBOX, WindowFlags::RESIZABLE, Color::BLACK);
+ * engine.appendWindow(window);
  * Services::init(&graphics, &engine, ...); // imagine every other core service in here aswell
  *
  * // setup nodes, components, etc here

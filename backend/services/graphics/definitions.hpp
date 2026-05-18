@@ -39,6 +39,25 @@ enum class WindowFlags {
     TRANSPARENT = 0x0000000040000000
 };
 
+/**
+ * # Window
+ * The Window class represents a window on the screen. It contains a root node which is the parent of all nodes that are rendered to that window.
+ * 
+ * When constructing a window, you can define the screen size, window title, presentation type, clear color and fullscreen mode:
+ * ```cpp
+ * auto window = std::make_shared<Window>("my window title", Rect({0, 0}, {480, 272}), RenderLogicalPresentation::LETTERBOX, WindowFlags::RESIZABLE, Color::BLACK, true);
+ * ```
+ * 
+ * Any window created must also be appended to the Engine class:
+ * ```cpp
+ * engine.appendWindow(window);
+ * ```
+ * 
+ * Afterwards, any nodes that are children of the window's root node will be rendered to the screen:
+ * ```cpp
+ * window->root->addChild(myNode);
+ * ```
+ */
 class Window : public std::enable_shared_from_this<Window> {
 public:
     Window(std::string title = "Calamity App", Rect dimensions = Rect({0, 0}, {480, 272}), RenderLogicalPresentation presentation = RenderLogicalPresentation::LETTERBOX, WindowFlags flags = WindowFlags::RESIZABLE, Color clearColor = Color::BLACK, bool fullscreen = false);

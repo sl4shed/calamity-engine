@@ -25,7 +25,7 @@ Let's take, for example, initializing the camera:
 ```cpp
 std::shared_ptr<Node> cameraNode = std::make_shared<Node>(); // make the node
 cameraNode->addComponent(std::make_shared<Camera>()); // add the camera component to the node
-engine.root.addChild(cameraNode); // adding the node as a child to the root node of the engine
+window->root->addChild(cameraNode); // adding the node as a child to the root node of the engine
 ```
 
 Any nodes that you want to be visible on screen have to be a child of the engine's root node.
@@ -87,5 +87,5 @@ And for this script to actually work, you have to add it to the camera node (in 
 std::shared_ptr<Node> cameraNode = std::make_shared<Node>(); // make the node
 cameraNode->addComponent(std::make_shared<Camera>()); // add the camera component to the node
 cameraNode->addComponent(std::make_shared<CameraScript>()); // add the script to the camera node
-engine.root.addChild(cameraNode); // add the node as a child to the root node of the engine
+window->root->addChild(cameraNode); // add the node as a child to the root node of the engine
 ```

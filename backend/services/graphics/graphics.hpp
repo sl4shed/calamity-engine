@@ -14,9 +14,11 @@ class Label; //forward declare
  * # Graphics
  * The Graphics service is mostly made for internal use. It allows rendering sprites, labels, and other components on screen.
  * 
- * When constructing this class, the user can define the screen size, window title, presentation type and clear color:
+ * For anything to actually render on the screen you also need a Window.
  * ```cpp
- * // Create the graphics class with a 480x272 resolution, the window title of "my window title", letterbox presentation style and black clear color.
+ * // Create the graphics class and a window with a 480x272 resolution, the window title of "my window title", letterbox presentation style and black clear color.
+ * auto window = std::make_shared<Window>("my window title", Rect({0, 0}, {480, 272}), RenderLogicalPresentation::LETTERBOX, WindowFlags::RESIZABLE, Color::BLACK);
+ * engine.appendWindow(window);
  * Graphics graphics = Graphics();
  * ```
  */
