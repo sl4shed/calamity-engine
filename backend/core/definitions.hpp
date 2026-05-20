@@ -33,10 +33,11 @@ struct PhysicsConstants
  * Color shexColor = Color("#FFFFFF");
  * Color sahexColor = Color("#FFFFFF", 100); // second argument is alpha value
  * ```
- * 
+ *
  * It also defines several pre-made static colors, like `Color::WHITE`, `Color::BLACK`, `Color::TRANSPARENT`, etc...
  */
-class Color {
+class Color
+{
 public:
     Uint8 r; // Red value. Goes up to 255.
     Uint8 g; // Green value. Goes up to 255.
@@ -48,7 +49,7 @@ public:
     Color(int hexCode);
     Color(int hexCode, int a);
     Color(std::string hexCode);
-    Color(const std::string& hexCode, int a);
+    Color(const std::string &hexCode, int a);
 
     operator SDL_Color() const { return {r, g, b, a}; };
     operator SDL_FColor() const { return {r / 255.0f, g / 255.0f, b / 255.0f, a / 255.0f}; };
@@ -78,16 +79,18 @@ struct Vector2
 
     Vector2() : x(0), y(0) {}
     Vector2(float x, float y) : x(x), y(y) {}
-    explicit Vector2(const b2Vec2& v) {
+    explicit Vector2(const b2Vec2 &v)
+    {
         x = v.x;
         y = v.y;
     };
-    explicit Vector2(const SDL_FPoint& v) {
+    explicit Vector2(const SDL_FPoint &v)
+    {
         x = v.x;
         y = v.y;
     }
 
-    bool operator==(Vector2 o) const { return ( x == o.x && y == o.y ); };
+    bool operator==(Vector2 o) const { return (x == o.x && y == o.y); };
     Vector2 operator*(float s) const { return {x * s, y * s}; }
     Vector2 operator/(float s) const { return {x / s, y / s}; }
     Vector2 operator/(Vector2 s) const { return {x / s.x, y / s.y}; };
@@ -96,6 +99,10 @@ struct Vector2
     Vector2 operator-(const Vector2 &v) const { return {x - v.x, y - v.y}; }
     bool operator!=(Vector2 o) const { return (x != o.x || y != o.y); };
     operator b2Vec2() const { return {x, y}; };
+    float distanceTo(const Vector2 &other) const
+    {
+        return std::sqrt((x - other.x) * (x - other.x) + (y - other.y) * (y - other.y));
+    }
 
     template <class Archive>
     void serialize(Archive &ar)
@@ -107,7 +114,7 @@ struct Vector2
 /**
  * # Texture Scaling
  * This enum defines how the texture is rendered and scaled.
- * 
+ *
  * Linear scaling will smooth the values between pixels, while nearest neighbour scaling will use an average. Pixel art scaling exists due to SDL3, and I recommend you use it for pixel art textures instead of nearest neighbour.
  */
 enum class TextureScaling
@@ -126,19 +133,19 @@ enum class TextureScaling
  * ```
  * Texture texture = Texture("res://path/to/texture.png");
  * ```
- * 
+ *
  * ## Properties and usage
- * 
+ *
  * You can set the \ref TextureScaling ["TextureScaling"] of the texture:
  * ```cpp
  * Texture texture = Texture("res://path/to/texture.png", TextureScaling::PIXELART);
  * ```
- * 
+ *
  * You can also define the size of the rendered texture on screen!
  * ```cpp
  * texture.width = 64;
  * texture.height = 64;
- * 
+ *
  * // Now the texture will be 64x64 pixels when rendered, even if the texture is bigger or smaller.
  * ```
  */
@@ -146,16 +153,16 @@ class Texture
 {
 public:
     Texture() : handle(nullptr), width(0), height(0), textureWidth(0), textureHeight(0) {};
-    Texture(const std::string& path, std::shared_ptr<Window> window, TextureScaling scaling = TextureScaling::NEAREST);
+    Texture(const std::string &path, std::shared_ptr<Window> window, TextureScaling scaling = TextureScaling::NEAREST);
     ~Texture();
-    Texture(const Texture&) = delete;
-    Texture& operator=(const Texture&) = delete;
-    Texture(Texture&& other) noexcept : handle(other.handle), window(other.window), width(other.width), height(other.height), textureWidth(other.textureWidth), textureHeight(other.textureHeight), path(std::move(other.path))
+    Texture(const Texture &) = delete;
+    Texture &operator=(const Texture &) = delete;
+    Texture(Texture &&other) noexcept : handle(other.handle), window(other.window), width(other.width), height(other.height), textureWidth(other.textureWidth), textureHeight(other.textureHeight), path(std::move(other.path))
     {
         other.handle = nullptr;
     }
 
-    Texture& operator=(Texture&& other) noexcept
+    Texture &operator=(Texture &&other) noexcept
     {
         if (this != &other)
         {
@@ -193,6 +200,7 @@ public:
     int textureWidth;
     int textureHeight;
     std::string path;
+
 private:
     TextureScaling scaling = TextureScaling::LINEAR;
     std::shared_ptr<Window> window;
@@ -230,16 +238,16 @@ struct Matrix2
  *
  * This is the struct that represents the position, rotation and scale of a node among other things.
  * The position is stored as a Vector2, and the rotation and scale are stored in a transformation matrix.
- * 
+ *
  * There are a lot of operations you can do to a Transform:
  * ```cpp
  * Transform myTransform;
  * myTransform.position = Vector2{0.0f, 0.0f};
  * myTransform.setScale(Vector2{3.0f, 3.0f}); // make it 3 times as big!
- * 
+ *
  * Logger::log("{}", myTransform.getAngleRadians()); // print out the angle of the Transform in radians!
  * myTransform.setAngleRadians(20.0f * (3.141592653f / 180.0f)) // set the angle to 20 degrees in radians
- * 
+ *
  * myTransform.rotate(-20.0f); // rotate it back 20 degrees, and now the rotation will be 0 degrees.
  * ```
  */
@@ -300,7 +308,7 @@ struct Rect
 /**
  * # Frame
  * An animation frame. It determines the source rectangle of the sprite, the origin of the rendered sprite and the modulate color of the rendered sprite.
- * 
+ *
  * Example usage:
  * ```cpp
  * // This will create a frame a sourceRect which has the position of 0, 0 in the texture atlas and the size of 16x16 pixels.
@@ -333,27 +341,27 @@ struct Frame
 /**
  * # Animation
  * The Animation component represents a series of \ref Frame ["Frames"]. It is used with \ref AnimatedSprite ["AnimatedSprites"].
- * 
+ *
  * Example usage:
  * ```
  * // Create an animation which has the name "myAnimationName", runs at 15 FPS, has the size of 20x20 pixels, does not loop and does not autoplay.
  * Animation anim = Animation("myAnimationName", 15, Vector2{20.0f, 20.0f}, false, false);
  * ```
- * 
+ *
  * ## Properties and usages
- * 
+ *
  * For an animation to work on an AnimatedSprite, you must set it's texturePath:
  * ```cpp
  * anim.texturePath = "res://path/to/texture.png";
  * ```
  * Instead of directly storing a texture, Animations only store the path and scaling of the texture.
  * The texture is eventually loaded when playing the animation to save on memory.
- * 
+ *
  * You can also define the TextureScaling type:
  * ```cpp
  * anim.textureScaling = TextureScaling::PIXELART;
  * ```
- * 
+ *
  * Make sure to also check out the [animated sprite example](https://calamity.sl4shed.xyz/example-animated-sprite)!
  */
 class Animation
@@ -397,7 +405,8 @@ public:
  *
  * By the way, you should never manually fill these out. Instead, when using \ref PolygonShape ["PolygonShapes"], use the PolygonShapes constructor.
  */
-struct Polygon {
+struct Polygon
+{
     Polygon();
     explicit Polygon(const b2Polygon &polygon);
 
@@ -462,9 +471,9 @@ struct Capsule
 
 /**
  * # Tile
- * 
+ *
  * The tile class defines the position of the tile on the Tilemap grid, the sourceRect of the texture atlas and the modulate Color of the Tile.
- * 
+ *
  * Example usage:
  * ```
  * // Create a tile at the gridPosition of `{-1, 0}`.
