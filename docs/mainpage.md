@@ -6,6 +6,7 @@ A modular and cross-platform 2D game engine made in SDL3 and C++ built in mind w
 
  - \subpage getting_started
  - \subpage basic_notions
+ - \subpage tips_and_tricks
 
 ## Platforms Supported
 
@@ -18,7 +19,6 @@ A modular and cross-platform 2D game engine made in SDL3 and C++ built in mind w
 
  - [SDL3](https://github.com/libsdl-org/SDL)
  - [SDL3_image](https://github.com/libsdl-org/SDL_image)
- - [SDL3_gfx](https://github.com/sabdul-khabir/SDL3_gfx)
  - [SDL3_ttf](https://github.com/libsdl-org/SDL_ttf)
  - [cereal](https://github.com/USCiLab/cereal)
  - [spdlog](https://github.com/gabime/spdlog)

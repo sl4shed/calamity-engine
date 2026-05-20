@@ -31,7 +31,6 @@ A modular and cross-platform 2D game engine made in SDL3 and C++ built in mind w
  - [SDL3](https://github.com/libsdl-org/SDL)
  - [SDL3_image](https://github.com/libsdl-org/SDL_image)
  - [SDL3_ttf](https://github.com/libsdl-org/SDL_ttf)
- - [SDL3_gfx](https://github.com/sabdul-khabir/SDL3_gfx)
  - [cereal](https://github.com/USCiLab/cereal)
  - [spdlog](https://github.com/gabime/spdlog)
  - [box2d](https://github.com/erincatto/box2d)
