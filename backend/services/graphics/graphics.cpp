@@ -37,7 +37,8 @@ Graphics::Graphics()
 SDL_Texture *Graphics::loadTexture(const std::string &path, Window *window, TextureScaling scaling) const
 {
     SDL_Surface *pixels = IMG_Load(path.c_str());
-    if (!pixels) {
+    if (!pixels)
+    {
         Logger::error("Failed to load image {}: {}", path, SDL_GetError());
         return nullptr;
     }
@@ -63,8 +64,10 @@ void Graphics::renderComponent(const Sprite &sprite, Window *window) const
 #endif
 
     const Node *node = sprite.getNode();
-    if (!node) return;
-    if (!sprite.texture.handle) return;
+    if (!node)
+        return;
+    if (!sprite.texture.handle)
+        return;
 
     const Camera *activeCamera = window->getActiveCamera();
     const Transform cameraTransform = activeCamera->getCameraTransform();
@@ -79,25 +82,19 @@ void Graphics::renderComponent(const Sprite &sprite, Window *window) const
     const auto originOffset = Vector2{screenSize.x * activeCamera->origin.x, screenSize.y * activeCamera->origin.y};
     auto cameraInverse = cameraTransform.inverse();
     const Rect sourceRect = sprite.sourceRect;
-    for (auto & vertice : vertices)
+    for (auto &vertice : vertices)
     {
         Vector2 pos = {vertice.position.x, vertice.position.y};
         pos = node->globalTransform.applyTo(pos);
 
         // translate to camera space or wtv
-        if (!sprite.screenSpace)
-        {
-            pos = pos - cameraTransform.position;
-            pos = cameraInverse.transformation * pos;
-        }
-        pos = pos + originOffset;
+        pos = toScreen(pos, cameraTransform, cameraInverse, originOffset, sprite.screenSpace);
         vertice.position.x = pos.x;
         vertice.position.y = pos.y;
 
         Vector2 texturePos = {vertice.tex_coord.x, vertice.tex_coord.y};
-        texturePos = texturePos * (sourceRect.size / Vector2{static_cast<float>(sprite.texture.textureWidth), static_cast<float>(sprite.texture.textureHeight)})
-           + Vector2{sourceRect.position.x / static_cast<float>(sprite.texture.textureWidth),
-                     sourceRect.position.y / static_cast<float>(sprite.texture.textureHeight)};
+        texturePos = texturePos * (sourceRect.size / Vector2{static_cast<float>(sprite.texture.textureWidth), static_cast<float>(sprite.texture.textureHeight)}) + Vector2{sourceRect.position.x / static_cast<float>(sprite.texture.textureWidth),
+                                                                                                                                                                           sourceRect.position.y / static_cast<float>(sprite.texture.textureHeight)};
         vertice.tex_coord.x = texturePos.x;
         vertice.tex_coord.y = texturePos.y;
     }
@@ -125,7 +122,8 @@ void Graphics::renderComponent(const ShapeSprite &sprite, Window *window) const
 #endif
 
     const Node *node = sprite.getNode();
-    if (!node) return;
+    if (!node)
+        return;
 
     const Camera *activeCamera = window->getActiveCamera();
     const Transform cameraTransform = activeCamera->getCameraTransform();
@@ -134,36 +132,35 @@ void Graphics::renderComponent(const ShapeSprite &sprite, Window *window) const
     const auto modulate = static_cast<SDL_FColor>(sprite.modulate);
     auto cameraInverse = cameraTransform.inverse();
 
-    if (const auto* box = dynamic_cast<const BoxShape*>(sprite.shape.get()))
+    if (const auto *box = dynamic_cast<const BoxShape *>(sprite.shape.get()))
     {
         const Polygon &poly = box->polygon;
         const int count = poly.count;
-        if (count < 3) return;
+        if (count < 3)
+            return;
 
         std::vector<SDL_Vertex> vertices(count);
-        for (int i = 0; i < count; i++) {
+        for (int i = 0; i < count; i++)
+        {
             Vector2 pos = poly.vertices[i];
             pos = node->globalTransform.applyTo(pos);
-            if (!sprite.screenSpace)
-            {
-                pos = pos - cameraTransform.position;
-                pos = cameraInverse.transformation * pos;
-            }
-            pos = pos + originOffset;
+            pos = toScreen(pos, cameraTransform, cameraInverse, originOffset, sprite.screenSpace);
 
             vertices[i] = {{pos.x, pos.y}, modulate, {0, 0}};
         }
 
         // fan triangulation from vertex 0
         std::vector<int> indices;
-        for (int i = 1; i < count - 1; i++) {
+        for (int i = 1; i < count - 1; i++)
+        {
             indices.push_back(0);
             indices.push_back(i);
             indices.push_back(i + 1);
         }
 
         SDL_RenderGeometry(window->renderer, nullptr, vertices.data(), count, indices.data(), static_cast<int>(indices.size()));
-    } else if (const auto* circle = dynamic_cast<const CircleShape*>(sprite.shape.get()))
+    }
+    else if (const auto *circle = dynamic_cast<const CircleShape *>(sprite.shape.get()))
     {
         Vector2 pos = node->globalTransform.position;
         // apply the circle's center offset in local space first
@@ -171,74 +168,41 @@ void Graphics::renderComponent(const ShapeSprite &sprite, Window *window) const
         centerOffset = node->globalTransform.applyTo(centerOffset) - node->globalTransform.position;
         pos = pos + centerOffset;
 
-        if (!sprite.screenSpace)
-        {
-            pos = pos - cameraTransform.position;
-            pos = cameraInverse.transformation * pos;
-        }
-        pos = pos + originOffset;
-
+        pos = toScreen(pos, cameraTransform, cameraInverse, originOffset, sprite.screenSpace);
         drawCircle(pos, circle->radius, sprite.modulate, window);
-
-
-    } else if (const auto* capsule = dynamic_cast<const CapsuleShape*>(sprite.shape.get()))
+    }
+    else if (const auto *capsule = dynamic_cast<const CapsuleShape *>(sprite.shape.get()))
     {
         Vector2 c1 = node->globalTransform.applyTo(capsule->capsule.center1);
         Vector2 c2 = node->globalTransform.applyTo(capsule->capsule.center2);
 
-        auto toScreen = [&](Vector2 p) -> Vector2 {
-            if (!sprite.screenSpace) {
-                p = p - cameraTransform.position;
-                p = cameraInverse.transformation * p;
-            }
-            return p + originOffset;
-        };
-
-        c1 = toScreen(c1);
-        c2 = toScreen(c2);
-
+        c1 = toScreen(c1, cameraTransform, cameraInverse, originOffset, sprite.screenSpace);
+        c2 = toScreen(c2, cameraTransform, cameraInverse, originOffset, sprite.screenSpace);
         float rad = capsule->capsule.radius;
 
-        // direction and perpendicular
-        Vector2 dir = {c2.x - c1.x, c2.y - c1.y};
-        float len = sqrtf(dir.x * dir.x + dir.y * dir.y);
-        Vector2 norm = {dir.x / len, dir.y / len};
-        Vector2 perp = {-norm.y * rad, norm.x * rad};
-
-        // rectangle between the circles
-        const SDL_Vertex verts[4] = {
-            {{c1.x + perp.x, c1.y + perp.y}, modulate, {0, 0}},
-            {{c1.x - perp.x, c1.y - perp.y}, modulate, {0, 0}},
-            {{c2.x - perp.x, c2.y - perp.y}, modulate, {0, 0}},
-            {{c2.x + perp.x, c2.y + perp.y}, modulate, {0, 0}},
-        };
-
-        const int indices[6] = {0, 1, 2, 2, 3, 0};
-        SDL_RenderGeometry(window->renderer, nullptr, verts, 4, indices, 6);
-        drawCircle(c1, rad, sprite.modulate, window);
-        drawCircle(c2, rad, sprite.modulate, window);
-    } else if(const auto* polygon = dynamic_cast<const PolygonShape*>(sprite.shape.get())) {
+        drawCapsule(c1, c2, rad, sprite.modulate, window);
+    }
+    else if (const auto *polygon = dynamic_cast<const PolygonShape *>(sprite.shape.get()))
+    {
         const Polygon &poly = polygon->polygon;
         const int count = poly.count;
-        if (count < 3) return;
+        if (count < 3)
+            return;
 
         std::vector<SDL_Vertex> vertices(count);
-        for (int i = 0; i < count; i++) {
+        for (int i = 0; i < count; i++)
+        {
             Vector2 pos = poly.vertices[i];
             pos = node->globalTransform.applyTo(pos);
-            if (!sprite.screenSpace)
-            {
-                pos = pos - cameraTransform.position;
-                pos = cameraInverse.transformation * pos;
-            }
-            pos = pos + originOffset;
+            pos = toScreen(pos, cameraTransform, cameraInverse, originOffset, sprite.screenSpace);
 
             vertices[i] = {{pos.x, pos.y}, modulate, {0, 0}};
         }
 
         // fan triangulation from vertex 0
         std::vector<int> indices;
-        for (int i = 1; i < count - 1; i++) {
+        for (int i = 1; i < count - 1; i++)
+        {
             indices.push_back(0);
             indices.push_back(i);
             indices.push_back(i + 1);
@@ -256,8 +220,10 @@ void Graphics::renderComponent(const Label &label, Window *window) const
 
     SDL_Texture *texture = label.getTexture();
     const Node *lnode = label.getNode();
-    if(!lnode) return;
-    if(!texture) return;
+    if (!lnode)
+        return;
+    if (!texture)
+        return;
 
     const Camera *activeCamera = window->getActiveCamera();
     const Transform cameraTransform = activeCamera->getCameraTransform();
@@ -274,18 +240,13 @@ void Graphics::renderComponent(const Label &label, Window *window) const
 
     const Vector2 screenSize = window->dimensions.size;
     const auto originOffset = Vector2{screenSize.x * activeCamera->origin.x, screenSize.y * activeCamera->origin.y};
-    auto [position, transformation] = cameraTransform.inverse();
+    auto cameraInverse = cameraTransform.inverse();
 
-    for (auto & vertice : vertices)
+    for (auto &vertice : vertices)
     {
         Vector2 pos = {vertice.position.x, vertice.position.y};
         pos = lnode->globalTransform.applyTo(pos);
-
-        if (!label.screenSpace) {
-            pos = pos - cameraTransform.position;
-            pos = transformation * pos;
-        }
-        pos = pos + originOffset;
+        pos = toScreen(pos, cameraTransform, cameraInverse, originOffset, label.screenSpace);
 
         vertice.position.x = pos.x;
         vertice.position.y = pos.y;
@@ -305,15 +266,19 @@ void Graphics::renderComponent(const AnimatedSprite &sprite, Window *window) con
     ZoneScoped;
 #endif
 
-    if (!sprite.isPlaying()) return;
+    if (!sprite.isPlaying())
+        return;
 
     const Node *node = sprite.getNode();
     const auto frame = sprite.getCurrentFrame();
     const auto texture = sprite.getCurrentTexture();
     const Vector2 renderSize = sprite.getCurrentSize();
-    if (!node) return;
-    if (!frame) return;
-    if (!texture) return;
+    if (!node)
+        return;
+    if (!frame)
+        return;
+    if (!texture)
+        return;
 
     const Vector2 screenSize = window->dimensions.size;
     const Camera *activeCamera = window->getActiveCamera();
@@ -328,27 +293,19 @@ void Graphics::renderComponent(const AnimatedSprite &sprite, Window *window) con
     vertices[3] = {{-(renderSize.x * frame->origin.x), renderSize.y * (1 - frame->origin.y)}, modulate, {0, 1}};
 
     const auto originOffset = Vector2{screenSize.x * activeCamera->origin.x, screenSize.y * activeCamera->origin.y};
-
     auto cameraInverse = cameraTransform.inverse();
-    for (auto & vertice : vertices)
+    for (auto &vertice : vertices)
     {
         Vector2 pos = {vertice.position.x, vertice.position.y};
         pos = node->globalTransform.applyTo(pos);
+        pos = toScreen(pos, cameraTransform, cameraInverse, originOffset, sprite.screenSpace);
 
-        if (!sprite.screenSpace)
-        {
-            pos = pos - cameraTransform.position;
-
-            pos = cameraInverse.transformation * pos;
-        }
-        pos = pos + originOffset;
         vertice.position.x = pos.x;
         vertice.position.y = pos.y;
 
         Vector2 texturePos = {vertice.tex_coord.x, vertice.tex_coord.y};
-        texturePos = texturePos * (sourceRect.size / Vector2{static_cast<float>(texture->textureWidth), static_cast<float>(texture->textureHeight)})
-                   + Vector2{sourceRect.position.x / static_cast<float>(texture->textureWidth),
-                             sourceRect.position.y / static_cast<float>(texture->textureHeight)};
+        texturePos = texturePos * (sourceRect.size / Vector2{static_cast<float>(texture->textureWidth), static_cast<float>(texture->textureHeight)}) + Vector2{sourceRect.position.x / static_cast<float>(texture->textureWidth),
+                                                                                                                                                               sourceRect.position.y / static_cast<float>(texture->textureHeight)};
         vertice.tex_coord.x = texturePos.x;
         vertice.tex_coord.y = texturePos.y;
     }
@@ -369,31 +326,34 @@ void Graphics::renderComponent(const AnimatedSprite &sprite, Window *window) con
     SDL_RenderGeometry(window->renderer, texture->handle, vertices, 4, indices, 6);
 }
 
-void Graphics::renderComponent(const Tilemap& tilemap, Window *window) const
+void Graphics::renderComponent(const Tilemap &tilemap, Window *window) const
 {
 #if TRACY_ENABLE
     ZoneScoped;
 #endif
 
     const Node *node = tilemap.getNode();
-    if (!node) return;
-    if (!tilemap.texture.handle) return;
-    if (tilemap.vertexBuffer.empty()) return;
+    if (!node)
+        return;
+    if (!tilemap.texture.handle)
+        return;
+    if (tilemap.vertexBuffer.empty())
+        return;
 
     const Camera *activeCamera = window->getActiveCamera();
     const Transform cameraTransform = activeCamera->getCameraTransform();
     const Vector2 screenSize = window->dimensions.size;
     const Vector2 originOffset = {screenSize.x * activeCamera->origin.x, screenSize.y * activeCamera->origin.y};
-    auto [position, transformation] = cameraTransform.inverse();
+    auto cameraInverse = cameraTransform.inverse();
 
     std::vector<SDL_Vertex> transformed = tilemap.vertexBuffer;
 
-    for (auto& v : transformed)
+    for (auto &v : transformed)
     {
         Vector2 pos = {v.position.x, v.position.y};
         pos = node->globalTransform.applyTo(pos);
         pos = pos - cameraTransform.position;
-        pos = transformation * pos;
+        pos = cameraInverse.transformation * pos;
         pos = pos + originOffset;
         v.position.x = pos.x;
         v.position.y = pos.y;
@@ -407,6 +367,7 @@ TTF_TextEngine *Graphics::getTextEngine() const
     return textEngine;
 }
 
-void Graphics::exit() {
+void Graphics::exit()
+{
     SDL_Quit();
 }
