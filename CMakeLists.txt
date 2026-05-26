@@ -1,5 +1,8 @@
 cmake_minimum_required(VERSION 3.11)
 
+set(BUILD_TARGET "NATIVE" CACHE STRING "Build target: NATIVE | PSP | EMSCRIPTEN | 3DS")
+set_property(CACHE BUILD_TARGET PROPERTY STRINGS NATIVE PSP EMSCRIPTEN 3DS)
+
 if (MSVC)
     message("Building for Windows")
 
@@ -16,12 +19,18 @@ if (MSVC)
     set(DAV1D_ASM OFF CACHE BOOL "" FORCE)
 endif()
 
+if(BUILD_TARGET STREQUAL "3DS")
+    set(CMAKE_TOOLCHAIN_FILE "$ENV{DEVKITPRO}/cmake/3DS.cmake"
+        CACHE STRING "Toolchain file")
+endif()
+
+message(STATUS "DEVKITPRO = $ENV{DEVKITPRO}")
+message(STATUS "BUILD_TARGET = ${BUILD_TARGET}")
+message(STATUS "Toolchain = ${CMAKE_TOOLCHAIN_FILE}")
+
 project(calamity)
 
 set(CMAKE_CXX_STANDARD 17)
-set(BUILD_TARGET "NATIVE" CACHE STRING "Build target: NATIVE | PSP | EMSCRIPTEN | 3DS")
-set_property(CACHE BUILD_TARGET PROPERTY STRINGS NATIVE PSP EMSCRIPTEN 3DS)
-
 option(TRACY_ENABLE "" OFF)
 option(CALAMITY_VENDORED "Use vendored dependencies" OFF)
 option(CALAMITY_FIND_SDL3 OFF)
@@ -78,6 +87,9 @@ if(BUILD_TARGET STREQUAL "EMSCRIPTEN" OR MSVC OR BUILD_TARGET STREQUAL "3DS")
 endif()
 
 if(BUILD_TARGET STREQUAL "3DS")
+    # include("$ENV{DEVKITPRO}/cmake/3DS.cmake")
+    
+    set(CMAKE_PREFIX_PATH "$ENV{DEVKITPRO}/portlibs/3ds" ${CMAKE_PREFIX_PATH})
     set(SDLTTF_PLUTOSVG OFF)
     set(CALAMITY_FIND_SPDLOG ON)
     set(CALAMITY_VENDORED ON)
