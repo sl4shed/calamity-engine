@@ -9,38 +9,37 @@
 #include <box2d/id.h>
 #include <box2d/types.h>
 
-/**
- * # Physics Service
- *
- * The physics service is a wrapper around Box2D. You can define the worlds gravity in its constructor:
- *
- * ```cpp
- * Physics physics = Physics(Vector2{0.0f, 9.81f});
- * ```
- */
-class Physics
+#include <functional>
+
+template <>
+struct std::hash<b2ShapeId>
 {
-public:
-    Physics(Vector2 gravity = {0.0f, 9.81f});
-    void exit();
-
-    void physicsUpdate(float timeStep);
-    int subSteps = 4;
-
-    Vector2 gravity = {0.0f, 9.81f};
-    b2WorldDef worldDef;
-    b2WorldId worldId;
+    std::size_t operator()(const b2ShapeId &id) const noexcept
+    {
+        // b2ShapeId has index1, world0, and revision fields
+        std::size_t h = std::hash<uint32_t>{}(id.index1);
+        h ^= std::hash<uint16_t>{}(id.world0) + 0x9e3779b9 + (h << 6) + (h >> 2);
+        h ^= std::hash<uint16_t>{}(id.generation) + 0x9e3779b9 + (h << 6) + (h >> 2);
+        return h;
+    }
 };
+
+inline bool operator==(const b2ShapeId &a, const b2ShapeId &b) noexcept
+{
+    return a.index1 == b.index1 && a.world0 == b.world0 && a.generation == b.generation;
+}
 
 class PhysicsBody : public Component
 {
 public:
     void exit() override;
-    void physicsUpdate() override;
+    virtual void physicsUpdate() = 0;
     void initialize() override;
     virtual void initCompute() {};
 
-    void setSensor(bool sensor);
+    Signal<PhysicsBody *> collisionEnter;
+    Signal<PhysicsBody *> collisionExit;
+    Signal<PhysicsBody *> collisionHit;
     std::shared_ptr<Shape> shape;
 
     template <class Archive>
@@ -59,12 +58,45 @@ public:
         b2Body_SetTransform(bodyId, storedTransform.position, {cos(angle), sin(angle)});
     }
 
+    b2BodyId getBodyId() { return bodyId; };
+    b2ShapeId getShapeId() { return shapeId; };
+
 protected:
     bool sensor;
     b2BodyDef bodyDef;
     b2BodyId bodyId;
+    b2ShapeId shapeId;
 
     Transform storedTransform;
+};
+
+/**
+ * # Physics Service
+ *
+ * The physics service is a wrapper around Box2D. You can define the worlds gravity in its constructor:
+ *
+ * ```cpp
+ * Physics physics = Physics(Vector2{0.0f, 9.81f});
+ * ```
+ */
+class Physics
+{
+public:
+    Physics(Vector2 gravity = {0.0f, 9.81f});
+    void exit();
+
+    void physicsUpdate(float timeStep);
+    int subSteps = 4;
+
+    void registerBody(PhysicsBody *body);
+    void deRegisterBody(PhysicsBody *body);
+
+    Vector2 gravity = {0.0f, 9.81f};
+    b2WorldDef worldDef;
+    b2WorldId worldId;
+
+private:
+    std::unordered_map<b2ShapeId, PhysicsBody *> bodyMap;
 };
 
 /**

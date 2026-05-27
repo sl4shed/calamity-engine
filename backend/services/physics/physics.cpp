@@ -20,9 +20,46 @@ Physics::Physics(const Vector2 gravity)
     this->worldId = b2CreateWorld(&worldDef);
 }
 
+void Physics::registerBody(PhysicsBody *body)
+{
+    Logger::debug("Registering body with shape hash {}", std::hash<b2ShapeId>{}(body->getShapeId()));
+    bodyMap[body->getShapeId()] = body;
+}
+
+void Physics::deRegisterBody(PhysicsBody *body)
+{
+    bodyMap.erase(body->getShapeId());
+}
+
 void Physics::physicsUpdate(const float timeStep)
 {
     b2World_Step(worldId, timeStep, subSteps);
+
+    b2ContactEvents events = b2World_GetContactEvents(worldId);
+    for (int i = 0; i < events.beginCount; i++)
+    {
+        b2ContactBeginTouchEvent event = events.beginEvents[i];
+
+        bodyMap[event.shapeIdA]->collisionEnter.fire(bodyMap[event.shapeIdB]);
+        bodyMap[event.shapeIdB]->collisionEnter.fire(bodyMap[event.shapeIdA]);
+        Logger::debug("collision enter type shit");
+    }
+
+    for (int i = 0; i < events.endCount; i++)
+    {
+        b2ContactEndTouchEvent event = events.endEvents[i];
+
+        bodyMap[event.shapeIdA]->collisionExit.fire(bodyMap[event.shapeIdB]);
+        bodyMap[event.shapeIdB]->collisionExit.fire(bodyMap[event.shapeIdA]);
+    }
+
+    for (int i = 0; i < events.hitCount; i++)
+    {
+        b2ContactHitEvent event = events.hitEvents[i];
+
+        bodyMap[event.shapeIdA]->collisionHit.fire(bodyMap[event.shapeIdB]);
+        bodyMap[event.shapeIdB]->collisionHit.fire(bodyMap[event.shapeIdA]);
+    }
 }
 
 void Physics::exit()
@@ -30,23 +67,21 @@ void Physics::exit()
     b2DestroyWorld(worldId);
 }
 
-// PhysicsBodhy
+// PhysicsBody
 
 void PhysicsBody::exit()
 {
+    Services::physics()->deRegisterBody(this);
     b2DestroyBody(bodyId);
+    // b2DestroyShape(shapeId, true);
 }
 
 void PhysicsBody::initialize()
 {
     const auto tr = this->getNode()->globalTransform;
     b2Body_SetTransform(bodyId, tr.position * PhysicsConstants::scale, {cos(tr.getAngleRadians()), sin(tr.getAngleRadians())});
-}
 
-void PhysicsBody::setSensor(bool sensor)
-{
-    this->sensor = sensor;
-    this->shape->shapeDef.isSensor = true;
+    Services::physics()->registerBody(this);
 }
 
 ////////////////////
@@ -64,22 +99,22 @@ void RigidBody::initCompute()
     if (const auto *box = dynamic_cast<BoxShape *>(shape.get()))
     {
         const b2Polygon poly = box->scaledPolygon;
-        b2CreatePolygonShape(bodyId, &box->shapeDef, &poly);
+        shapeId = b2CreatePolygonShape(bodyId, &box->shapeDef, &poly);
     }
     else if (const auto *circle = dynamic_cast<CircleShape *>(shape.get()))
     {
         const b2Circle c = circle->scaledCircle;
-        b2CreateCircleShape(bodyId, &circle->shapeDef, &c);
+        shapeId = b2CreateCircleShape(bodyId, &circle->shapeDef, &c);
     }
     else if (const auto *capsule = dynamic_cast<CapsuleShape *>(shape.get()))
     {
         const b2Capsule c = capsule->scaledCapsule;
-        b2CreateCapsuleShape(bodyId, &capsule->shapeDef, &c);
+        shapeId = b2CreateCapsuleShape(bodyId, &capsule->shapeDef, &c);
     }
     else if (const auto *polygon = dynamic_cast<PolygonShape *>(shape.get()))
     {
         const b2Polygon p = polygon->scaledPolygon;
-        b2CreatePolygonShape(bodyId, &polygon->shapeDef, &p);
+        shapeId = b2CreatePolygonShape(bodyId, &polygon->shapeDef, &p);
     }
 }
 
@@ -190,22 +225,22 @@ void StaticBody::initCompute()
     if (const auto *box = dynamic_cast<BoxShape *>(shape.get()))
     {
         const b2Polygon poly = box->scaledPolygon;
-        b2CreatePolygonShape(bodyId, &box->shapeDef, &poly);
+        shapeId = b2CreatePolygonShape(bodyId, &box->shapeDef, &poly);
     }
     else if (const auto *circle = dynamic_cast<CircleShape *>(shape.get()))
     {
         const b2Circle c = circle->scaledCircle;
-        b2CreateCircleShape(bodyId, &circle->shapeDef, &c);
+        shapeId = b2CreateCircleShape(bodyId, &circle->shapeDef, &c);
     }
     else if (const auto *capsule = dynamic_cast<CapsuleShape *>(shape.get()))
     {
         const b2Capsule c = capsule->scaledCapsule;
-        b2CreateCapsuleShape(bodyId, &capsule->shapeDef, &c);
+        shapeId = b2CreateCapsuleShape(bodyId, &capsule->shapeDef, &c);
     }
     else if (const auto *polygon = dynamic_cast<PolygonShape *>(shape.get()))
     {
         const b2Polygon p = polygon->scaledPolygon;
-        b2CreatePolygonShape(bodyId, &polygon->shapeDef, &p);
+        shapeId = b2CreatePolygonShape(bodyId, &polygon->shapeDef, &p);
     }
 }
 
@@ -248,22 +283,22 @@ void KinematicBody::initCompute()
     if (const auto *box = dynamic_cast<BoxShape *>(shape.get()))
     {
         const b2Polygon poly = box->scaledPolygon;
-        b2CreatePolygonShape(bodyId, &box->shapeDef, &poly);
+        shapeId = b2CreatePolygonShape(bodyId, &box->shapeDef, &poly);
     }
     else if (const auto *circle = dynamic_cast<CircleShape *>(shape.get()))
     {
         const b2Circle c = circle->scaledCircle;
-        b2CreateCircleShape(bodyId, &circle->shapeDef, &c);
+        shapeId = b2CreateCircleShape(bodyId, &circle->shapeDef, &c);
     }
     else if (const auto *capsule = dynamic_cast<CapsuleShape *>(shape.get()))
     {
         const b2Capsule c = capsule->scaledCapsule;
-        b2CreateCapsuleShape(bodyId, &capsule->shapeDef, &c);
+        shapeId = b2CreateCapsuleShape(bodyId, &capsule->shapeDef, &c);
     }
     else if (const auto *polygon = dynamic_cast<PolygonShape *>(shape.get()))
     {
         const b2Polygon p = polygon->scaledPolygon;
-        b2CreatePolygonShape(bodyId, &polygon->shapeDef, &p);
+        shapeId = b2CreatePolygonShape(bodyId, &polygon->shapeDef, &p);
     }
 }
 

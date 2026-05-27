@@ -33,18 +33,22 @@ public:
         node = this->getNode();
     }
 
-    void input(InputEvent& event) {
-        InputEventMouseButton* mouseButtonEvent = dynamic_cast<InputEventMouseButton*>(&event);
-        if(mouseButtonEvent && mouseButtonEvent->pressed && mouseButtonEvent->button == MouseButton::RIGHT) {
-            for(auto node : fallingNodes) {
+    void input(InputEvent &event)
+    {
+        InputEventMouseButton *mouseButtonEvent = dynamic_cast<InputEventMouseButton *>(&event);
+        if (mouseButtonEvent && mouseButtonEvent->pressed && mouseButtonEvent->button == MouseButton::RIGHT)
+        {
+            for (auto node : fallingNodes)
+            {
                 node->free();
             }
             fallingNodes.clear();
         }
     }
 
-    void update(float dt) {
-        if(Services::input()->isActionJustPressed("add"))
+    void update(float dt)
+    {
+        if (Services::input()->isActionJustPressed("add"))
         {
             std::shared_ptr<Node> fallingNode = std::make_shared<Node>("fallingNode");
 #ifdef PSP
@@ -57,16 +61,15 @@ public:
             auto which = rand() % 3;
             if (which == 0)
             {
-                Logger::info("Adding circle");
                 fallingShape = std::make_shared<CircleShape>(static_cast<float>(rand() % 25 + 15));
-            } else if (which == 1)
+            }
+            else if (which == 1)
             {
-                Logger::info("Adding box");
                 fallingNode->transform.setAngle(rand() % 100); // random angle between -0.5 and 0.5 radians
                 fallingShape = std::make_shared<BoxShape>(Vector2{static_cast<float>(rand() % 25 + 15), static_cast<float>(rand() % 25 + 15)});
-            } else if (which == 2)
+            }
+            else if (which == 2)
             {
-                Logger::info("Adding capsule");
                 float radius = rand() % 10 + 15;
                 fallingNode->transform.setAngle(rand() % 100); // random angle between -0.5 and 0.5 radians
                 fallingShape = std::make_shared<CapsuleShape>(Vector2{0, -10}, Vector2{0, 10}, radius, Vector2{0.5f, 0.5f});

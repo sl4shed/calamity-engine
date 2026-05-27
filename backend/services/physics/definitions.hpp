@@ -28,7 +28,7 @@ public:
 /**
  * # Shape
  * The base Shape class defines properties which are inherited by all Shapes, such as BoxShape, CircleShape, CapsuleShape and PolygonShape.
- * 
+ *
  * This class has two notable properties:
  * ```cpp
  * shape->origin = {0.5f, 0.5f}; // The origin of the shape. This is disabled for PolygonShape.
@@ -42,31 +42,36 @@ public:
     b2ShapeDef shapeDef;
     Vector2 origin;
 
-    void applyMaterial(const Material& material);
+    void applyMaterial(const Material &material);
 
     Shape *setSensor(bool sensor)
     {
         shapeDef.isSensor = sensor;
-        if (sensor)
-        {
-            shapeDef.enableSensorEvents = true;
-        }
+        shapeDef.enableSensorEvents = sensor;
+        isSensor = sensor;
         return this;
     }
 
     template <class Archive>
     void save(Archive &ar) const
     {
-        ar(CEREAL_NVP(material), CEREAL_NVP(origin));
+        ar(CEREAL_NVP(material), CEREAL_NVP(origin), CEREAL_NVP(isSensor));
     }
 
     template <class Archive>
     void load(Archive &ar)
     {
-        ar(CEREAL_NVP(material), CEREAL_NVP(origin));
+        ar(CEREAL_NVP(material), CEREAL_NVP(origin), CEREAL_NVP(isSensor));
+        if (isSensor)
+        {
+            setSensor(true);
+        }
+
+        applyMaterial(material);
     }
 
 private:
+    bool isSensor;
     Material material;
 };
 
@@ -89,7 +94,7 @@ public:
     template <class Archive>
     void load(Archive &ar)
     {
-        ar(cereal::base_class<Shape>(this), CEREAL_NVP(size), CEREAL_NVP(scaledPolygon), CEREAL_NVP(polygon));
+        ar(CEREAL_NVP(size), CEREAL_NVP(scaledPolygon), CEREAL_NVP(polygon));
 
         // just reconstruct everything from size and center like the constructor does
         Vector2 calculatedCenter = (origin - Vector2{0.5f, 0.5f}) * size;
@@ -101,6 +106,8 @@ public:
         this->polygon = static_cast<Polygon>(polyUnscaled);
         this->scaledPolygon = static_cast<Polygon>(poly);
         this->shapeDef = b2DefaultShapeDef();
+
+        ar(cereal::base_class<Shape>(this));
     }
 };
 
@@ -123,7 +130,9 @@ public:
     template <class Archive>
     void load(Archive &ar)
     {
-        ar(cereal::base_class<Shape>(this), CEREAL_NVP(radius), CEREAL_NVP(circle));
+        ar(CEREAL_NVP(radius), CEREAL_NVP(circle));
+        this->shapeDef = b2DefaultShapeDef();
+        ar(cereal::base_class<Shape>(this));
     }
 };
 
@@ -145,7 +154,9 @@ public:
     template <class Archive>
     void load(Archive &ar)
     {
-        ar(cereal::base_class<Shape>(this), CEREAL_NVP(capsule), CEREAL_NVP(scaledCapsule));
+        ar(CEREAL_NVP(capsule), CEREAL_NVP(scaledCapsule));
+        this->shapeDef = b2DefaultShapeDef();
+        ar(cereal::base_class<Shape>(this));
     }
 };
 
@@ -167,11 +178,11 @@ public:
     template <class Archive>
     void load(Archive &ar)
     {
-        ar(cereal::base_class<Shape>(this), CEREAL_NVP(scaledPolygon), CEREAL_NVP(polygon));
+        ar(CEREAL_NVP(scaledPolygon), CEREAL_NVP(polygon));
         this->shapeDef = b2DefaultShapeDef();
+        ar(cereal::base_class<Shape>(this));
     }
 };
-
 
 /**
  * # ShapeSprite
@@ -184,14 +195,14 @@ public:
  * std::shared_ptr<ShapeSprite> sprite = std::make_shared<ShapeSprite>(shape);
  * spriteNode->addComponent(sprite);
  * ```
- * 
+ *
  * ## Properties and usages
- * 
+ *
  * You can make ShapeSprites render using screen space positioning. This can be used for UI elements and things like that:
  * ```cpp
  * sprite->screenSpace = true; // Now, the position of the sprite will directly translate to screen coordinates!
  * ```
- * 
+ *
  * Also, you can modify the modulate variable of the sprite to change its color:
  * ```cpp
  * sprite->color = Color::RED;
@@ -201,12 +212,12 @@ class ShapeSprite : public Component
 {
 public:
     ShapeSprite();
-    explicit ShapeSprite(const std::shared_ptr<Shape>& shape);
+    explicit ShapeSprite(const std::shared_ptr<Shape> &shape);
 
     Vector2 origin = {0.5f, 0.5f};
     std::shared_ptr<Shape> shape;
     bool visible = true;
-    //int zIndex = 1;
+    // int zIndex = 1;
     bool screenSpace = false;
     Color modulate = Color::WHITE;
 

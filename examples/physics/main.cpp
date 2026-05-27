@@ -31,14 +31,16 @@ PSP_MAIN_THREAD_ATTR(THREAD_ATTR_USER);
 
 static Physics physics = Physics({0, 9.81f});
 static Engine engine = Engine("Physics Example");
-static Graphics* graphics = nullptr;
+static Graphics *graphics = nullptr;
 
-void loop() {
+void loop()
+{
     engine.update();
     engine.render(*graphics);
 }
 
-int main() {
+int main()
+{
     Logger::init();
 
     auto window = std::make_shared<Window>("Physics Example", Rect{{0, 0}, {480, 272}});
@@ -70,7 +72,10 @@ int main() {
     node->transform.position = {0, 0};
     node->transform.setAngle(20.0f);
     auto shape = std::make_shared<BoxShape>(Vector2{300, 50});
-    node->addComponent(std::make_shared<StaticBody>(shape));
+    auto body = std::make_shared<StaticBody>(shape);
+    body->collisionEnter.connect([](PhysicsBody *b)
+                                 { Logger::info("Collision Enter with body {}", b->getNode()->name); });
+    node->addComponent(body);
     node->addComponent(std::make_shared<ShapeSprite>(shape));
     window->root->addChild(cameraNode);
     window->root->addChild(node);
@@ -96,7 +101,8 @@ int main() {
 #ifdef EMSCRIPTEN
     emscripten_set_main_loop(loop, 0, 1);
 #else
-    while(!input.shouldQuit) {
+    while (!input.shouldQuit)
+    {
         loop();
     }
 #endif
