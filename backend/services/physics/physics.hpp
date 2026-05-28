@@ -40,6 +40,8 @@ public:
     Signal<PhysicsBody *> collisionEnter;
     Signal<PhysicsBody *> collisionExit;
     Signal<PhysicsBody *> collisionHit;
+    Signal<> mouseEntered;
+    Signal<> mouseExited;
     std::shared_ptr<Shape> shape;
 
     template <class Archive>
@@ -85,6 +87,7 @@ public:
     Physics(Vector2 gravity = {0.0f, 9.81f});
     void exit();
 
+    friend bool b2callback(b2ShapeId shapeId, void *ctx);
     void physicsUpdate(float timeStep);
     int subSteps = 4;
 
@@ -97,6 +100,9 @@ public:
 
 private:
     std::unordered_map<b2ShapeId, PhysicsBody *> bodyMap;
+
+    std::vector<b2ShapeId> currentHovered;
+    std::vector<b2ShapeId> lastHovered;
 };
 
 /**

@@ -138,6 +138,7 @@ int main()
     auto shape = std::make_shared<BoxShape>(Vector2{13, 19} * 4);
     Material mat = Material();
     mat.density = 10.0f;
+    mat.friction = 0.0f;
     shape->applyMaterial(mat);
     auto rbody = std::make_shared<RigidBody>(shape);
     rbody->lockRotation(true);

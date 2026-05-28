@@ -1,5 +1,6 @@
 #include "physics.hpp"
 #include "../services.hpp"
+#include "../engine.hpp"
 #include "../../core/node/node.hpp"
 #include "../../utils/logger.hpp"
 
@@ -30,10 +31,20 @@ void Physics::deRegisterBody(PhysicsBody *body)
     bodyMap.erase(body->getShapeId());
 }
 
+bool b2callback(b2ShapeId shapeId, void *ctx)
+{
+    auto *self = static_cast<Physics *>(ctx);
+    auto it = self->bodyMap.find(shapeId);
+    if (it != self->bodyMap.end())
+        self->currentHovered.emplace_back(shapeId);
+    return true;
+}
+
 void Physics::physicsUpdate(const float timeStep)
 {
     b2World_Step(worldId, timeStep, subSteps);
 
+    // Process contact events
     b2ContactEvents events = b2World_GetContactEvents(worldId);
     for (int i = 0; i < events.beginCount; i++)
     {
@@ -70,6 +81,30 @@ void Physics::physicsUpdate(const float timeStep)
         a->second->collisionHit.fire(b->second);
         b->second->collisionHit.fire(a->second);
     }
+
+    // we need more mouse bites
+    Vector2 mouseWorld = Services::input()->getMousePosition() * PhysicsConstants::scale;
+    // Logger::debug("X: {}; Y: {}", mouseWorld.x, mouseWorld.y);
+
+    b2Vec2 mousePoint = {mouseWorld.x, mouseWorld.y};
+    b2ShapeProxy pp = b2MakeProxy(&mousePoint, 1, 0.0f);
+
+    b2QueryFilter filter = b2DefaultQueryFilter();
+
+    currentHovered.clear();
+    b2World_OverlapShape(worldId, &pp, filter, b2callback, this);
+
+    for (auto &[id, body] : bodyMap)
+    {
+        bool wasHovered = std::find(lastHovered.begin(), lastHovered.end(), id) != lastHovered.end();
+        bool isHovered = std::find(currentHovered.begin(), currentHovered.end(), id) != currentHovered.end();
+        if (!wasHovered && isHovered)
+            body->mouseEntered.fire();
+        if (wasHovered && !isHovered)
+            body->mouseExited.fire();
+    }
+
+    this->lastHovered = this->currentHovered;
 }
 
 void Physics::exit()

@@ -77,6 +77,31 @@ int main()
                                  { 
         Logger::info("Collision Enter with body {}", b->getNode()->name);
         body->collisionEnter.reset(); });
+
+    body->mouseEntered.connect([body, window]()
+                               { 
+        Vector2 mpos = Services::input()->getMousePosition();
+        auto cc = std::make_shared<Node>("point");
+        cc->transform.position = mpos;
+        auto circle = std::make_shared<CircleShape>(1.0f);
+        auto ss = std::make_shared<ShapeSprite>(circle);
+        ss->modulate = Color::RED;
+        cc->addComponent(ss);
+        window->root->addChild(cc);
+        body->mouseEntered.reset(); });
+
+    body->mouseExited.connect([body, window]()
+                              { 
+        Vector2 mpos = Services::input()->getMousePosition();
+        auto cc = std::make_shared<Node>("point");
+        cc->transform.position = mpos;
+        auto circle = std::make_shared<CircleShape>(1.0f);
+        auto ss = std::make_shared<ShapeSprite>(circle);
+        ss->modulate = Color::BLUE;
+        cc->addComponent(ss);
+        window->root->addChild(cc);
+        body->mouseEntered.reset(); });
+
     node->addComponent(body);
     node->addComponent(std::make_shared<ShapeSprite>(shape));
     window->root->addChild(cameraNode);
