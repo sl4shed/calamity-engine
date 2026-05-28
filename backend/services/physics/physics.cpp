@@ -22,7 +22,6 @@ Physics::Physics(const Vector2 gravity)
 
 void Physics::registerBody(PhysicsBody *body)
 {
-    Logger::debug("Registering body with shape hash {}", std::hash<b2ShapeId>{}(body->getShapeId()));
     bodyMap[body->getShapeId()] = body;
 }
 
@@ -39,26 +38,37 @@ void Physics::physicsUpdate(const float timeStep)
     for (int i = 0; i < events.beginCount; i++)
     {
         b2ContactBeginTouchEvent event = events.beginEvents[i];
+        auto a = bodyMap.find(event.shapeIdA);
+        auto b = bodyMap.find(event.shapeIdB);
+        if (a == bodyMap.end() || b == bodyMap.end())
+            continue;
 
-        bodyMap[event.shapeIdA]->collisionEnter.fire(bodyMap[event.shapeIdB]);
-        bodyMap[event.shapeIdB]->collisionEnter.fire(bodyMap[event.shapeIdA]);
-        Logger::debug("collision enter type shit");
+        a->second->collisionEnter.fire(b->second);
+        b->second->collisionEnter.fire(a->second);
     }
 
     for (int i = 0; i < events.endCount; i++)
     {
         b2ContactEndTouchEvent event = events.endEvents[i];
+        auto a = bodyMap.find(event.shapeIdA);
+        auto b = bodyMap.find(event.shapeIdB);
+        if (a == bodyMap.end() || b == bodyMap.end())
+            continue;
 
-        bodyMap[event.shapeIdA]->collisionExit.fire(bodyMap[event.shapeIdB]);
-        bodyMap[event.shapeIdB]->collisionExit.fire(bodyMap[event.shapeIdA]);
+        a->second->collisionExit.fire(b->second);
+        b->second->collisionExit.fire(a->second);
     }
 
     for (int i = 0; i < events.hitCount; i++)
     {
         b2ContactHitEvent event = events.hitEvents[i];
+        auto a = bodyMap.find(event.shapeIdA);
+        auto b = bodyMap.find(event.shapeIdB);
+        if (a == bodyMap.end() || b == bodyMap.end())
+            continue;
 
-        bodyMap[event.shapeIdA]->collisionHit.fire(bodyMap[event.shapeIdB]);
-        bodyMap[event.shapeIdB]->collisionHit.fire(bodyMap[event.shapeIdA]);
+        a->second->collisionHit.fire(b->second);
+        b->second->collisionHit.fire(a->second);
     }
 }
 
@@ -96,6 +106,8 @@ void RigidBody::initCompute()
 
     bodyId = b2CreateBody(Services::physics()->worldId, &bodyDef);
 
+    shape->shapeDef.enableContactEvents = true;
+    shape->shapeDef.enableHitEvents = true;
     if (const auto *box = dynamic_cast<BoxShape *>(shape.get()))
     {
         const b2Polygon poly = box->scaledPolygon;
@@ -222,6 +234,8 @@ void StaticBody::initCompute()
     bodyDef.angularDamping = 0.1f;
     bodyId = b2CreateBody(Services::physics()->worldId, &bodyDef);
 
+    shape->shapeDef.enableContactEvents = true;
+    shape->shapeDef.enableHitEvents = true;
     if (const auto *box = dynamic_cast<BoxShape *>(shape.get()))
     {
         const b2Polygon poly = box->scaledPolygon;
@@ -280,6 +294,8 @@ void KinematicBody::initCompute()
     bodyDef.angularDamping = 0.1f;
     bodyId = b2CreateBody(Services::physics()->worldId, &bodyDef);
 
+    shape->shapeDef.enableContactEvents = true;
+    shape->shapeDef.enableHitEvents = true;
     if (const auto *box = dynamic_cast<BoxShape *>(shape.get()))
     {
         const b2Polygon poly = box->scaledPolygon;

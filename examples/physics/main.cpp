@@ -73,8 +73,10 @@ int main()
     node->transform.setAngle(20.0f);
     auto shape = std::make_shared<BoxShape>(Vector2{300, 50});
     auto body = std::make_shared<StaticBody>(shape);
-    body->collisionEnter.connect([](PhysicsBody *b)
-                                 { Logger::info("Collision Enter with body {}", b->getNode()->name); });
+    body->collisionEnter.connect([body](PhysicsBody *b)
+                                 { 
+        Logger::info("Collision Enter with body {}", b->getNode()->name);
+        body->collisionEnter.reset(); });
     node->addComponent(body);
     node->addComponent(std::make_shared<ShapeSprite>(shape));
     window->root->addChild(cameraNode);
