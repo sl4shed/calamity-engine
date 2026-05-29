@@ -29,6 +29,31 @@ inline bool operator==(const b2ShapeId &a, const b2ShapeId &b) noexcept
     return a.index1 == b.index1 && a.world0 == b.world0 && a.generation == b.generation;
 }
 
+/**
+ * # PhysicsBody
+ * The base PhysicsBody class defines the shape, functions and signals that are the base of every physics body.
+ *
+ * # Properties and usages
+ * You can connect callbacks onto the collision signals of the physics body:
+ * ```cpp
+ * physicsBody->collisionEnter.connect([](PhysicsBody *other) {
+ *    // do something when this body collides with another body
+ * });
+ *
+ * // there are also colisionExit and collisionHit (when the body is hit by another body at terminal velocity).
+ * ```
+ *
+ * There are also signals for when the mouse enters and leaves the body, which are very useful for UI elements.
+ * ```cpp
+ * physicsBody->mouseEntered.connect([]() {
+ *  // do something when the mouse enters the body
+ * });
+ *
+ * // there is also mouseExited for when the mouse leaves the body.
+ * ```
+ *
+ * For more information, take a look at the [button example](https://calamity.sl4shed.xyz/example-button).
+ */
 class PhysicsBody : public Component
 {
 public:
@@ -73,9 +98,7 @@ protected:
 };
 
 /**
- * # Physics Service
- *
- * The physics service is a wrapper around Box2D. You can define the worlds gravity in its constructor:
+ * # Physics Service handles collisions and mouse collision logic. You can define the worlds gravity in its constructor:
  *
  * ```cpp
  * Physics physics = Physics(Vector2{0.0f, 9.81f});
@@ -108,7 +131,7 @@ private:
 /**
  * # StaticBody
  *
- * The StaticBody components allows a Node to collide with other physics bodies. The main difference between StaticBody and any other physics body is that it does not move, at all, unless it is moved by the user.
+ * The StaticBody component is a type of PhysicsBody. The main difference between StaticBody and any other physics bodies is that it does not move, at all, unless it is moved by the user.
  *
  * Like any other physics body, once it is attached to a node, you must not move the node through its transform property but through the `setPosition()` and `setAngle()` functions of the physics body.
  *
@@ -155,7 +178,7 @@ public:
 /**
  * # RigidBody
  *
- * The RigidBody components allows a Node to collide with other physics bodies and to interact with physics forces and stuff.
+ * The RigidBody is a type of PhysicsBody. The main difference between RigidBody and any other physics bodies is that it moves according to the physics simulation, and can be affected by forces, impulses, and collisions.
  *
  * Like any other physics body, once it is attached to a node, you must not move the node through its transform property but through the `setPosition()` and `setAngle()` functions of the physics body.
  *
@@ -242,7 +265,7 @@ private:
 /**
  * # KinematicBody
  *
- * The KinematicBody components allows a Node to collide with other physics bodies. The main difference between KinematicBody and any other physics body is that it does not move, at all, unless it is moved by a force or impulse or its linear velocity.
+ * The KinematicBody component is a type of PhysicsBody. The main difference between KinematicBody and any other physics body is that it does not move, at all, unless it is moved by a force or impulse or its linear velocity.
  *
  * Like any other physics body, once it is attached to a node, you must not move the node through its transform property.
  *
@@ -251,7 +274,7 @@ private:
  * std::shared_ptr<Node> myNode = std::make_shared<Node>();
  * std::shared_ptr<Shape> myShape = std::make_shared<CircleShape>(20.0f); // Create a circle with a 20 pixel radius
  *
- * std::shared_ptr<StaticBody> kinematicBody = std::make_shared<KinematicBody>(myShape);
+ * std::shared_ptr<KinematicBody> kinematicBody = std::make_shared<KinematicBody>(myShape);
  * myNode->addComponent(kinematicBody);
  * myNode->addComponent(std::make_shared<ShapeSprite>(myShape)); // also add a ShapeSprite for rendering!
  *

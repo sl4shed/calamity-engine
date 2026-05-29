@@ -1,5 +1,6 @@
 #include "definitions.hpp"
 #include "../../utils/logger.hpp"
+#include "../../utils/file.hpp"
 #include <SDL3_ttf/SDL_ttf.h>
 #include <SDL3_ttf/SDL_textengine.h>
 
@@ -13,105 +14,140 @@ const Color Color::TRANSPARENT = Color(0, 0, 0, 0);
 Color::Color(const int r, const int g, const int b) : r(r), g(g), b(b), a(255) {}
 Color::Color(const int r, const int g, const int b, const int a) : r(r), g(g), b(b), a(a) {}
 
-Color::Color(const int hexCode) {
+Color::Color(const int hexCode)
+{
     r = (hexCode >> 16) & 0xFF;
-    g = (hexCode >> 8)  & 0xFF;
-    b =  hexCode        & 0xFF;
+    g = (hexCode >> 8) & 0xFF;
+    b = hexCode & 0xFF;
     a = 255;
 }
 
-Color::Color(const int hexCode, const int a) : Color(hexCode) {
+Color::Color(const int hexCode, const int a) : Color(hexCode)
+{
     this->a = a;
 }
 
-Color::Color(std::string hexCode) {
+Color::Color(std::string hexCode)
+{
     // black magic
     if (!hexCode.empty() && hexCode[0] == '#')
         hexCode = hexCode.substr(1);
     const unsigned int hex = std::stoul(hexCode, nullptr, 16);
-    if (hexCode.size() == 8) { // RRGGBBAA
+    if (hexCode.size() == 8)
+    { // RRGGBBAA
         r = (hex >> 24) & 0xFF;
         g = (hex >> 16) & 0xFF;
-        b = (hex >> 8)  & 0xFF;
-        a =  hex        & 0xFF;
-    } else { // RRGGBB
+        b = (hex >> 8) & 0xFF;
+        a = hex & 0xFF;
+    }
+    else
+    { // RRGGBB
         r = (hex >> 16) & 0xFF;
-        g = (hex >> 8)  & 0xFF;
-        b =  hex        & 0xFF;
+        g = (hex >> 8) & 0xFF;
+        b = hex & 0xFF;
         a = 255;
     }
 }
 
-Color::Color(const std::string& hexCode, const int a) : Color(hexCode) {
+Color::Color(const std::string &hexCode, const int a) : Color(hexCode)
+{
     this->a = a;
 }
 
-Font::Font(const std::string& path) {
-    this->handle = TTF_OpenFont(path.c_str(), static_cast<float>(size));
-    if(!this->handle) Logger::debug("Loading font {} failed: {}", path, SDL_GetError());
+Font::Font(const std::string &path)
+{
+    std::string p = File::getAbsoluteFilePath(path);
+    this->handle = TTF_OpenFont(p.c_str(), static_cast<float>(size));
+    if (!this->handle)
+        Logger::debug("Loading font {} failed: {}", path, SDL_GetError());
 
     this->lineSpacing = TTF_GetFontLineSkip(handle);
 }
 
-TTF_Font* Font::getHandle() const
+TTF_Font *Font::getHandle() const
 {
     return handle;
 }
 
-Font::~Font() {
+Font::~Font()
+{
     TTF_CloseFont(handle);
 }
 
-Font* Font::setKerning(const bool enabled) {
+Font *Font::setKerning(const bool enabled)
+{
     this->kerning = enabled;
     TTF_SetFontKerning(handle, enabled);
     return this;
 }
 
-Font* Font::setHinting(FontHinting setting) {
+Font *Font::setHinting(FontHinting setting)
+{
     this->hinting = setting;
     TTF_SetFontHinting(handle, static_cast<TTF_HintingFlags>(setting));
     return this;
 }
 
-Font* Font::setLanguage(const std::string& _language) {
+Font *Font::setLanguage(const std::string &_language)
+{
     this->language = _language;
     TTF_SetFontLanguage(handle, language.c_str());
     return this;
 }
 
-Font* Font::setLineSpacing(const int _spacing) {
+Font *Font::setLineSpacing(const int _spacing)
+{
     this->lineSpacing = _spacing;
     TTF_SetFontLineSkip(handle, lineSpacing);
     return this;
 }
 
-Font* Font::setOutline(const int _outline) {
+Font *Font::setOutline(const int _outline)
+{
     this->outline = _outline;
     TTF_SetFontOutline(handle, outline);
     return this;
 }
 
-Font* Font::setSDF(const bool enabled) {
+Font *Font::setSDF(const bool enabled)
+{
     this->SDF = enabled;
     TTF_SetFontSDF(handle, enabled);
     return this;
 }
 
-Font* Font::setSize(const int ptSize) {
+Font *Font::setSize(const int ptSize)
+{
     size = ptSize;
     TTF_SetFontSize(handle, static_cast<float>(ptSize));
     return this;
 }
 
-Font* Font::setStyle(const FontStyle _style) {
+Font *Font::setStyle(const FontStyle _style)
+{
     this->style = _style;
     TTF_SetFontStyle(handle, static_cast<TTF_FontStyleFlags>(style));
     return this;
 }
 
-Font* Font::setAlignment(FontAlignment _alignment) {
+Font *Font::setAlignment(FontAlignment _alignment)
+{
     this->alignment = _alignment;
     TTF_SetFontWrapAlignment(handle, static_cast<TTF_HorizontalAlignment>(alignment));
+    return this;
+}
+
+Font *Font::loadFromPath(const std::string &pPath)
+{
+    std::string p = File::getAbsoluteFilePath(pPath);
+    this->path = pPath;
+    if (this->handle)
+        TTF_CloseFont(this->handle);
+
+    this->handle = TTF_OpenFont(p.c_str(), static_cast<float>(size));
+    if (!this->handle)
+        Logger::debug("Loading font {} failed: {}", pPath, SDL_GetError());
+
+    this->lineSpacing = TTF_GetFontLineSkip(handle);
     return this;
 }

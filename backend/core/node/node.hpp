@@ -4,7 +4,7 @@
 #include "../../utils/utils.hpp"
 #include "components.hpp"
 #include "../../services/input/keycode.hpp"
-//#include "../../services/graphics/definitions.hpp"
+// #include "../../services/graphics/definitions.hpp"
 #include <iostream>
 #include <cereal/types/vector.hpp>
 #include <cereal/types/memory.hpp>
@@ -39,8 +39,8 @@ public:
 	std::vector<std::shared_ptr<Node>> children;
 	std::vector<std::shared_ptr<Component>> components;
 
-	Node(const std::string& name = "Node");
-	~Node();
+	Node(const std::string &name = "Node");
+	virtual ~Node();
 	void free();
 
 	Node *getOwner();
@@ -57,7 +57,8 @@ public:
 	void addComponent(std::shared_ptr<Component> component);
 	void removeComponent(std::shared_ptr<Component> component);
 	template <typename T>
-	std::shared_ptr<T> getComponent() {
+	std::shared_ptr<T> getComponent()
+	{
 		for (size_t i = 0; i < components.size(); ++i)
 		{
 			if (T *c = dynamic_cast<T *>(components[i].get()))
@@ -68,12 +69,12 @@ public:
 	std::shared_ptr<Component> getComponentByIndex(int index);
 
 	// state functions
-	void render(Graphics &graphics, Engine *engine, std::shared_ptr<Window> window) const;
-	void update(float deltaTime);
-	void physicsUpdate() const; // runs locked at 60fps
-	void initialize();
-	void input(InputEvent& event) const;
-	void exit() const;
+	virtual void render(Graphics &graphics, Engine *engine, std::shared_ptr<Window> window) const;
+	virtual void update(float deltaTime);
+	virtual void physicsUpdate() const; // runs locked at 60fps
+	virtual void initialize();
+	virtual void input(InputEvent &event);
+	virtual void exit() const;
 
 	template <class Archive>
 	void save(Archive &ar) const
@@ -97,6 +98,7 @@ public:
 		for (auto &child : children)
 			child->parent = this;
 	}
+
 private:
 	std::shared_ptr<Window> window;
 };

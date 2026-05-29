@@ -1,0 +1,10 @@
+{
+    "title": "Button example",
+    "description": "This example demonstrates how to create a custom button class that inherits the Node class and implements a simple button.",
+    "sourceFiles": [
+        "main.cpp", "button.hpp", "CMakeLists.txt"
+    ],
+    "width": 480,
+    "height": 272,
+    "tags": ["Sprite", "StaticBody", "Physics", "Label", "InputEvent"]
+}

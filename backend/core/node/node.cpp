@@ -11,7 +11,7 @@
 #include <tracy/Tracy.hpp>
 #endif
 
-Node::Node(const std::string& _name) : name(_name), parent(nullptr), window(nullptr) {}
+Node::Node(const std::string &_name) : name(_name), parent(nullptr), window(nullptr) {}
 
 Node::~Node()
 {
@@ -21,17 +21,22 @@ Node::~Node()
     components.clear();
 }
 
-void Node::free() {
-    if (parent) {
+void Node::free()
+{
+    if (parent)
+    {
         parent->removeChild(shared_from_this());
-    } else {
+    }
+    else
+    {
         Logger::warn("Trying to free a node {} with no parent.", name);
     }
 }
 
 void Node::addChild(std::shared_ptr<Node> child)
 {
-    if (!child) return;
+    if (!child)
+        return;
 
     child->parent = this;
     child->window = this->window;
@@ -85,11 +90,13 @@ void Node::render(Graphics &graphics, Engine *engine, std::shared_ptr<Window> wi
             graphics.renderComponent(*sprite, window.get());
         }
 
-        if (const auto *shapeSprite = dynamic_cast<ShapeSprite *>(components[i].get()); shapeSprite && shapeSprite->visible) {
+        if (const auto *shapeSprite = dynamic_cast<ShapeSprite *>(components[i].get()); shapeSprite && shapeSprite->visible)
+        {
             graphics.renderComponent(*shapeSprite, window.get());
         }
 
-        if(const auto *label = dynamic_cast<Label *>(components[i].get()); label && label->visible) {
+        if (const auto *label = dynamic_cast<Label *>(components[i].get()); label && label->visible)
+        {
             graphics.renderComponent(*label, window.get());
         }
 
@@ -122,12 +129,12 @@ void Node::update(float deltaTime)
         globalTransform.position = transform.position;
     }
 
-    for (const auto & component : components)
+    for (const auto &component : components)
     {
         component->update(deltaTime);
     }
 
-    for (const auto & i : children)
+    for (const auto &i : children)
     {
         i->update(deltaTime);
     }
@@ -135,12 +142,12 @@ void Node::update(float deltaTime)
 
 void Node::exit() const
 {
-    for (auto & i : children)
+    for (auto &i : children)
     {
         i->exit();
     }
 
-    for (const auto & component : components)
+    for (const auto &component : components)
     {
         component->exit();
     }
@@ -148,12 +155,12 @@ void Node::exit() const
 
 void Node::physicsUpdate() const
 {
-    for (const auto & component : components)
+    for (const auto &component : components)
     {
         component->physicsUpdate();
     }
 
-    for (const auto & i : children)
+    for (const auto &i : children)
     {
         i->physicsUpdate();
     }
@@ -171,25 +178,25 @@ void Node::initialize()
         globalTransform.position = transform.position;
     }
 
-    for (const auto & i : children)
+    for (const auto &i : children)
     {
         i->initialize();
     }
 
-    for (const auto & component : components)
+    for (const auto &component : components)
     {
         component->initialize();
     }
 }
 
-void Node::input(InputEvent& event) const
+void Node::input(InputEvent &event)
 {
-    for (const auto & i : children)
+    for (const auto &i : children)
     {
         i->input(event);
     }
 
-    for (const auto & component : components)
+    for (const auto &component : components)
     {
         component->input(event);
     }
@@ -197,7 +204,7 @@ void Node::input(InputEvent& event) const
 
 std::shared_ptr<Node> Node::getChild(std::string name)
 {
-    for (auto & i : children)
+    for (auto &i : children)
     {
         if (i->name == name)
         {
@@ -225,18 +232,24 @@ std::shared_ptr<Component> Node::getComponentByIndex(const int index)
     return components[index];
 }
 
-Node *Node::getOwner() {
-    if(parent) {
+Node *Node::getOwner()
+{
+    if (parent)
+    {
         return parent->getOwner();
     }
 
     return this;
 }
 
-std::shared_ptr<Window> Node::getWindow() {
-    if(window) {
+std::shared_ptr<Window> Node::getWindow()
+{
+    if (window)
+    {
         return window;
-    } else if (parent) {
+    }
+    else if (parent)
+    {
         Node *root = getOwner();
         return root->getWindow();
     }
@@ -244,7 +257,9 @@ std::shared_ptr<Window> Node::getWindow() {
     return nullptr;
 }
 
-void Node::setWindow(std::shared_ptr<Window> win) {
-    if(!win) return;
+void Node::setWindow(std::shared_ptr<Window> win)
+{
+    if (!win)
+        return;
     this->window = win;
 }

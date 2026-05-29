@@ -101,7 +101,9 @@ void Physics::physicsUpdate(const float timeStep)
         if (!wasHovered && isHovered)
             body->mouseEntered.fire();
         if (wasHovered && !isHovered)
+        {
             body->mouseExited.fire();
+        }
     }
 
     this->lastHovered = this->currentHovered;
