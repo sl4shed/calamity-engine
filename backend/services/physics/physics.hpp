@@ -31,7 +31,7 @@ inline bool operator==(const b2ShapeId &a, const b2ShapeId &b) noexcept
 
 /**
  * # PhysicsBody
- * The base PhysicsBody class defines the shape, functions and signals that are the base of every physics body.
+ * The base PhysicsBody class defines the Shape, functions and signals that are the base of every physics body.
  *
  * # Properties and usages
  * You can connect callbacks onto the collision signals of the physics body:

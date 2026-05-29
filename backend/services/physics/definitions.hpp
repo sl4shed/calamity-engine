@@ -34,6 +34,13 @@ public:
  * shape->origin = {0.5f, 0.5f}; // The origin of the shape. This is disabled for PolygonShape.
  * shape->applyMaterial(myMaterial); // This is the main method of applying materials to shapes.
  * ```
+ *
+ * You can also set a shape to be a sensor, which means that it will not cause physical collisions but will still trigger collision events and mouse hover events:
+ * ```cpp
+ * shape->setSensor(true);
+ * ```
+ *
+ * For more insight regarding sensors, the [button example](https://calamity.sl4shed.xyz/example-button) utilizes sensors for its buttons!
  */
 class Shape
 {
@@ -231,6 +238,20 @@ public:
     void load(Archive &ar)
     {
         ar(CEREAL_NVP(origin), CEREAL_NVP(shape), CEREAL_NVP(visible), CEREAL_NVP(screenSpace), CEREAL_NVP(modulate));
+    }
+};
+
+class Raycast
+{
+public:
+    float angle;
+    Vector2 position;
+    float length;
+
+    template <class Archive>
+    void serialize(Archive &ar)
+    {
+        ar(CEREAL_NVP(angle), CEREAL_NVP(position), CEREAL_NVP(length));
     }
 };
 
