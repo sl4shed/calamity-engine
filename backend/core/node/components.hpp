@@ -24,6 +24,7 @@ struct Component
     virtual void initialize() {};
     virtual void physicsUpdate() {};
     virtual void input(InputEvent &event) {};
+    virtual void postLoad() {};
     virtual void exit() {};
 
     Node *getNode() const;
@@ -96,6 +97,7 @@ public:
     Sprite();
     explicit Sprite(const std::string &texturePath, std::shared_ptr<Window> window, TextureScaling scaling = TextureScaling::NEAREST);
 
+    void postLoad() override;
     void initialize() override;
 
     Vector2 origin = {0.5f, 0.5f};
@@ -119,8 +121,6 @@ public:
     template <class Archive>
     void load(Archive &ar)
     {
-        printf("Loading sprite component!!!!!!\n");
-
         ar(CEREAL_NVP(origin), CEREAL_NVP(sourceRect), CEREAL_NVP(visible), CEREAL_NVP(texture), CEREAL_NVP(screenSpace), CEREAL_NVP(modulate), CEREAL_NVP(flipH), CEREAL_NVP(flipV));
     }
 };

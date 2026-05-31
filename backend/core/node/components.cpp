@@ -8,12 +8,12 @@
 #include "node.hpp"
 #include <cereal/archives/json.hpp>
 
-Node* Component::getNode() const
+Node *Component::getNode() const
 {
     return this->node;
 }
 
-void Component::setNode(Node* n)
+void Component::setNode(Node *n)
 {
     // for now its just this, but I can add checks later to only run this once or maybe i should find a better solution idk
     this->node = n;
@@ -33,20 +33,21 @@ void Camera::initialize()
     }
 }
 
-void Camera::update(float deltaTime) {
+void Camera::update(float deltaTime)
+{
     const Vector2 target = getNode()->globalTransform.position;
-    
+
     if (smoothing <= 0.0f)
     {
         globalPos = target;
         return;
     }
-    
+
     const float t = 1.0f - std::exp(-deltaTime / smoothing);
     globalPos = globalPos + (target - globalPos) * t;
 }
 
-Transform Camera::getCameraTransform() const 
+Transform Camera::getCameraTransform() const
 {
     Transform t = getNode()->globalTransform;
     t.position = globalPos;
@@ -71,7 +72,7 @@ Vector2 Camera::screenToWorld(const Vector2 screen) const
 // sprite
 
 Sprite::Sprite() = default;
-Sprite::Sprite(const std::string& texturePath, std::shared_ptr<Window> window, TextureScaling scaling)
+Sprite::Sprite(const std::string &texturePath, std::shared_ptr<Window> window, TextureScaling scaling)
 {
     texture = Texture(texturePath, window, scaling);
 }
@@ -84,18 +85,26 @@ void Sprite::initialize()
     }
 }
 
+void Sprite::postLoad()
+{
+    Logger::debug("adsladsflkadfskjladfskljadfs");
+    texture.setWindow(getNode()->getWindow());
+    texture.initialize();
+}
+
 // animated sprite
 
-const Texture* AnimatedSprite::getCurrentTexture() const
+const Texture *AnimatedSprite::getCurrentTexture() const
 {
-    if (currentTexture.handle == nullptr) return nullptr;
+    if (currentTexture.handle == nullptr)
+        return nullptr;
     return &currentTexture;
 }
 
 void AnimatedSprite::initialize()
 {
     int counter = 0;
-    for (auto & [name, anim] : animations)
+    for (auto &[name, anim] : animations)
     {
         if (anim.autoplay)
         {
@@ -111,17 +120,17 @@ void AnimatedSprite::initialize()
     }
 }
 
-void AnimatedSprite::addAnimation(const Animation& animation)
+void AnimatedSprite::addAnimation(const Animation &animation)
 {
     animations.insert(std::make_pair(animation.name, animation));
 }
 
-void AnimatedSprite::removeAnimation(const std::string& name)
+void AnimatedSprite::removeAnimation(const std::string &name)
 {
     animations.erase(name);
 }
 
-void AnimatedSprite::play(const std::string& animation)
+void AnimatedSprite::play(const std::string &animation)
 {
     if (currentAnimation && currentAnimation->name == animation)
     {
@@ -162,33 +171,38 @@ void AnimatedSprite::stop()
     currentAnimation = nullptr;
 }
 
-Frame* AnimatedSprite::getCurrentFrame() const
+Frame *AnimatedSprite::getCurrentFrame() const
 {
-    if (!currentAnimation || currentAnimation->frames.empty()) return nullptr;
+    if (!currentAnimation || currentAnimation->frames.empty())
+        return nullptr;
     return &currentAnimation->frames[frame];
 }
 
 Vector2 AnimatedSprite::getCurrentSize() const
 {
-    if (!currentAnimation) return {0, 0};
+    if (!currentAnimation)
+        return {0, 0};
     return currentAnimation->size;
 }
 
 std::string AnimatedSprite::getCurrentAnimationName() const
 {
-    if(!currentAnimation) return "";
+    if (!currentAnimation)
+        return "";
     return currentAnimation->name;
 }
 
 Animation *AnimatedSprite::getCurrentAnimation() const
 {
-    if(!currentAnimation) return nullptr;
+    if (!currentAnimation)
+        return nullptr;
     return currentAnimation.get();
 }
 
 void AnimatedSprite::update(float deltaTime)
 {
-    if (!playing || !currentAnimation) return;
+    if (!playing || !currentAnimation)
+        return;
 
     elapsed += deltaTime;
 
@@ -219,7 +233,7 @@ bool AnimatedSprite::isPlaying() const
 
 // Tilemap
 
-Tilemap::Tilemap(const std::string& texturePath, Vector2 tileSize, std::shared_ptr<Window> window, TextureScaling scaling)
+Tilemap::Tilemap(const std::string &texturePath, Vector2 tileSize, std::shared_ptr<Window> window, TextureScaling scaling)
 {
     this->texture = Texture(texturePath, window, scaling);
     this->tileSize = tileSize;
@@ -233,7 +247,7 @@ void Tilemap::bake()
     const auto atlasW = static_cast<float>(texture.textureWidth);
     const auto atlasH = static_cast<float>(texture.textureHeight);
 
-    for (const auto& tile : tiles)
+    for (const auto &tile : tiles)
     {
         const float x = tile.gridPosition.x * tileSize.x;
         const float y = tile.gridPosition.y * tileSize.y;
@@ -247,11 +261,12 @@ void Tilemap::bake()
 
         const int base = static_cast<int>(vertexBuffer.size());
         vertexBuffer.push_back({{x, y}, color, {u0, v0}});
-        vertexBuffer.push_back({{x + tileSize.x, y }, color, {u1, v0}});
+        vertexBuffer.push_back({{x + tileSize.x, y}, color, {u1, v0}});
         vertexBuffer.push_back({{x + tileSize.x, y + tileSize.y}, color, {u1, v1}});
         vertexBuffer.push_back({{x, y + tileSize.y}, color, {u0, v1}});
 
-        for (const int i : {0, 1, 2, 2, 3, 0}) indexBuffer.push_back(base + i);
+        for (const int i : {0, 1, 2, 2, 3, 0})
+            indexBuffer.push_back(base + i);
     }
 
     dirty = false;
@@ -259,10 +274,11 @@ void Tilemap::bake()
 
 void Tilemap::update()
 {
-    if (dirty) bake();
+    if (dirty)
+        bake();
 }
 
-int Tilemap::addTile(const Tile& tile)
+int Tilemap::addTile(const Tile &tile)
 {
     tiles.push_back(tile);
     dirty = true;
@@ -271,7 +287,8 @@ int Tilemap::addTile(const Tile& tile)
 
 void Tilemap::removeTile(int index)
 {
-    if (index < 0 || index >= static_cast<int>(tiles.size())) return;
+    if (index < 0 || index >= static_cast<int>(tiles.size()))
+        return;
     tiles.erase(tiles.begin() + index);
     dirty = true;
 }

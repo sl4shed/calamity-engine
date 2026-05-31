@@ -42,6 +42,8 @@ SDL_Texture *Graphics::loadTexture(const std::string &path, Window *window, Text
         Logger::error("Failed to load image {}: {}", path, SDL_GetError());
         return nullptr;
     }
+
+    Logger::debug("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
     SDL_Texture *tex = SDL_CreateTextureFromSurface(window->renderer, pixels);
     if (!tex)
     {
@@ -85,7 +87,7 @@ void Graphics::renderComponent(const Sprite &sprite, Window *window) const
     for (auto &vertice : vertices)
     {
         Vector2 pos = {vertice.position.x, vertice.position.y};
-        //Logger::debug("x: {}, y: {}", node->globalTransform.position.x, node->globalTransform.position.y);
+        // Logger::debug("x: {}, y: {}", node->globalTransform.position.x, node->globalTransform.position.y);
         pos = node->globalTransform.applyTo(pos);
 
         // translate to camera space or wtv

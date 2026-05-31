@@ -73,6 +73,7 @@ public:
 	virtual void update(float deltaTime);
 	virtual void physicsUpdate() const; // runs locked at 60fps
 	virtual void initialize();
+	virtual void postLoad();
 	virtual void input(InputEvent &event);
 	virtual void exit() const;
 
@@ -100,6 +101,8 @@ public:
 			child->parent = this;
 			child->setWindow(getWindow());
 		}
+
+		// postLoad();
 	}
 
 private:

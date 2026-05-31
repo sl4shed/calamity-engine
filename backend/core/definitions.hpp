@@ -183,21 +183,25 @@ public:
     template <class Archive>
     void load(Archive &ar)
     {
-        ar(CEREAL_NVP(path), CEREAL_NVP(scaling), CEREAL_NVP(window));
-        std::cout << "LOADING TEXTURE: " << path << std::endl;
-        this->initialize();
-        ar(CEREAL_NVP(width), CEREAL_NVP(height));
+        ar(CEREAL_NVP(path), CEREAL_NVP(scaling), CEREAL_NVP(width), CEREAL_NVP(height), CEREAL_NVP(textureWidth), CEREAL_NVP(textureHeight));
+        std::cout << "LOADING TEXTURE: " << path << std::endl
+                  << "X: " << width << ", Y: " << height << std::endl
+                  << "Texture X: " << textureWidth << ", Texture Y: " << textureHeight << std::endl;
     }
 
     template <class Archive>
     void save(Archive &ar) const
     {
-        ar(CEREAL_NVP(path), CEREAL_NVP(scaling), CEREAL_NVP(window));
+        ar(CEREAL_NVP(path), CEREAL_NVP(scaling), CEREAL_NVP(width), CEREAL_NVP(height), CEREAL_NVP(textureWidth), CEREAL_NVP(textureHeight));
         std::cout << "SAVING TEXTURE: " << path << std::endl;
-
-        ar(CEREAL_NVP(width), CEREAL_NVP(height));
     }
     void initialize();
+
+    void setWindow(std::shared_ptr<Window> window)
+    {
+        Logger::debug("SET WINDOW SET WINDOW");
+        this->window = window;
+    }
 
     SDL_Texture *handle;
     int width;

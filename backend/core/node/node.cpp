@@ -202,6 +202,21 @@ void Node::input(InputEvent &event)
     }
 }
 
+void Node::postLoad()
+{
+    Logger::debug("POST LOAD POST LOAD NODE: {}", name);
+
+    for (const auto &i : children)
+    {
+        i->postLoad();
+    }
+
+    for (const auto &component : components)
+    {
+        component->postLoad();
+    }
+}
+
 std::shared_ptr<Node> Node::getChild(std::string name)
 {
     for (auto &i : children)
