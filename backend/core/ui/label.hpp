@@ -44,15 +44,16 @@
  */
 class Label : public Component {
 public:
-    Label(const std::string& text, Font *font);
+    Label(const std::string& text, std::shared_ptr<Font> font);
     Label(const std::string& text);
+    Label();
     ~Label();
 
     Vector2 size;
     Vector2 origin;
 
     void update(float dt);
-    Font* font;
+    std::shared_ptr<Font> font;
     bool visible = true;
     bool wrap = true; // text wrap. yes or no?
     bool screenSpace = false;
@@ -95,3 +96,6 @@ private:
     SDL_Texture *texture = nullptr;
     Vector2 prevSize;
 };
+
+CEREAL_REGISTER_TYPE(Label);
+CEREAL_REGISTER_POLYMORPHIC_RELATION(Component, Label);

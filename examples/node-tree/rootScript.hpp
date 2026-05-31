@@ -93,7 +93,7 @@ public:
 
             std::shared_ptr<ShapeSprite> shapeSprite = std::make_shared<ShapeSprite>(fallingShape);
             shapeSprite->modulate = Color::RED;
-            fallingNode->addComponent(shapeSprite);
+            //fallingNode->addComponent(shapeSprite);
 
             std::shared_ptr<Sprite> sprite = std::make_shared<Sprite>("res://assets/cat.png", window);
             sprite->texture.width = size.x;

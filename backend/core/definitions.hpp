@@ -3,6 +3,7 @@
 #include <vector>
 #include <string>
 #include <SDL3/SDL.h>
+#include "../utils/logger.hpp"
 #include <cereal/archives/json.hpp>
 #include <box2d/types.h>
 
@@ -183,6 +184,7 @@ public:
     void load(Archive &ar)
     {
         ar(CEREAL_NVP(path), CEREAL_NVP(scaling), CEREAL_NVP(window));
+        std::cout << "LOADING TEXTURE: " << path << std::endl;
         this->initialize();
         ar(CEREAL_NVP(width), CEREAL_NVP(height));
     }
@@ -190,7 +192,10 @@ public:
     template <class Archive>
     void save(Archive &ar) const
     {
-        ar(CEREAL_NVP(path), CEREAL_NVP(scaling), CEREAL_NVP(window), CEREAL_NVP(width), CEREAL_NVP(height));
+        ar(CEREAL_NVP(path), CEREAL_NVP(scaling), CEREAL_NVP(window));
+        std::cout << "SAVING TEXTURE: " << path << std::endl;
+
+        ar(CEREAL_NVP(width), CEREAL_NVP(height));
     }
     void initialize();
 

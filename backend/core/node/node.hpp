@@ -96,7 +96,10 @@ public:
 
 		// rewire child parent pointers
 		for (auto &child : children)
+		{
 			child->parent = this;
+			child->setWindow(getWindow());
+		}
 	}
 
 private:

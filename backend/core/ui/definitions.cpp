@@ -54,6 +54,15 @@ Color::Color(const std::string &hexCode, const int a) : Color(hexCode)
     this->a = a;
 }
 
+Font::Font() {
+    std::string p = File::getAbsoluteFilePath("res://calamity/default.ttf");
+    this->handle = TTF_OpenFont(p.c_str(), static_cast<float>(size));
+    if (!this->handle)
+        Logger::debug("Loading font {} failed: {}", path, SDL_GetError());
+
+    this->lineSpacing = TTF_GetFontLineSkip(handle);
+}
+
 Font::Font(const std::string &path)
 {
     std::string p = File::getAbsoluteFilePath(path);

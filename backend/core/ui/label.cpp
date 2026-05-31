@@ -56,7 +56,15 @@ Color Label::getColor() const
     return {r, g, b, a};
 }
 
-Label::Label(const std::string &text, Font *font)
+Label::Label() {
+    static auto dfont = std::shared_ptr<Font>(new Font("res://calamity/default.ttf"));
+    this->font = dfont;
+    this->text = "";
+
+    this->handle = TTF_CreateText(Services::graphics()->getTextEngine(), font->getHandle(), text.c_str(), text.size());
+}
+
+Label::Label(const std::string &text, std::shared_ptr<Font> font)
 {
     this->font = font;
     this->handle = TTF_CreateText(Services::graphics()->getTextEngine(), font->getHandle(), text.c_str(), text.size());
@@ -65,8 +73,8 @@ Label::Label(const std::string &text, Font *font)
 
 Label::Label(const std::string &text)
 {
-    static auto dfont = Font("res://calamity/default.ttf");
-    this->font = &dfont;
+    static auto dfont = std::shared_ptr<Font>(new Font("res://calamity/default.ttf"));
+    this->font = dfont;
 
     this->handle = TTF_CreateText(Services::graphics()->getTextEngine(), font->getHandle(), text.c_str(), text.size());
     this->text = text;

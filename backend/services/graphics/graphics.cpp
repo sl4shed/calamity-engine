@@ -85,6 +85,7 @@ void Graphics::renderComponent(const Sprite &sprite, Window *window) const
     for (auto &vertice : vertices)
     {
         Vector2 pos = {vertice.position.x, vertice.position.y};
+        //Logger::debug("x: {}, y: {}", node->globalTransform.position.x, node->globalTransform.position.y);
         pos = node->globalTransform.applyTo(pos);
 
         // translate to camera space or wtv

@@ -95,7 +95,9 @@ public:
     template <class Archive>
     void save(Archive &ar) const
     {
-        ar(cereal::base_class<Shape>(this), CEREAL_NVP(size), CEREAL_NVP(scaledPolygon), CEREAL_NVP(polygon));
+        ar(CEREAL_NVP(size), CEREAL_NVP(scaledPolygon), CEREAL_NVP(polygon));
+
+        ar(cereal::base_class<Shape>(this));
     }
 
     template <class Archive>
@@ -131,7 +133,8 @@ public:
     template <class Archive>
     void save(Archive &ar) const
     {
-        ar(cereal::base_class<Shape>(this), CEREAL_NVP(radius), CEREAL_NVP(circle));
+        ar(CEREAL_NVP(radius), CEREAL_NVP(circle));
+        ar(cereal::base_class<Shape>(this));
     }
 
     template <class Archive>
@@ -155,7 +158,8 @@ public:
     template <class Archive>
     void save(Archive &ar) const
     {
-        ar(cereal::base_class<Shape>(this), CEREAL_NVP(capsule), CEREAL_NVP(scaledCapsule));
+        ar(CEREAL_NVP(capsule), CEREAL_NVP(scaledCapsule));
+        ar(cereal::base_class<Shape>(this));
     }
 
     template <class Archive>
@@ -179,7 +183,8 @@ public:
     template <class Archive>
     void save(Archive &ar) const
     {
-        ar(cereal::base_class<Shape>(this), CEREAL_NVP(scaledPolygon), CEREAL_NVP(polygon));
+        ar(CEREAL_NVP(scaledPolygon), CEREAL_NVP(polygon));
+        ar(cereal::base_class<Shape>(this));
     }
 
     template <class Archive>
@@ -244,14 +249,14 @@ public:
 class Raycast
 {
 public:
-    float angle;
-    Vector2 position;
-    float length;
+    Transform transform;
+
+    //PhysicsBody *cast();
 
     template <class Archive>
     void serialize(Archive &ar)
     {
-        ar(CEREAL_NVP(angle), CEREAL_NVP(position), CEREAL_NVP(length));
+        ar(CEREAL_NVP(transform));
     }
 };
 

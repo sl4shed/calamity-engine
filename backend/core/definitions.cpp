@@ -3,6 +3,7 @@
 #include <SDL3/SDL.h>
 #include "../services/graphics/graphics.hpp"
 #include "../services/graphics/definitions.hpp"
+#include "../utils/logger.hpp"
 #include "../services/services.hpp"
 #include "../utils/file.hpp"
 #include <cereal/archives/json.hpp>
@@ -214,6 +215,7 @@ Texture::Texture(const std::string& _path, std::shared_ptr<Window> window, Textu
 
 void Texture::initialize()
 {
+    Logger::debug("INITIALIZING TEXTURE: {}", path);
     this->handle = Services::graphics()->loadTexture(File::getAbsoluteFilePath(this->path), window.get(), this->scaling);
 
     this->width = handle->w;

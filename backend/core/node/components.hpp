@@ -119,6 +119,8 @@ public:
     template <class Archive>
     void load(Archive &ar)
     {
+        printf("Loading sprite component!!!!!!\n");
+
         ar(CEREAL_NVP(origin), CEREAL_NVP(sourceRect), CEREAL_NVP(visible), CEREAL_NVP(texture), CEREAL_NVP(screenSpace), CEREAL_NVP(modulate), CEREAL_NVP(flipH), CEREAL_NVP(flipV));
     }
 };

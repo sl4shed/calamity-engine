@@ -95,6 +95,10 @@ public:
     void load(Archive &ar)
     {
         ar(CEREAL_NVP(title), CEREAL_NVP(flags), CEREAL_NVP(presentation), CEREAL_NVP(dimensions), CEREAL_NVP(fullscreen), CEREAL_NVP(id), CEREAL_NVP(root));
+
+        for(auto& child : root->children) {
+            child->setWindow(shared_from_this());
+        }
     }
 private:
     Camera *activeCamera = nullptr;
