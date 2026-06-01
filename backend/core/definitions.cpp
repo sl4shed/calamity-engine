@@ -99,7 +99,8 @@ Matrix2 Matrix2::scale(const Vector2 s)
 
 constexpr float PI = 3.141592653;
 
-float Transform::degToRad(const float degrees) {
+float Transform::degToRad(const float degrees)
+{
     return degrees * (PI / 180.0);
 }
 
@@ -148,7 +149,8 @@ float Transform::getDegrees() const
     return getAngle() * (180.0f / PI);
 }
 
-void Transform::setAngle(const float angle) {
+void Transform::setAngle(const float angle)
+{
     const Vector2 currentScale = getScale();
     transformation = Matrix2::rotation(degToRad(angle)) * Matrix2::scale(currentScale);
 }
@@ -202,26 +204,30 @@ Transform Transform::inverse() const
     return result;
 }
 
-void Transform::lookAt(const Vector2 &point) {
+void Transform::lookAt(const Vector2 &point)
+{
     float angle = std::atan2(point.y - position.y, point.x - position.x);
     setAngleRadians(angle);
 }
 
 // texture
-Texture::Texture(const std::string& _path, std::shared_ptr<Window> window, TextureScaling _scaling) : handle(nullptr), window(window), width(0), height(0), textureWidth(0), textureHeight(0), path(_path), scaling(_scaling)
+Texture::Texture(const std::string &_path, std::shared_ptr<Window> window, TextureScaling _scaling) : handle(nullptr), window(window), width(0), height(0), textureWidth(0), textureHeight(0), path(_path), scaling(_scaling)
 {
     initialize();
 }
 
-void Texture::initialize()
+void Texture::initialize(bool set)
 {
     Logger::debug("INITIALIZING TEXTURE: {}", path);
     this->handle = Services::graphics()->loadTexture(File::getAbsoluteFilePath(this->path), window.get(), this->scaling);
 
-    this->width = handle->w;
-    this->height = handle->h;
-    this->textureWidth = handle->w;
-    this->textureHeight = handle->h;
+    if (set)
+    {
+        this->width = handle->w;
+        this->height = handle->h;
+        this->textureWidth = handle->w;
+        this->textureHeight = handle->h;
+    }
 }
 
 Texture::~Texture()
@@ -231,11 +237,13 @@ Texture::~Texture()
 
 // polygon
 
-Polygon::operator b2Polygon() const {
+Polygon::operator b2Polygon() const
+{
     b2Polygon polygon;
     polygon.centroid = centroid;
     polygon.count = count;
-    for (int i = 0; i < count; i++) {
+    for (int i = 0; i < count; i++)
+    {
         polygon.normals[i] = normals[i];
         polygon.vertices[i] = vertices[i];
     }
@@ -243,21 +251,25 @@ Polygon::operator b2Polygon() const {
     return polygon;
 }
 
-Polygon::Polygon(const b2Polygon &p) {
+Polygon::Polygon(const b2Polygon &p)
+{
     centroid = Vector2(p.centroid);
     count = p.count;
     radius = p.radius;
-    for (int i = 0; i < count; i++) {
+    for (int i = 0; i < count; i++)
+    {
         normals[i] = Vector2(p.normals[i]);
         vertices[i] = Vector2(p.vertices[i]);
     }
 }
 
-Polygon::Polygon() {
+Polygon::Polygon()
+{
     centroid = {0, 0};
     count = 0;
     radius = 0;
-    for (int i = 0; i < B2_MAX_POLYGON_VERTICES; i++) {
+    for (int i = 0; i < B2_MAX_POLYGON_VERTICES; i++)
+    {
         normals[i] = {0, 0};
         vertices[i] = {0, 0};
     }

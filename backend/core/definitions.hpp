@@ -195,7 +195,7 @@ public:
         ar(CEREAL_NVP(path), CEREAL_NVP(scaling), CEREAL_NVP(width), CEREAL_NVP(height), CEREAL_NVP(textureWidth), CEREAL_NVP(textureHeight));
         std::cout << "SAVING TEXTURE: " << path << std::endl;
     }
-    void initialize();
+    void initialize(bool set = true);
 
     void setWindow(std::shared_ptr<Window> window)
     {

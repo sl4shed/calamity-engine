@@ -43,7 +43,6 @@ SDL_Texture *Graphics::loadTexture(const std::string &path, Window *window, Text
         return nullptr;
     }
 
-    Logger::debug("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
     SDL_Texture *tex = SDL_CreateTextureFromSurface(window->renderer, pixels);
     if (!tex)
     {

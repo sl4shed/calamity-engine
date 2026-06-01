@@ -87,9 +87,8 @@ void Sprite::initialize()
 
 void Sprite::postLoad()
 {
-    Logger::debug("adsladsflkadfskjladfskljadfs");
     texture.setWindow(getNode()->getWindow());
-    texture.initialize();
+    texture.initialize(false);
 }
 
 // animated sprite
