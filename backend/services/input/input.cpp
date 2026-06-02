@@ -9,6 +9,7 @@
 #include <SDL3/SDL_video.h>
 #include <vector>
 #include <algorithm>
+#include <optional>
 
 #if TRACY_ENABLE
 #include <tracy/Tracy.hpp>
@@ -269,18 +270,18 @@ bool Input::isControllerButtonPressed(const int device, ControllerButton button)
     return SDL_GetGamepadButton(SDL_GetGamepadFromID(device), static_cast<SDL_GamepadButton>(button));
 }
 
-Vector2 Input::getMousePosition() const
+std::optional<Vector2> Input::getMousePosition() const
 {
     float wx, wy;
     SDL_GetMouseState(&wx, &wy);
 
-    SDL_Window *focused = SDL_GetMouseFocus();
+    SDL_Window* focused = SDL_GetMouseFocus();
     if (!focused)
-        return {0, 0};
+        return std::nullopt;
 
-    std::shared_ptr<Window> window = Services::engine()->getWindow(SDL_GetWindowID(focused));
+    auto window = Services::engine()->getWindow(SDL_GetWindowID(focused));
     if (!window)
-        return {0, 0};
+        return std::nullopt;
 
     float lx, ly;
     SDL_RenderCoordinatesFromWindow(window->renderer, wx, wy, &lx, &ly);

@@ -80,7 +80,6 @@ public:
 	template <class Archive>
 	void save(Archive &ar) const
 	{
-		// ar(name, transform, children, components, parent, currentSprite);
 		ar(CEREAL_NVP(name), CEREAL_NVP(transform), CEREAL_NVP(components), CEREAL_NVP(children));
 	}
 
@@ -102,7 +101,8 @@ public:
 			child->setWindow(getWindow());
 		}
 
-		// postLoad();
+		// calling postload here won't work. postLoad is reserved specifically after deserialization of the entire node tree.
+		// it is called by whatever the fuck loads whatever the fuck.
 	}
 
 private:

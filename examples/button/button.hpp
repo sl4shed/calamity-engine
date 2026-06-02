@@ -48,7 +48,7 @@ public:
         auto shapeSprite = std::make_shared<ShapeSprite>(shape);
         shapeSprite->modulate = Color(255, 255, 255);
 
-        Font *font = new Font("res://calamity/default.ttf");
+        auto font = std::make_shared<Font>("res://calamity/default.ttf");
         font->setAlignment(FontAlignment::CENTER);
         font->setSize(14);
 

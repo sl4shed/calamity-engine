@@ -2,6 +2,7 @@
 #include <cereal/types/polymorphic.hpp>
 
 #include "../../core/definitions.hpp"
+#include "../../utils/logger.hpp"
 #include "../../core/node/components.hpp"
 
 /**
@@ -53,6 +54,7 @@ public:
 
     Shape *setSensor(bool sensor)
     {
+        Logger::debug("Setting sensor to {}", sensor);
         shapeDef.isSensor = sensor;
         shapeDef.enableSensorEvents = sensor;
         isSensor = sensor;
@@ -69,6 +71,10 @@ public:
     void load(Archive &ar)
     {
         ar(CEREAL_NVP(material), CEREAL_NVP(origin), CEREAL_NVP(isSensor));
+    }
+
+protected:
+    void postLoad() {
         if (isSensor)
         {
             setSensor(true);
@@ -76,9 +82,8 @@ public:
 
         applyMaterial(material);
     }
-
 private:
-    bool isSensor;
+    bool isSensor = false;
     Material material;
 };
 
@@ -95,15 +100,13 @@ public:
     template <class Archive>
     void save(Archive &ar) const
     {
-        ar(CEREAL_NVP(size), CEREAL_NVP(scaledPolygon), CEREAL_NVP(polygon));
-
-        ar(cereal::base_class<Shape>(this));
+        ar(cereal::base_class<Shape>(this), CEREAL_NVP(size), CEREAL_NVP(scaledPolygon), CEREAL_NVP(polygon));
     }
 
     template <class Archive>
     void load(Archive &ar)
     {
-        ar(CEREAL_NVP(size), CEREAL_NVP(scaledPolygon), CEREAL_NVP(polygon));
+        ar(cereal::base_class<Shape>(this), CEREAL_NVP(size), CEREAL_NVP(scaledPolygon), CEREAL_NVP(polygon));
 
         // just reconstruct everything from size and center like the constructor does
         Vector2 calculatedCenter = (origin - Vector2{0.5f, 0.5f}) * size;
@@ -116,7 +119,44 @@ public:
         this->scaledPolygon = static_cast<Polygon>(poly);
         this->shapeDef = b2DefaultShapeDef();
 
-        ar(cereal::base_class<Shape>(this));
+        postLoad();
+    }
+};
+
+class RoundedBoxShape : public Shape
+{
+public:
+    RoundedBoxShape() = default;
+    RoundedBoxShape(Vector2 size, float radius, Vector2 origin = {0.5f, 0.5f});
+    Vector2 size;
+    float radius;
+
+    Polygon scaledPolygon;
+    Polygon polygon;
+
+    template <class Archive>
+    void save(Archive &ar) const
+    {
+        ar(cereal::base_class<Shape>(this), CEREAL_NVP(size), CEREAL_NVP(radius), CEREAL_NVP(scaledPolygon), CEREAL_NVP(polygon));
+    }
+
+    template <class Archive>
+    void load(Archive &ar)
+    {
+        ar(cereal::base_class<Shape>(this), CEREAL_NVP(size), CEREAL_NVP(radius), CEREAL_NVP(scaledPolygon), CEREAL_NVP(polygon));
+
+        // just reconstruct everything from size and center like the constructor does
+        Vector2 calculatedCenter = (origin - Vector2{0.5f, 0.5f}) * size;
+        b2Rot rotation = {cos(0.0f), sin(0.0f)};
+
+        b2Polygon poly = b2MakeOffsetRoundedBox(size.x / 2 * PhysicsConstants::scale, size.y / 2 * PhysicsConstants::scale, (calculatedCenter * PhysicsConstants::scale), rotation, radius);
+        b2Polygon polyUnscaled = b2MakeOffsetRoundedBox(size.x / 2, size.y / 2, calculatedCenter, rotation, radius);
+
+        this->polygon = static_cast<Polygon>(polyUnscaled);
+        this->scaledPolygon = static_cast<Polygon>(poly);
+        this->shapeDef = b2DefaultShapeDef();
+
+        postLoad();
     }
 };
 
@@ -133,16 +173,15 @@ public:
     template <class Archive>
     void save(Archive &ar) const
     {
-        ar(CEREAL_NVP(radius), CEREAL_NVP(circle));
-        ar(cereal::base_class<Shape>(this));
+        ar(cereal::base_class<Shape>(this), CEREAL_NVP(radius), CEREAL_NVP(circle));
     }
 
     template <class Archive>
     void load(Archive &ar)
     {
-        ar(CEREAL_NVP(radius), CEREAL_NVP(circle));
+        ar(cereal::base_class<Shape>(this), CEREAL_NVP(radius), CEREAL_NVP(circle));
         this->shapeDef = b2DefaultShapeDef();
-        ar(cereal::base_class<Shape>(this));
+        postLoad();
     }
 };
 
@@ -158,16 +197,15 @@ public:
     template <class Archive>
     void save(Archive &ar) const
     {
-        ar(CEREAL_NVP(capsule), CEREAL_NVP(scaledCapsule));
-        ar(cereal::base_class<Shape>(this));
+        ar(cereal::base_class<Shape>(this), CEREAL_NVP(capsule), CEREAL_NVP(scaledCapsule));
     }
 
     template <class Archive>
     void load(Archive &ar)
     {
-        ar(CEREAL_NVP(capsule), CEREAL_NVP(scaledCapsule));
+        ar(cereal::base_class<Shape>(this), CEREAL_NVP(capsule), CEREAL_NVP(scaledCapsule));
         this->shapeDef = b2DefaultShapeDef();
-        ar(cereal::base_class<Shape>(this));
+        postLoad();
     }
 };
 
@@ -183,16 +221,15 @@ public:
     template <class Archive>
     void save(Archive &ar) const
     {
-        ar(CEREAL_NVP(scaledPolygon), CEREAL_NVP(polygon));
-        ar(cereal::base_class<Shape>(this));
+        ar(cereal::base_class<Shape>(this), CEREAL_NVP(scaledPolygon), CEREAL_NVP(polygon));
     }
 
     template <class Archive>
     void load(Archive &ar)
     {
-        ar(CEREAL_NVP(scaledPolygon), CEREAL_NVP(polygon));
+        ar(cereal::base_class<Shape>(this), CEREAL_NVP(scaledPolygon), CEREAL_NVP(polygon));
         this->shapeDef = b2DefaultShapeDef();
-        ar(cereal::base_class<Shape>(this));
+        postLoad();
     }
 };
 
@@ -265,3 +302,15 @@ CEREAL_REGISTER_POLYMORPHIC_RELATION(Component, ShapeSprite)
 
 CEREAL_REGISTER_TYPE(BoxShape);
 CEREAL_REGISTER_POLYMORPHIC_RELATION(Shape, BoxShape);
+
+CEREAL_REGISTER_TYPE(CircleShape);
+CEREAL_REGISTER_POLYMORPHIC_RELATION(Shape, CircleShape);
+
+CEREAL_REGISTER_TYPE(CapsuleShape);
+CEREAL_REGISTER_POLYMORPHIC_RELATION(Shape, CapsuleShape);
+
+CEREAL_REGISTER_TYPE(PolygonShape);
+CEREAL_REGISTER_POLYMORPHIC_RELATION(Shape, PolygonShape);
+
+CEREAL_REGISTER_TYPE(RoundedBoxShape);
+CEREAL_REGISTER_POLYMORPHIC_RELATION(Shape, RoundedBoxShape);

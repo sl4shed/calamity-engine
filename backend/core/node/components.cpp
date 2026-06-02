@@ -100,6 +100,15 @@ const Texture *AnimatedSprite::getCurrentTexture() const
     return &currentTexture;
 }
 
+void AnimatedSprite::postLoad()
+{
+    window = getNode()->getWindow();
+
+    // reconstruct runtime state
+    if (!saveCurrentAnimName.empty())
+        play(saveCurrentAnimName);
+}
+
 void AnimatedSprite::initialize()
 {
     int counter = 0;

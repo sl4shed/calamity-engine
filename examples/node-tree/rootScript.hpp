@@ -78,7 +78,9 @@ public:
     void update(float dt) {
         if(Services::input()->isActionJustPressed("add")) {
             std::shared_ptr<Node> fallingNode = std::make_shared<Node>("fallingNode");
-            fallingNode->transform.position = Services::input()->getMousePosition();
+            auto mousePos = Services::input()->getMousePosition();
+            if (!mousePos.has_value()) return;
+            fallingNode->transform.position = mousePos.value();
             fallingNode->transform.setAngle(rand() % 100 / 100.0f - 0.5f); // random angle between -0.5 and 0.5 radians
             Vector2 size = Vector2{(float)(rand() % 75 + 25), (float)(rand() % 75 + 25)};
             auto fallingShape = std::make_shared<BoxShape>(size);
@@ -93,7 +95,7 @@ public:
 
             std::shared_ptr<ShapeSprite> shapeSprite = std::make_shared<ShapeSprite>(fallingShape);
             shapeSprite->modulate = Color::RED;
-            //fallingNode->addComponent(shapeSprite);
+            fallingNode->addComponent(shapeSprite);
 
             std::shared_ptr<Sprite> sprite = std::make_shared<Sprite>("res://assets/cat.png", window);
             sprite->texture.width = size.x;

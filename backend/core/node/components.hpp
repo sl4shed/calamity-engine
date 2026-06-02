@@ -230,7 +230,7 @@ public:
     template <class Archive>
     void save(Archive &ar) const
     {
-        std::string currentAnimName = currentAnimation ? currentAnimation->name : "";
+        std::string currentAnimName = currentAnimation ? currentAnimation->name : std::string("");
         ar(CEREAL_NVP(animations), CEREAL_NVP(visible), CEREAL_NVP(screenSpace),
            CEREAL_NVP(frame), CEREAL_NVP(playing), currentAnimName);
     }
@@ -241,16 +241,17 @@ public:
         std::string currentAnimName;
         ar(CEREAL_NVP(animations), CEREAL_NVP(visible), CEREAL_NVP(screenSpace),
            CEREAL_NVP(frame), CEREAL_NVP(playing), currentAnimName);
-
-        // reconstruct runtime state
-        if (!currentAnimName.empty())
-            play(currentAnimName);
+        
+        saveCurrentAnimName = currentAnimName;
     }
 
+    void postLoad();
 private:
     float elapsed = 0.0f;
     int frame = 0;
     std::unique_ptr<Animation> currentAnimation = nullptr;
+    
+    std::string saveCurrentAnimName;
     Texture currentTexture;
     bool playing = false;
     std::shared_ptr<Window> window = nullptr;

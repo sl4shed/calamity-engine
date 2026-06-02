@@ -2,6 +2,7 @@
 #include <cmath>
 #include "../core/node/node.hpp"
 #include "../core/definitions.hpp"
+#include "../services/physics/definitions.hpp"
 
 std::vector<SDL_Vertex> circleFan(Vector2 position, float radius, Color color, int numSides)
 {
@@ -59,6 +60,19 @@ void drawCapsule(Vector2 center1, Vector2 center2, float radius, Color modulate,
     SDL_RenderGeometry(window->renderer, nullptr, verts, 4, indices, 6);
     drawCircle(center1, radius, modulate, window);
     drawCircle(center2, radius, modulate, window);
+}
+
+void drawPolygon(std::vector<SDL_Vertex> vertices, int count, Color modulate, Window *window) {
+    // fan triangulation from vertex 0
+    std::vector<int> indices;
+    for (int i = 1; i < count - 1; i++)
+    {
+        indices.push_back(0);
+        indices.push_back(i);
+        indices.push_back(i + 1);
+    }
+
+    SDL_RenderGeometry(window->renderer, nullptr, vertices.data(), count, indices.data(), static_cast<int>(indices.size()));
 }
 
 Vector2 toScreen(Vector2 point, Transform cameraTransform, Transform cameraInverse, Vector2 originOffset, bool screenSpace)

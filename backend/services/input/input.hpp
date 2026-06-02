@@ -3,6 +3,7 @@
 #include "../../core/definitions.hpp"
 #include "keycode.hpp"
 #include <map>
+#include <optional>
 // enums //
 
 enum class ControllerButton {
@@ -260,7 +261,7 @@ public:
     bool isControllerButtonPressed(int device, ControllerButton button) const;
     bool isKeyLabelPressed(const char * label) const;
     bool isMouseButtonPressed(MouseButton button) const;
-    Vector2 getMousePosition() const;
+    std::optional<Vector2> getMousePosition() const;
 
     // controllers //
     float getControllerAxis(int device, ControllerAxis axis) const;

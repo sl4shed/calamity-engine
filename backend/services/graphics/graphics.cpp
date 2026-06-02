@@ -117,6 +117,104 @@ void Graphics::renderComponent(const Sprite &sprite, Window *window) const
     SDL_RenderGeometry(window->renderer, sprite.texture.handle, vertices, 4, indices, 6);
 }
 
+// void Graphics::renderComponent(const ShapeSprite &sprite, Window *window) const
+// {
+// #if TRACY_ENABLE
+//     ZoneScoped;
+// #endif
+
+//     const Node *node = sprite.getNode();
+//     if (!node)
+//         return;
+
+//     const Camera *activeCamera = window->getActiveCamera();
+//     const Transform cameraTransform = activeCamera->getCameraTransform();
+//     const Vector2 screenSize = window->dimensions.size;
+//     const Vector2 originOffset = {screenSize.x * activeCamera->origin.x, screenSize.y * activeCamera->origin.y};
+//     const auto modulate = static_cast<SDL_FColor>(sprite.modulate);
+//     auto cameraInverse = cameraTransform.inverse();
+
+//     if (const auto *box = dynamic_cast<const BoxShape *>(sprite.shape.get()))
+//     {
+//         const Polygon &poly = box->polygon;
+
+//         if (poly.count < 3)
+//             return;
+
+//         std::vector<SDL_Vertex> vertices(poly.count);
+//         for (int i = 0; i < poly.count; i++)
+//         {
+//             Vector2 pos = poly.vertices[i];
+//             pos = node->globalTransform.applyTo(pos);
+//             pos = toScreen(pos, cameraTransform, cameraInverse, originOffset, sprite.screenSpace);
+
+//             vertices[i] = {{pos.x, pos.y}, modulate, {0, 0}};
+//         }
+
+//         drawPolygon(vertices, poly.count, sprite.modulate, window);
+//     }
+//     else if (const auto *circle = dynamic_cast<const CircleShape *>(sprite.shape.get()))
+//     {
+//         Vector2 pos = node->globalTransform.position;
+//         // apply the circle's center offset in local space first
+//         Vector2 centerOffset = {circle->circle.center.x, circle->circle.center.y};
+//         centerOffset = node->globalTransform.applyTo(centerOffset) - node->globalTransform.position;
+//         pos = pos + centerOffset;
+
+//         pos = toScreen(pos, cameraTransform, cameraInverse, originOffset, sprite.screenSpace);
+//         drawCircle(pos, circle->radius, sprite.modulate, window);
+//     }
+//     else if (const auto *capsule = dynamic_cast<const CapsuleShape *>(sprite.shape.get()))
+//     {
+//         Vector2 c1 = node->globalTransform.applyTo(capsule->capsule.center1);
+//         Vector2 c2 = node->globalTransform.applyTo(capsule->capsule.center2);
+
+//         c1 = toScreen(c1, cameraTransform, cameraInverse, originOffset, sprite.screenSpace);
+//         c2 = toScreen(c2, cameraTransform, cameraInverse, originOffset, sprite.screenSpace);
+//         float rad = capsule->capsule.radius;
+
+//         drawCapsule(c1, c2, rad, sprite.modulate, window);
+//     }
+//     else if (const auto *polygon = dynamic_cast<const PolygonShape *>(sprite.shape.get()))
+//     {
+//         const Polygon &poly = box->polygon;
+
+//         if (poly.count < 3)
+//             return;
+
+//         std::vector<SDL_Vertex> vertices(poly.count);
+//         for (int i = 0; i < poly.count; i++)
+//         {
+//             Vector2 pos = poly.vertices[i];
+//             pos = node->globalTransform.applyTo(pos);
+//             pos = toScreen(pos, cameraTransform, cameraInverse, originOffset, sprite.screenSpace);
+
+//             vertices[i] = {{pos.x, pos.y}, modulate, {0, 0}};
+//         }
+
+//         drawPolygon(vertices, poly.count, sprite.modulate, window);
+//     }
+//     else if (const auto *roundedBox = dynamic_cast<const RoundedBoxShape *>(sprite.shape.get()))
+//     {
+//         const Polygon &poly = roundedBox->polygon;
+
+//         if (poly.count < 3)
+//             return;
+
+//         std::vector<SDL_Vertex> vertices(poly.count);
+//         for (int i = 0; i < poly.count; i++)
+//         {
+//             Vector2 pos = poly.vertices[i];
+//             pos = node->globalTransform.applyTo(pos);
+//             pos = toScreen(pos, cameraTransform, cameraInverse, originOffset, sprite.screenSpace);
+
+//             vertices[i] = {{pos.x, pos.y}, modulate, {0, 0}};
+//         }
+
+//         drawPolygon(vertices, poly.count, sprite.modulate, window);
+//     }
+// }
+
 void Graphics::renderComponent(const ShapeSprite &sprite, Window *window) const
 {
 #if TRACY_ENABLE
@@ -124,8 +222,7 @@ void Graphics::renderComponent(const ShapeSprite &sprite, Window *window) const
 #endif
 
     const Node *node = sprite.getNode();
-    if (!node)
-        return;
+    if (!node) return;
 
     const Camera *activeCamera = window->getActiveCamera();
     const Transform cameraTransform = activeCamera->getCameraTransform();
@@ -134,36 +231,35 @@ void Graphics::renderComponent(const ShapeSprite &sprite, Window *window) const
     const auto modulate = static_cast<SDL_FColor>(sprite.modulate);
     auto cameraInverse = cameraTransform.inverse();
 
-    if (const auto *box = dynamic_cast<const BoxShape *>(sprite.shape.get()))
-    {
-        const Polygon &poly = box->polygon;
-        const int count = poly.count;
-        if (count < 3)
-            return;
+    // transform to screen space more efficiently
+    auto toScreenSpace = [&](const Vector2& point) {
+        return toScreen(node->globalTransform.applyTo(point), cameraTransform, cameraInverse, originOffset, sprite.screenSpace);
+    };
 
-        std::vector<SDL_Vertex> vertices(count);
-        for (int i = 0; i < count; i++)
-        {
-            Vector2 pos = poly.vertices[i];
-            pos = node->globalTransform.applyTo(pos);
-            pos = toScreen(pos, cameraTransform, cameraInverse, originOffset, sprite.screenSpace);
-
+    // shorthand
+    auto renderPolygon = [&](const Polygon& poly) {
+        if (poly.count < 3) return;
+        
+        std::vector<SDL_Vertex> vertices(poly.count);
+        for (int i = 0; i < poly.count; i++) {
+            Vector2 pos = toScreenSpace(poly.vertices[i]);
             vertices[i] = {{pos.x, pos.y}, modulate, {0, 0}};
         }
+        drawPolygon(vertices, poly.count, sprite.modulate, window);
+    };
 
-        // fan triangulation from vertex 0
-        std::vector<int> indices;
-        for (int i = 1; i < count - 1; i++)
-        {
-            indices.push_back(0);
-            indices.push_back(i);
-            indices.push_back(i + 1);
-        }
-
-        SDL_RenderGeometry(window->renderer, nullptr, vertices.data(), count, indices.data(), static_cast<int>(indices.size()));
+    const auto* shape = sprite.shape.get();
+    
+    if (const auto* box = dynamic_cast<const BoxShape*>(shape)) {
+        renderPolygon(box->polygon);
     }
-    else if (const auto *circle = dynamic_cast<const CircleShape *>(sprite.shape.get()))
-    {
+    else if (const auto* polygon = dynamic_cast<const PolygonShape*>(shape)) {
+        renderPolygon(polygon->polygon);
+    }
+    else if (const auto* roundedBox = dynamic_cast<const RoundedBoxShape*>(shape)) {
+        renderPolygon(roundedBox->polygon);
+    }
+    else if (const auto* circle = dynamic_cast<const CircleShape*>(shape)) {
         Vector2 pos = node->globalTransform.position;
         // apply the circle's center offset in local space first
         Vector2 centerOffset = {circle->circle.center.x, circle->circle.center.y};
@@ -173,44 +269,10 @@ void Graphics::renderComponent(const ShapeSprite &sprite, Window *window) const
         pos = toScreen(pos, cameraTransform, cameraInverse, originOffset, sprite.screenSpace);
         drawCircle(pos, circle->radius, sprite.modulate, window);
     }
-    else if (const auto *capsule = dynamic_cast<const CapsuleShape *>(sprite.shape.get()))
-    {
-        Vector2 c1 = node->globalTransform.applyTo(capsule->capsule.center1);
-        Vector2 c2 = node->globalTransform.applyTo(capsule->capsule.center2);
-
-        c1 = toScreen(c1, cameraTransform, cameraInverse, originOffset, sprite.screenSpace);
-        c2 = toScreen(c2, cameraTransform, cameraInverse, originOffset, sprite.screenSpace);
-        float rad = capsule->capsule.radius;
-
-        drawCapsule(c1, c2, rad, sprite.modulate, window);
-    }
-    else if (const auto *polygon = dynamic_cast<const PolygonShape *>(sprite.shape.get()))
-    {
-        const Polygon &poly = polygon->polygon;
-        const int count = poly.count;
-        if (count < 3)
-            return;
-
-        std::vector<SDL_Vertex> vertices(count);
-        for (int i = 0; i < count; i++)
-        {
-            Vector2 pos = poly.vertices[i];
-            pos = node->globalTransform.applyTo(pos);
-            pos = toScreen(pos, cameraTransform, cameraInverse, originOffset, sprite.screenSpace);
-
-            vertices[i] = {{pos.x, pos.y}, modulate, {0, 0}};
-        }
-
-        // fan triangulation from vertex 0
-        std::vector<int> indices;
-        for (int i = 1; i < count - 1; i++)
-        {
-            indices.push_back(0);
-            indices.push_back(i);
-            indices.push_back(i + 1);
-        }
-
-        SDL_RenderGeometry(window->renderer, nullptr, vertices.data(), count, indices.data(), static_cast<int>(indices.size()));
+    else if (const auto* capsule = dynamic_cast<const CapsuleShape*>(shape)) {
+        Vector2 c1 = toScreenSpace(capsule->capsule.center1);
+        Vector2 c2 = toScreenSpace(capsule->capsule.center2);
+        drawCapsule(c1, c2, capsule->capsule.radius, sprite.modulate, window);
     }
 }
 

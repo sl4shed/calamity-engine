@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include "../../core/definitions.hpp"
+//#include "../../core/node/node.hpp"
 
 class Node;
 class Camera;

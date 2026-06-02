@@ -83,26 +83,30 @@ void Physics::physicsUpdate(const float timeStep)
     }
 
     // we need more mouse bites
-    Vector2 mouseWorld = Services::input()->getMousePosition() * PhysicsConstants::scale;
-    // Logger::debug("X: {}; Y: {}", mouseWorld.x, mouseWorld.y);
+    
+    auto mousePos = Services::input()->getMousePosition();
+    if(mousePos.has_value()) {
+        Vector2 mouseWorld = mousePos.value() * PhysicsConstants::scale;
+        // Logger::debug("X: {}; Y: {}", mouseWorld.x, mouseWorld.y);
 
-    b2Vec2 mousePoint = {mouseWorld.x, mouseWorld.y};
-    b2ShapeProxy pp = b2MakeProxy(&mousePoint, 1, 0.0f);
+        b2Vec2 mousePoint = {mouseWorld.x, mouseWorld.y};
+        b2ShapeProxy pp = b2MakeProxy(&mousePoint, 1, 0.0f);
 
-    b2QueryFilter filter = b2DefaultQueryFilter();
+        b2QueryFilter filter = b2DefaultQueryFilter();
 
-    currentHovered.clear();
-    b2World_OverlapShape(worldId, &pp, filter, b2callback, this);
+        currentHovered.clear();
+        b2World_OverlapShape(worldId, &pp, filter, b2callback, this);
 
-    for (auto &[id, body] : bodyMap)
-    {
-        bool wasHovered = std::find(lastHovered.begin(), lastHovered.end(), id) != lastHovered.end();
-        bool isHovered = std::find(currentHovered.begin(), currentHovered.end(), id) != currentHovered.end();
-        if (!wasHovered && isHovered)
-            body->mouseEntered.fire();
-        if (wasHovered && !isHovered)
+        for (auto &[id, body] : bodyMap)
         {
-            body->mouseExited.fire();
+            bool wasHovered = std::find(lastHovered.begin(), lastHovered.end(), id) != lastHovered.end();
+            bool isHovered = std::find(currentHovered.begin(), currentHovered.end(), id) != currentHovered.end();
+            if (!wasHovered && isHovered)
+                body->mouseEntered.fire();
+            if (wasHovered && !isHovered)
+            {
+                body->mouseExited.fire();
+            }
         }
     }
 
@@ -164,6 +168,11 @@ void RigidBody::initCompute()
     {
         const b2Polygon p = polygon->scaledPolygon;
         shapeId = b2CreatePolygonShape(bodyId, &polygon->shapeDef, &p);
+    }
+    else if (const auto *roundedBox = dynamic_cast<RoundedBoxShape *>(shape.get()))
+    {
+        const b2Polygon poly = roundedBox->scaledPolygon;
+        shapeId = b2CreatePolygonShape(bodyId, &roundedBox->shapeDef, &poly);
     }
 }
 
@@ -293,6 +302,11 @@ void StaticBody::initCompute()
         const b2Polygon p = polygon->scaledPolygon;
         shapeId = b2CreatePolygonShape(bodyId, &polygon->shapeDef, &p);
     }
+    else if (const auto *roundedBox = dynamic_cast<RoundedBoxShape *>(shape.get()))
+    {
+        const b2Polygon poly = roundedBox->scaledPolygon;
+        shapeId = b2CreatePolygonShape(bodyId, &roundedBox->shapeDef, &poly);
+    }
 }
 
 StaticBody::StaticBody() {}
@@ -352,6 +366,11 @@ void KinematicBody::initCompute()
     {
         const b2Polygon p = polygon->scaledPolygon;
         shapeId = b2CreatePolygonShape(bodyId, &polygon->shapeDef, &p);
+    }
+    else if (const auto *roundedBox = dynamic_cast<RoundedBoxShape *>(shape.get()))
+    {
+        const b2Polygon poly = roundedBox->scaledPolygon;
+        shapeId = b2CreatePolygonShape(bodyId, &roundedBox->shapeDef, &poly);
     }
 }
 
