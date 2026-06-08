@@ -14,7 +14,7 @@
 Window::Window(std::string name, Rect dimensions, RenderLogicalPresentation presentation, WindowFlags flags, Color clearColor, bool fullscreen) : title(name), dimensions(dimensions), presentation(presentation), flags(flags), clearColor(clearColor), fullscreen(fullscreen) {
     root = std::make_unique<Node>("root");
     root->transform.position = {0, 0};
-    
+
     SDL_PropertiesID props = SDL_CreateProperties();
 
     SDL_SetStringProperty(props, SDL_PROP_WINDOW_CREATE_TITLE_STRING, name.c_str());
@@ -24,7 +24,7 @@ Window::Window(std::string name, Rect dimensions, RenderLogicalPresentation pres
     SDL_SetNumberProperty(props, SDL_PROP_WINDOW_CREATE_Y_NUMBER, dimensions.position.y);
     SDL_SetNumberProperty(props, SDL_PROP_WINDOW_CREATE_FLAGS_NUMBER, (SDL_WindowFlags)flags);
     SDL_SetBooleanProperty(props, SDL_PROP_WINDOW_CREATE_FULLSCREEN_BOOLEAN, fullscreen);
-    
+
 
     this->window = SDL_CreateWindowWithProperties(props);
     if (!this->window)
@@ -118,4 +118,17 @@ void Window::setActiveCamera(Camera *camera)
 Camera *Window::getActiveCamera() const
 {
     return activeCamera;
+}
+
+template <class Archive>
+void Window::load(Archive &ar)
+{
+    ar(CEREAL_NVP(title), CEREAL_NVP(flags), CEREAL_NVP(presentation), CEREAL_NVP(dimensions), CEREAL_NVP(fullscreen), CEREAL_NVP(id), CEREAL_NVP(root));
+
+    for (auto &child : root->children)
+    {
+        child->setWindow(shared_from_this());
+    }
+
+    root->postLoad();
 }
