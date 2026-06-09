@@ -62,28 +62,8 @@ void drawCapsule(Vector2 center1, Vector2 center2, float radius, Color modulate,
     drawCircle(center2, radius, modulate, window);
 }
 
-void drawRoundedBox(Vector2 position, Vector2 size, float radius, Color modulate, Window *window, int numSides)
-{
-    float r = radius / 2;
-
-    // Horizontal bar
-    const SDL_Vertex hVerts[4] = {
-        {{position.x, position.y + r}, modulate, {0, 0}},
-        {{position.x + size.x, position.y + r}, modulate, {0, 0}},
-        {{position.x + size.x, position.y + size.y - r}, modulate, {0, 0}},
-        {{position.x, position.y + size.y - r}, modulate, {0, 0}}};
-
-    // Vertical bar
-    const SDL_Vertex vVerts[4] = {
-        {{position.x + r, position.y}, modulate, {0, 0}},
-        {{position.x + size.x - r, position.y}, modulate, {0, 0}},
-        {{position.x + size.x - r, position.y + size.y}, modulate, {0, 0}},
-        {{position.x + r, position.y + size.y}, modulate, {0, 0}}};
-
-    const int indices[6] = {0, 1, 2, 2, 3, 0};
-
-    SDL_RenderGeometry(window->renderer, nullptr, hVerts, 4, indices, 6);
-    SDL_RenderGeometry(window->renderer, nullptr, vVerts, 4, indices, 6);
+void drawSegment(Vector2 point1, Vector2 point2, Color modulate, Window *window) {
+    SDL_RenderLine(window->renderer, point1.x, point1.y, point2.x, point2.y);
 }
 
 void drawPolygon(std::vector<SDL_Vertex> vertices, int count, Color modulate, Window *window)

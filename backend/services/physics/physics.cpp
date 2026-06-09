@@ -135,18 +135,7 @@ void PhysicsBody::initialize()
     Services::physics()->registerBody(this);
 }
 
-////////////////////
-// rigid body //////
-///////////////////
-
-void RigidBody::initCompute()
-{
-    bodyDef = b2DefaultBodyDef();
-    bodyDef.type = b2_dynamicBody;
-    bodyDef.angularDamping = 0.1f;
-
-    bodyId = b2CreateBody(Services::physics()->worldId, &bodyDef);
-
+void PhysicsBody::initCompute() {
     shape->shapeDef.enableContactEvents = true;
     shape->shapeDef.enableHitEvents = true;
     if (const auto *box = dynamic_cast<BoxShape *>(shape.get()))
@@ -169,11 +158,20 @@ void RigidBody::initCompute()
         const b2Polygon p = polygon->scaledPolygon;
         shapeId = b2CreatePolygonShape(bodyId, &polygon->shapeDef, &p);
     }
-    else if (const auto *roundedBox = dynamic_cast<RoundedBoxShape *>(shape.get()))
-    {
-        const b2Polygon poly = roundedBox->scaledPolygon;
-        shapeId = b2CreatePolygonShape(bodyId, &roundedBox->shapeDef, &poly);
-    }
+}
+
+////////////////////
+// rigid body //////
+///////////////////
+
+void RigidBody::initCompute()
+{
+    bodyDef = b2DefaultBodyDef();
+    bodyDef.type = b2_dynamicBody;
+    bodyDef.angularDamping = 0.1f;
+    bodyId = b2CreateBody(Services::physics()->worldId, &bodyDef);
+
+    PhysicsBody::initCompute();
 }
 
 RigidBody::RigidBody() {}
@@ -280,33 +278,7 @@ void StaticBody::initCompute()
     bodyDef.angularDamping = 0.1f;
     bodyId = b2CreateBody(Services::physics()->worldId, &bodyDef);
 
-    shape->shapeDef.enableContactEvents = true;
-    shape->shapeDef.enableHitEvents = true;
-    if (const auto *box = dynamic_cast<BoxShape *>(shape.get()))
-    {
-        const b2Polygon poly = box->scaledPolygon;
-        shapeId = b2CreatePolygonShape(bodyId, &box->shapeDef, &poly);
-    }
-    else if (const auto *circle = dynamic_cast<CircleShape *>(shape.get()))
-    {
-        const b2Circle c = circle->scaledCircle;
-        shapeId = b2CreateCircleShape(bodyId, &circle->shapeDef, &c);
-    }
-    else if (const auto *capsule = dynamic_cast<CapsuleShape *>(shape.get()))
-    {
-        const b2Capsule c = capsule->scaledCapsule;
-        shapeId = b2CreateCapsuleShape(bodyId, &capsule->shapeDef, &c);
-    }
-    else if (const auto *polygon = dynamic_cast<PolygonShape *>(shape.get()))
-    {
-        const b2Polygon p = polygon->scaledPolygon;
-        shapeId = b2CreatePolygonShape(bodyId, &polygon->shapeDef, &p);
-    }
-    else if (const auto *roundedBox = dynamic_cast<RoundedBoxShape *>(shape.get()))
-    {
-        const b2Polygon poly = roundedBox->scaledPolygon;
-        shapeId = b2CreatePolygonShape(bodyId, &roundedBox->shapeDef, &poly);
-    }
+    PhysicsBody::initCompute();
 }
 
 StaticBody::StaticBody() {}
@@ -345,33 +317,7 @@ void KinematicBody::initCompute()
     bodyDef.angularDamping = 0.1f;
     bodyId = b2CreateBody(Services::physics()->worldId, &bodyDef);
 
-    shape->shapeDef.enableContactEvents = true;
-    shape->shapeDef.enableHitEvents = true;
-    if (const auto *box = dynamic_cast<BoxShape *>(shape.get()))
-    {
-        const b2Polygon poly = box->scaledPolygon;
-        shapeId = b2CreatePolygonShape(bodyId, &box->shapeDef, &poly);
-    }
-    else if (const auto *circle = dynamic_cast<CircleShape *>(shape.get()))
-    {
-        const b2Circle c = circle->scaledCircle;
-        shapeId = b2CreateCircleShape(bodyId, &circle->shapeDef, &c);
-    }
-    else if (const auto *capsule = dynamic_cast<CapsuleShape *>(shape.get()))
-    {
-        const b2Capsule c = capsule->scaledCapsule;
-        shapeId = b2CreateCapsuleShape(bodyId, &capsule->shapeDef, &c);
-    }
-    else if (const auto *polygon = dynamic_cast<PolygonShape *>(shape.get()))
-    {
-        const b2Polygon p = polygon->scaledPolygon;
-        shapeId = b2CreatePolygonShape(bodyId, &polygon->shapeDef, &p);
-    }
-    else if (const auto *roundedBox = dynamic_cast<RoundedBoxShape *>(shape.get()))
-    {
-        const b2Polygon poly = roundedBox->scaledPolygon;
-        shapeId = b2CreatePolygonShape(bodyId, &roundedBox->shapeDef, &poly);
-    }
+    PhysicsBody::initCompute();
 }
 
 KinematicBody::KinematicBody() {}

@@ -77,7 +77,7 @@ public:
                 fallingShape = std::make_shared<CapsuleShape>(Vector2{0, -10}, Vector2{0, 10}, radius, Vector2{0.5f, 0.5f});
             }
             else if (which == 3) {
-                fallingShape = std::make_shared<RoundedBoxShape>(Vector2{static_cast<float>(rand() % 25 + 15), static_cast<float>(rand() % 25 + 15)}, 0.1f);
+                fallingShape = std::make_shared<SegmentShape>(Vector2{static_cast<float>(rand() % 25 + 15), static_cast<float>(rand() % 25 + 15)}, Vector2{static_cast<float>(rand() % 25 + 15), static_cast<float>(rand() % 25 + 15)});
             }
             fallingNode->addComponent(std::make_shared<RigidBody>(fallingShape));
             std::shared_ptr<ShapeSprite> fallingSprite = std::make_shared<ShapeSprite>(fallingShape);

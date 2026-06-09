@@ -321,3 +321,23 @@ Capsule::operator b2Capsule() const
     capsule.center2 = center2;
     return capsule;
 }
+
+// Segment
+
+Segment::Segment() {
+    point1 = {0.0f, 0.0f};
+    point2 = {0.0f, 0.0f};
+}
+
+Segment::Segment(const b2Segment &segment) {
+    point1 = Vector2(segment.point1);
+    point2 = Vector2(segment.point2);
+}
+
+Segment::operator b2Segment() const
+{
+    b2Segment segment;
+    segment.point1 = point1;
+    segment.point2 = point2;
+    return segment;
+}

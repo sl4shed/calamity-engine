@@ -73,20 +73,14 @@ PolygonShape::PolygonShape(std::vector<Vector2> points)
     this->scaledPolygon = Polygon(b2MakePolygon(&hullScaled, 0));
 }
 
-RoundedBoxShape::RoundedBoxShape(const Vector2 size, const float radius, const Vector2 origin) {
-    this->size = size;
-    this->origin = origin;
-    this->radius = radius;
+SegmentShape::SegmentShape(Vector2 point1, Vector2 point2) {
+    segment.point1 = point1;
+    segment.point2 = point2;
 
-    const Vector2 calculatedCenter = (origin - Vector2{0.5f, 0.5f}) * size;
-    const b2Rot rotation = b2Rot_identity;
+    scaledSegment.point1 = point1 * PhysicsConstants::scale;
+    scaledSegment.point2 = point2 * PhysicsConstants::scale;
 
-    const b2Polygon poly = b2MakeOffsetRoundedBox(size.x / 2 * PhysicsConstants::scale, size.y / 2 * PhysicsConstants::scale, calculatedCenter * PhysicsConstants::scale, rotation, radius);
-    const b2Polygon polyUnscaled = b2MakeOffsetRoundedBox(size.x / 2, size.y / 2, calculatedCenter, rotation, radius);
-
-    this->polygon = static_cast<Polygon>(polyUnscaled);
     this->shapeDef = b2DefaultShapeDef();
-    this->scaledPolygon = static_cast<Polygon>(poly);
 }
 
 // shape sprite

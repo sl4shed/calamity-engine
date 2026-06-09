@@ -479,6 +479,27 @@ struct Capsule
 };
 
 /**
+ * # Segment
+ * The segment class defines two points, each at the end of the segment.
+ */
+struct Segment
+{
+    Segment();
+    explicit Segment(const b2Segment &segment);
+
+    Vector2 point1;
+    Vector2 point2;
+
+    operator b2Segment() const;
+
+    template <class Archive>
+    void serialize(Archive &ar)
+    {
+        ar(CEREAL_NVP(point1), CEREAL_NVP(point2));
+    }
+};
+
+/**
  * # Tile
  *
  * The tile class defines the position of the tile on the Tilemap grid, the sourceRect of the texture atlas and the modulate Color of the Tile.

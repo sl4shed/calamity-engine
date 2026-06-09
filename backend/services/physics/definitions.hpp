@@ -125,37 +125,25 @@ public:
     }
 };
 
-class RoundedBoxShape : public Shape
+class SegmentShape : public Shape
 {
 public:
-    RoundedBoxShape() = default;
-    RoundedBoxShape(Vector2 size, float radius, Vector2 origin = {0.5f, 0.5f});
-    Vector2 size;
-    float radius;
+    SegmentShape() = default;
+    SegmentShape(Vector2 point1, Vector2 point2);
 
-    Polygon scaledPolygon;
-    Polygon polygon;
+    Segment segment;
+    Segment scaledSegment;
 
     template <class Archive>
     void save(Archive &ar) const
     {
-        ar(cereal::base_class<Shape>(this), CEREAL_NVP(size), CEREAL_NVP(radius), CEREAL_NVP(scaledPolygon), CEREAL_NVP(polygon));
+        ar(cereal::base_class<Shape>(this), CEREAL_NVP(segment), CEREAL_NVP(scaledSegment));
     }
 
     template <class Archive>
     void load(Archive &ar)
     {
-        ar(cereal::base_class<Shape>(this), CEREAL_NVP(size), CEREAL_NVP(radius), CEREAL_NVP(scaledPolygon), CEREAL_NVP(polygon));
-
-        // just reconstruct everything from size and center like the constructor does
-        Vector2 calculatedCenter = (origin - Vector2{0.5f, 0.5f}) * size;
-        b2Rot rotation = {cos(0.0f), sin(0.0f)};
-
-        b2Polygon poly = b2MakeOffsetRoundedBox(size.x / 2 * PhysicsConstants::scale, size.y / 2 * PhysicsConstants::scale, (calculatedCenter * PhysicsConstants::scale), rotation, radius);
-        b2Polygon polyUnscaled = b2MakeOffsetRoundedBox(size.x / 2, size.y / 2, calculatedCenter, rotation, radius);
-
-        this->polygon = static_cast<Polygon>(polyUnscaled);
-        this->scaledPolygon = static_cast<Polygon>(poly);
+        ar(cereal::base_class<Shape>(this), CEREAL_NVP(segment), CEREAL_NVP(scaledSegment));
         this->shapeDef = b2DefaultShapeDef();
 
         postLoad();
@@ -314,5 +302,5 @@ CEREAL_REGISTER_POLYMORPHIC_RELATION(Shape, CapsuleShape);
 CEREAL_REGISTER_TYPE(PolygonShape);
 CEREAL_REGISTER_POLYMORPHIC_RELATION(Shape, PolygonShape);
 
-CEREAL_REGISTER_TYPE(RoundedBoxShape);
-CEREAL_REGISTER_POLYMORPHIC_RELATION(Shape, RoundedBoxShape);
+CEREAL_REGISTER_TYPE(SegmentShape);
+CEREAL_REGISTER_POLYMORPHIC_RELATION(Shape, SegmentShape);

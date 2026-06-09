@@ -263,12 +263,15 @@ void Graphics::renderComponent(const ShapeSprite &sprite, Window *window) const
     {
         renderPolygon(polygon->polygon);
     }
-    else if (const auto *roundedBox = dynamic_cast<const RoundedBoxShape *>(shape))
+    else if (const auto *segment = dynamic_cast<const SegmentShape *>(shape))
     {
-        Vector2 pos = node->globalTransform.position;
-        pos = toScreen(pos, cameraTransform, cameraInverse, originOffset, sprite.screenSpace);
+        Vector2 point1 = segment->segment.point1;
+        Vector2 point2 = segment->segment.point2;
 
-        drawRoundedBox(pos, roundedBox->size, roundedBox->radius, sprite.modulate, window);
+        point1 = toScreen(point1, cameraTransform, cameraInverse, originOffset, sprite.screenSpace);
+        point2 = toScreen(point2, cameraTransform, cameraInverse, originOffset, sprite.screenSpace);
+        
+        drawSegment(point1, point2, sprite.modulate, window);
     }
     else if (const auto *circle = dynamic_cast<const CircleShape *>(shape))
     {
