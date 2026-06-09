@@ -222,7 +222,8 @@ void Graphics::renderComponent(const ShapeSprite &sprite, Window *window) const
 #endif
 
     const Node *node = sprite.getNode();
-    if (!node) return;
+    if (!node)
+        return;
 
     const Camera *activeCamera = window->getActiveCamera();
     const Transform cameraTransform = activeCamera->getCameraTransform();
@@ -232,34 +233,45 @@ void Graphics::renderComponent(const ShapeSprite &sprite, Window *window) const
     auto cameraInverse = cameraTransform.inverse();
 
     // transform to screen space more efficiently
-    auto toScreenSpace = [&](const Vector2& point) {
+    auto toScreenSpace = [&](const Vector2 &point)
+    {
         return toScreen(node->globalTransform.applyTo(point), cameraTransform, cameraInverse, originOffset, sprite.screenSpace);
     };
 
     // shorthand
-    auto renderPolygon = [&](const Polygon& poly) {
-        if (poly.count < 3) return;
-        
+    auto renderPolygon = [&](const Polygon &poly)
+    {
+        if (poly.count < 3)
+            return;
+
         std::vector<SDL_Vertex> vertices(poly.count);
-        for (int i = 0; i < poly.count; i++) {
+        for (int i = 0; i < poly.count; i++)
+        {
             Vector2 pos = toScreenSpace(poly.vertices[i]);
             vertices[i] = {{pos.x, pos.y}, modulate, {0, 0}};
         }
         drawPolygon(vertices, poly.count, sprite.modulate, window);
     };
 
-    const auto* shape = sprite.shape.get();
-    
-    if (const auto* box = dynamic_cast<const BoxShape*>(shape)) {
+    const auto *shape = sprite.shape.get();
+
+    if (const auto *box = dynamic_cast<const BoxShape *>(shape))
+    {
         renderPolygon(box->polygon);
     }
-    else if (const auto* polygon = dynamic_cast<const PolygonShape*>(shape)) {
+    else if (const auto *polygon = dynamic_cast<const PolygonShape *>(shape))
+    {
         renderPolygon(polygon->polygon);
     }
-    else if (const auto* roundedBox = dynamic_cast<const RoundedBoxShape*>(shape)) {
-        renderPolygon(roundedBox->polygon);
+    else if (const auto *roundedBox = dynamic_cast<const RoundedBoxShape *>(shape))
+    {
+        Vector2 pos = node->globalTransform.position;
+        pos = toScreen(pos, cameraTransform, cameraInverse, originOffset, sprite.screenSpace);
+
+        drawRoundedBox(pos, roundedBox->size, roundedBox->radius, sprite.modulate, window);
     }
-    else if (const auto* circle = dynamic_cast<const CircleShape*>(shape)) {
+    else if (const auto *circle = dynamic_cast<const CircleShape *>(shape))
+    {
         Vector2 pos = node->globalTransform.position;
         // apply the circle's center offset in local space first
         Vector2 centerOffset = {circle->circle.center.x, circle->circle.center.y};
@@ -269,7 +281,8 @@ void Graphics::renderComponent(const ShapeSprite &sprite, Window *window) const
         pos = toScreen(pos, cameraTransform, cameraInverse, originOffset, sprite.screenSpace);
         drawCircle(pos, circle->radius, sprite.modulate, window);
     }
-    else if (const auto* capsule = dynamic_cast<const CapsuleShape*>(shape)) {
+    else if (const auto *capsule = dynamic_cast<const CapsuleShape *>(shape))
+    {
         Vector2 c1 = toScreenSpace(capsule->capsule.center1);
         Vector2 c2 = toScreenSpace(capsule->capsule.center2);
         drawCapsule(c1, c2, capsule->capsule.radius, sprite.modulate, window);

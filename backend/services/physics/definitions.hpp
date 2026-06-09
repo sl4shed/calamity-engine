@@ -74,7 +74,8 @@ public:
     }
 
 protected:
-    void postLoad() {
+    void postLoad()
+    {
         if (isSensor)
         {
             setSensor(true);
@@ -82,6 +83,7 @@ protected:
 
         applyMaterial(material);
     }
+
 private:
     bool isSensor = false;
     Material material;
@@ -288,7 +290,7 @@ class Raycast
 public:
     Transform transform;
 
-    //PhysicsBody *cast();
+    // PhysicsBody *cast();
 
     template <class Archive>
     void serialize(Archive &ar)
