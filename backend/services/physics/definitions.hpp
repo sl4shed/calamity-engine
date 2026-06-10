@@ -275,8 +275,7 @@ public:
 
 struct RaycastResult
 {
-    float distance = 0.0f;
-    std::shared_ptr<PhysicsBody> physicsBody;
+    PhysicsBody* physicsBody;
     Vector2 normal;
     Vector2 point;
     float fraction = 0.0f;
@@ -286,8 +285,7 @@ class Raycast
 {
 public:
     Transform transform;
-
-    std::vector<RaycastResult> calculate();
+    RaycastResult calculate();
 
     template <class Archive>
     void serialize(Archive &ar)

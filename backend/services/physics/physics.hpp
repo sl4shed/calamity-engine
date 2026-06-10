@@ -121,6 +121,7 @@ public:
     b2WorldDef worldDef;
     b2WorldId worldId;
 
+    PhysicsBody* findBodyFromShape(b2ShapeId id);
 private:
     std::unordered_map<b2ShapeId, PhysicsBody *> bodyMap;
 

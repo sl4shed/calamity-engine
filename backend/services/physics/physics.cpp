@@ -40,6 +40,10 @@ bool b2callback(b2ShapeId shapeId, void *ctx)
     return true;
 }
 
+PhysicsBody* Physics::findBodyFromShape(b2ShapeId id) {
+    return bodyMap.find(id)->second;
+}
+
 void Physics::physicsUpdate(const float timeStep)
 {
     b2World_Step(worldId, timeStep, subSteps);

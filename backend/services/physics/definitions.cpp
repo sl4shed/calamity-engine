@@ -1,6 +1,8 @@
 #include "definitions.hpp"
 #include "../../core/definitions.hpp"
 #include "../../utils/logger.hpp"
+#include "../services.hpp"
+#include "physics.hpp"
 
 BoxShape::BoxShape(const Vector2 size, const Vector2 center)
 {
@@ -98,7 +100,16 @@ ShapeSprite::ShapeSprite(const std::shared_ptr<Shape> &shape)
 
 // raycast
 
-std::vector<RaycastResult> Raycast::calculate()
+float callback(b2ShapeId shapeId, b2Vec2 point, b2Vec2 normal, float fraction, void* context) {
+    auto *result = static_cast<RaycastResult *>(context);
+
+    result->point = Vector2(point);
+    result->normal = Vector2(normal);
+    result->fraction = fraction;
+    result->physicsBody = Services::physics()->findBodyFromShape(shapeId);
+}
+
+RaycastResult Raycast::calculate()
 {
     b2RayCastInput input = {0};
     input.origin = transform.position;
@@ -106,5 +117,9 @@ std::vector<RaycastResult> Raycast::calculate()
     input.translation = {cos(ang), sin(ang)};
     input.maxFraction = 1.0f;
 
-        b2CastOutput out = Services::physics()->world;
+    RaycastResult result;
+    b2QueryFilter filter = {};
+    
+    b2TreeStats out = b2World_CastRay(Services::physics()->worldId, transform.position, {cos(ang), sin(ang)}, filter, callback, &result);
+    return result;
 }
