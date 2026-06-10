@@ -55,12 +55,13 @@ public:
             fallingNode->transform.position = Vector2{rand() % 25 + 15, rand() % 25 + 15};
 #else
             auto mousePos = Services::input()->getMousePosition();
-            if (!mousePos.has_value()) return;
+            if (!mousePos.has_value())
+                return;
             fallingNode->transform.position = mousePos.value();
 #endif
 
             std::shared_ptr<Shape> fallingShape;
-            auto which = rand() % 4;
+            auto which = rand() % 3;
             if (which == 0)
             {
                 fallingShape = std::make_shared<CircleShape>(static_cast<float>(rand() % 25 + 15));
@@ -76,13 +77,10 @@ public:
                 fallingNode->transform.setAngle(rand() % 100); // random angle between -0.5 and 0.5 radians
                 fallingShape = std::make_shared<CapsuleShape>(Vector2{0, -10}, Vector2{0, 10}, radius, Vector2{0.5f, 0.5f});
             }
-            else if (which == 3) {
-                fallingShape = std::make_shared<SegmentShape>(Vector2{static_cast<float>(rand() % 25 + 15), static_cast<float>(rand() % 25 + 15)}, Vector2{static_cast<float>(rand() % 25 + 15), static_cast<float>(rand() % 25 + 15)});
-            }
+
             fallingNode->addComponent(std::make_shared<RigidBody>(fallingShape));
             std::shared_ptr<ShapeSprite> fallingSprite = std::make_shared<ShapeSprite>(fallingShape);
             fallingSprite->modulate = Color::RED;
-            if(which == 3) fallingSprite->modulate = Color::GREEN;
             fallingNode->addComponent(fallingSprite);
 
             fallingNodes.push_back(fallingNode);

@@ -62,7 +62,9 @@ void drawCapsule(Vector2 center1, Vector2 center2, float radius, Color modulate,
     drawCircle(center2, radius, modulate, window);
 }
 
-void drawSegment(Vector2 point1, Vector2 point2, Color modulate, Window *window) {
+void drawSegment(Vector2 point1, Vector2 point2, Color modulate, Window *window)
+{
+    SDL_SetRenderDrawColor(window->renderer, modulate.r, modulate.g, modulate.b, modulate.a);
     SDL_RenderLine(window->renderer, point1.x, point1.y, point2.x, point2.y);
 }
 

@@ -60,7 +60,7 @@ public:
     void exit() override;
     virtual void physicsUpdate() = 0;
     void initialize() override;
-    virtual void initCompute() {};
+    virtual void initCompute();
 
     Signal<PhysicsBody *> collisionEnter;
     Signal<PhysicsBody *> collisionExit;

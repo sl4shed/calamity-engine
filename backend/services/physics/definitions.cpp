@@ -2,7 +2,8 @@
 #include "../../core/definitions.hpp"
 #include "../../utils/logger.hpp"
 
-BoxShape::BoxShape(const Vector2 size, const Vector2 center) {
+BoxShape::BoxShape(const Vector2 size, const Vector2 center)
+{
     this->size = size;
     this->origin = center;
 
@@ -46,7 +47,8 @@ CapsuleShape::CapsuleShape(const Vector2 center1, const Vector2 center2, const f
 
 PolygonShape::PolygonShape(std::vector<Vector2> points)
 {
-    if(points.size() < 3) {
+    if (points.size() < 3)
+    {
         Logger::error("Cannot create a polygon with less than 3 points!");
         return;
     }
@@ -56,15 +58,17 @@ PolygonShape::PolygonShape(std::vector<Vector2> points)
     b2Vec2 p[B2_MAX_POLYGON_VERTICES]{};
     b2Vec2 pScaled[B2_MAX_POLYGON_VERTICES]{};
 
-    for(int i = 0; i < (int)points.size(); i++) {
-        p[i] = { points[i].x, points[i].y };
-        pScaled[i] = { points[i].x * PhysicsConstants::scale, points[i].y * PhysicsConstants::scale };
+    for (int i = 0; i < (int)points.size(); i++)
+    {
+        p[i] = {points[i].x, points[i].y};
+        pScaled[i] = {points[i].x * PhysicsConstants::scale, points[i].y * PhysicsConstants::scale};
     }
 
     b2Hull hull = b2ComputeHull(p, (int)points.size());
     b2Hull hullScaled = b2ComputeHull(pScaled, (int)points.size());
 
-    if (!b2ValidateHull(&hull) || !b2ValidateHull(&hullScaled)) {
+    if (!b2ValidateHull(&hull) || !b2ValidateHull(&hullScaled))
+    {
         Logger::error("PolygonShape: invalid hull!");
         return;
     }
@@ -73,7 +77,8 @@ PolygonShape::PolygonShape(std::vector<Vector2> points)
     this->scaledPolygon = Polygon(b2MakePolygon(&hullScaled, 0));
 }
 
-SegmentShape::SegmentShape(Vector2 point1, Vector2 point2) {
+SegmentShape::SegmentShape(Vector2 point1, Vector2 point2)
+{
     segment.point1 = point1;
     segment.point2 = point2;
 
@@ -86,7 +91,20 @@ SegmentShape::SegmentShape(Vector2 point1, Vector2 point2) {
 // shape sprite
 
 ShapeSprite::ShapeSprite() = default;
-ShapeSprite::ShapeSprite(const std::shared_ptr<Shape>& shape)
+ShapeSprite::ShapeSprite(const std::shared_ptr<Shape> &shape)
 {
     this->shape = shape;
+}
+
+// raycast
+
+std::vector<RaycastResult> Raycast::calculate()
+{
+    b2RayCastInput input = {0};
+    input.origin = transform.position;
+    float ang = transform.getAngleRadians();
+    input.translation = {cos(ang), sin(ang)};
+    input.maxFraction = 1.0f;
+
+        b2CastOutput out = Services::physics()->world;
 }

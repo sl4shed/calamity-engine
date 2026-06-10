@@ -268,9 +268,9 @@ void Graphics::renderComponent(const ShapeSprite &sprite, Window *window) const
         Vector2 point1 = segment->segment.point1;
         Vector2 point2 = segment->segment.point2;
 
-        point1 = toScreen(point1, cameraTransform, cameraInverse, originOffset, sprite.screenSpace);
-        point2 = toScreen(point2, cameraTransform, cameraInverse, originOffset, sprite.screenSpace);
-        
+        point1 = toScreenSpace(point1);
+        point2 = toScreenSpace(point2);
+
         drawSegment(point1, point2, sprite.modulate, window);
     }
     else if (const auto *circle = dynamic_cast<const CircleShape *>(shape))
