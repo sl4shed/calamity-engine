@@ -218,7 +218,6 @@ Texture::Texture(const std::string &_path, std::shared_ptr<Window> window, Textu
 
 void Texture::initialize(bool set)
 {
-    Logger::debug("INITIALIZING TEXTURE: {}", path);
     this->handle = Services::graphics()->loadTexture(File::getAbsoluteFilePath(this->path), window.get(), this->scaling);
 
     if (set)
@@ -324,12 +323,14 @@ Capsule::operator b2Capsule() const
 
 // Segment
 
-Segment::Segment() {
+Segment::Segment()
+{
     point1 = {0.0f, 0.0f};
     point2 = {0.0f, 0.0f};
 }
 
-Segment::Segment(const b2Segment &segment) {
+Segment::Segment(const b2Segment &segment)
+{
     point1 = Vector2(segment.point1);
     point2 = Vector2(segment.point2);
 }

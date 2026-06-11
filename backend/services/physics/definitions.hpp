@@ -5,6 +5,8 @@
 #include "../../utils/logger.hpp"
 #include "../../core/node/components.hpp"
 
+class PhysicsBody;
+
 /**
  * # Material
  * The Material class defines Physics properties for any Shape.
@@ -275,10 +277,13 @@ public:
 
 struct RaycastResult
 {
-    PhysicsBody* physicsBody;
-    Vector2 normal;
-    Vector2 point;
+    RaycastResult() {};
+
+    PhysicsBody *physicsBody;
+    Vector2 normal = {0.0f, 0.0f};
+    Vector2 point = {0.0f, 0.0f};
     float fraction = 0.0f;
+    bool hit = false;
 };
 
 class Raycast

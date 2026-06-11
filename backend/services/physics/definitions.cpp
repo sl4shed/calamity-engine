@@ -100,26 +100,34 @@ ShapeSprite::ShapeSprite(const std::shared_ptr<Shape> &shape)
 
 // raycast
 
-float callback(b2ShapeId shapeId, b2Vec2 point, b2Vec2 normal, float fraction, void* context) {
+float callback(b2ShapeId shapeId, b2Vec2 point, b2Vec2 normal, float fraction, void *context)
+{
     auto *result = static_cast<RaycastResult *>(context);
 
+    result->hit = true;
     result->point = Vector2(point);
     result->normal = Vector2(normal);
     result->fraction = fraction;
     result->physicsBody = Services::physics()->findBodyFromShape(shapeId);
+
+    return 1.0f;
 }
 
 RaycastResult Raycast::calculate()
 {
     b2RayCastInput input = {0};
-    input.origin = transform.position;
+    input.origin = transform.position * PhysicsConstants::scale; // Need to scale to physics world
     float ang = transform.getAngleRadians();
-    input.translation = {cos(ang), sin(ang)};
+
+    // Define how long you want the ray to be (e.g., 500 pixels)
+    float rayLength = 500.0f; // or whatever length makes sense for your game
+    Vector2 direction = {cos(ang), sin(ang)};
+    input.translation = direction * rayLength * PhysicsConstants::scale; // Now this is a translation vector
     input.maxFraction = 1.0f;
 
     RaycastResult result;
     b2QueryFilter filter = {};
-    
+
     b2TreeStats out = b2World_CastRay(Services::physics()->worldId, transform.position, {cos(ang), sin(ang)}, filter, callback, &result);
     return result;
 }
