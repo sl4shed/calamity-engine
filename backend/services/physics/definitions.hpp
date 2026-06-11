@@ -262,6 +262,8 @@ public:
     bool screenSpace = false;
     Color modulate = Color::WHITE;
 
+    void render(std::shared_ptr<Window> window) override;
+
     template <class Archive>
     void save(Archive &ar) const
     {
@@ -289,7 +291,11 @@ struct RaycastResult
 class Raycast
 {
 public:
+    Raycast(float maxDistance = 500.0f) : maxDistance(maxDistance) {};
+
     Transform transform;
+    float maxDistance = 500.0f;
+
     RaycastResult calculate();
 
     template <class Archive>

@@ -53,6 +53,7 @@ public:
     Vector2 origin;
 
     void update(float dt);
+    void render(std::shared_ptr<Window> window); 
     std::shared_ptr<Font> font;
     bool visible = true;
     bool wrap = true; // text wrap. yes or no?

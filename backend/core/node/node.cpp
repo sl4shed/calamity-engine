@@ -83,32 +83,8 @@ void Node::render(Graphics &graphics, Engine *engine, std::shared_ptr<Window> wi
     ZoneScoped;
 #endif
 
-    for (size_t i = 0; i < this->components.size(); i++)
-    {
-        if (const auto *sprite = dynamic_cast<Sprite *>(components[i].get()); sprite && sprite->visible)
-        {
-            graphics.renderComponent(*sprite, window.get());
-        }
-
-        if (const auto *shapeSprite = dynamic_cast<ShapeSprite *>(components[i].get()); shapeSprite && shapeSprite->visible)
-        {
-            graphics.renderComponent(*shapeSprite, window.get());
-        }
-
-        if (const auto *label = dynamic_cast<Label *>(components[i].get()); label && label->visible)
-        {
-            graphics.renderComponent(*label, window.get());
-        }
-
-        if (const auto *animSprite = dynamic_cast<AnimatedSprite *>(components[i].get()); animSprite && animSprite->visible)
-        {
-            graphics.renderComponent(*animSprite, window.get());
-        }
-
-        if (const auto *tilemap = dynamic_cast<Tilemap *>(components[i].get()); tilemap && tilemap->visible)
-        {
-            graphics.renderComponent(*tilemap, window.get());
-        }
+    for(size_t i = 0; i < this->components.size(); i++) {
+        components[i]->render(window);
     }
 
     for (size_t i = 0; i < this->children.size(); i++)

@@ -122,3 +122,7 @@ int Label::getWrapWidth() const
 {
     return wrapWidth;
 }
+
+void Label::render(std::shared_ptr<Window> window) {
+    Services::graphics()->renderComponent(*this, window.get());
+}

@@ -2,6 +2,7 @@
 #include "../../core/definitions.hpp"
 #include "../../utils/logger.hpp"
 #include "../services.hpp"
+#include "../graphics/graphics.hpp"
 #include "physics.hpp"
 
 BoxShape::BoxShape(const Vector2 size, const Vector2 center)
@@ -98,6 +99,10 @@ ShapeSprite::ShapeSprite(const std::shared_ptr<Shape> &shape)
     this->shape = shape;
 }
 
+void ShapeSprite::render(std::shared_ptr<Window> window) {
+    Services::graphics()->renderComponent(*this, window.get());
+}
+
 // raycast
 
 float callback(b2ShapeId shapeId, b2Vec2 point, b2Vec2 normal, float fraction, void *context)
@@ -105,29 +110,36 @@ float callback(b2ShapeId shapeId, b2Vec2 point, b2Vec2 normal, float fraction, v
     auto *result = static_cast<RaycastResult *>(context);
 
     result->hit = true;
-    result->point = Vector2(point);
+    result->point = Vector2(point) / PhysicsConstants::scale;
     result->normal = Vector2(normal);
     result->fraction = fraction;
     result->physicsBody = Services::physics()->findBodyFromShape(shapeId);
 
-    return 1.0f;
+    return fraction;
 }
 
 RaycastResult Raycast::calculate()
 {
     b2RayCastInput input = {0};
-    input.origin = transform.position * PhysicsConstants::scale; // Need to scale to physics world
+    input.origin = transform.position * PhysicsConstants::scale;
     float ang = transform.getAngleRadians();
-
-    // Define how long you want the ray to be (e.g., 500 pixels)
-    float rayLength = 500.0f; // or whatever length makes sense for your game
+    
     Vector2 direction = {cos(ang), sin(ang)};
-    input.translation = direction * rayLength * PhysicsConstants::scale; // Now this is a translation vector
+    input.translation = direction * maxDistance * PhysicsConstants::scale;
     input.maxFraction = 1.0f;
 
     RaycastResult result;
-    b2QueryFilter filter = {};
+    b2QueryFilter filter;
+    filter.maskBits = 1;
+    filter.categoryBits = 1;
+    b2World_CastRay(
+        Services::physics()->worldId, 
+        input.origin, 
+        input.translation,
+        filter, 
+        callback, 
+        &result
+    );
 
-    b2TreeStats out = b2World_CastRay(Services::physics()->worldId, transform.position, {cos(ang), sin(ang)}, filter, callback, &result);
     return result;
 }

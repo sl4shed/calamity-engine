@@ -84,7 +84,7 @@ int main()
     node->addComponent(sprite);
 
     std::shared_ptr<Node> lnode = std::make_shared<Node>();
-    std::shared_ptr<Label> label = std::make_shared<Label>("Q - rotate left\nE - rotate right");
+    std::shared_ptr<Label> label = std::make_shared<Label>("A - rotate left\nD - rotate right");
     label->font->setSize(12);
     label->size = {200, 500};
     label->screenSpace = true;
@@ -93,7 +93,6 @@ int main()
 
     std::shared_ptr<Node> bnode = std::make_shared<Node>("floorNode");
     bnode->transform.position = {0, 130};
-    bnode->transform.setAngle(20.0f);
     auto shape = std::make_shared<BoxShape>(Vector2{300, 50});
     auto body = std::make_shared<StaticBody>(shape);
     bnode->addComponent(body);

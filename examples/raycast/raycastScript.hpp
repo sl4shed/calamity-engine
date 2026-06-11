@@ -11,11 +11,14 @@
 #include "backend/services/input/input.hpp"
 #include "backend/core/node/components.hpp"
 #include "backend/core/ui/label.hpp"
+#include "backend/core/ui/definitions.hpp"
 
 class RaycastScript : public Script
 {
     const int SPEED = 100;
     Node *me;
+
+    RaycastResult currentResult;
 
 public:
     template <class Archive>
@@ -37,11 +40,21 @@ public:
         Raycast ray = Raycast();
         ray.transform = me->transform;
         RaycastResult result = ray.calculate();
-        if (result.hit)
-        {
-            Logger::debug("Raycast hit!!!");
-            drawSegment(me->transform.position, result.point, Color::RED, me->getWindow().get());
-        }
+        currentResult = result;
+    }
+
+    void render(std::shared_ptr<Window> window) {
+        if(!currentResult.hit) return;
+        auto cam = window->getActiveCamera();
+        const Vector2 screenSize = window->dimensions.size;
+        const auto originOffset = Vector2{screenSize.x * cam->origin.x, screenSize.y * cam->origin.y};
+        const Transform cameraTransform = cam->getCameraTransform();
+        auto cameraInverse = cameraTransform.inverse();
+
+        auto point1 = toScreen(me->transform.position, cameraTransform, cameraInverse, originOffset, false);
+        auto point2 = toScreen(currentResult.point, cameraTransform, cameraInverse, originOffset, false);
+
+        drawSegment(point1, point2, Color::RED, window.get());
     }
 };
 

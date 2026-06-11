@@ -77,6 +77,10 @@ Sprite::Sprite(const std::string &texturePath, std::shared_ptr<Window> window, T
     texture = Texture(texturePath, window, scaling);
 }
 
+void Sprite::render(std::shared_ptr<Window> window) {
+    Services::graphics()->renderComponent(*this, window.get());
+}
+
 void Sprite::initialize()
 {
     if (texture.handle != nullptr && sourceRect.size == Vector2{0, 0})
@@ -98,6 +102,10 @@ const Texture *AnimatedSprite::getCurrentTexture() const
     if (currentTexture.handle == nullptr)
         return nullptr;
     return &currentTexture;
+}
+
+void AnimatedSprite::render(std::shared_ptr<Window> window) {
+    Services::graphics()->renderComponent(*this, window.get());
 }
 
 void AnimatedSprite::postLoad()
@@ -240,6 +248,10 @@ bool AnimatedSprite::isPlaying() const
 }
 
 // Tilemap
+
+void Tilemap::render(std::shared_ptr<Window> window) {
+    Services::graphics()->renderComponent(*this, window.get());
+}
 
 Tilemap::Tilemap(const std::string &texturePath, Vector2 tileSize, std::shared_ptr<Window> window, TextureScaling scaling)
 {

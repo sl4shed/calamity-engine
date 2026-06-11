@@ -13,7 +13,7 @@ class Node; // Forward declaration'
 
 /**
  * # Component class
- * Base class for any component that can be attached to a Node. It exposes several virtual functiosn that are called across any components lifetime, such as `update(float deltaTime)`, `initialize()`, `input(InputEvent &event)`, `physicsUpdate()` and `exit()`.
+ * Base class for any component that can be attached to a Node. It exposes several virtual functiosn that are called across any components' lifetime, such as `update(float deltaTime)`, `initialize()`, `input(InputEvent &event)`, `physicsUpdate()`, `render(std::shared_ptr<Window> window)` and `exit()`.
  *
  * For serialization of any class that is based on Component, you need to implement the ``save()`` and ``load()`` methods, which are used by [cereal](https://uscilab.github.io/cereal/) for serialization and deserialization.
  */
@@ -21,6 +21,7 @@ struct Component
 {
     virtual ~Component() = default;
     virtual void update(float deltaTime) {};
+    virtual void render(std::shared_ptr<Window> window) {};
     virtual void initialize() {};
     virtual void physicsUpdate() {};
     virtual void input(InputEvent &event) {};
@@ -98,6 +99,7 @@ public:
     explicit Sprite(const std::string &texturePath, std::shared_ptr<Window> window, TextureScaling scaling = TextureScaling::NEAREST);
 
     void postLoad() override;
+    void render(std::shared_ptr<Window>) override;
     void initialize() override;
 
     Vector2 origin = {0.5f, 0.5f};
@@ -196,6 +198,7 @@ public:
     AnimatedSprite(std::shared_ptr<Window> window) : window(window) {};
 
     void initialize() override;
+    void render(std::shared_ptr<Window>) override;
     void update(float deltaTime) override;
 
     void addAnimation(const Animation &animation);
@@ -308,6 +311,7 @@ public:
     }
 
     void update();
+    void render(std::shared_ptr<Window>) override;
     void initialize() { bake(); };
     void bake();
 
@@ -385,6 +389,7 @@ public:
     virtual void update(float deltaTime) {};
     virtual void initialize() {};
     virtual void physicsUpdate() {};
+    virtual void render(std::shared_ptr<Window> window) {};
     virtual void exit() {};
 
     template <class Archive>
