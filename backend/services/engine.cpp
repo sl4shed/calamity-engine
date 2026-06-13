@@ -133,6 +133,10 @@ int Engine::appendWindow(std::shared_ptr<Window> window) {
     return id;
 }
 
+std::vector<std::shared_ptr<Window>> Engine::getWindows() {
+    return windows;
+}
+
 void Engine::removeWindow(int id) {
     // TODO: implement
 }

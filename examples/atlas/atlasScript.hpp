@@ -34,20 +34,10 @@ public:
     }
 
     void input(InputEvent& event) {
-        InputEventKey *inputKey = dynamic_cast<InputEventKey*>(&event);
-        if (inputKey && inputKey->pressed == true)
-        {
-            switch (inputKey->scancode)
-            {
-            case Keycode::W:
-                spr->sourceRect.position = {0, 0};
-                break;
-            case Keycode::A:
-                spr->sourceRect.position = {160, 0};
-                break;
-            default:
-                break;
-            }
+        if(event.isActionPressed("1")) {
+            spr->sourceRect.position = {0, 0};
+        } else if(event.isActionPressed("2")) {
+            spr->sourceRect.position = {160, 0};
         }
     }
 };

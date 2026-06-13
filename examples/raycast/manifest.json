@@ -1,6 +1,6 @@
 {
     "title": "Raycast example",
-    "description": "An example of a raycast",
+    "description": "This example demonstrates how to use a raycast. Now, the cat has cool laser eyes!",
     "sourceFiles": [
         "main.cpp", "raycastScript.hpp", "CMakeLists.txt"
     ],

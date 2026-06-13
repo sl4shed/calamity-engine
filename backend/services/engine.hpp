@@ -41,6 +41,7 @@ public:
     int appendWindow(std::shared_ptr<Window> window);
     void removeWindow(int id);
     std::shared_ptr<Window> getWindow(int id);
+    std::vector<std::shared_ptr<Window>> getWindows();
 
     void update();
     void render(Graphics &graphics);

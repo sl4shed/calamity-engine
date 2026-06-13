@@ -20,9 +20,10 @@ class AudioScript : public Script
     std::shared_ptr<AudioSource> src;
 
     int frameCounter = 0;
+
 public:
     template <class Archive>
-    void save(Archive &ar) const{}
+    void save(Archive &ar) const {}
 
     template <class Archive>
     void load(Archive &ar) {}
@@ -41,23 +42,17 @@ public:
         }
     }
 
-    void input(InputEvent& event) {
-        InputEventKey *inputKey = dynamic_cast<InputEventKey*>(&event);
-        if (inputKey && inputKey->pressed == true)
+    void input(InputEvent &event)
+    {
+        if (event.isActionPressed("play"))
         {
-            switch (inputKey->scancode)
+            if (src->getPlaying())
             {
-            case Keycode::SPACE:
-                if (src->getPlaying())
-                {
-                    src->stop();
-                } else
-                {
-                    src->play();
-                }
-                break;
-            default:
-                break;
+                src->stop();
+            }
+            else
+            {
+                src->play();
             }
         }
     }

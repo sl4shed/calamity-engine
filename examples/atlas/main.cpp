@@ -46,6 +46,31 @@ int main() {
 
     Services::init(graphics, &physics, &engine, &input, &inputRegistry, &audio);
 
+    inputRegistry.addAction("1", 0.2f);
+    auto event1 = std::make_unique<InputEventControllerButton>();
+    event1->device = 0;
+    event1->pressed = true;
+    event1->button = ControllerButton::LEFT_SHOULDER;
+    inputRegistry.actionAddEvent("1", std::move(event1));
+
+    auto event1k = std::make_unique<InputEventKey>();
+    event1k->scancode = Keycode::W;
+    event1k->pressed = true;
+    inputRegistry.actionAddEvent("1", std::move(event1k));
+
+    inputRegistry.addAction("2", 0.2f);
+    auto event2 = std::make_unique<InputEventControllerButton>();
+    event2->device = 0;
+    event2->pressed = true;
+    event2->button = ControllerButton::RIGHT_SHOULDER;
+    inputRegistry.actionAddEvent("2", std::move(event2));
+
+    auto event2k = std::make_unique<InputEventKey>();
+    event2k->scancode = Keycode::A;
+    event2k->pressed = true;
+    inputRegistry.actionAddEvent("2", std::move(event2k));
+
+
     std::shared_ptr<Node> cameraNode = std::make_shared<Node>();
     std::shared_ptr<Camera> camera = std::make_shared<Camera>();
     cameraNode->addComponent(camera);
@@ -60,7 +85,7 @@ int main() {
     node->addComponent(sprite);
 
     std::shared_ptr<Node> lnode = std::make_shared<Node>();
-    std::shared_ptr<Label> label = std::make_shared<Label>("W - texture 1\nA - texture 2");
+    std::shared_ptr<Label> label = std::make_shared<Label>("W\LSB - texture 1\nA\RSB - texture 2");
     label->font->setSize(12);
     label->size = {200, 500};
     label->screenSpace = true;

@@ -137,6 +137,7 @@ void Input::update(float deltaTime)
             auto ev = std::make_unique<InputEventControllerButton>();
             ev->pressed = true;
             ev->device = controllerMap.at(static_cast<int>(event.gdevice.which)); // find calamity controller id;
+            
             ev->button = static_cast<ControllerButton>(event.gbutton.button);
             inputs.push_back(std::move(ev));
             break;
@@ -205,9 +206,21 @@ void Input::update(float deltaTime)
         if (window)
         { // TODO: is this ok?
             window->root->input(*e);
+        } else if (dynamic_cast<InputEventControllerButton*>(e.get()) || // controller events get sent out to every window 
+                   dynamic_cast<InputEventControllerMotion*>(e.get()) ||
+                   dynamic_cast<InputEventControllerStatus*>(e.get()))
+    {
+        auto windows = Services::engine()->getWindows();
+        for (auto& win : windows)
+        {
+            if (win && win->root)
+            {
+                win->root->input(*e);
+            }
         }
+    }
 
-        if (const auto *motion = dynamic_cast<InputEventControllerMotion *>(e.get()))
+        if (const auto *motion = dynamic_cast<InputEventControllerMotion *>(e.get())) // controller motion shit needs special handling
         {
             for (auto &[name, action] : *actionsArrayPointer)
                 if (Services::inputRegistry()->eventIsAction(e.get(), name, true))

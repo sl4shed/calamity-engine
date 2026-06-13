@@ -180,8 +180,6 @@ void Node::input(InputEvent &event)
 
 void Node::postLoad()
 {
-    Logger::debug("POST LOAD POST LOAD NODE: {}", name);
-
     for (const auto &i : children)
     {
         i->postLoad();

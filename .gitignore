@@ -80,3 +80,4 @@ web-build/
 docs-out/
 */build
 .wrangler
+.idea

@@ -49,6 +49,18 @@ int main() {
 
     Services::init(graphics, &physics, &engine, &input, &inputRegistry, &audio);
 
+    inputRegistry.addAction("play");
+    auto event = std::make_unique<InputEventKey>();
+    event->pressed = true;
+    event->scancode = Keycode::SPACE;
+    inputRegistry.actionAddEvent("play", std::move(event));
+
+    auto eventC = std::make_unique<InputEventControllerButton>();
+    eventC->device = 0;
+    eventC->button = ControllerButton::SOUTH;
+    eventC->pressed = true;
+    inputRegistry.actionAddEvent("play", std::move(eventC));
+
     std::shared_ptr<Node> cameraNode = std::make_shared<Node>();
     std::shared_ptr<Camera> camera = std::make_shared<Camera>();
     cameraNode->addComponent(camera);
@@ -64,7 +76,7 @@ int main() {
     node->addComponent(std::make_shared<AudioScript>());
 
     std::shared_ptr<Node> lnode = std::make_shared<Node>();
-    std::shared_ptr<Label> label = std::make_shared<Label>("Space - Play/Stop sound");
+    std::shared_ptr<Label> label = std::make_shared<Label>("Space/A - Play/Stop sound");
     label->font->setSize(12);
     label->size = {200, 500};
     lnode->transform.position = {-240, -136};
