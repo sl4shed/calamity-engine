@@ -19,7 +19,6 @@ class AtlasScript : public Script
     Node *node;
     std::shared_ptr<Sprite> spr;
 
-
 public:
     template <class Archive>
     void save(Archive &ar) const {}
@@ -33,10 +32,14 @@ public:
         spr = node->getComponent<Sprite>();
     }
 
-    void input(InputEvent& event) {
-        if(event.isActionPressed("1")) {
+    void input(InputEvent &event)
+    {
+        if (event.isActionPressed("1"))
+        {
             spr->sourceRect.position = {0, 0};
-        } else if(event.isActionPressed("2")) {
+        }
+        else if (event.isActionPressed("2"))
+        {
             spr->sourceRect.position = {160, 0};
         }
     }

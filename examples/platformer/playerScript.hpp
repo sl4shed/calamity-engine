@@ -41,8 +41,9 @@ public:
     }
 
     void input(InputEvent &event)
-    {   
-        if(event.isActionPressed("up") && body->isOnGround()) {
+    {
+        if (event.isActionPressed("up") && body->isOnGround())
+        {
             Vector2 vel = body->getLinearVelocity();
             body->setLinearVelocity({vel.x, vel.y - JUMP});
         }
@@ -56,21 +57,27 @@ public:
         body->setLinearVelocity({vec * SPEED, vel.y});
         if (vec < 0)
         {
-            if(sprite->getCurrentAnimationName() == "idle") {
+            if (sprite->getCurrentAnimationName() == "idle")
+            {
                 sprite->stop();
                 sprite->play("run");
             }
 
             sprite->flipH = true;
-        } else if (vec > 0)
+        }
+        else if (vec > 0)
         {
-            if(sprite->getCurrentAnimationName() == "idle") {
+            if (sprite->getCurrentAnimationName() == "idle")
+            {
                 sprite->play("run");
             }
 
             sprite->flipH = false;
-        } else if (vec == 0) {
-            if(sprite->getCurrentAnimationName() == "run") {
+        }
+        else if (vec == 0)
+        {
+            if (sprite->getCurrentAnimationName() == "run")
+            {
                 sprite->stop();
                 sprite->play("idle");
             }

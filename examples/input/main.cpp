@@ -28,17 +28,19 @@ PSP_MAIN_THREAD_ATTR(THREAD_ATTR_USER);
 
 static Physics physics;
 static Engine engine = Engine("Input Example");
-static Graphics* graphics = nullptr;
+static Graphics *graphics = nullptr;
 
-void loop() {
+void loop()
+{
     engine.update();
     engine.render(*graphics);
 }
 
-int main() {
+int main()
+{
     Logger::init();
 
-    auto window = std::make_shared<Window>("Input Example", Rect({0, 0}, {480, 272}));
+    auto window = std::make_shared<Window>("Input Example", Rect({100, 100}, {480, 272}));
     engine.appendWindow(window);
     graphics = new Graphics();
     Input input;
@@ -120,7 +122,8 @@ int main() {
 #ifdef EMSCRIPTEN
     emscripten_set_main_loop(loop, 0, 1);
 #else
-    while(!input.shouldQuit) {
+    while (!input.shouldQuit)
+    {
         loop();
     }
 #endif

@@ -27,17 +27,19 @@ PSP_MAIN_THREAD_ATTR(THREAD_ATTR_USER);
 
 static Physics physics;
 static Engine engine = Engine("Atlas Example");
-static Graphics* graphics = nullptr;
+static Graphics *graphics = nullptr;
 
-void loop() {
+void loop()
+{
     engine.update();
     engine.render(*graphics);
 }
 
-int main() {
+int main()
+{
     Logger::init();
 
-    auto window = std::make_shared<Window>("Atlas Example", Rect({0, 0}, {480, 272}));
+    auto window = std::make_shared<Window>("Atlas Example", Rect({100, 100}, {480, 272}));
     engine.appendWindow(window);
     graphics = new Graphics();
     Input input;
@@ -70,7 +72,6 @@ int main() {
     event2k->pressed = true;
     inputRegistry.actionAddEvent("2", std::move(event2k));
 
-
     std::shared_ptr<Node> cameraNode = std::make_shared<Node>();
     std::shared_ptr<Camera> camera = std::make_shared<Camera>();
     cameraNode->addComponent(camera);
@@ -100,7 +101,8 @@ int main() {
 #ifdef EMSCRIPTEN
     emscripten_set_main_loop(loop, 0, 1);
 #else
-    while (!input.shouldQuit) {
+    while (!input.shouldQuit)
+    {
         loop();
     }
     engine.exit();

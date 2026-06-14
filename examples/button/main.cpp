@@ -39,7 +39,7 @@ int main()
 {
     Logger::init();
 
-    auto window = std::make_shared<Window>("Button Example", Rect({0, 0}, {480, 272}));
+    auto window = std::make_shared<Window>("Button Example", Rect({100, 100}, {480, 272}));
     engine.appendWindow(window);
     graphics = new Graphics();
     Input input;

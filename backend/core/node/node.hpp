@@ -66,7 +66,8 @@ public:
 		}
 		return nullptr;
 	};
-	std::shared_ptr<Component> getComponentByIndex(int index);
+
+		std::shared_ptr<Component> getComponentByIndex(int index);
 
 	// state functions
 	virtual void render(Graphics &graphics, Engine *engine, std::shared_ptr<Window> window) const;

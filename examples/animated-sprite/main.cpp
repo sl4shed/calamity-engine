@@ -26,17 +26,19 @@ PSP_MAIN_THREAD_ATTR(THREAD_ATTR_USER);
 
 static Physics physics;
 static Engine engine = Engine("Animated Sprite Example");
-static Graphics* graphics = nullptr;
+static Graphics *graphics = nullptr;
 
-void loop() {
+void loop()
+{
     engine.update();
     engine.render(*graphics);
 }
 
-int main() {
+int main()
+{
     Logger::init();
 
-    auto window = std::make_shared<Window>("Animated Sprite Example", Rect({0, 0}, {480, 272}));
+    auto window = std::make_shared<Window>("Animated Sprite Example", Rect({100, 100}, {480, 272}));
     engine.appendWindow(window);
     graphics = new Graphics();
     Input input;
@@ -56,15 +58,14 @@ int main() {
     anim.textureScaling = TextureScaling::PIXELART;
     anim.texturePath = "res://assets/frames.png";
     anim.addFrames(
-        Frame({{0,   0}, {32, 32}}, {0.5, 0.5}, Color::BLUE),
-        Frame({{32,  0}, {32, 32}}),
-        Frame({{64,  0}, {32, 32}}),
-        Frame({{64,  0}, {32, 32}}),
-        Frame({{64,  0}, {32, 32}}),
-        Frame({{64,  0}, {32, 32}}),
-        Frame({{96,  0}, {32, 32}}),
-        Frame({{128, 0}, {32, 32}})
-    );
+        Frame({{0, 0}, {32, 32}}, {0.5, 0.5}, Color::BLUE),
+        Frame({{32, 0}, {32, 32}}),
+        Frame({{64, 0}, {32, 32}}),
+        Frame({{64, 0}, {32, 32}}),
+        Frame({{64, 0}, {32, 32}}),
+        Frame({{64, 0}, {32, 32}}),
+        Frame({{96, 0}, {32, 32}}),
+        Frame({{128, 0}, {32, 32}}));
     sprite->addAnimation(anim);
     node->addComponent(sprite);
 
@@ -83,7 +84,8 @@ int main() {
 #ifdef EMSCRIPTEN
     emscripten_set_main_loop(loop, 0, 1);
 #else
-    while (!input.shouldQuit) {
+    while (!input.shouldQuit)
+    {
         loop();
     }
     engine.exit();

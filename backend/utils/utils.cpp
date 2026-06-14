@@ -1,5 +1,6 @@
 #include "utils.hpp"
 #include <cmath>
+#include "logger.hpp"
 #include "../core/node/node.hpp"
 #include "../core/definitions.hpp"
 #include "../services/physics/definitions.hpp"
@@ -23,6 +24,49 @@ std::vector<SDL_Vertex> circleFan(Vector2 position, float radius, Color color, i
     }
 
     return vertices;
+}
+
+std::vector<SDL_Vertex> semiCircleFan(Vector2 position, float radius, float direction, Color color, int numSides)
+{
+    int numVertices = numSides + 2;
+    float pi = 3.141592653f;
+    float startAngle = direction - 90.0f;
+    float endAngle = direction + 90.0f;
+
+    float startRad = startAngle * pi / 180.0f;
+    float endRad = endAngle * pi / 180.0f;
+    float angleStep = (endRad - startRad) / numSides;
+    SDL_FColor col = static_cast<SDL_FColor>(color);
+
+    std::vector<SDL_Vertex> vertices(numVertices);
+    vertices[0].position.x = position.x;
+    vertices[0].position.y = position.y;
+    vertices[0].color = col;
+
+    for (int i = 1; i < numVertices; i++)
+    {
+        float angle = startRad + (i - 1) * angleStep;
+        vertices[i].position.x = position.x + (radius * cos(angle));
+        vertices[i].position.y = position.y + (radius * sin(angle));
+        vertices[i].color = col;
+    }
+
+    return vertices;
+}
+
+void drawSemiCircle(Vector2 position, float radius, float direction, Color modulate, Window *window, int numSides)
+{
+    std::vector<SDL_Vertex> vertices = semiCircleFan(position, radius, direction, modulate, numSides);
+
+    std::vector<int> indices;
+    for (int i = 1; i < static_cast<int>(vertices.size()) - 1; i++)
+    {
+        indices.push_back(0);
+        indices.push_back(i);
+        indices.push_back(i + 1);
+    }
+
+    SDL_RenderGeometry(window->renderer, nullptr, vertices.data(), vertices.size(), indices.data(), indices.size());
 }
 
 void drawCircle(Vector2 position, float radius, Color modulate, Window *window, int numSides)
@@ -58,8 +102,11 @@ void drawCapsule(Vector2 center1, Vector2 center2, float radius, Color modulate,
 
     const int indices[6] = {0, 1, 2, 2, 3, 0};
     SDL_RenderGeometry(window->renderer, nullptr, verts, 4, indices, 6);
-    drawCircle(center1, radius, modulate, window);
-    drawCircle(center2, radius, modulate, window);
+
+    float angle = atan2(norm.y, norm.x) * 180.0f / 3.141592653f;
+
+    drawSemiCircle(center1, radius, angle + 180, modulate, window, numSides);
+    drawSemiCircle(center2, radius, angle, modulate, window, numSides);
 }
 
 void drawSegment(Vector2 point1, Vector2 point2, Color modulate, Window *window)

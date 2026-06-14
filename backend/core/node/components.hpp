@@ -123,7 +123,6 @@ public:
     template <class Archive>
     void load(Archive &ar)
     {
-        std::cout << "LOADING SPRITE" << std::endl;
         ar(CEREAL_NVP(origin), CEREAL_NVP(sourceRect), CEREAL_NVP(visible), CEREAL_NVP(texture), CEREAL_NVP(screenSpace), CEREAL_NVP(modulate), CEREAL_NVP(flipH), CEREAL_NVP(flipV));
     }
 };
@@ -244,16 +243,17 @@ public:
         std::string currentAnimName;
         ar(CEREAL_NVP(animations), CEREAL_NVP(visible), CEREAL_NVP(screenSpace),
            CEREAL_NVP(frame), CEREAL_NVP(playing), currentAnimName);
-        
+
         saveCurrentAnimName = currentAnimName;
     }
 
     void postLoad();
+
 private:
     float elapsed = 0.0f;
     int frame = 0;
     std::unique_ptr<Animation> currentAnimation = nullptr;
-    
+
     std::string saveCurrentAnimName;
     Texture currentTexture;
     bool playing = false;

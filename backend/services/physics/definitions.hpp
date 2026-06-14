@@ -56,7 +56,6 @@ public:
 
     Shape *setSensor(bool sensor)
     {
-        Logger::debug("Setting sensor to {}", sensor);
         shapeDef.isSensor = sensor;
         shapeDef.enableSensorEvents = sensor;
         isSensor = sensor;
@@ -279,9 +278,9 @@ public:
 
 /**
  * # RaycastResult
- * 
+ *
  * RaycastResult defines the result of a Raycast.
- * 
+ *
  * It has properties such as `physicsBody` which dictates the PhysicsBody the raycast hit, `point` which dictates the point of the intersection and `hit` which dictates if the raycast actually hit anything.
  */
 struct RaycastResult
@@ -297,15 +296,15 @@ struct RaycastResult
 
 /**
  * # Raycast
- * 
+ *
  * To use a raycast, you must create a Transform and set its rotation/position. You can also define the maximum distance of the Raycast.
- * 
+ *
  * Example usage:
  * ```cpp
  * auto raycast = Raycast();
  * raycast.transform = Transform();
  * raycast.transform.setAngle(20.0f);
- * 
+ *
  * auto result = raycast.calculate();
  * if(result.hit) {
  *     Logger::info("Raycast hit: {}", result.physicsBody->getNode()->name);

@@ -136,6 +136,7 @@ int main()
 
     auto cameraNode = std::make_shared<Node>("cameraNode");
     std::shared_ptr<Camera> camera = std::make_shared<Camera>();
+    cameraNode->transform.position = {0, -100};
     cameraNode->transform.scale({3, 3});
     cameraNode->addComponent(camera);
 

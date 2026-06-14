@@ -11,24 +11,26 @@
 #include "backend/core/ui/definitions.hpp"
 #include "backend/core/ui/label.hpp"
 
-struct AppState {
+struct AppState
+{
     Engine *engine;
-    Graphics* graphics;
+    Graphics *graphics;
 };
 
-void loop(AppState* state)
+void loop(AppState *state)
 {
     state->engine->update();
     state->engine->render(*state->graphics);
 }
 
-int main() {
+int main()
+{
     Logger::init();
     Engine engine = Engine("Multi Window Example");
     Graphics *graphics = nullptr;
 
-    auto window1 = std::make_shared<Window>("Window 1", Rect({0, 0}, {480, 272}));
-    auto window2 = std::make_shared<Window>("Window 2", Rect({480, 0}, {480, 272}));
+    auto window1 = std::make_shared<Window>("Window 1", Rect({100, 100}, {480, 272}));
+    auto window2 = std::make_shared<Window>("Window 2", Rect({580, 100}, {480, 272}));
     engine.appendWindow(window1);
     engine.appendWindow(window2);
     graphics = new Graphics();
@@ -70,7 +72,8 @@ int main() {
 
     engine.initialize();
 
-    while(!input.shouldQuit) {
+    while (!input.shouldQuit)
+    {
         loop(&appstate);
     }
 

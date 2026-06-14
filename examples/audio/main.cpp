@@ -28,7 +28,7 @@ PSP_MAIN_THREAD_ATTR(THREAD_ATTR_USER);
 
 static Physics physics;
 static Engine engine = Engine("Calamity Engine");
-static Graphics* graphics = nullptr;
+static Graphics *graphics = nullptr;
 
 void loop()
 {
@@ -36,10 +36,11 @@ void loop()
     engine.render(*graphics);
 }
 
-int main() {
+int main()
+{
     Logger::init();
 
-    auto window = std::make_shared<Window>("Audio Example", Rect({0, 0}, {480, 272}));
+    auto window = std::make_shared<Window>("Audio Example", Rect({100, 100}, {480, 272}));
     engine.appendWindow(window);
     graphics = new Graphics();
 
@@ -88,25 +89,24 @@ int main() {
     engine.initialize();
 
     // play sound
-    sound->finished.connect([sound]() {
+    sound->finished.connect([sound]()
+                            {
         Logger::info("Sound finished playing!");
-        sound->finished.reset();
-    });
+        sound->finished.reset(); });
 
     sound->looped.connect([sound]()
-    {
+                          {
         Logger::info("Sound looped!");
-        sound->looped.reset();
-    });
+        sound->looped.reset(); });
 
 #ifdef EMSCRIPTEN
     emscripten_set_main_loop(loop, 0, 1);
 #else
-    while(!input.shouldQuit) {
+    while (!input.shouldQuit)
+    {
         loop();
     }
 #endif
-
 
     engine.exit();
 }

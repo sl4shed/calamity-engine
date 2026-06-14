@@ -11,7 +11,8 @@
 #include <tracy/Tracy.hpp>
 #endif
 
-Window::Window(std::string name, Rect dimensions, RenderLogicalPresentation presentation, WindowFlags flags, Color clearColor, bool fullscreen) : title(name), dimensions(dimensions), presentation(presentation), flags(flags), clearColor(clearColor), fullscreen(fullscreen) {
+Window::Window(std::string name, Rect dimensions, RenderLogicalPresentation presentation, WindowFlags flags, Color clearColor, bool fullscreen) : title(name), dimensions(dimensions), presentation(presentation), flags(flags), clearColor(clearColor), fullscreen(fullscreen)
+{
     root = std::make_unique<Node>("root");
     root->transform.position = {0, 0};
 
@@ -24,7 +25,6 @@ Window::Window(std::string name, Rect dimensions, RenderLogicalPresentation pres
     SDL_SetNumberProperty(props, SDL_PROP_WINDOW_CREATE_Y_NUMBER, dimensions.position.y);
     SDL_SetNumberProperty(props, SDL_PROP_WINDOW_CREATE_FLAGS_NUMBER, (SDL_WindowFlags)flags);
     SDL_SetBooleanProperty(props, SDL_PROP_WINDOW_CREATE_FULLSCREEN_BOOLEAN, fullscreen);
-
 
     this->window = SDL_CreateWindowWithProperties(props);
     if (!this->window)
@@ -42,9 +42,15 @@ Window::Window(std::string name, Rect dimensions, RenderLogicalPresentation pres
     {
         Logger::error("Failed to set render logical presentation: {}", SDL_GetError());
     }
+
+    if (!SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND))
+    {
+        Logger::error("Failed to set render draw blend mode: {}", SDL_GetError());
+    }
 }
 
-Window::~Window() {
+Window::~Window()
+{
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
 }
@@ -68,11 +74,13 @@ void Window::postRender() const
     SDL_RenderPresent(this->renderer);
 }
 
-void Window::update(float deltaTime) {
+void Window::update(float deltaTime)
+{
     root->update(deltaTime);
 }
 
-void Window::render(Graphics &graphics, Engine *engine) {
+void Window::render(Graphics &graphics, Engine *engine)
+{
 #if TRACY_ENABLE
     ZoneScoped;
 #endif
@@ -84,22 +92,26 @@ void Window::render(Graphics &graphics, Engine *engine) {
     postRender();
 }
 
-void Window::exit() {
+void Window::exit()
+{
     root->exit();
     root->children.clear();
     root->components.clear();
 }
 
-void Window::initialize() {
+void Window::initialize()
+{
     root->setWindow(shared_from_this());
     root->initialize();
 }
 
-void Window::physicsUpdate() {
+void Window::physicsUpdate()
+{
     root->physicsUpdate();
 }
 
-void Window::resetLogicalPresentation() {
+void Window::resetLogicalPresentation()
+{
     if (!SDL_SetRenderLogicalPresentation(renderer, static_cast<int>(dimensions.size.x), static_cast<int>(dimensions.size.y), static_cast<SDL_RendererLogicalPresentation>(presentation)))
     {
         Logger::error("Failed to set render logical presentation: {}", SDL_GetError());

@@ -30,6 +30,7 @@ class BoxScript : public Script
 
     bool controller = false;
     const int SPEED = 500;
+
 public:
     template <class Archive>
     void save(Archive &ar) const {}
@@ -50,27 +51,32 @@ public:
     {
         // when the controller connects/disconnects, change the input mode
         InputEventControllerStatus *status = dynamic_cast<InputEventControllerStatus *>(&event);
-        if (status) {
+        if (status)
+        {
             controller = status->connected;
             return;
         }
 
         // add event
-        if(event.isActionPressed("add")) {
+        if (event.isActionPressed("add"))
+        {
             place();
             randomize();
         }
 
         // clear event
-        if(event.isActionPressed("clear")) {
+        if (event.isActionPressed("clear"))
+        {
             auto children = catNode->children;
-            for(auto child : children) {
+            for (auto child : children)
+            {
                 child->free();
             }
         }
 
         // save event
-        if(event.isActionPressed("save")) {
+        if (event.isActionPressed("save"))
+        {
             auto nodeTree = exportNodeTree(catNode);
 
             File *file = File::open("user://save.data", "w");
@@ -81,8 +87,10 @@ public:
         }
 
         // load event
-        if(event.isActionPressed("load")) {
-            if (!File::fileExists("user://save.data")) return;
+        if (event.isActionPressed("load"))
+        {
+            if (!File::fileExists("user://save.data"))
+                return;
             File *file = File::open("user://save.data", "r");
 
             std::string saveData = file->getAsText();
@@ -94,7 +102,8 @@ public:
                     n->free();
                 }
                 loadNodeTree(catNode, saveData);
-            } else
+            }
+            else
             {
                 Logger::warn("No save data to load!");
             }

@@ -13,7 +13,7 @@
 #include "backend/core/ui/definitions.hpp"
 #include "backend/core/ui/label.hpp"
 #include "backend/utils/utils.hpp"
-#include "rootScript.hpp"
+#include "nodeScript.hpp"
 
 #ifdef EMSCRIPTEN
 #include <emscripten.h>
@@ -52,23 +52,69 @@ int main()
 
     Services::init(graphics, &physics, &engine, &input, &inputRegistry, &audio);
 
+    ///////////////////////////////////////////
+
+    inputRegistry.addAction("left", 0.2f);
+    auto leftEvent = std::make_unique<InputEventControllerMotion>();
+    leftEvent->device = 0;
+    leftEvent->axis = ControllerAxis::LEFT_X;
+    leftEvent->motion = -1.0f;
+    inputRegistry.actionAddEvent("left", std::move(leftEvent));
+
+    inputRegistry.addAction("right", 0.2f);
+    auto rightEvent = std::make_unique<InputEventControllerMotion>();
+    rightEvent->device = 0;
+    rightEvent->axis = ControllerAxis::LEFT_X;
+    rightEvent->motion = 1.0f;
+    inputRegistry.actionAddEvent("right", std::move(rightEvent));
+
+    inputRegistry.addAction("up", 0.2f);
+    auto upEvent = std::make_unique<InputEventControllerMotion>();
+    upEvent->device = 0;
+    upEvent->axis = ControllerAxis::LEFT_Y;
+    upEvent->motion = 1.0f;
+    inputRegistry.actionAddEvent("up", std::move(upEvent));
+
+    inputRegistry.addAction("down", 0.2f);
+    auto downEvent = std::make_unique<InputEventControllerMotion>();
+    downEvent->device = 0;
+    downEvent->axis = ControllerAxis::LEFT_Y;
+    downEvent->motion = -1.0f;
+    inputRegistry.actionAddEvent("down", std::move(downEvent));
+
+    ///////////////////////// divider /////////////////////////////
+
     inputRegistry.addAction("add", 0.2f);
     auto addEvent = std::make_unique<InputEventMouseButton>();
     addEvent->pressed = true;
     addEvent->button = MouseButton::LEFT;
     inputRegistry.actionAddEvent("add", std::move(addEvent));
 
-    auto ctrEvent = std::make_unique<InputEventControllerButton>();
-    ctrEvent->pressed = true;
-    ctrEvent->button = ControllerButton::SOUTH;
-    ctrEvent->device = 0;
-    inputRegistry.actionAddEvent("add", std::move(ctrEvent));
+    auto addEventC = std::make_unique<InputEventControllerButton>();
+    addEventC->pressed = true;
+    addEventC->device = 0;
+    addEventC->button = ControllerButton::SOUTH;
+    inputRegistry.actionAddEvent("add", std::move(addEventC));
 
-    std::shared_ptr<Node> cameraNode = std::make_shared<Node>("cameraNode");
-    std::shared_ptr<Camera> camera = std::make_shared<Camera>();
+    inputRegistry.addAction("clear", 0.2f);
+    auto clearEvent = std::make_unique<InputEventMouseButton>();
+    clearEvent->pressed = true;
+    clearEvent->button = MouseButton::RIGHT;
+    inputRegistry.actionAddEvent("clear", std::move(clearEvent));
+
+    auto clearEventC = std::make_unique<InputEventControllerButton>();
+    clearEventC->pressed = true;
+    clearEventC->device = 0;
+    clearEventC->button = ControllerButton::EAST;
+    inputRegistry.actionAddEvent("clear", std::move(clearEventC));
+
+    /////////////////////////////////////
+
+    auto cameraNode = std::make_shared<Node>("cameraNode");
+    auto camera = std::make_shared<Camera>();
     cameraNode->addComponent(camera);
 
-    std::shared_ptr<Node> node = std::make_shared<Node>("floorNode");
+    auto node = std::make_shared<Node>("floorNode");
     node->transform.position = {0, 0};
     node->transform.setAngle(20.0f);
     auto shape = std::make_shared<BoxShape>(Vector2{300, 50});
@@ -84,12 +130,7 @@ int main()
     window->root->addChild(node);
 
     std::shared_ptr<Node> labelNode = std::make_shared<Node>();
-
-#ifdef PSP
-    std::shared_ptr<Label> label = std::make_shared<Label>("X - add box");
-#else
     std::shared_ptr<Label> label = std::make_shared<Label>("left click - add box\nright click - clear boxes");
-#endif
 
     label->size = {200, 700};
     label->font->setSize(16);
@@ -98,7 +139,13 @@ int main()
     labelNode->addComponent(label);
     window->root->addChild(labelNode);
 
-    window->root->addComponent(std::make_shared<RootScript>());
+    auto targetNode = std::make_shared<Node>("targetNode");
+    auto objects = std::make_shared<Node>("objects");
+
+    targetNode->addComponent(std::make_shared<NodeScript>());
+    window->root->addChild(targetNode);
+    window->root->addChild(objects);
+
     engine.initialize();
 
 #ifdef EMSCRIPTEN
