@@ -6,12 +6,13 @@
 #include <optional>
 // enums //
 
-enum class ControllerButton {
+enum class ControllerButton
+{
     INVALID = -1,
-    SOUTH,           /**< Bottom face button (e.g. Xbox A button) */
-    EAST,            /**< Right face button (e.g. Xbox B button) */
-    WEST,            /**< Left face button (e.g. Xbox X button) */
-    NORTH,           /**< Top face button (e.g. Xbox Y button) */
+    SOUTH, /**< Bottom face button (e.g. Xbox A button) */
+    EAST,  /**< Right face button (e.g. Xbox B button) */
+    WEST,  /**< Left face button (e.g. Xbox X button) */
+    NORTH, /**< Top face button (e.g. Xbox Y button) */
     BACK,
     GUIDE,
     START,
@@ -23,16 +24,17 @@ enum class ControllerButton {
     DPAD_DOWN,
     DPAD_LEFT,
     DPAD_RIGHT,
-    MISC1,           /**< Additional button (e.g. Xbox Series X share button, PS5 microphone button, Nintendo Switch Pro capture button, Amazon Luna microphone button, Google Stadia capture button) */
-    RIGHT_PADDLE1,   /**< Upper or primary paddle, under your right hand (e.g. Xbox Elite paddle P1, DualSense Edge RB button, Right Joy-Con SR button) */
-    LEFT_PADDLE1,    /**< Upper or primary paddle, under your left hand (e.g. Xbox Elite paddle P3, DualSense Edge LB button, Left Joy-Con SL button) */
-    RIGHT_PADDLE2,   /**< Lower or secondary paddle, under your right hand (e.g. Xbox Elite paddle P2, DualSense Edge right Fn button, Right Joy-Con SL button) */
-    LEFT_PADDLE2,    /**< Lower or secondary paddle, under your left hand (e.g. Xbox Elite paddle P4, DualSense Edge left Fn button, Left Joy-Con SR button) */
-    TOUCHPAD,        /**< PS4/PS5 touchpad button */
+    MISC1,         /**< Additional button (e.g. Xbox Series X share button, PS5 microphone button, Nintendo Switch Pro capture button, Amazon Luna microphone button, Google Stadia capture button) */
+    RIGHT_PADDLE1, /**< Upper or primary paddle, under your right hand (e.g. Xbox Elite paddle P1, DualSense Edge RB button, Right Joy-Con SR button) */
+    LEFT_PADDLE1,  /**< Upper or primary paddle, under your left hand (e.g. Xbox Elite paddle P3, DualSense Edge LB button, Left Joy-Con SL button) */
+    RIGHT_PADDLE2, /**< Lower or secondary paddle, under your right hand (e.g. Xbox Elite paddle P2, DualSense Edge right Fn button, Right Joy-Con SL button) */
+    LEFT_PADDLE2,  /**< Lower or secondary paddle, under your left hand (e.g. Xbox Elite paddle P4, DualSense Edge left Fn button, Left Joy-Con SR button) */
+    TOUCHPAD,      /**< PS4/PS5 touchpad button */
     COUNT
 };
 
-enum class ControllerAxis {
+enum class ControllerAxis
+{
     INVALID = -1,
     LEFT_X,
     LEFT_Y,
@@ -43,7 +45,8 @@ enum class ControllerAxis {
     SDL_MAX
 };
 
-enum class MouseButton {
+enum class MouseButton
+{
     NONE,
     LEFT,
     MIDDLE,
@@ -62,20 +65,21 @@ class InputEvent
 {
 public:
     virtual ~InputEvent() = default;
-    virtual bool operator==(const InputEvent& other) const { return false; };
-    virtual bool operator<=(const InputEvent& other) const { return false; };
+    virtual bool operator==(const InputEvent &other) const { return false; };
+    virtual bool operator<=(const InputEvent &other) const { return false; };
 
-    bool isActionPressed(const std::string& action) const;
-    bool isActionReleased(const std::string& action) const;
-    bool isAction(const std::string& action) const;
-    
+    bool isActionPressed(const std::string &action) const;
+    bool isActionReleased(const std::string &action) const;
+    bool isAction(const std::string &action) const;
+
     // float getActionStrength(std::string action) const;
     virtual bool isPressed() const { return false; }
     virtual bool isReleased() const { return false; }
     virtual float getStrength() const { return 0.0f; }
 };
 
-class InputEventAction : public InputEvent {
+class InputEventAction : public InputEvent
+{
 public:
     std::string action = "";
     int eventIndex = -1;
@@ -87,7 +91,8 @@ public:
     float getStrength() const { return strength; };
 };
 
-class InputEventWithModifiers : public InputEvent {
+class InputEventWithModifiers : public InputEvent
+{
 public:
     bool altPressed = false;
     bool commandOrControlAutoremap = false;
@@ -101,15 +106,18 @@ public:
 };
 
 // TODO add keylabel and shit to this from SDL key
-class InputEventKey : public InputEventWithModifiers {
+class InputEventKey : public InputEventWithModifiers
+{
 public:
-    bool operator==(const InputEvent& other) const;
-    bool operator<=(const InputEvent& other) const;
+    InputEventKey(bool pressed = false, Keycode scancode = Keycode::UNKNOWN, Keycode keycode = Keycode::UNKNOWN, bool echo = false) : pressed(pressed), scancode(scancode), keycode(keycode), echo(echo) {};
+
+    bool operator==(const InputEvent &other) const;
+    bool operator<=(const InputEvent &other) const;
 
     bool echo = false; // todo
     Keycode scancode = Keycode::UNKNOWN;
     Keycode keycode = Keycode::UNKNOWN;
-    const char * keyLabel;
+    const char *keyLabel;
     bool pressed = false;
 
     bool isPressed() const { return pressed; };
@@ -117,7 +125,8 @@ public:
     float getStrength() const { return (float)pressed; }
 };
 
-class InputEventMouse : public InputEventWithModifiers {
+class InputEventMouse : public InputEventWithModifiers
+{
 public:
     Vector2 position = {0, 0};
     Vector2 relative = {0, 0};
@@ -126,10 +135,13 @@ public:
 // here's one thing that i dont like how godot does.
 // if its a mouse wheel event i'll just put like the entire Vector2 of factor because
 // then if you're using a touchpad (for example) you dont actually get the high resolution 2d scroll or whatever
-class InputEventMouseButton : public InputEventMouse {
+class InputEventMouseButton : public InputEventMouse
+{
 public:
-    bool operator==(const InputEvent& other) const;
-    bool operator<=(const InputEvent& other) const;
+    InputEventMouseButton(bool pressed = false, MouseButton button = MouseButton::NONE, bool doubleClick = false, Vector2 factor = {0, 0}) : pressed(pressed), button(button), doubleClick(doubleClick), factor(factor) {};
+
+    bool operator==(const InputEvent &other) const;
+    bool operator<=(const InputEvent &other) const;
 
     MouseButton button = MouseButton::NONE;
     bool doubleClick = false;
@@ -141,10 +153,13 @@ public:
     float getStrength() const { return (float)pressed; };
 };
 
-class InputEventMouseMotion : public InputEventMouse {
+class InputEventMouseMotion : public InputEventMouse
+{
 public:
-    bool operator==(const InputEvent& other) const;
-    bool operator<=(const InputEvent& other) const;
+    InputEventMouseMotion(Vector2 relative = {0, 0}, Vector2 position = {0, 0}) : relative(relative), position(position) {};
+
+    bool operator==(const InputEvent &other) const;
+    bool operator<=(const InputEvent &other) const;
 
     // this also has some stuff to do with drawing pens so todo that i guess
     // should be easy with SDL pen events
@@ -152,38 +167,47 @@ public:
     Vector2 position = {0, 0};
 };
 
-class InputEventControllerButton : public InputEvent {
+class InputEventControllerButton : public InputEvent
+{
 public:
-    bool operator==(const InputEvent& other) const;
-    bool operator<=(const InputEvent& other) const;
+    InputEventControllerButton(int device = 0, bool pressed = false, ControllerButton button = ControllerButton::INVALID) : device(device), pressed(pressed), button(button) {};
 
-    ControllerButton button;
-    bool pressed;
+    bool operator==(const InputEvent &other) const;
+    bool operator<=(const InputEvent &other) const;
+
+    ControllerButton button = ControllerButton::INVALID;
+    bool pressed = false;
     float pressure = 1.0f;
-    int device;
+    int device = 0;
 
     bool isPressed() const { return pressed; };
     bool isReleased() const { return !pressed; };
     float getStrength() const { return (float)pressed; } // for now its this because sdl doesnt do gamepad button pressure :(
 };
 
-class InputEventControllerStatus : public InputEvent {
+class InputEventControllerStatus : public InputEvent
+{
 public:
-    bool operator==(const InputEvent& other) const;
-    bool operator<=(const InputEvent& other) const;
+    InputEventControllerStatus(int device = 0, bool connected = false) : device(device), connected(connected) {};
 
-    int device;
-    bool connected;
+    bool operator==(const InputEvent &other) const;
+    bool operator<=(const InputEvent &other) const;
+
+    int device = 0;
+    bool connected = false;
 };
 
-class InputEventControllerMotion : public InputEvent {
+class InputEventControllerMotion : public InputEvent
+{
 public:
-    bool operator==(const InputEvent& other) const;
-    bool operator<=(const InputEvent& other) const;
-    
-    int device;
-    float motion;
-    ControllerAxis axis;
+    InputEventControllerMotion(int device = 0, float motion = 0.0f, ControllerAxis axis = ControllerAxis::INVALID) : device(device), motion(motion), axis(axis) {};
+
+    bool operator==(const InputEvent &other) const;
+    bool operator<=(const InputEvent &other) const;
+
+    int device = 0;
+    float motion = 0.0f;
+    ControllerAxis axis = ControllerAxis::INVALID;
 
     float getStrength() const { return motion; };
 };
@@ -192,7 +216,8 @@ public:
 
 // input registry stuff //
 
-struct InputRegistryAction {
+struct InputRegistryAction
+{
     std::string name;
     std::vector<std::unique_ptr<InputEvent>> events;
     float deadzone;
@@ -201,7 +226,7 @@ struct InputRegistryAction {
 /**
  * # InputRegistry
  * The InputRegistry allows you to define actions which are binded to specific events (like, for example InputEventKey). Once you add an action, you can bind an event to it using `actionAddEvent()`.
- * 
+ *
  * ```cpp
  * // Add an action called "left" which is binded to a InputEventControllerMotion event. This action has a deadzone of 0.2f
  * InputRegistry.addAction("left", 0.2f);
@@ -211,7 +236,7 @@ struct InputRegistryAction {
  * leftEvent->motion = -1.0f;
  * inputRegistry.actionAddEvent("left", std::move(leftEvent));
  * ```
- * 
+ *
  * Once you do that, you can check on a scripts input function if the event is a specific action:
  * ```cpp
  * void input(InputEvent &event)
@@ -221,23 +246,25 @@ struct InputRegistryAction {
  *      }
  * }
  * ```
- * 
+ *
  * Make sure to also check out the [input example](https://calamity.sl4shed.xyz/example-input)!
  */
-class InputRegistry {
+class InputRegistry
+{
 public:
-    int actionAddEvent(const std::string& name, std::unique_ptr<InputEvent> event);
-    void actionRemoveEvent(const std::string& action, int index);
-    void actionRemoveEvents(const std::string& action);
-    float actionGetDeadzone(const std::string& action) const;
+    int actionAddEvent(const std::string &name, std::unique_ptr<InputEvent> event);
+    void actionRemoveEvent(const std::string &action, int index);
+    void actionRemoveEvents(const std::string &action);
+    float actionGetDeadzone(const std::string &action) const;
     std::vector<InputEvent> actionGetEvents(std::string action);
-    void actionSetDeadzone(const std::string& action, float deadzone);
-    void addAction(const std::string& action, float deadzone = 0.1f);
-    void removeAction(const std::string& action);
-    bool eventIsAction(const InputEvent* event, const std::string& name, bool identityCheck = false);
+    void actionSetDeadzone(const std::string &action, float deadzone);
+    void addAction(const std::string &action, float deadzone = 0.1f);
+    void removeAction(const std::string &action);
+    bool eventIsAction(const InputEvent *event, const std::string &name, bool identityCheck = false);
     std::vector<std::string> getActions();
-    bool hasAction(const std::string& action) const;
+    bool hasAction(const std::string &action) const;
     std::unordered_map<std::string, InputRegistryAction> *getActionsArray();
+
 private:
     std::unordered_map<std::string, InputRegistryAction> actions;
 };
@@ -259,7 +286,7 @@ public:
 
     bool isKeyPressed(Keycode key) const;
     bool isControllerButtonPressed(int device, ControllerButton button) const;
-    bool isKeyLabelPressed(const char * label) const;
+    bool isKeyLabelPressed(const char *label) const;
     bool isMouseButtonPressed(MouseButton button) const;
     std::optional<Vector2> getMousePosition() const;
 
@@ -270,24 +297,25 @@ public:
 
     std::vector<int> getConnectedControllers();
     void startControllerVibration(int device, float weakMagnitude, float strongMagnitude, int durationMs = 0) const;
-    //void vibrateHandheld(int durationMs = 500, float amplitude = -1.0f); // no mobile support, yet :)
+    // void vibrateHandheld(int durationMs = 500, float amplitude = -1.0f); // no mobile support, yet :)
 
     // input getting methods //
-    Vector2 getVector(const std::string& minX, const std::string& maxX, const std::string& minY, const std::string& maxY, float deadzone = -1.0f) const;
-    float getAxis(const std::string& minAction, const std::string& maxAction) const;
-    bool isActionJustPressed(const std::string& name) const;
-    bool isActionJustReleased(const std::string& name) const;
-    bool isActionPressed(const std::string& name) const;
+    Vector2 getVector(const std::string &minX, const std::string &maxX, const std::string &minY, const std::string &maxY, float deadzone = -1.0f) const;
+    float getAxis(const std::string &minAction, const std::string &maxAction) const;
+    bool isActionJustPressed(const std::string &name) const;
+    bool isActionJustReleased(const std::string &name) const;
+    bool isActionPressed(const std::string &name) const;
 
     bool shouldQuit = false;
+
 private:
     std::vector<std::unique_ptr<InputEvent>> inputs;
     int sdlKeyNum = 0;
-    const bool * sdlKeyArray = SDL_GetKeyboardState(&sdlKeyNum);
+    const bool *sdlKeyArray = SDL_GetKeyboardState(&sdlKeyNum);
 
     std::unordered_map<std::string, float> actionStrength;
     std::unordered_map<std::string, float> prevActionStrength;
-    std::unordered_map<std::string, InputRegistryAction>* actionsArrayPointer = nullptr;
+    std::unordered_map<std::string, InputRegistryAction> *actionsArrayPointer = nullptr;
     std::unordered_set<std::string> heldActions;
 
     // sdl controller id -> sequential controller id (calamity controller id)

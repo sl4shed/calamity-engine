@@ -54,58 +54,36 @@ int main()
 
     ///////////////////////////////////////////
 
-    inputRegistry.addAction("left", 0.2f);
-    auto leftEvent = std::make_unique<InputEventControllerMotion>();
-    leftEvent->device = 0;
-    leftEvent->axis = ControllerAxis::LEFT_X;
-    leftEvent->motion = -1.0f;
+    inputRegistry.addAction("left");
+    auto leftEvent = std::make_unique<InputEventControllerMotion>(0, -1.0f, ControllerAxis::LEFT_X);
     inputRegistry.actionAddEvent("left", std::move(leftEvent));
 
-    inputRegistry.addAction("right", 0.2f);
-    auto rightEvent = std::make_unique<InputEventControllerMotion>();
-    rightEvent->device = 0;
-    rightEvent->axis = ControllerAxis::LEFT_X;
-    rightEvent->motion = 1.0f;
+    inputRegistry.addAction("right");
+    auto rightEvent = std::make_unique<InputEventControllerMotion>(0, 1.0f, ControllerAxis::LEFT_X);
     inputRegistry.actionAddEvent("right", std::move(rightEvent));
 
-    inputRegistry.addAction("up", 0.2f);
-    auto upEvent = std::make_unique<InputEventControllerMotion>();
-    upEvent->device = 0;
-    upEvent->axis = ControllerAxis::LEFT_Y;
-    upEvent->motion = 1.0f;
+    inputRegistry.addAction("up");
+    auto upEvent = std::make_unique<InputEventControllerMotion>(0, 1.0f, ControllerAxis::LEFT_Y);
     inputRegistry.actionAddEvent("up", std::move(upEvent));
 
-    inputRegistry.addAction("down", 0.2f);
-    auto downEvent = std::make_unique<InputEventControllerMotion>();
-    downEvent->device = 0;
-    downEvent->axis = ControllerAxis::LEFT_Y;
-    downEvent->motion = -1.0f;
+    inputRegistry.addAction("down");
+    auto downEvent = std::make_unique<InputEventControllerMotion>(0, -1.0f, ControllerAxis::LEFT_Y);
     inputRegistry.actionAddEvent("down", std::move(downEvent));
 
     ///////////////////////// divider /////////////////////////////
 
-    inputRegistry.addAction("add", 0.2f);
-    auto addEvent = std::make_unique<InputEventMouseButton>();
-    addEvent->pressed = true;
-    addEvent->button = MouseButton::LEFT;
+    inputRegistry.addAction("add");
+    auto addEvent = std::make_unique<InputEventMouseButton>(true, MouseButton::LEFT);
     inputRegistry.actionAddEvent("add", std::move(addEvent));
 
-    auto addEventC = std::make_unique<InputEventControllerButton>();
-    addEventC->pressed = true;
-    addEventC->device = 0;
-    addEventC->button = ControllerButton::SOUTH;
+    auto addEventC = std::make_unique<InputEventControllerButton>(0, true, ControllerButton::SOUTH);
     inputRegistry.actionAddEvent("add", std::move(addEventC));
 
-    inputRegistry.addAction("clear", 0.2f);
-    auto clearEvent = std::make_unique<InputEventMouseButton>();
-    clearEvent->pressed = true;
-    clearEvent->button = MouseButton::RIGHT;
+    inputRegistry.addAction("clear");
+    auto clearEvent = std::make_unique<InputEventMouseButton>(true, MouseButton::RIGHT);
     inputRegistry.actionAddEvent("clear", std::move(clearEvent));
 
-    auto clearEventC = std::make_unique<InputEventControllerButton>();
-    clearEventC->pressed = true;
-    clearEventC->device = 0;
-    clearEventC->button = ControllerButton::EAST;
+    auto clearEventC = std::make_unique<InputEventControllerButton>(0, true, ControllerButton::EAST);
     inputRegistry.actionAddEvent("clear", std::move(clearEventC));
 
     /////////////////////////////////////
@@ -130,7 +108,7 @@ int main()
     window->root->addChild(node);
 
     std::shared_ptr<Node> labelNode = std::make_shared<Node>();
-    std::shared_ptr<Label> label = std::make_shared<Label>("left click - add box\nright click - clear boxes");
+    std::shared_ptr<Label> label = std::make_shared<Label>("Left Click/A - add object\nRight Click/B - clear objects");
 
     label->size = {200, 700};
     label->font->setSize(16);

@@ -51,15 +51,10 @@ int main()
     Services::init(graphics, &physics, &engine, &input, &inputRegistry, &audio);
 
     inputRegistry.addAction("play");
-    auto event = std::make_unique<InputEventKey>();
-    event->pressed = true;
-    event->scancode = Keycode::SPACE;
+    auto event = std::make_unique<InputEventKey>(true, Keycode::SPACE);
     inputRegistry.actionAddEvent("play", std::move(event));
 
-    auto eventC = std::make_unique<InputEventControllerButton>();
-    eventC->device = 0;
-    eventC->button = ControllerButton::SOUTH;
-    eventC->pressed = true;
+    auto eventC = std::make_unique<InputEventControllerButton>(0, true, ControllerButton::SOUTH);
     inputRegistry.actionAddEvent("play", std::move(eventC));
 
     std::shared_ptr<Node> cameraNode = std::make_shared<Node>();

@@ -50,90 +50,55 @@ int main()
 
     // input stuff
 
-    inputRegistry.addAction("left", 0.2f);
-    auto leftEvent = std::make_unique<InputEventControllerMotion>();
-    leftEvent->device = 0;
-    leftEvent->axis = ControllerAxis::LEFT_X;
-    leftEvent->motion = -1.0f;
+    inputRegistry.addAction("left");
+    auto leftEvent = std::make_unique<InputEventControllerMotion>(0, -1.0f, ControllerAxis::LEFT_X);
     inputRegistry.actionAddEvent("left", std::move(leftEvent));
 
-    auto leftEventK = std::make_unique<InputEventKey>();
-    leftEventK->pressed = true;
-    leftEventK->scancode = Keycode::A;
+    auto leftEventK = std::make_unique<InputEventKey>(true, Keycode::A);
     inputRegistry.actionAddEvent("left", std::move(leftEventK));
 
-    inputRegistry.addAction("right", 0.2f);
-    auto rightEvent = std::make_unique<InputEventControllerMotion>();
-    rightEvent->device = 0;
-    rightEvent->axis = ControllerAxis::LEFT_X;
-    rightEvent->motion = 1.0f;
+    inputRegistry.addAction("right");
+    auto rightEvent = std::make_unique<InputEventControllerMotion>(0, 1.0f, ControllerAxis::LEFT_X);
     inputRegistry.actionAddEvent("right", std::move(rightEvent));
 
-    auto rightEventK = std::make_unique<InputEventKey>();
-    rightEventK->pressed = true;
-    rightEventK->scancode = Keycode::D;
+    auto rightEventK = std::make_unique<InputEventKey>(true, Keycode::D);
     inputRegistry.actionAddEvent("right", std::move(rightEventK));
 
-    inputRegistry.addAction("up", 0.2f);
-    auto upEvent = std::make_unique<InputEventControllerMotion>();
-    upEvent->device = 0;
-    upEvent->axis = ControllerAxis::LEFT_Y;
-    upEvent->motion = 1.0f;
+    inputRegistry.addAction("up");
+    auto upEvent = std::make_unique<InputEventControllerMotion>(0, 1.0f, ControllerAxis::LEFT_Y);
     inputRegistry.actionAddEvent("up", std::move(upEvent));
 
-    auto upEventK = std::make_unique<InputEventKey>();
-    upEventK->pressed = true;
-    upEventK->scancode = Keycode::W;
+    auto upEventK = std::make_unique<InputEventKey>(true, Keycode::W);
     inputRegistry.actionAddEvent("up", std::move(upEventK));
 
-    inputRegistry.addAction("down", 0.2f);
-    auto downEvent = std::make_unique<InputEventControllerMotion>();
-    downEvent->device = 0;
-    downEvent->axis = ControllerAxis::LEFT_Y;
-    downEvent->motion = -1.0f;
+    inputRegistry.addAction("down");
+    auto downEvent = std::make_unique<InputEventControllerMotion>(0, -1.0f, ControllerAxis::LEFT_Y);
     inputRegistry.actionAddEvent("down", std::move(downEvent));
 
-    auto downEventK = std::make_unique<InputEventKey>();
-    downEventK->pressed = true;
-    downEventK->scancode = Keycode::S;
+    auto downEventK = std::make_unique<InputEventKey>(true, Keycode::S);
     inputRegistry.actionAddEvent("down", std::move(downEventK));
 
     // rotate inputs
 
-    inputRegistry.addAction("rotateLeft", 0.2f);
-    auto rotateLeftEvent = std::make_unique<InputEventControllerMotion>();
-    rotateLeftEvent->device = 0;
-    rotateLeftEvent->motion = 1.0f;
-    rotateLeftEvent->axis = ControllerAxis::TRIGGER_LEFT;
+    inputRegistry.addAction("rotateLeft");
+    auto rotateLeftEvent = std::make_unique<InputEventControllerMotion>(0, 1.0f, ControllerAxis::TRIGGER_LEFT);
     inputRegistry.actionAddEvent("rotateLeft", std::move(rotateLeftEvent));
 
-    auto rotateLeftKeyEvent = std::make_unique<InputEventKey>();
-    rotateLeftKeyEvent->pressed = true;
-    rotateLeftKeyEvent->scancode = Keycode::Q;
+    auto rotateLeftKeyEvent = std::make_unique<InputEventKey>(true, Keycode::Q);
     inputRegistry.actionAddEvent("rotateLeft", std::move(rotateLeftKeyEvent));
 
-    inputRegistry.addAction("rotateRight", 0.2f);
-    auto rotateRightEvent = std::make_unique<InputEventControllerMotion>();
-    rotateRightEvent->device = 0;
-    rotateRightEvent->motion = 1.0f;
-    rotateRightEvent->axis = ControllerAxis::TRIGGER_RIGHT;
+    inputRegistry.addAction("rotateRight");
+    auto rotateRightEvent = std::make_unique<InputEventControllerMotion>(0, 1.0f, ControllerAxis::TRIGGER_RIGHT);
     inputRegistry.actionAddEvent("rotateRight", std::move(rotateRightEvent));
 
-    auto rotateRightKeyEvent = std::make_unique<InputEventKey>();
-    rotateRightKeyEvent->pressed = true;
-    rotateRightKeyEvent->scancode = Keycode::E;
+    auto rotateRightKeyEvent = std::make_unique<InputEventKey>(true, Keycode::E);
     inputRegistry.actionAddEvent("rotateRight", std::move(rotateRightKeyEvent));
 
-    inputRegistry.addAction("rotateReset", 0.2f);
-    auto rotateResetEvent = std::make_unique<InputEventControllerButton>();
-    rotateResetEvent->device = 0;
-    rotateResetEvent->button = ControllerButton::EAST;
-    rotateResetEvent->pressed = true;
+    inputRegistry.addAction("rotateReset");
+    auto rotateResetEvent = std::make_unique<InputEventControllerButton>(0, true, ControllerButton::EAST);
     inputRegistry.actionAddEvent("rotateReset", std::move(rotateResetEvent));
 
-    auto rotateResetKeyEvent = std::make_unique<InputEventKey>();
-    rotateResetKeyEvent->pressed = true;
-    rotateResetKeyEvent->scancode = Keycode::R;
+    auto rotateResetKeyEvent = std::make_unique<InputEventKey>(true, Keycode::R);
     inputRegistry.actionAddEvent("rotateReset", std::move(rotateResetKeyEvent));
 
     // node stuff

@@ -48,28 +48,18 @@ int main()
 
     Services::init(graphics, &physics, &engine, &input, &inputRegistry, &audio);
 
-    inputRegistry.addAction("left", 0.2f);
-    auto leftEvent = std::make_unique<InputEventControllerMotion>();
-    leftEvent->device = 0;
-    leftEvent->axis = ControllerAxis::LEFT_X;
-    leftEvent->motion = -1.0f;
+    inputRegistry.addAction("left");
+    auto leftEvent = std::make_unique<InputEventControllerMotion>(0, -1.0f, ControllerAxis::LEFT_X);
     inputRegistry.actionAddEvent("left", std::move(leftEvent));
 
-    auto leftEventK = std::make_unique<InputEventKey>();
-    leftEventK->pressed = true;
-    leftEventK->scancode = Keycode::A;
+    auto leftEventK = std::make_unique<InputEventKey>(true, Keycode::A);
     inputRegistry.actionAddEvent("left", std::move(leftEventK));
 
-    inputRegistry.addAction("right", 0.2f);
-    auto rightEvent = std::make_unique<InputEventControllerMotion>();
-    rightEvent->device = 0;
-    rightEvent->axis = ControllerAxis::LEFT_X;
-    rightEvent->motion = 1.0f;
+    inputRegistry.addAction("right");
+    auto rightEvent = std::make_unique<InputEventControllerMotion>(0, 1.0f, ControllerAxis::LEFT_X);
     inputRegistry.actionAddEvent("right", std::move(rightEvent));
 
-    auto rightEventK = std::make_unique<InputEventKey>();
-    rightEventK->pressed = true;
-    rightEventK->scancode = Keycode::D;
+    auto rightEventK = std::make_unique<InputEventKey>(true, Keycode::D);
     inputRegistry.actionAddEvent("right", std::move(rightEventK));
 
     std::shared_ptr<Node> cameraNode = std::make_shared<Node>();
@@ -84,7 +74,7 @@ int main()
     node->addComponent(sprite);
 
     std::shared_ptr<Node> lnode = std::make_shared<Node>();
-    std::shared_ptr<Label> label = std::make_shared<Label>("A - rotate left\nD - rotate right");
+    std::shared_ptr<Label> label = std::make_shared<Label>("A - D/Joystick - Rotate cat");
     label->font->setSize(12);
     label->size = {200, 500};
     label->screenSpace = true;

@@ -50,40 +50,25 @@ int main()
 
     // input stuff
 
-    inputRegistry.addAction("left", 0.2f);
-    auto leftEvent = std::make_unique<InputEventControllerButton>();
-    leftEvent->device = 0;
-    leftEvent->button = ControllerButton::DPAD_LEFT;
-    leftEvent->pressed = true;
+    inputRegistry.addAction("left");
+    auto leftEvent = std::make_unique<InputEventControllerButton>(0, true, ControllerButton::DPAD_LEFT);
     inputRegistry.actionAddEvent("left", std::move(leftEvent));
 
-    auto leftEventK = std::make_unique<InputEventKey>();
-    leftEventK->pressed = true;
-    leftEventK->scancode = Keycode::A;
+    auto leftEventK = std::make_unique<InputEventKey>(true, Keycode::A);
     inputRegistry.actionAddEvent("left", std::move(leftEventK));
 
-    inputRegistry.addAction("right", 0.2f);
-    auto rightEvent = std::make_unique<InputEventControllerButton>();
-    rightEvent->device = 0;
-    rightEvent->button = ControllerButton::DPAD_RIGHT;
-    rightEvent->pressed = true;
+    inputRegistry.addAction("right");
+    auto rightEvent = std::make_unique<InputEventControllerButton>(0, true, ControllerButton::DPAD_RIGHT);
     inputRegistry.actionAddEvent("right", std::move(rightEvent));
 
-    auto rightEventK = std::make_unique<InputEventKey>();
-    rightEventK->pressed = true;
-    rightEventK->scancode = Keycode::D;
+    auto rightEventK = std::make_unique<InputEventKey>(true, Keycode::D);
     inputRegistry.actionAddEvent("right", std::move(rightEventK));
 
-    inputRegistry.addAction("up", 0.2f);
-    auto upEvent = std::make_unique<InputEventControllerButton>();
-    upEvent->device = 0;
-    upEvent->button = ControllerButton::SOUTH;
-    upEvent->pressed = true;
+    inputRegistry.addAction("up");
+    auto upEvent = std::make_unique<InputEventControllerButton>(0, true, ControllerButton::SOUTH);
     inputRegistry.actionAddEvent("up", std::move(upEvent));
 
-    auto upEventK = std::make_unique<InputEventKey>();
-    upEventK->pressed = true;
-    upEventK->scancode = Keycode::SPACE;
+    auto upEventK = std::make_unique<InputEventKey>(true, Keycode::SPACE);
     inputRegistry.actionAddEvent("up", std::move(upEventK));
 
     // node stuff
