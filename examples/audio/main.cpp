@@ -57,22 +57,22 @@ int main()
     auto eventC = std::make_unique<InputEventControllerButton>(0, true, ControllerButton::SOUTH);
     inputRegistry.actionAddEvent("play", std::move(eventC));
 
-    std::shared_ptr<Node> cameraNode = std::make_shared<Node>();
-    std::shared_ptr<Camera> camera = std::make_shared<Camera>();
+    auto cameraNode = std::make_shared<Node>();
+    auto camera = std::make_shared<Camera>();
     cameraNode->addComponent(camera);
     window->root->addChild(cameraNode);
 
-    std::shared_ptr<Node> node = std::make_shared<Node>();
+    auto node = std::make_shared<Node>();
     node->transform.scale({4, 4});
     node->addComponent(std::make_shared<Sprite>("res://assets/speaker.png", window));
-    std::shared_ptr<AudioSource> sound = std::make_shared<AudioSource>("res://assets/sound.wav");
+    auto sound = std::make_shared<AudioSource>("res://assets/sound.wav");
     node->transform.setScale({0.5f, 0.5f});
     sound->loop = true;
     node->addComponent(sound);
     node->addComponent(std::make_shared<AudioScript>());
 
-    std::shared_ptr<Node> lnode = std::make_shared<Node>();
-    std::shared_ptr<Label> label = std::make_shared<Label>("Space/A - Play/Stop sound");
+    auto lnode = std::make_shared<Node>();
+    auto label = std::make_shared<Label>("Space/A - Play/Stop sound");
     label->font->setSize(12);
     label->size = {200, 500};
     lnode->transform.position = {-240, -136};

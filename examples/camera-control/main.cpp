@@ -103,19 +103,19 @@ int main()
 
     // node stuff
 
-    std::shared_ptr<Node> cameraNode = std::make_shared<Node>();
-    std::shared_ptr<Camera> camera = std::make_shared<Camera>();
+    auto cameraNode = std::make_shared<Node>();
+    auto camera = std::make_shared<Camera>();
     cameraNode->addComponent(camera);
     window->root->addChild(cameraNode);
 
-    std::shared_ptr<Node> node = std::make_shared<Node>();
-    std::shared_ptr<Sprite> sprite = std::make_shared<Sprite>("res://assets/grid.png", window);
+    auto node = std::make_shared<Node>();
+    auto sprite = std::make_shared<Sprite>("res://assets/grid.png", window);
     sprite->texture.width = 512;
     sprite->texture.height = 512;
     node->addComponent(sprite);
 
-    std::shared_ptr<Node> lnode = std::make_shared<Node>();
-    std::shared_ptr<Label> label = std::make_shared<Label>("WASD/Joystick - move camera\nQ/Left Trigger - rotate camera left\nE/Right Trigger - rotate camera right\nR/B - reset camera rotation");
+    auto lnode = std::make_shared<Node>();
+    auto label = std::make_shared<Label>("WASD/Joystick - move camera\nQ/Left Trigger - rotate camera left\nE/Right Trigger - rotate camera right\nR/B - reset camera rotation");
     label->font->setSize(12);
     label->size = {480, 200};
     label->screenSpace = true;

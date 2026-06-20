@@ -107,8 +107,8 @@ int main()
     window->root->addChild(cameraNode);
     window->root->addChild(node);
 
-    std::shared_ptr<Node> labelNode = std::make_shared<Node>();
-    std::shared_ptr<Label> label = std::make_shared<Label>("Left Click/A - add object\nRight Click/B - clear objects");
+    auto labelNode = std::make_shared<Node>();
+    auto label = std::make_shared<Label>("Left Click/A - add object\nRight Click/B - clear objects");
 
     label->size = {200, 700};
     label->font->setSize(16);

@@ -45,26 +45,26 @@ int main()
     Services::init(graphics, &physics, &engine, &input, &inputRegistry, &audio);
 
     // window 1
-    std::shared_ptr<Node> cameraNode = std::make_shared<Node>();
-    std::shared_ptr<Camera> camera = std::make_shared<Camera>();
+    auto cameraNode = std::make_shared<Node>();
+    auto camera = std::make_shared<Camera>();
     cameraNode->addComponent(camera);
     window1->root->addChild(cameraNode);
 
-    std::shared_ptr<Node> node = std::make_shared<Node>();
-    std::shared_ptr<Label> label = std::make_shared<Label>("Window 1");
+    auto node = std::make_shared<Node>();
+    auto label = std::make_shared<Label>("Window 1");
     label->size = {200, 200};
     node->transform.position = {-240, -136};
     node->addComponent(label);
     window1->root->addChild(node);
 
     // window 2
-    std::shared_ptr<Node> cameraNode2 = std::make_shared<Node>();
-    std::shared_ptr<Camera> camera2 = std::make_shared<Camera>();
+    auto cameraNode2 = std::make_shared<Node>();
+    auto camera2 = std::make_shared<Camera>();
     cameraNode2->addComponent(camera2);
     window2->root->addChild(cameraNode2);
 
-    std::shared_ptr<Node> node2 = std::make_shared<Node>();
-    std::shared_ptr<Label> label2 = std::make_shared<Label>("Window 2");
+    auto node2 = std::make_shared<Node>();
+    auto label2 = std::make_shared<Label>("Window 2");
     label2->size = {200, 200};
     node2->transform.position = {-240, -136};
     node2->addComponent(label2);

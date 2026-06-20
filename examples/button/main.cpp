@@ -48,8 +48,8 @@ int main()
 
     Services::init(graphics, &physics, &engine, &input, &inputRegistry, &audio);
 
-    std::shared_ptr<Node> cameraNode = std::make_shared<Node>();
-    std::shared_ptr<Camera> camera = std::make_shared<Camera>();
+    auto cameraNode = std::make_shared<Node>();
+    auto camera = std::make_shared<Camera>();
     cameraNode->addComponent(camera);
     window->root->addChild(cameraNode);
 

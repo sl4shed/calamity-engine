@@ -47,13 +47,13 @@ int main() {
 
     Services::init(graphics, &physics, &engine, &input, &inputRegistry, &audio);
 
-    std::shared_ptr<Node> cameraNode = std::make_shared<Node>();
-    std::shared_ptr<Camera> camera = std::make_shared<Camera>();
+    auto cameraNode = std::make_shared<Node>();
+    auto camera = std::make_shared<Camera>();
     cameraNode->addComponent(camera);
     window->root->addChild(cameraNode);
 
-    std::shared_ptr<Node> node = std::make_shared<Node>();
-    std::shared_ptr<Label> label = std::make_shared<Label>("test text");
+    auto node = std::make_shared<Node>();
+    auto label = std::make_shared<Label>("test text");
     label->size = {100, 500};
     node->transform.position = {-240, -136};
     node->addComponent(label);

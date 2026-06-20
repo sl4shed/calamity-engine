@@ -24,9 +24,9 @@ if(BUILD_TARGET STREQUAL "3DS")
         CACHE STRING "Toolchain file")
 endif()
 
-message(STATUS "DEVKITPRO = $ENV{DEVKITPRO}")
-message(STATUS "BUILD_TARGET = ${BUILD_TARGET}")
-message(STATUS "Toolchain = ${CMAKE_TOOLCHAIN_FILE}")
+# message(STATUS "DEVKITPRO = $ENV{DEVKITPRO}")
+# message(STATUS "BUILD_TARGET = ${BUILD_TARGET}")
+# message(STATUS "Toolchain = ${CMAKE_TOOLCHAIN_FILE}")
 
 project(calamity)
 

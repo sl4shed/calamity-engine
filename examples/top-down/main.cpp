@@ -80,15 +80,15 @@ int main()
 
     // node stuff
 
-    std::shared_ptr<Node> cameraNode = std::make_shared<Node>();
+    auto cameraNode = std::make_shared<Node>();
     cameraNode->transform.setScale({3, 3});
-    std::shared_ptr<Camera> camera = std::make_shared<Camera>();
+    auto camera = std::make_shared<Camera>();
     camera->smoothing = 0.1f;
     cameraNode->addComponent(camera);
 
     // player node
-    std::shared_ptr<Node> node = std::make_shared<Node>("playerNode");
-    std::shared_ptr<Sprite> sprite = std::make_shared<Sprite>("res://assets/cactus.png", window, TextureScaling::PIXELART);
+    auto node = std::make_shared<Node>("playerNode");
+    auto sprite = std::make_shared<Sprite>("res://assets/cactus.png", window, TextureScaling::PIXELART);
     sprite->texture.width = 128;
     sprite->texture.height = 128;
     node->addComponent(sprite);
@@ -119,8 +119,8 @@ int main()
 
     window->root->addChild(cat);
 
-    std::shared_ptr<Node> lnode = std::make_shared<Node>();
-    std::shared_ptr<Label> label = std::make_shared<Label>("WASD/Joystick - Move player");
+    auto lnode = std::make_shared<Node>();
+    auto label = std::make_shared<Label>("WASD/Joystick - Move player");
     label->font->setSize(12);
     label->size = {480, 200};
     label->screenSpace = true;

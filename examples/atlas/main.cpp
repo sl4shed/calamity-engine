@@ -62,21 +62,21 @@ int main()
     auto event2k = std::make_unique<InputEventKey>(true, Keycode::A);
     inputRegistry.actionAddEvent("2", std::move(event2k));
 
-    std::shared_ptr<Node> cameraNode = std::make_shared<Node>();
-    std::shared_ptr<Camera> camera = std::make_shared<Camera>();
+    auto cameraNode = std::make_shared<Node>();
+    auto camera = std::make_shared<Camera>();
     cameraNode->addComponent(camera);
     window->root->addChild(cameraNode);
 
-    std::shared_ptr<Node> node = std::make_shared<Node>();
-    std::shared_ptr<Sprite> sprite = std::make_shared<Sprite>("res://assets/atlas.png", window);
+    auto node = std::make_shared<Node>();
+    auto sprite = std::make_shared<Sprite>("res://assets/atlas.png", window);
     sprite->sourceRect.size = {160, 160};
     sprite->sourceRect.position = {160, 0};
     sprite->texture.width = 160;
     sprite->texture.height = 160;
     node->addComponent(sprite);
 
-    std::shared_ptr<Node> lnode = std::make_shared<Node>();
-    std::shared_ptr<Label> label = std::make_shared<Label>("W\LSB - texture 1\nA\RSB - texture 2");
+    auto lnode = std::make_shared<Node>();
+    auto label = std::make_shared<Label>("W\LSB - texture 1\nA\RSB - texture 2");
     label->font->setSize(12);
     label->size = {200, 500};
     label->screenSpace = true;

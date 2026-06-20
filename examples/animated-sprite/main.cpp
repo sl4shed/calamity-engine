@@ -47,13 +47,13 @@ int main()
 
     Services::init(graphics, &physics, &engine, &input, &inputRegistry, &audio);
 
-    std::shared_ptr<Node> cameraNode = std::make_shared<Node>();
-    std::shared_ptr<Camera> camera = std::make_shared<Camera>();
+    auto cameraNode = std::make_shared<Node>();
+    auto camera = std::make_shared<Camera>();
     cameraNode->addComponent(camera);
     window->root->addChild(cameraNode);
 
-    std::shared_ptr<Node> node = std::make_shared<Node>();
-    std::shared_ptr<AnimatedSprite> sprite = std::make_shared<AnimatedSprite>(window);
+    auto node = std::make_shared<Node>();
+    auto sprite = std::make_shared<AnimatedSprite>(window);
     Animation anim = Animation("test", 2, {128, 128}, true, true);
     anim.textureScaling = TextureScaling::PIXELART;
     anim.texturePath = "res://assets/frames.png";
@@ -69,8 +69,8 @@ int main()
     sprite->addAnimation(anim);
     node->addComponent(sprite);
 
-    std::shared_ptr<Node> lnode = std::make_shared<Node>();
-    std::shared_ptr<Label> label = std::make_shared<Label>("Animated sprite example :)");
+    auto lnode = std::make_shared<Node>();
+    auto label = std::make_shared<Label>("Animated sprite example :)");
     label->font->setSize(12);
     label->size = {200, 500};
     label->screenSpace = true;

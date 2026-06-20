@@ -73,9 +73,9 @@ int main()
 
     // node stuff
 
-    std::shared_ptr<Node> cameraNode = std::make_shared<Node>("cameraNode");
+    auto cameraNode = std::make_shared<Node>("cameraNode");
     cameraNode->transform.setScale({2, 2});
-    std::shared_ptr<Camera> camera = std::make_shared<Camera>();
+    auto camera = std::make_shared<Camera>();
     camera->smoothing = 0.3f;
     cameraNode->addComponent(camera);
 

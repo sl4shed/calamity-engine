@@ -77,18 +77,18 @@ int main()
     auto downEventK = std::make_unique<InputEventKey>(true, Keycode::S);
     inputRegistry.actionAddEvent("down", std::move(downEventK));
 
-    std::shared_ptr<Node> cameraNode = std::make_shared<Node>();
-    std::shared_ptr<Camera> camera = std::make_shared<Camera>();
+    auto cameraNode = std::make_shared<Node>();
+    auto camera = std::make_shared<Camera>();
     cameraNode->addComponent(camera);
     window->root->addChild(cameraNode);
 
-    std::shared_ptr<Node> node = std::make_shared<Node>();
+    auto node = std::make_shared<Node>();
     node->transform.scale({4, 4});
-    std::shared_ptr<Sprite> sprite = std::make_shared<Sprite>("res://assets/glass.png", window);
+    auto sprite = std::make_shared<Sprite>("res://assets/glass.png", window);
     node->addComponent(sprite);
 
-    std::shared_ptr<Node> lnode = std::make_shared<Node>();
-    std::shared_ptr<Label> label = std::make_shared<Label>("WASD/Left Joystick - Move the glass around");
+    auto lnode = std::make_shared<Node>();
+    auto label = std::make_shared<Label>("WASD/Left Joystick - Move the glass around");
     label->font->setSize(12);
     label->size = {100, 500};
     lnode->transform.position = {-240, -136};

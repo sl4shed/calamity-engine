@@ -62,26 +62,26 @@ int main()
     auto rightEventK = std::make_unique<InputEventKey>(true, Keycode::D);
     inputRegistry.actionAddEvent("right", std::move(rightEventK));
 
-    std::shared_ptr<Node> cameraNode = std::make_shared<Node>();
-    std::shared_ptr<Camera> camera = std::make_shared<Camera>();
+    auto cameraNode = std::make_shared<Node>();
+    auto camera = std::make_shared<Camera>();
     cameraNode->addComponent(camera);
     window->root->addChild(cameraNode);
 
-    std::shared_ptr<Node> node = std::make_shared<Node>();
-    std::shared_ptr<Sprite> sprite = std::make_shared<Sprite>("res://assets/cat.png", window);
+    auto node = std::make_shared<Node>();
+    auto sprite = std::make_shared<Sprite>("res://assets/cat.png", window);
     sprite->texture.width = 20;
     sprite->texture.height = 20;
     node->addComponent(sprite);
 
-    std::shared_ptr<Node> lnode = std::make_shared<Node>();
-    std::shared_ptr<Label> label = std::make_shared<Label>("A - D/Joystick - Rotate cat");
+    auto lnode = std::make_shared<Node>();
+    auto label = std::make_shared<Label>("A - D/Joystick - Rotate cat");
     label->font->setSize(12);
     label->size = {200, 500};
     label->screenSpace = true;
     lnode->transform.position = {-240, -136};
     lnode->addComponent(label);
 
-    std::shared_ptr<Node> bnode = std::make_shared<Node>("floorNode");
+    auto bnode = std::make_shared<Node>("floorNode");
     bnode->transform.position = {0, 130};
     auto shape = std::make_shared<BoxShape>(Vector2{300, 50});
     auto body = std::make_shared<StaticBody>(shape);
