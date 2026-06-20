@@ -107,6 +107,8 @@ public:
             {
                 Logger::warn("No save data to load!");
             }
+
+            file->close();
         }
     }
 

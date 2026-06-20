@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.11)
 set(BUILD_TARGET "NATIVE" CACHE STRING "Build target: NATIVE | PSP | EMSCRIPTEN | 3DS")
 set_property(CACHE BUILD_TARGET PROPERTY STRINGS NATIVE PSP EMSCRIPTEN 3DS)
 
-if (MSVC)
+if(MSVC)
     message("Building for Windows")
 
     set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
@@ -24,14 +24,11 @@ if(BUILD_TARGET STREQUAL "3DS")
         CACHE STRING "Toolchain file")
 endif()
 
-# message(STATUS "DEVKITPRO = $ENV{DEVKITPRO}")
-# message(STATUS "BUILD_TARGET = ${BUILD_TARGET}")
-# message(STATUS "Toolchain = ${CMAKE_TOOLCHAIN_FILE}")
-
 project(calamity)
 
 if(MSVC)
-    set(CMAKE_CXX_STANDARD 20) # MSVC needs C++20 for box2d (for some reason)
+    set(CMAKE_CXX_STANDARD 20 CACHE STRING "" FORCE)
+    set(CMAKE_CXX_STANDARD_REQUIRED ON) # MSVC needs C++20 for box2d (for some reason)
 else()
     set(CMAKE_CXX_STANDARD 17)
 endif()
@@ -43,29 +40,36 @@ option(CALAMITY_FIND_SDL3 OFF)
 option(CALAMITY_FIND_SPDLOG OFF)
 
 add_library(${PROJECT_NAME} STATIC
-        # core
-        backend/core/definitions.cpp
-        backend/core/signal.cpp
-        backend/core/node/components.cpp
-        backend/core/node/node.cpp
-        backend/core/ui/definitions.cpp
-        backend/core/ui/label.cpp
+    # core
+    backend/core/definitions.cpp
+    backend/core/signal.cpp
+    backend/core/node/components.cpp
+    backend/core/node/node.cpp
+    backend/core/ui/definitions.cpp
+    backend/core/ui/label.cpp
 
-        # utils
-        backend/utils/utils.cpp
-        backend/utils/logger.cpp
-        backend/utils/file.cpp
+    # utils
+    backend/utils/utils.cpp
+    backend/utils/logger.cpp
+    backend/utils/file.cpp
 
-        # services
-        backend/services/audio.cpp
-        backend/services/services.cpp
-        backend/services/input/input.cpp
-        backend/services/graphics/graphics.cpp
-        backend/services/graphics/definitions.cpp
-        backend/services/engine.cpp
-        backend/services/physics/physics.cpp
-        backend/services/physics/definitions.cpp
+    # services
+    backend/services/audio.cpp
+    backend/services/services.cpp
+    backend/services/input/input.cpp
+    backend/services/graphics/graphics.cpp
+    backend/services/graphics/definitions.cpp
+    backend/services/engine.cpp
+    backend/services/physics/physics.cpp
+    backend/services/physics/definitions.cpp
 )
+
+if(MSVC)
+    # Hide console for release builds on Windows
+    set_target_properties(${PROJECT_NAME} PROPERTIES 
+        WIN32_EXECUTABLE $<CONFIG:Release>
+    )
+endif()
 
 target_include_directories(${PROJECT_NAME} PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
@@ -77,12 +81,18 @@ message(STATUS "CALAMITY_ROOT = ${CALAMITY_ROOT}")
 function(calamity_apply_assets target)
     if(BUILD_TARGET STREQUAL "EMSCRIPTEN")
         target_link_options(${target} PRIVATE
-                --embed-file=${CALAMITY_ROOT}/vendored/SDL_GameControllerDB/gamecontrollerdb.txt@calamity/gamecontrollerdb.txt
-                --embed-file=${CALAMITY_ROOT}/assets/default.ttf@calamity/default.ttf
+            --embed-file=${CALAMITY_ROOT}/vendored/SDL_GameControllerDB/gamecontrollerdb.txt@calamity/gamecontrollerdb.txt
+            --embed-file=${CALAMITY_ROOT}/assets/default.ttf@calamity/default.ttf
         )
     else()
-        configure_file(${CALAMITY_ROOT}/vendored/SDL_GameControllerDB/gamecontrollerdb.txt ${CMAKE_CURRENT_BINARY_DIR}/calamity/gamecontrollerdb.txt COPYONLY)
-        configure_file(${CALAMITY_ROOT}/assets/default.ttf ${CMAKE_CURRENT_BINARY_DIR}/calamity/default.ttf COPYONLY)
+        add_custom_command(TARGET ${target} POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            ${CALAMITY_ROOT}/vendored/SDL_GameControllerDB/gamecontrollerdb.txt
+            $<TARGET_FILE_DIR:${target}>/calamity/gamecontrollerdb.txt
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            ${CALAMITY_ROOT}/assets/default.ttf
+            $<TARGET_FILE_DIR:${target}>/calamity/default.ttf
+        )
     endif()
 endfunction()
 
@@ -104,7 +114,7 @@ endif()
 
 if(CALAMITY_VENDORED)
     target_compile_definitions(${PROJECT_NAME} PUBLIC CALAMITY_VENDORED)
-    if (BUILD_TARGET STREQUAL "EMSCRIPTEN")
+    if(BUILD_TARGET STREQUAL "EMSCRIPTEN")
         set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/$<CONFIGURATION>")
         set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/$<CONFIGURATION>")
     endif()
@@ -120,13 +130,18 @@ if(CALAMITY_VENDORED)
     add_subdirectory(vendored/SDL_ttf EXCLUDE_FROM_ALL)
 
     target_link_libraries(${PROJECT_NAME} PUBLIC SDL3::SDL3 SDL3_image::SDL3_image SDL3_ttf::SDL3_ttf)
-    if (BUILD_TARGET STREQUAL "EMSCRIPTEN")
+    if(BUILD_TARGET STREQUAL "EMSCRIPTEN")
         target_compile_definitions(${PROJECT_NAME} PUBLIC __EMSCRIPTEN__)
         target_compile_options(${PROJECT_NAME} PUBLIC -sUSE_SDL=3 -sUSE_SDL_IMAGE=3)
         target_link_options(${PROJECT_NAME} PUBLIC -sUSE_SDL=3 -sUSE_SDL_IMAGE=3 -sUSE_SDL_TTF=3 -sUSE_FREETYPE=1 -sUSE_HARFBUZZ=1 -sALLOW_MEMORY_GROWTH=1)
     endif()
 
-    target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)
+    if(MSVC)
+        target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_20)
+    else()
+        target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)
+    endif()
+
 
     if(CALAMITY_FIND_SPDLOG)
         find_package(fmt REQUIRED)
@@ -161,6 +176,11 @@ if(CALAMITY_VENDORED)
         set(BOX2D_UNIT_TESTS OFF CACHE BOOL "" FORCE)
         add_subdirectory(vendored/box2d EXCLUDE_FROM_ALL)
         target_link_libraries(${PROJECT_NAME} PUBLIC box2d)
+
+        if(MSVC)
+            set_target_properties(box2d PROPERTIES CXX_STANDARD 20)
+            target_compile_features(box2d PUBLIC cxx_std_20)
+        endif()
     endif()
 else()
     if(BUILD_TARGET STREQUAL "NATIVE")
@@ -176,9 +196,9 @@ else()
     target_link_libraries(${PROJECT_NAME} PUBLIC box2d)
 
     target_link_libraries(${PROJECT_NAME} PUBLIC
-            SDL3::SDL3
-            SDL3_image::SDL3_image
-            SDL3_ttf::SDL3_ttf
+        SDL3::SDL3
+        SDL3_image::SDL3_image
+        SDL3_ttf::SDL3_ttf
     )
 
     find_package(fmt REQUIRED)

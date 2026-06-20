@@ -17,10 +17,11 @@ target_include_directories(${PROJECT_NAME} PUBLIC
 add_subdirectory("../../" "calamity")
 target_link_libraries(${PROJECT_NAME} PRIVATE calamity)
 
-add_custom_target(copy_assets
-    COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_LIST_DIR}/assets ${CMAKE_CURRENT_BINARY_DIR}/assets
+add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+        ${CMAKE_CURRENT_LIST_DIR}/assets
+        $<TARGET_FILE_DIR:${PROJECT_NAME}>/assets
 )
-add_dependencies(${PROJECT_NAME} copy_assets)
 
 calamity_apply_assets(${PROJECT_NAME})
 if(BUILD_TARGET STREQUAL "EMSCRIPTEN")
