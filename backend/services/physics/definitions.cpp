@@ -10,7 +10,7 @@ BoxShape::BoxShape(const Vector2 size, const Vector2 center)
     this->size = size;
     this->origin = center;
 
-    const Vector2 calculatedCenter = (origin - Vector2{0.5f, 0.5f}) * size;
+    const Vector2 calculatedCenter = (Vector2{0.5f, 0.5f} - origin) * size;
     const b2Rot rotation = b2Rot_identity;
 
     const b2Polygon poly = b2MakeOffsetBox(size.x / 2 * PhysicsConstants::scale, size.y / 2 * PhysicsConstants::scale, calculatedCenter * PhysicsConstants::scale, rotation);

@@ -1,5 +1,11 @@
 # Getting Started {#getting_started}
 
+## Preface
+
+> A Calamity Engine game should not be your first C++ project. Please learn C++ programming, compiling, linking, and debugging before working with Calamity Engine. There are [many resources for this online](https://learncpp.com). You should also be comfortable with CMake.
+
+With that being said, here is the process for creating a new project and compiling it:
+
 ## 1. Install dependencies and required build tools:
 
 ```bash
@@ -12,6 +18,8 @@ sudo apt install git cmake make ninja-build libsdl3-dev libsdl3-image-dev libsdl
 # Fedora
 sudo dnf install git cmake make ninja-build SDL3-devel SDL3_image-devel SDL3_ttf-devel fmt-devel spdlog-devel cereal-devel
 ```
+
+For windows, download the latest version of [Visual Studio](https://visualstudio.microsoft.com/) and make sure you have `Desktop development with C++` toggled on. You should also have [CMake](https://cmake.org) installed.
 
 ## 2. Create a new repository using the [project template](https://github.com/sl4shed/calamity-engine-template)
 
@@ -28,24 +36,16 @@ cd calamity-engine-template
 
 <a id="windows"></a>
 
-1. Download the latest version of [Visual Studio](https://visualstudio.microsoft.com/) and make sure you have `Desktop development with C++` toggled on.
-2. Run these commands:
-
-```
+```bash
 cd path/to/project/
 mkdir build
 cd build
-cmake -DCMAKE_BUILD_TYPE=Release ..
+
+cmake ..
+cmake --build .
 ```
 
-3. Go to the build folder and open the main solution in Visual Studio
-4. Right click the `box2d` project in the browser and go to `Properties`.
-5. Change the C++ language version to C++20
-6. Do the same for your main project
-7. Either compile the solution from Visual Studio or run `cmake --build . --config Release` from the build folder
-8. Copy the `calamity` folder from the root of the build folder to wherever your `.exe` is
-
-Your game should run now! Please open an issue on GitHub if you find any problems in this build process that are related to Calamity Engine.
+You can find the executable of the game in ``build/Debug`` or ``build/Release`` depending on what build type you chose.
 
 ### Linux
 
@@ -59,6 +59,8 @@ cd build
 cmake -G Ninja ..
 ninja
 ```
+
+You can find the executable of the game in the ``build`` folder.
 
 ### Emscripten
 
@@ -99,4 +101,7 @@ mkdir build-psp
 cd build-psp
 psp-cmake -DBUILD_TARGET=PSP -G Ninja ..
 ninja # Yes, PSPSDK can build using Ninja!
+
+# To run the game, you need to have PPSSPP installed
+PPSSPPSDL $(pwd)
 ```

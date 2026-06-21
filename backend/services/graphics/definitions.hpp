@@ -8,6 +8,29 @@ class Camera;
 class Graphics;
 class Engine;
 
+/**
+ * # WindowMode
+ * 
+ */
+struct WindowMode {
+    Vector2 size; /* Window width and height */
+    float scale; /* A scale converting size to pixels (e.g. a 1920x1080 mode with 2.0 scale would have 3840x2160 pixels) */
+    float refreshRate; /* Refresh rate (0.0f for unspecified) */
+
+    // Meant for internal use //
+
+    int refreshRateNumerator;
+    int refreshRateDenominator;
+
+    SDL_DisplayID displayID;
+    SDL_PixelFormat pixelFormat;
+
+    template <class Archive>
+    void serialize(Archive &ar) {
+        ar(CEREAL_NVP(size), CEREAL_NVP(scale), CEREAL_NVP(refreshRate), CEREAL_NVP(refreshRateDenominator), CEREAL_NVP(refreshRateNumerator));
+    }
+};
+
 enum class RenderLogicalPresentation
 {
     DISABLED,     /**< There is no logical size in effect */
@@ -66,15 +89,19 @@ public:
     Window(std::string title = "Calamity App", Rect dimensions = Rect({0, 0}, {480, 272}), RenderLogicalPresentation presentation = RenderLogicalPresentation::LETTERBOX, WindowFlags flags = WindowFlags::RESIZABLE, Color clearColor = Color::BLACK, bool fullscreen = false);
     ~Window();
 
-    std::string title;
+    std::string title = "Calamity App";
     WindowFlags flags;
     RenderLogicalPresentation presentation;
     Rect dimensions;
-    Color clearColor;
+    Color clearColor = Color::BLACK;
     std::unique_ptr<Node> root;
     bool fullscreen;
-    int id = 0; // this is set when appending the window to the Engine service.
+    int id = 0; /* This is set when appending the window to the Engine service. */
 
+    void setFullscreen(bool value);
+    std::vector<WindowMode> getSupportedWindowModes();
+    void setFullscreenWindowMode(WindowMode mode);
+    void changeSize(Rect dimensions);
     void resetLogicalPresentation();
 
     void exit();
@@ -91,13 +118,15 @@ public:
     template <class Archive>
     void save(Archive &ar) const
     {
-        ar(CEREAL_NVP(title), CEREAL_NVP(flags), CEREAL_NVP(presentation), CEREAL_NVP(dimensions), CEREAL_NVP(fullscreen), CEREAL_NVP(id), CEREAL_NVP(root));
+        ar(CEREAL_NVP(title), CEREAL_NVP(flags), CEREAL_NVP(presentation), CEREAL_NVP(dimensions), CEREAL_NVP(fullscreen), CEREAL_NVP(id), CEREAL_NVP(root), CEREAL_NVP(mode));
     }
 
     template <class Archive>
     void load(Archive &ar); // Implemented in definitions.hpp
 
 private:
+    WindowMode mode;
+
     Camera *activeCamera = nullptr;
     void preRender() const;
     void postRender() const;

@@ -1,8 +1,6 @@
 # Basic Notions {#basic_notions}
 
-First off, if you're new to C++ maybe don't start out with my engine since I'm assuming that anyone who's reading this [has some basic C++ knowledge](https://learncpp.com/). You should also probably be familiar with how a game engine like Godot or Unity works.
-
-Generally, any project that's built with this framework should have this general structure:
+Generally, any project that's built with Calamity Engine should follow this general structure:
 ```
 main.cpp
 CMakeLists.txt
@@ -13,17 +11,17 @@ assets/
 ```
 Obviously this isn't 100% required, but I heavily recommend it.
 
-By the way, the main way of navigating Calamity Engine's documentation is checking the documentation for a specific class you want info on. There are also the basic examples which you can find in the `examples` folder of the [Calamity Engine repository](https://github.com/sl4shed/calamity-engine) or on the [Calamity Engine website](https://calamity.sl4shed.xyz/examples).
+Also, the main way of navigating Calamity Engine's documentation is checking the documentation for a specific class you want info on. There are also the basic examples which you can find in the `examples` folder of the [Calamity Engine repository](https://github.com/sl4shed/calamity-engine) or on the [Calamity Engine website](https://calamity.sl4shed.xyz/examples).
 ## Initializing nodes and components
 
 ### Preface
-I use [a library called cereal](https://uscilab.github.io/cereal/) to serialize & deserialize nodes into/from JSON files or strings. You should probably [read it's documentation](https://uscilab.github.io/cereal/) to familiarize yourself with how it works. However, it should be simple enough.
+I use [a library called cereal](https://uscilab.github.io/cereal/) to serialize & deserialize nodes into/from JSON files or strings. You should probably [read it's documentation](https://uscilab.github.io/cereal/) to familiarize yourself with how it works.
 
-Cereal does NOT like raw pointers, so, every node and component has to be a shared pointer (`std::shared_ptr`). 
+Cereal does NOT like raw pointers, so, every node and component has to be a smart pointer (`std::shared_ptr` or `std::unique_ptr`). 
 ### Code
 Let's take, for example, initializing the camera:
 ```cpp
-std::shared_ptr<Node> cameraNode = std::make_shared<Node>(); // make the node
+auto cameraNode = std::make_shared<Node>(); // make the node
 cameraNode->addComponent(std::make_shared<Camera>()); // add the camera component to the node
 window->root->addChild(cameraNode); // adding the node as a child to the root node of the engine
 ```
@@ -84,7 +82,7 @@ And for this script to actually work, you have to add it to the camera node (in 
 // don't forget to include the script :)
 #include "scripts/cameraScript.hpp"
 
-std::shared_ptr<Node> cameraNode = std::make_shared<Node>(); // make the node
+auto cameraNode = std::make_shared<Node>(); // make the node
 cameraNode->addComponent(std::make_shared<Camera>()); // add the camera component to the node
 cameraNode->addComponent(std::make_shared<CameraScript>()); // add the script to the camera node
 window->root->addChild(cameraNode); // add the node as a child to the root node of the engine
