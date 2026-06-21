@@ -256,7 +256,6 @@ public:
 
     Vector2 origin = {0.5f, 0.5f};
     std::shared_ptr<Shape> shape;
-    bool visible = true;
     // int zIndex = 1;
     bool screenSpace = false;
     Color modulate = Color::WHITE;
@@ -266,13 +265,13 @@ public:
     template <class Archive>
     void save(Archive &ar) const
     {
-        ar(CEREAL_NVP(origin), CEREAL_NVP(shape), CEREAL_NVP(visible), CEREAL_NVP(screenSpace), CEREAL_NVP(modulate));
+        ar(CEREAL_NVP(origin), CEREAL_NVP(shape), CEREAL_NVP(screenSpace), CEREAL_NVP(modulate));
     }
 
     template <class Archive>
     void load(Archive &ar)
     {
-        ar(CEREAL_NVP(origin), CEREAL_NVP(shape), CEREAL_NVP(visible), CEREAL_NVP(screenSpace), CEREAL_NVP(modulate));
+        ar(CEREAL_NVP(origin), CEREAL_NVP(shape), CEREAL_NVP(screenSpace), CEREAL_NVP(modulate));
     }
 };
 

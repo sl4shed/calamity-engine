@@ -77,11 +77,23 @@ void Node::removeComponent(std::shared_ptr<Component> component)
     }
 }
 
+bool Node::isVisible() {
+    if(visible) {
+        if(parent) {
+            return parent->isVisible();
+        }
+        return true;
+    }
+
+    return false;
+}
+
 void Node::render(Graphics &graphics, Engine *engine, std::shared_ptr<Window> window) const
 {
 #if TRACY_ENABLE
     ZoneScoped;
 #endif
+    if(!visible) return;
 
     for(size_t i = 0; i < this->components.size(); i++) {
         components[i]->render(window);

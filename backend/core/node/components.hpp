@@ -106,7 +106,6 @@ public:
     Texture texture;
 
     Rect sourceRect;
-    bool visible = true;
     // int zIndex = 1;
     bool screenSpace = false;
     Color modulate = Color::WHITE;
@@ -117,13 +116,13 @@ public:
     template <class Archive>
     void save(Archive &ar) const
     {
-        ar(CEREAL_NVP(origin), CEREAL_NVP(sourceRect), CEREAL_NVP(visible), CEREAL_NVP(texture), CEREAL_NVP(screenSpace), CEREAL_NVP(modulate), CEREAL_NVP(flipH), CEREAL_NVP(flipV));
+        ar(CEREAL_NVP(origin), CEREAL_NVP(sourceRect), CEREAL_NVP(texture), CEREAL_NVP(screenSpace), CEREAL_NVP(modulate), CEREAL_NVP(flipH), CEREAL_NVP(flipV));
     }
 
     template <class Archive>
     void load(Archive &ar)
     {
-        ar(CEREAL_NVP(origin), CEREAL_NVP(sourceRect), CEREAL_NVP(visible), CEREAL_NVP(texture), CEREAL_NVP(screenSpace), CEREAL_NVP(modulate), CEREAL_NVP(flipH), CEREAL_NVP(flipV));
+        ar(CEREAL_NVP(origin), CEREAL_NVP(sourceRect), CEREAL_NVP(texture), CEREAL_NVP(screenSpace), CEREAL_NVP(modulate), CEREAL_NVP(flipH), CEREAL_NVP(flipV));
     }
 };
 
@@ -225,7 +224,6 @@ public:
     Animation *getCurrentAnimation() const;
 
     std::map<std::string, Animation> animations;
-    bool visible = true;
     // int zIndex = 1; I'm not implementing this rn
     bool screenSpace = false;
 
@@ -233,7 +231,7 @@ public:
     void save(Archive &ar) const
     {
         std::string currentAnimName = currentAnimation ? currentAnimation->name : std::string("");
-        ar(CEREAL_NVP(animations), CEREAL_NVP(visible), CEREAL_NVP(screenSpace),
+        ar(CEREAL_NVP(animations), CEREAL_NVP(screenSpace),
            CEREAL_NVP(frame), CEREAL_NVP(playing), currentAnimName);
     }
 
@@ -241,7 +239,7 @@ public:
     void load(Archive &ar)
     {
         std::string currentAnimName;
-        ar(CEREAL_NVP(animations), CEREAL_NVP(visible), CEREAL_NVP(screenSpace),
+        ar(CEREAL_NVP(animations), CEREAL_NVP(screenSpace),
            CEREAL_NVP(frame), CEREAL_NVP(playing), currentAnimName);
 
         saveCurrentAnimName = currentAnimName;
@@ -291,7 +289,6 @@ public:
     Tilemap() = default;
     Tilemap(const std::string &texturePath, Vector2 tileSize, std::shared_ptr<Window> window, TextureScaling scaling = TextureScaling::PIXELART);
 
-    bool visible = true;
     Texture texture;
     Vector2 tileSize;
     std::vector<Tile> tiles;
@@ -318,13 +315,13 @@ public:
     template <class Archive>
     void save(Archive &ar) const
     {
-        ar(CEREAL_NVP(visible), CEREAL_NVP(texture), CEREAL_NVP(tileSize), CEREAL_NVP(tiles));
+        ar(CEREAL_NVP(texture), CEREAL_NVP(tileSize), CEREAL_NVP(tiles));
     }
 
     template <class Archive>
     void load(Archive &ar)
     {
-        ar(CEREAL_NVP(visible), CEREAL_NVP(texture), CEREAL_NVP(tileSize), CEREAL_NVP(tiles));
+        ar(CEREAL_NVP(texture), CEREAL_NVP(tileSize), CEREAL_NVP(tiles));
         bake();
     }
 
@@ -389,6 +386,8 @@ public:
     virtual void update(float deltaTime) {};
     virtual void initialize() {};
     virtual void physicsUpdate() {};
+    virtual void input(InputEvent &event) {};
+    virtual void postLoad() {};
     virtual void render(std::shared_ptr<Window> window) {};
     virtual void exit() {};
 

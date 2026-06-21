@@ -55,7 +55,6 @@ public:
     void update(float dt);
     void render(std::shared_ptr<Window> window); 
     std::shared_ptr<Font> font;
-    bool visible = true;
     bool wrap = true; // text wrap. yes or no?
     bool screenSpace = false;
 
@@ -74,13 +73,13 @@ public:
     template <class Archive>
     void save(Archive &ar) const
     {
-        ar(CEREAL_NVP(size), CEREAL_NVP(origin), CEREAL_NVP(font), CEREAL_NVP(visible), CEREAL_NVP(wrap), CEREAL_NVP(color), CEREAL_NVP(direction), CEREAL_NVP(wrapWidth), CEREAL_NVP(text));
+        ar(CEREAL_NVP(size), CEREAL_NVP(origin), CEREAL_NVP(font), CEREAL_NVP(wrap), CEREAL_NVP(color), CEREAL_NVP(direction), CEREAL_NVP(wrapWidth), CEREAL_NVP(text));
     }
 
     template <class Archive>
     void load(Archive &ar)
     {
-        ar(CEREAL_NVP(size), CEREAL_NVP(origin), CEREAL_NVP(font), CEREAL_NVP(visible), CEREAL_NVP(wrap), CEREAL_NVP(color), CEREAL_NVP(direction), CEREAL_NVP(wrapWidth), CEREAL_NVP(text));
+        ar(CEREAL_NVP(size), CEREAL_NVP(origin), CEREAL_NVP(font), CEREAL_NVP(wrap), CEREAL_NVP(color), CEREAL_NVP(direction), CEREAL_NVP(wrapWidth), CEREAL_NVP(text));
         TTF_CreateText(Services::graphics()->getTextEngine(), font->getHandle(), text.c_str(), text.size());
         TTF_SetTextColor(handle, color.r, color.g, color.b, color.a);
         TTF_SetTextDirection(handle, (TTF_Direction)direction);

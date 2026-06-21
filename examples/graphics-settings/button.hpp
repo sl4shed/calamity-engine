@@ -85,6 +85,7 @@ public:
 
     void input(InputEvent &event)
     {
+        if(!isVisible()) return;
         Node::input(event);
 
         InputEventMouseButton *mouseButtonEvent = dynamic_cast<InputEventMouseButton *>(&event);

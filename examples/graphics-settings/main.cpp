@@ -36,49 +36,61 @@ int main()
 
     ////////////////////////////////////////////////////////////////////////////////////////////
 
+    auto fullscreenSettingsNode = std::make_shared<Node>("fullscreenSettingsNode");
+    fullscreenSettingsNode->visible = false;
+    fullscreenSettingsNode->transform.position = {300, 20};
+
+    ////////////////////////////////////////////////////////////////////////////////////////////
+
     auto currentFullscreenMode = std::make_shared<Node>("fullscreenMode");
-    currentFullscreenMode->transform.position = {300, 60};
+    currentFullscreenMode->transform.position = {0, 40};
     auto currentFullscreenModeLabel = std::make_shared<Label>("1920x1080*2@60");
     currentFullscreenModeLabel->origin = {0.5f, 0.5f};
     currentFullscreenMode->addComponent(currentFullscreenModeLabel);
 
     auto previousFullscreenMode = std::make_shared<Node>("previousFullscreenMode");
     previousFullscreenMode->transform.setScale({0.6f, 0.6f});
-    previousFullscreenMode->transform.position = {300, 30};
+    previousFullscreenMode->transform.position = {0, 10};
     auto previousFullscreenModeLabel = std::make_shared<Label>("800x600*1000@60");
     previousFullscreenModeLabel->origin = {0.5f, 0.5f};
     previousFullscreenMode->addComponent(previousFullscreenModeLabel);
 
     auto nextFullscreenMode = std::make_shared<Node>("nextFullscreenMode");
     nextFullscreenMode->transform.setScale({0.6f, 0.6f});
-    nextFullscreenMode->transform.position = {300, 90};
+    nextFullscreenMode->transform.position = {0, 70};
     auto nextFullscreenModeLabel = std::make_shared<Label>("4K*2@11000");
     nextFullscreenModeLabel->origin = {0.5f, 0.5f};
     nextFullscreenMode->addComponent(nextFullscreenModeLabel);
 
-    window->root->addChild(currentFullscreenMode);
-    window->root->addChild(previousFullscreenMode);
-    window->root->addChild(nextFullscreenMode);
+    fullscreenSettingsNode->addChild(currentFullscreenMode);
+    fullscreenSettingsNode->addChild(previousFullscreenMode);
+    fullscreenSettingsNode->addChild(nextFullscreenMode);
 
     //////////////////////////////////////////////////////////////////////////////////////////
 
     auto cycleNextFullscreenMode = std::make_shared<ButtonNode>("↑", "↑", Vector2{40.0f, 40.0f}, Vector2{0, 0});
-    cycleNextFullscreenMode->getComponent<Label>()->font->setSize(30);
-    cycleNextFullscreenMode->transform.position = {600, 10};
+    cycleNextFullscreenMode->getChild("labelNode")->getComponent<Label>()->font->setSize(30);
+    cycleNextFullscreenMode->transform.position = {200, 0};
+    cycleNextFullscreenMode->clicked.connect([cycleNextFullscreenMode]()
+                                             { Logger::info("NEXT"); cycleNextFullscreenMode->clicked.reset(); });
 
     auto cyclePreviousFullscreenMode = std::make_shared<ButtonNode>("↓", "↓", Vector2{40.0f, 40.0f}, Vector2{0, 0});
-    cyclePreviousFullscreenMode->getComponent<Label>()->font->setSize(30);
-    cyclePreviousFullscreenMode->transform.position = {600, 50};
+    cyclePreviousFullscreenMode->getChild("labelNode")->getComponent<Label>()->font->setSize(30);
+    cyclePreviousFullscreenMode->transform.position = {200, 60};
 
-    window->root->addChild(cyclePreviousFullscreenMode);
-    window->root->addChild(cycleNextFullscreenMode);
+    fullscreenSettingsNode->addChild(cyclePreviousFullscreenMode);
+    fullscreenSettingsNode->addChild(cycleNextFullscreenMode);
 
     //////////////////////////////////////////////////////////////////////////////////////////
 
+    window->root->addChild(fullscreenSettingsNode);
+
+    /////////////////////////////////////////////////////////////////////////////////////////
+
     auto fullscreenNode = std::make_shared<ButtonNode>("fullscreen", "Toggle Fullscreen", Vector2{100.0f, 50.0f}, Vector2{0, 0});
     fullscreenNode->transform.position = {20, 20};
-    fullscreenNode->clicked.connect([fullscreenNode, window]()
-                          { window->setFullscreen(!window->fullscreen); fullscreenNode->clicked.reset(); });
+    fullscreenNode->clicked.connect([fullscreenNode, window, fullscreenSettingsNode]()
+                                    { window->setFullscreen(!window->fullscreen); fullscreenSettingsNode->visible = !fullscreenSettingsNode->visible; fullscreenNode->clicked.reset(); });
 
     window->root->addChild(fullscreenNode);
     engine.initialize();

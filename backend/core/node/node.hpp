@@ -35,6 +35,8 @@ public:
 	Transform globalTransform;
 
 	Node *parent;
+	bool visible = true;
+	bool isVisible();
 
 	std::vector<std::shared_ptr<Node>> children;
 	std::vector<std::shared_ptr<Component>> components;
