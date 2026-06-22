@@ -12,6 +12,13 @@
 #include "backend/core/ui/label.hpp"
 #include "button.hpp"
 
+static std::vector<WindowMode> availableScreenModes = {};
+static int chosenScreenMode = 0;
+
+std::string formatMode(WindowMode mode) {
+    return fmt::format("({}x{})*{}@{}", mode.size.x, mode.size.y, mode.scale, mode.refreshRate);
+}
+
 int main()
 {
     Logger::init();
@@ -68,15 +75,48 @@ int main()
 
     //////////////////////////////////////////////////////////////////////////////////////////
 
+    auto processText = [previousFullscreenModeLabel, currentFullscreenModeLabel, nextFullscreenModeLabel]() {
+        currentFullscreenModeLabel->setText(formatMode(availableScreenModes[chosenScreenMode]));
+
+        if(chosenScreenMode - 1 >= 0) {
+            previousFullscreenModeLabel->setText(formatMode(availableScreenModes[chosenScreenMode - 1]));
+        } else {
+            previousFullscreenModeLabel->setText("");
+        }
+
+        if(chosenScreenMode + 1 < availableScreenModes.size()) {
+            nextFullscreenModeLabel->setText(formatMode(availableScreenModes[chosenScreenMode + 1]));
+        } else {
+            nextFullscreenModeLabel->setText("");
+        }
+    };
+
     auto cycleNextFullscreenMode = std::make_shared<ButtonNode>("↑", "↑", Vector2{40.0f, 40.0f}, Vector2{0, 0});
     cycleNextFullscreenMode->getChild("labelNode")->getComponent<Label>()->font->setSize(30);
     cycleNextFullscreenMode->transform.position = {200, 0};
-    cycleNextFullscreenMode->clicked.connect([cycleNextFullscreenMode]()
-                                             { Logger::info("NEXT"); cycleNextFullscreenMode->clicked.reset(); });
+    cycleNextFullscreenMode->clicked.connect([window, processText, cycleNextFullscreenMode]() {
+        Logger::info("NEXT");
+
+        chosenScreenMode -= 1;
+        processText();
+
+        window->setFullscreenWindowMode(availableScreenModes[chosenScreenMode]);  
+
+        cycleNextFullscreenMode->clicked.reset();
+    });
 
     auto cyclePreviousFullscreenMode = std::make_shared<ButtonNode>("↓", "↓", Vector2{40.0f, 40.0f}, Vector2{0, 0});
     cyclePreviousFullscreenMode->getChild("labelNode")->getComponent<Label>()->font->setSize(30);
     cyclePreviousFullscreenMode->transform.position = {200, 60};
+    cyclePreviousFullscreenMode->clicked.connect([window, cyclePreviousFullscreenMode, processText]() {
+        Logger::info("PREVIOUS");
+        chosenScreenMode += 1;
+        processText();
+
+        window->setFullscreenWindowMode(availableScreenModes[chosenScreenMode]);        
+
+        cyclePreviousFullscreenMode->clicked.reset();
+    });
 
     fullscreenSettingsNode->addChild(cyclePreviousFullscreenMode);
     fullscreenSettingsNode->addChild(cycleNextFullscreenMode);
@@ -89,8 +129,38 @@ int main()
 
     auto fullscreenNode = std::make_shared<ButtonNode>("fullscreen", "Toggle Fullscreen", Vector2{100.0f, 50.0f}, Vector2{0, 0});
     fullscreenNode->transform.position = {20, 20};
-    fullscreenNode->clicked.connect([fullscreenNode, window, fullscreenSettingsNode]()
-                                    { window->setFullscreen(!window->fullscreen); fullscreenSettingsNode->visible = !fullscreenSettingsNode->visible; fullscreenNode->clicked.reset(); });
+    fullscreenNode->clicked.connect([fullscreenNode, window, fullscreenSettingsNode, currentFullscreenModeLabel, previousFullscreenModeLabel, nextFullscreenModeLabel]() {
+        window->setFullscreen(!window->fullscreen);
+        fullscreenSettingsNode->visible = !fullscreenSettingsNode->visible;
+        fullscreenNode->clicked.reset();
+
+        // initialize the scroller thingy
+        auto currentDisplayMode = window->getCurrentWindowMode();
+        if(!currentDisplayMode.has_value()) return;
+
+        // code to get all the screen modes and shit
+        availableScreenModes = window->getSupportedWindowModes();
+
+        // set the current screen mode
+        currentFullscreenModeLabel->setText(formatMode(currentDisplayMode.value()));
+        
+        auto it = std::find(availableScreenModes.begin(), availableScreenModes.end(), currentDisplayMode.value());
+        chosenScreenMode = static_cast<int>(it - availableScreenModes.begin());
+
+        // look behind the current screen mode
+        if(chosenScreenMode - 1 >= 0) {
+            previousFullscreenModeLabel->setText(formatMode(availableScreenModes[chosenScreenMode - 1]));
+        } else {
+            previousFullscreenModeLabel->setText("");
+        }
+
+        // look ahead of the current screen mode
+        if(chosenScreenMode + 1 < availableScreenModes.size()) {
+            nextFullscreenModeLabel->setText(formatMode(availableScreenModes[chosenScreenMode + 1]));
+        } else {
+            nextFullscreenModeLabel->setText("");
+        }
+    });
 
     window->root->addChild(fullscreenNode);
     engine.initialize();

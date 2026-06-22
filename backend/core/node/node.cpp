@@ -82,6 +82,19 @@ bool Node::isVisible() {
         if(parent) {
             return parent->isVisible();
         }
+
+        return true;
+    }
+
+    return false;
+}
+
+bool Node::isEnabled() {
+    if(enabled) {
+        if(parent) {
+            return parent->isEnabled();
+        }
+
         return true;
     }
 
@@ -94,6 +107,7 @@ void Node::render(Graphics &graphics, Engine *engine, std::shared_ptr<Window> wi
     ZoneScoped;
 #endif
     if(!visible) return;
+    if(!enabled) return;
 
     for(size_t i = 0; i < this->components.size(); i++) {
         components[i]->render(window);
@@ -107,6 +121,8 @@ void Node::render(Graphics &graphics, Engine *engine, std::shared_ptr<Window> wi
 
 void Node::update(float deltaTime)
 {
+    if(!enabled) return;
+
     if (parent)
     {
         globalTransform = parent->globalTransform.applyTo(transform);

@@ -38,6 +38,9 @@ public:
 	bool visible = true;
 	bool isVisible();
 
+	bool enabled = true;
+	bool isEnabled();
+
 	std::vector<std::shared_ptr<Node>> children;
 	std::vector<std::shared_ptr<Component>> components;
 

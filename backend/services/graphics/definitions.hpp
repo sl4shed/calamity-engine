@@ -29,6 +29,10 @@ struct WindowMode {
     void serialize(Archive &ar) {
         ar(CEREAL_NVP(size), CEREAL_NVP(scale), CEREAL_NVP(refreshRate), CEREAL_NVP(refreshRateDenominator), CEREAL_NVP(refreshRateNumerator));
     }
+
+    bool operator==(const WindowMode& other) const {
+        return size == other.size && scale == other.scale && refreshRate == other.refreshRate && refreshRateNumerator == other.refreshRateNumerator && refreshRateDenominator == other.refreshRateDenominator && displayID == displayID && pixelFormat == pixelFormat;
+    }
 };
 
 enum class RenderLogicalPresentation
@@ -100,6 +104,7 @@ public:
 
     void setFullscreen(bool value);
     std::vector<WindowMode> getSupportedWindowModes();
+    std::optional<WindowMode> getCurrentWindowMode();
     void setFullscreenWindowMode(WindowMode mode);
     void changeSize(Rect dimensions);
     void resetLogicalPresentation();

@@ -96,6 +96,34 @@ std::vector<WindowMode> Window::getSupportedWindowModes()
     return modes;
 }
 
+std::optional<WindowMode> Window::getCurrentWindowMode()
+{
+    WindowMode mode;
+    SDL_DisplayID did = SDL_GetDisplayForWindow(this->window);
+
+    if (!did)
+    {
+        Logger::error("Failed to get display for window: {}", SDL_GetError());
+        return std::nullopt;
+    }
+
+    const SDL_DisplayMode *sdlMode = SDL_GetCurrentDisplayMode(did);
+    if(!sdlMode) {
+        Logger::error("Failed to get current display mode: {}", SDL_GetError());
+        return std::nullopt;
+    }
+
+    mode.size = {static_cast<float>(sdlMode->w), static_cast<float>(sdlMode->h)};
+    mode.scale = sdlMode->pixel_density;
+    mode.refreshRate = sdlMode->refresh_rate;
+
+    mode.refreshRateDenominator = sdlMode->refresh_rate_denominator;
+    mode.refreshRateNumerator = sdlMode->refresh_rate_numerator;
+
+    //SDL_free(sdlMode);
+    return mode;
+}
+
 void Window::setFullscreenWindowMode(WindowMode mode)
 {
     SDL_DisplayMode sdlMode = {};

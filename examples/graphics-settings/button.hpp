@@ -20,10 +20,10 @@
 
 class ButtonNode : public Node
 {
-    std::string text;
-    Vector2 size;
-    bool hovered;
-    Vector2 origin;
+    std::string text = "ButtonNode";
+    Vector2 size = {100.0f, 50.0f};
+    bool hovered = false;
+    Vector2 origin = {0.5f, 0.5f};
 
 public:
     std::string name;
