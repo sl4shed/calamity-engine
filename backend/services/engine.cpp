@@ -94,6 +94,15 @@ void Engine::update()
         accumulator -= physicsTimestep;
     }
 
+    if (maxFps > 0.0f) {
+        const float targetFrameTime = 1.0f / maxFps;
+        const float elapsed = static_cast<float>(SDL_GetPerformanceCounter() - last) / SDL_GetPerformanceFrequency();
+        const float remaining = targetFrameTime - elapsed;
+        if (remaining > 0.0f) {
+            SDL_DelayNS(static_cast<Uint64>(remaining * 1e9f));
+        }
+    }
+
 #if TRACY_ENABLE
     FrameMark;
 #endif

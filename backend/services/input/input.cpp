@@ -42,6 +42,7 @@ void Input::update(float deltaTime)
             auto ev = std::make_unique<InputEventKey>();
 
             ev->pressed = true;
+            ev->fromSDLmod(event.key.mod);
             ev->keycode = static_cast<Keycode>(event.key.key);
             ev->scancode = static_cast<Keycode>(event.key.scancode);
             ev->keyLabel = SDL_GetKeyName(event.key.key);
@@ -54,6 +55,7 @@ void Input::update(float deltaTime)
             auto ev = std::make_unique<InputEventKey>();
 
             ev->pressed = false;
+            ev->fromSDLmod(event.key.mod);
             ev->keycode = static_cast<Keycode>(event.key.key);
             ev->scancode = static_cast<Keycode>(event.key.scancode);
             ev->keyLabel = SDL_GetKeyName(event.key.key);
@@ -429,7 +431,7 @@ bool InputEventKey::operator==(const InputEvent &other) const
     const auto *o = dynamic_cast<const InputEventKey *>(&other);
     if (!o)
         return false;
-    return (scancode == o->scancode && pressed == o->pressed);
+    return (scancode == o->scancode && pressed == o->pressed && altPressed == o->altPressed && ctrlPressed == o->ctrlPressed && metaPressed == o->metaPressed && shiftPressed == o->shiftPressed);
 }
 
 bool InputEventMouseButton::operator==(const InputEvent &other) const

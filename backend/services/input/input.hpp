@@ -95,14 +95,16 @@ class InputEventWithModifiers : public InputEvent
 {
 public:
     bool altPressed = false;
-    bool commandOrControlAutoremap = false;
     bool ctrlPressed = false;
     bool metaPressed = false;
     bool shiftPressed = false;
 
-    // TODO make this use keymodifiermask or whatever godot does
-    std::vector<bool> getModifiersMask() const;
-    bool isCommandOrControlPressed() const;
+    void fromSDLmod(SDL_Keymod mod) {
+        altPressed = (mod & SDL_KMOD_ALT) != 0;
+        ctrlPressed = (mod & SDL_KMOD_CTRL) != 0;
+        shiftPressed = (mod & SDL_KMOD_SHIFT) != 0;
+        metaPressed = (mod & SDL_KMOD_GUI) != 0;
+    }
 };
 
 // TODO add keylabel and shit to this from SDL key

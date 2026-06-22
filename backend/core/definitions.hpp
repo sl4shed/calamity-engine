@@ -105,6 +105,13 @@ struct Vector2
         return std::sqrt((x - other.x) * (x - other.x) + (y - other.y) * (y - other.y));
     }
 
+    Vector2 lerp(const Vector2 &other, float t) {
+        Vector2 r;
+        r.x = x + (other.x - x) * t;
+        r.y = y + (other.y - y) * t;
+        return r;
+    }
+
     template <class Archive>
     void serialize(Archive &ar)
     {

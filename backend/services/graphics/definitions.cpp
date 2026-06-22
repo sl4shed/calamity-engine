@@ -89,6 +89,9 @@ std::vector<WindowMode> Window::getSupportedWindowModes()
         mode.refreshRateDenominator = m->refresh_rate_denominator;
         mode.refreshRateNumerator = m->refresh_rate_numerator;
 
+        mode.displayID = m->displayID;
+        mode.pixelFormat = m->format;
+
         modes.push_back(mode);
     }
 
@@ -120,6 +123,9 @@ std::optional<WindowMode> Window::getCurrentWindowMode()
     mode.refreshRateDenominator = sdlMode->refresh_rate_denominator;
     mode.refreshRateNumerator = sdlMode->refresh_rate_numerator;
 
+    mode.displayID = sdlMode->displayID;
+    mode.pixelFormat = sdlMode->format;
+
     //SDL_free(sdlMode);
     return mode;
 }
@@ -133,6 +139,8 @@ void Window::setFullscreenWindowMode(WindowMode mode)
     sdlMode.refresh_rate = mode.refreshRate;
     sdlMode.refresh_rate_numerator = mode.refreshRateNumerator;
     sdlMode.refresh_rate_denominator = mode.refreshRateDenominator;
+    sdlMode.displayID = mode.displayID;
+    sdlMode.format = mode.pixelFormat;
 
     if (!SDL_SetWindowFullscreenMode(this->window, &sdlMode))
     {
