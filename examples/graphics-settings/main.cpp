@@ -30,6 +30,8 @@ int main()
     InputRegistry inputRegistry;
     Audio audio;
 
+    engine.maxFps = 60.0f;
+
     auto window = std::make_shared<Window>("Graphics Settings Example", Rect({100, 100}, {800, 600}));
     engine.appendWindow(window);
 
@@ -95,8 +97,6 @@ int main()
     cycleNextFullscreenMode->getChild("labelNode")->getComponent<Label>()->font->setSize(30);
     cycleNextFullscreenMode->transform.position = {200, 0};
     cycleNextFullscreenMode->clicked.connect([window, processText, cycleNextFullscreenMode]() {
-        Logger::info("NEXT");
-
         chosenScreenMode -= 1;
         processText();
 
@@ -109,7 +109,6 @@ int main()
     cyclePreviousFullscreenMode->getChild("labelNode")->getComponent<Label>()->font->setSize(30);
     cyclePreviousFullscreenMode->transform.position = {200, 60};
     cyclePreviousFullscreenMode->clicked.connect([window, cyclePreviousFullscreenMode, processText]() {
-        Logger::info("PREVIOUS");
         chosenScreenMode += 1;
         processText();
 

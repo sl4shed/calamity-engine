@@ -53,7 +53,7 @@ public:
     Uint64 now = SDL_GetPerformanceCounter();
     Uint64 last = 0;
 
-    float maxFps = 0.0f; /* Max frames per second the game is allowed to hit. 0.0f = unlimited */
+    float maxFps = 240.0f; /* Max frames per second the game is allowed to hit. 0.0f = unlimited */
 
     template <class Archive>
     void serialize(Archive &ar)

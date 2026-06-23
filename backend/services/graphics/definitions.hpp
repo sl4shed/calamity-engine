@@ -1,5 +1,6 @@
 #pragma once
 #include <string>
+#include <optional>
 #include "../../core/definitions.hpp"
 //#include "../../core/node/node.hpp"
 

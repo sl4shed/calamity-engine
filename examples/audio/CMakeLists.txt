@@ -19,7 +19,7 @@ target_include_directories(${PROJECT_NAME} PUBLIC
 add_subdirectory("../../" "calamity")
 target_link_libraries(${PROJECT_NAME} PRIVATE calamity)
 
-add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+add_custom_command(TARGET ${PROJECT_NAME} PRE_LINK
     COMMAND ${CMAKE_COMMAND} -E copy_directory
         ${CMAKE_CURRENT_LIST_DIR}/assets
         $<TARGET_FILE_DIR:${PROJECT_NAME}>/assets
@@ -32,7 +32,7 @@ if(BUILD_TARGET STREQUAL "EMSCRIPTEN")
             SUFFIX ".html"
     )
 
-    target_link_options(${PROJECT_NAME} PRIVATE --embed-file ./assets/)
+    target_link_options(${PROJECT_NAME} PRIVATE --embed-file ${CMAKE_CURRENT_BINARY_DIR}/assets/)
 elseif(BUILD_TARGET STREQUAL "PSP")
     create_pbp_file(
             TARGET ${PROJECT_NAME}

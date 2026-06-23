@@ -73,6 +73,17 @@ void Engine::update()
     ZoneScoped;
 #endif
 
+    // frame limiter
+    if (maxFps > 0.0f) {
+        const float targetFrameTime = 1.0f / maxFps;
+        const Uint64 targetNS = static_cast<Uint64>(targetFrameTime * 1e9f);
+        const Uint64 elapsed = SDL_GetPerformanceCounter() - now;
+        const Uint64 elapsedNS = elapsed * 1000000000ULL / SDL_GetPerformanceFrequency();
+        if (elapsedNS < targetNS) {
+            SDL_DelayNS(targetNS - elapsedNS);
+        }
+    }
+
     last = now;
     now = SDL_GetPerformanceCounter();
     const float deltaTime = static_cast<float>(now - last) / SDL_GetPerformanceFrequency();
@@ -93,16 +104,6 @@ void Engine::update()
 
         accumulator -= physicsTimestep;
     }
-
-    if (maxFps > 0.0f) {
-        const float targetFrameTime = 1.0f / maxFps;
-        const float elapsed = static_cast<float>(SDL_GetPerformanceCounter() - last) / SDL_GetPerformanceFrequency();
-        const float remaining = targetFrameTime - elapsed;
-        if (remaining > 0.0f) {
-            SDL_DelayNS(static_cast<Uint64>(remaining * 1e9f));
-        }
-    }
-
 #if TRACY_ENABLE
     FrameMark;
 #endif
