@@ -21,15 +21,18 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v6
         with:
-          node-version: 'latest'
+          node-version: '24'
 
       - name: Build docs
         run: doxygen Doxyfile
 
-      - name: Install Emscripten
-        uses: emscripten-core/setup-emsdk@v14
+      - name: Setup emsdk
+        uses: emscripten-core/setup-emsdk@v15
         with:
-          version: latest
+          version: 5.0.2
+          emsdk-version: 5.0.5
+          actions-cache-folder: 'emsdk-cache'
+
 
       - name: Build examples
         run: bash build-examples.sh --web-only
