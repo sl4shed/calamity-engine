@@ -8,10 +8,11 @@ jobs:
   build:
     runs-on: ubuntu-latest
     container:
-      image: ubuntu:25.04
+      image: archlinux:base-devel
+
     steps:
       - name: Install dependencies
-        run: apt-get update && apt-get install -y git python3 build-essential cmake make ninja-build libsdl3-dev libsdl3-image-dev libsdl3-ttf-dev libfmt-dev libspdlog-dev libcereal-dev doxygen unzip tar xz-utils
+        run: pacman -Syu --noconfirm git python cmake ninja sdl3 sdl3_image sdl3_ttf fmt spdlog cereal doxygen unzip tar xz
 
       - uses: actions/checkout@v6
         with:
@@ -66,6 +67,6 @@ jobs:
       - name: Deploy docs
         uses: cloudflare/wrangler-action@v3
         with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          apiToken: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           command: deploy --config wrangler-docs.toml
