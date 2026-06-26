@@ -17,6 +17,11 @@ jobs:
         with:
           submodules: recursive
 
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: 'latest'
+
       - name: Build docs
         run: doxygen Doxyfile
 
@@ -27,11 +32,6 @@ jobs:
 
       - name: Build examples
         run: bash build-examples.sh --web-only
-
-      - name: Setup Node
-        uses: actions/setup-node@v6
-        with:
-          node-version: 'latest'
 
       - name: Install pnpm
         uses: pnpm/action-setup@v6
@@ -49,6 +49,12 @@ jobs:
       - name: Build website
         working-directory: website
         run: pnpm build
+
+      - name: Upload Web Build Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: calamity-engine-web-build
+          path: website/.output/public/
 
       - name: Deploy main site
         uses: cloudflare/wrangler-action@v3

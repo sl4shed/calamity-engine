@@ -2,7 +2,8 @@ import fs from 'fs';
 import path from 'path';
 
 const rootDir = import.meta.dirname;
-const examplesDir = path.join(rootDir, '../examples');
+const examplesDir = path.join(rootDir, '../examples/')
+const examplesBuildDir = path.join(rootDir, '../examples/build-web');
 
 const junkFiles = [
   'cmake_install.cmake',
@@ -13,7 +14,7 @@ const junkFiles = [
   'Makefile'
 ];
 
-const junkDirs = ['build', 'build-psp', 'build-win', 'build-web/CMakeFiles', 'build-web/calamity'];
+const junkDirs = ['CMakeFiles', 'calamity'];
 
 const totalManifest = { examples: [] };
 
@@ -34,7 +35,7 @@ for (const file of files) {
     continue;
   }
 
-  const buildDir = path.join(examplePath, 'build-web');
+  const buildDir = path.join(examplesBuildDir, path.basename(examplePath));
 
   if (!fs.existsSync(buildDir)) {
     console.warn(`${file} => missing build-web directory`);
@@ -54,14 +55,22 @@ for (const file of files) {
   fs.mkdirSync(publicExamplePath, { recursive: true });
 
   fs.cpSync(examplePath, publicExamplePath, { recursive: true });
+  // erase any individual build folders
+  const buildFolders = ['build', 'build-web', 'build-psp'];
+  for(const buildFolder of buildFolders) {
+    const junkPath = path.join(publicExamplePath, buildFolder);
+    if (fs.existsSync(junkPath)) {
+      fs.rmSync(junkPath, { recursive: true, force: true });
+      console.log(`${file} -> deleted individual build folder: ${buildFolder}`);
+    }
+  }
+  fs.cpSync(buildDir, path.join(publicExamplePath, 'build-web'), { recursive: true });
 
   console.log(`${file} -> copied to public/examples/${file}`);
 
-  const buildWebPath = path.join(publicExamplePath, 'build-web');
-
   // clean up
   for (const junkFile of junkFiles) {
-    const junkPath = path.join(buildWebPath, junkFile);
+    const junkPath = path.join(buildDir, junkFile);
     if (fs.existsSync(junkPath)) {
       fs.unlinkSync(junkPath);
       console.log(`${file} -> deleted junk file: ${junkFile}`);

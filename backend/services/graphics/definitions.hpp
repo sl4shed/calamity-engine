@@ -32,7 +32,7 @@ struct WindowMode {
     }
 
     bool operator==(const WindowMode& other) const {
-        return size == other.size && scale == other.scale && refreshRate == other.refreshRate && refreshRateNumerator == other.refreshRateNumerator && refreshRateDenominator == other.refreshRateDenominator && displayID == displayID && pixelFormat == pixelFormat;
+        return size == other.size && scale == other.scale && refreshRate == other.refreshRate && refreshRateNumerator == other.refreshRateNumerator && refreshRateDenominator == other.refreshRateDenominator && displayID == other.displayID && pixelFormat == other.pixelFormat;
     }
 };
 

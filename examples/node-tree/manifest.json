@@ -2,7 +2,7 @@
     "title": "Node tree example",
     "description": "An example of the File service, Physics service and node tree loading. It demonstrates how to load/save a node tree with Rigidbodies from/to a file in the user folder and how to utilize Rigidbodies with Sprites.",
     "sourceFiles": [
-        "main.cpp", "rootScript.hpp", "fpsScript.hpp", "CMakeLists.txt"
+        "main.cpp", "boxScript.hpp", "CMakeLists.txt"
     ],
     "width": 480,
     "height": 272,

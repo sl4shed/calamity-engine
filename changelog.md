@@ -1,61 +1,49 @@
 # Changelog
 
-All notable changes to the Calamity Engine from Alpha 1.0 to Alpha 1.1.
-
 ## [Alpha 1.1]
 
 ### New Features & Enhancements
 
-- **Multi-Window Support**: 
-  - Restructured the engine's rendering to manage a collection of multiple concurrent window instances (`std::vector<std::shared_ptr<Window>>`), decoupling graphics rendering from a single global canvas.
-  - Each window can be configured with its own root node, active camera, dimensions, presentation mode, clear color, and fullscreen state.
-- **Dynamic Window Management**: 
-  - Added options to the `Window` class to dynamically cycle fullscreen states, resize window dimensions, query supported display/window modes, and adjust logical rendering presentations at runtime.
-- **Tracy Profiler Integration**:
-  - Integrated Tracy profiler annotations (`ZoneScoped` and `FrameMark`) across main loops (Engine, Input, and Nodes) to enable visual performance profiling when compiling with Tracy support enabled.
-- **Physics Raycasting**:
-  - Added the `Raycast` class and `RaycastResult` struct to the physics engine to calculate raycast intersections in the Box2D physics simulation.
+- **Multi Window Support**: 
+  - Restructured the entire graphics class to be able to handle multi-window rendering. Each window has it's own root node and camera! I did this in preparation for adding 3DS support (still not done yet, unfortunately).
+  - Each window can be configured with its own dimensions, position, mode, clear color, and fullscreen state.
+  - You can also dynamically change the fullscreen display mode just like in real video games!!! 😱
+- **Tracy Profiler Support**:
+  - You can now configure your Calamity Engine project with the option `-DTRACY_ENABLE=ON`. You can learn more about tracy over at it's [github repository](https://github.com/wolfpld/tracy).
+- **Raycasts**:
+  - You can now do raycasts with the `Raycast` class! There is also a new [raycast example](https://calamity.sl4shed.xyz/example-raycast)!
 - **Collision Detection & Sensors**:
-  - Added sensor support to shapes via `Shape::setSensor(bool)`, enabling overlap detection without triggering physical contact response.
-  - Added collision signals (`collisionEnter`, `collisionExit`, `collisionHit`) directly on the base `PhysicsBody` class using the `Signal` system.
+  - Added sensor support to shapes via `Shape::setSensor(bool)`, this disables collision but you can still recieve collision signals.
+  - Added collision signals (`collisionEnter`, `collisionExit`, `collisionHit`) to every `PhysicsBody`.
 - **Mouse Hover Signals for Physics Bodies**:
-  - Added `mouseEntered` and `mouseExited` signals on `PhysicsBody` to detect and handle mouse pointer hover states over collision shapes.
+  - Added `mouseEntered` and `mouseExited` signals on every `PhysicsBody` to detect when the mouse enters or exits the collision shape.
 - **New Physics Shapes**:
-  - Added `SegmentShape` and `Segment` definitions, expanding the physics shape options.
-- **Base Node Visibility & State Control**:
-  - Centralized the `visible` property to the base `Node` class (automatically applying to all child components and children nodes recursively) instead of having separate `visible` fields on individual rendering components (e.g., `Sprite`, `AnimatedSprite`, `Tilemap`, `ShapeSprite`, `Label`).
-  - Added `enabled` (and `isEnabled()`) to the base `Node` class to control whether a node's update, input, and render loops are executed.
-- **Engine-Level FPS Limiter**:
-  - Added `maxFps` to `Engine` to limit framerate using `SDL_DelayNS` in the main update loop.
+  - Added `SegmentShape`!
+- **Node Visibility & State Control**:
+  - Instead of the `visible` property depending on components (i.e. Sprites), now it's at the Node level. I added the `visible` property to the Node class which automatically applies to every component and child Node.
+  - Also added `enabled` to the Node class which basically does the same thing as visible but instead it disables every lifetime function (`update`, `render`, `input`).
+- **FPS Limiter**:
+  - Added `maxFps` to the Engine service. By default it is set to 240 fps but can be changed to be unlimited.
 - **Input Event Modifier Flags**:
-  - Added parsing of SDL modifier keys (`shiftPressed`, `altPressed`, `ctrlPressed`, `metaPressed`) in key events via `fromSDLmod`.
-- **Vector2 Utilities**:
-  - Added `lerp` and `distanceTo` methods to the `Vector2` struct.
-
+  - Added parsing of modifier keys (`shiftPressed`, `altPressed`, `ctrlPressed`, `metaPressed`) in keyboard events. (which was overlooked in 1.0 but oh well it's here now)
+- **Vector2 Utils**:
+  - Added `lerp` and `distanceTo` functions to Vector2.
+- **Windows support**
+  - You can now use Calamity Engine on Windows!!! You can compile any Calamity Engine game with MSVC now. (as long as you don't use C style casts in your code... ask me how I know)
 ### Fixes & Refactoring
 
-- **Wall Sliding**:
-  - Set player physics body material friction to `0.0f` in the platformer example, resolving the issue where characters stick to walls instead of sliding down.
-- **Capsule Rendering**:
-  - Fixed Capsule shape rendering in physics/shape rendering.
-- **Restructured Physics Inheritance**:
-  - Refactored physics bodies (`RigidBody`, `StaticBody`, `KinematicBody`) to inherit from a common `PhysicsBody` class, which handles shape creation, body cleanup, and signals.
+- **Got rid of SDL3_gfx and circle rendering is good now**:
+  - Instead of using SDL3_gfx (which I don't even know why I was using in the first place), circle rendering is not a circle fan and it renders like a regular polygon. Looks much better! This also gets rid of a dependency which caused Windows builds to break.
 - **Refactored Examples**:
-  - Updated examples to use the new `PhysicsBody` structure.
-  - Replaced explicit types with modern `auto` variables for cleaner code readability.
-  - Refactored `examples/physics` to clean up architecture.
-- **Console & Windows Build Conveniences**:
-  - Relocated example asset copying in CMake using `add_custom_command` to copy assets directory to output directory, allowing invocation from any working directory/console.
-  - Configured MSVC builds to hide the console window when building in Release configuration (`WIN32_EXECUTABLE $<CONFIG:Release>`).
-  - Configured static linking options and MSVC-specific C++20 standard requirement for Box2D compilation.
+  - I changed how the node-tree and physics examples work to be able to compile and work on console platforms. Try it out with a controller in your browser on the example website to see how it works!
 
 ### New Examples
 
 - **Button Example (`examples/button`)**:
-  - Demonstrates using `StaticBody` sensor shapes and mouse hover signals (`mouseEntered`, `mouseExited`) to build interactive UI buttons.
+  - Demonstrates using `StaticBody` sensor shapes and mouse hover signals (`mouseEntered`, `mouseExited`) to create a working button (until I do the UI update).
 - **Multi-Window Example (`examples/multi-window`)**:
-  - Demonstrates rendering content to multiple concurrent windows with separate root nodes and cameras.
+  - Demonstrates rendering content to multiple concurrent windows with separate root nodes and cameras. This one can't compile to the browser, for obvious reasons.
 - **Raycast Example (`examples/raycast`)**:
-  - Showcases dynamic raycasting, rotation, and segment visualization.
+  - Showcases dynamic raycasting.
 - **Graphics Settings Example (`examples/graphics-settings`)**:
   - Demonstrates querying supported display modes, cycling modes, and switching fullscreen states at runtime.

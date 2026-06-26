@@ -14,7 +14,9 @@ target_include_directories(${PROJECT_NAME} PUBLIC
         $<INSTALL_INTERFACE:include>
 )
 
-add_subdirectory("../../" "calamity")
+if(NOT TARGET calamity)
+    add_subdirectory("../../" "calamity")
+endif()
 target_link_libraries(${PROJECT_NAME} PRIVATE calamity)
 
 calamity_apply_assets(${PROJECT_NAME})

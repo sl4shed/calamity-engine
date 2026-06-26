@@ -309,6 +309,8 @@ struct RaycastResult
  *     Logger::info("Raycast hit: {}", result.physicsBody->getNode()->name);
  * }
  * ```
+ * 
+ * For more insight into Raycasts, check out the [raycast example](https://calamity.sl4shed.xyz/example-raycast)
  */
 class Raycast
 {

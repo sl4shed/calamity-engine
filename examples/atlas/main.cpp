@@ -76,7 +76,7 @@ int main()
     node->addComponent(sprite);
 
     auto lnode = std::make_shared<Node>();
-    auto label = std::make_shared<Label>("W\LSB - texture 1\nA\RSB - texture 2");
+    auto label = std::make_shared<Label>("W/LSB - texture 1\nA/RSB - texture 2");
     label->font->setSize(12);
     label->size = {200, 500};
     label->screenSpace = true;

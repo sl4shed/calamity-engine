@@ -14,13 +14,15 @@ target_include_directories(${PROJECT_NAME} PUBLIC
     $<INSTALL_INTERFACE:include>
 )
 
-add_subdirectory("../../" "calamity")
+if(NOT TARGET calamity)
+    add_subdirectory("../../" "calamity")
+endif()
 target_link_libraries(${PROJECT_NAME} PRIVATE calamity)
 
 add_custom_command(TARGET ${PROJECT_NAME} PRE_LINK
     COMMAND ${CMAKE_COMMAND} -E copy_directory
-        ${CMAKE_CURRENT_LIST_DIR}/assets
-        $<TARGET_FILE_DIR:${PROJECT_NAME}>/assets
+    ${CMAKE_CURRENT_LIST_DIR}/assets
+    $<TARGET_FILE_DIR:${PROJECT_NAME}>/assets
 )
 
 calamity_apply_assets(${PROJECT_NAME})
@@ -38,7 +40,10 @@ if(BUILD_TARGET STREQUAL "EMSCRIPTEN")
         OUTPUT_NAME "index"
         SUFFIX ".html"
     )
-    target_link_options(${PROJECT_NAME} PRIVATE --embed-file ${CMAKE_CURRENT_BINARY_DIR}/assets/)
+
+    target_link_options(${PROJECT_NAME} PRIVATE
+        --embed-file=${CMAKE_CURRENT_SOURCE_DIR}/assets/@assets
+    )
 elseif(BUILD_TARGET STREQUAL "PSP")
     create_pbp_file(
         TARGET ${PROJECT_NAME}
