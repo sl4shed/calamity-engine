@@ -33,7 +33,6 @@ jobs:
           emsdk-version: 5.0.5
           actions-cache-folder: 'emsdk-cache'
 
-
       - name: Build examples
         run: bash build-examples.sh --web-only
 

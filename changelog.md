@@ -30,6 +30,7 @@
   - Added `lerp` and `distanceTo` functions to Vector2.
 - **Windows support**
   - You can now use Calamity Engine on Windows!!! You can compile any Calamity Engine game with MSVC now. (as long as you don't use C style casts in your code... ask me how I know)
+
 ### Fixes & Refactoring
 
 - **Got rid of SDL3_gfx and circle rendering is good now**:

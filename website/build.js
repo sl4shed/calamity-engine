@@ -70,7 +70,7 @@ for (const file of files) {
 
   // clean up
   for (const junkFile of junkFiles) {
-    const junkPath = path.join(buildDir, junkFile);
+    const junkPath = path.join(publicExamplePath, 'build-web', junkFile);
     if (fs.existsSync(junkPath)) {
       fs.unlinkSync(junkPath);
       console.log(`${file} -> deleted junk file: ${junkFile}`);
@@ -79,7 +79,7 @@ for (const file of files) {
 
   // clean up
   for (const junkDir of junkDirs) {
-    const junkPath = path.join(publicExamplePath, junkDir);
+    const junkPath = path.join(publicExamplePath, 'build-web', junkDir);
     if (fs.existsSync(junkPath)) {
       fs.rmSync(junkPath, { recursive: true, force: true });
       console.log(`${file} -> deleted junk dir: ${junkDir}`);

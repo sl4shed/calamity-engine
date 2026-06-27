@@ -11,17 +11,16 @@
 #include "backend/core/ui/definitions.hpp"
 #include "backend/core/ui/label.hpp"
 
-struct AppState
-{
-    Engine *engine;
-    Graphics *graphics;
-};
-
-void loop(AppState *state)
-{
-    state->engine->update();
-    state->engine->render(*state->graphics);
-}
+#ifdef PSP
+// hello. i only added this here so that you can compile it to the psp but you are NOT supposed to run this example on the PSP!!!
+// you are also NOT supposed to run this example on emscripten!!!
+#include <pspuser.h>
+#include <pspctrl.h>
+#include <pspdisplay.h>
+#include <pspgu.h>
+PSP_MODULE_INFO("Example", 0, 1, 0);
+PSP_MAIN_THREAD_ATTR(THREAD_ATTR_USER);
+#endif
 
 int main()
 {
@@ -38,9 +37,6 @@ int main()
     Input input;
     InputRegistry inputRegistry;
     Audio audio;
-    AppState appstate;
-    appstate.engine = &engine;
-    appstate.graphics = graphics;
 
     Services::init(graphics, &physics, &engine, &input, &inputRegistry, &audio);
 
@@ -74,7 +70,8 @@ int main()
 
     while (!input.shouldQuit)
     {
-        loop(&appstate);
+        engine.update();
+        engine.render(*graphics);
     }
 
     engine.exit();
