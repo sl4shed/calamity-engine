@@ -69,7 +69,7 @@ You will need the [Emscripten SDK](https://emscripten.org/) installed.
 
 ```bash
 cd path/to/project
-emsdk activate latest # do whatever the command tells you to do
+emsdk activate 5.0.2 # you MUST use 5.0.2 for now. 
 
 mkdir build-web
 cd build-web

@@ -159,6 +159,8 @@ void Node::exit() const
 
 void Node::physicsUpdate() const
 {
+    if(!enabled) return;
+
     for (const auto &component : components)
     {
         component->physicsUpdate();
@@ -195,6 +197,8 @@ void Node::initialize()
 
 void Node::input(InputEvent &event)
 {
+    if(!enabled) return;
+
     for (const auto &i : children)
     {
         i->input(event);
