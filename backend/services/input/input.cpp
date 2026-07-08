@@ -10,6 +10,7 @@
 #include <vector>
 #include <algorithm>
 #include <optional>
+#include "events.hpp"
 
 #if TRACY_ENABLE
 #include <tracy/Tracy.hpp>

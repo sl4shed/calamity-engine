@@ -57,6 +57,7 @@ add_library(${PROJECT_NAME} STATIC
     backend/services/audio.cpp
     backend/services/services.cpp
     backend/services/input/input.cpp
+    backend/services/input/events.cpp
     backend/services/graphics/graphics.cpp
     backend/services/graphics/definitions.cpp
     backend/services/engine.cpp

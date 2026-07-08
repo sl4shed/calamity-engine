@@ -1,3 +1,5 @@
+#define SDL_MAIN_USE_CALLBACKS
+#include <SDL3/SDL_main.h>
 #include "backend/services/engine.hpp"
 #include "backend/core/node/node.hpp"
 #include "backend/core/definitions.hpp"
@@ -28,48 +30,62 @@ PSP_MAIN_THREAD_ATTR(THREAD_ATTR_USER);
 static Physics physics = Physics({0.0f, 9.81f});
 static Engine engine = Engine("Platformer Example");
 static Graphics *graphics = nullptr;
+static Input *input = nullptr;
+static InputRegistry *inputRegistry = nullptr;
+static Audio *audio = nullptr;
 
-void loop()
+SDL_AppResult SDL_AppIterate(void *appstate)
 {
     engine.update();
     engine.render(*graphics);
+    return SDL_APP_CONTINUE;
 }
 
-int main()
+void SDL_AppQuit(void *appstate, SDL_AppResult result)
+{
+    engine.exit();
+}
+
+SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
+{
+    return input->processInput(event);
+}
+
+SDL_AppResult SDL_AppInit(void **appstate, int argc, char **argv)
 {
     Logger::init();
 
     std::shared_ptr<Window> window = std::make_unique<Window>("Platformer Example", Rect{{0, 0}, {480, 272}}, RenderLogicalPresentation::LETTERBOX, WindowFlags::RESIZABLE, Color(0x00b7ff));
     engine.appendWindow(window);
     graphics = new Graphics();
-    Input input;
-    InputRegistry inputRegistry;
-    Audio audio;
+    input = new Input();
+    inputRegistry = new InputRegistry();
+    audio = new Audio();
 
-    Services::init(graphics, &physics, &engine, &input, &inputRegistry, &audio);
+    Services::init(graphics, &physics, &engine, input, inputRegistry, audio);
 
     // input stuff
 
-    inputRegistry.addAction("left");
+    inputRegistry->addAction("left");
     auto leftEvent = std::make_unique<InputEventControllerButton>(0, true, ControllerButton::DPAD_LEFT);
-    inputRegistry.actionAddEvent("left", std::move(leftEvent));
+    inputRegistry->actionAddEvent("left", std::move(leftEvent));
 
     auto leftEventK = std::make_unique<InputEventKey>(true, Keycode::A);
-    inputRegistry.actionAddEvent("left", std::move(leftEventK));
+    inputRegistry->actionAddEvent("left", std::move(leftEventK));
 
-    inputRegistry.addAction("right");
+    inputRegistry->addAction("right");
     auto rightEvent = std::make_unique<InputEventControllerButton>(0, true, ControllerButton::DPAD_RIGHT);
-    inputRegistry.actionAddEvent("right", std::move(rightEvent));
+    inputRegistry->actionAddEvent("right", std::move(rightEvent));
 
     auto rightEventK = std::make_unique<InputEventKey>(true, Keycode::D);
-    inputRegistry.actionAddEvent("right", std::move(rightEventK));
+    inputRegistry->actionAddEvent("right", std::move(rightEventK));
 
-    inputRegistry.addAction("up");
+    inputRegistry->addAction("up");
     auto upEvent = std::make_unique<InputEventControllerButton>(0, true, ControllerButton::SOUTH);
-    inputRegistry.actionAddEvent("up", std::move(upEvent));
+    inputRegistry->actionAddEvent("up", std::move(upEvent));
 
     auto upEventK = std::make_unique<InputEventKey>(true, Keycode::SPACE);
-    inputRegistry.actionAddEvent("up", std::move(upEventK));
+    inputRegistry->actionAddEvent("up", std::move(upEventK));
 
     // node stuff
 
@@ -255,17 +271,5 @@ int main()
 
     engine.initialize();
 
-#ifdef EMSCRIPTEN
-    emscripten_set_main_loop(loop, 0, 1);
-#else
-    while (!input.shouldQuit)
-    {
-        loop();
-    }
-
-    engine.exit();
-    delete graphics;
-#endif
-
-    return 0;
+    return SDL_APP_CONTINUE;
 }

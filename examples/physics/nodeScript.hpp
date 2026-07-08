@@ -58,7 +58,8 @@ public:
         if (event.isActionPressed("clear"))
         {
             // clear all objects
-            for (auto child : objects->children)
+            auto childrenCopy = objects->children;
+            for (auto &child : childrenCopy)
             {
                 child->free();
             }

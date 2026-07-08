@@ -1,3 +1,5 @@
+#define SDL_MAIN_USE_CALLBACKS
+#include <SDL3/SDL_main.h>
 #include "backend/services/engine.hpp"
 #include "backend/core/node/node.hpp"
 #include "backend/core/definitions.hpp"
@@ -29,53 +31,67 @@ PSP_MAIN_THREAD_ATTR(THREAD_ATTR_USER);
 static Physics physics;
 static Engine engine = Engine("Input Example");
 static Graphics *graphics = nullptr;
+static Input *input = nullptr;
+static InputRegistry *inputRegistry = nullptr;
+static Audio *audio = nullptr;
 
-void loop()
+SDL_AppResult SDL_AppIterate(void *appstate)
 {
     engine.update();
     engine.render(*graphics);
+    return SDL_APP_CONTINUE;
 }
 
-int main()
+void SDL_AppQuit(void *appstate, SDL_AppResult result)
+{
+    engine.exit();
+}
+
+SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
+{
+    return input->processInput(event);
+}
+
+SDL_AppResult SDL_AppInit(void **appstate, int argc, char **argv)
 {
     Logger::init();
 
     auto window = std::make_shared<Window>("Input Example", Rect({100, 100}, {480, 272}));
     engine.appendWindow(window);
     graphics = new Graphics();
-    Input input;
-    InputRegistry inputRegistry;
-    Audio audio;
+    input = new Input();
+    inputRegistry = new InputRegistry();
+    audio = new Audio();
 
-    Services::init(graphics, &physics, &engine, &input, &inputRegistry, &audio);
+    Services::init(graphics, &physics, &engine, input, inputRegistry, audio);
 
-    inputRegistry.addAction("left");
+    inputRegistry->addAction("left");
     auto leftEvent = std::make_unique<InputEventControllerMotion>(0, -1.0f, ControllerAxis::LEFT_X);
-    inputRegistry.actionAddEvent("left", std::move(leftEvent));
+    inputRegistry->actionAddEvent("left", std::move(leftEvent));
 
     auto leftEventK = std::make_unique<InputEventKey>(true, Keycode::A);
-    inputRegistry.actionAddEvent("left", std::move(leftEventK));
+    inputRegistry->actionAddEvent("left", std::move(leftEventK));
 
-    inputRegistry.addAction("right");
+    inputRegistry->addAction("right");
     auto rightEvent = std::make_unique<InputEventControllerMotion>(0, 1.0f, ControllerAxis::LEFT_X);
-    inputRegistry.actionAddEvent("right", std::move(rightEvent));
+    inputRegistry->actionAddEvent("right", std::move(rightEvent));
 
     auto rightEventK = std::make_unique<InputEventKey>(true, Keycode::D);
-    inputRegistry.actionAddEvent("right", std::move(rightEventK));
+    inputRegistry->actionAddEvent("right", std::move(rightEventK));
 
-    inputRegistry.addAction("up");
+    inputRegistry->addAction("up");
     auto upEvent = std::make_unique<InputEventControllerMotion>(0, 1.0f, ControllerAxis::LEFT_Y);
-    inputRegistry.actionAddEvent("up", std::move(upEvent));
+    inputRegistry->actionAddEvent("up", std::move(upEvent));
 
     auto upEventK = std::make_unique<InputEventKey>(true, Keycode::W);
-    inputRegistry.actionAddEvent("up", std::move(upEventK));
+    inputRegistry->actionAddEvent("up", std::move(upEventK));
 
-    inputRegistry.addAction("down");
+    inputRegistry->addAction("down");
     auto downEvent = std::make_unique<InputEventControllerMotion>(0, -1.0f, ControllerAxis::LEFT_Y);
-    inputRegistry.actionAddEvent("down", std::move(downEvent));
+    inputRegistry->actionAddEvent("down", std::move(downEvent));
 
     auto downEventK = std::make_unique<InputEventKey>(true, Keycode::S);
-    inputRegistry.actionAddEvent("down", std::move(downEventK));
+    inputRegistry->actionAddEvent("down", std::move(downEventK));
 
     auto cameraNode = std::make_shared<Node>();
     auto camera = std::make_shared<Camera>();
@@ -99,14 +115,5 @@ int main()
     window->root->addChild(node);
     engine.initialize();
 
-#ifdef EMSCRIPTEN
-    emscripten_set_main_loop(loop, 0, 1);
-#else
-    while (!input.shouldQuit)
-    {
-        loop();
-    }
-#endif
-
-    engine.exit();
+    return SDL_APP_CONTINUE;
 }

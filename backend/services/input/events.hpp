@@ -1,5 +1,7 @@
 #pragma once
 #include <SDL3/SDL.h>
+#include "../graphics/definitions.hpp"
+#include "keycode.hpp"
 
 enum class ControllerButton
 {
@@ -211,7 +213,7 @@ public:
     float getStrength() const { return motion; };
 };
 
-#include "../../core/node/components.hpp"
+//#include "../../core/node/components.hpp"
 
 // input registry stuff //
 

@@ -1,3 +1,5 @@
+#define SDL_MAIN_USE_CALLBACKS
+#include <SDL3/SDL_main.h>
 #include "backend/services/engine.hpp"
 #include "backend/core/node/node.hpp"
 #include "backend/core/definitions.hpp"
@@ -29,33 +31,46 @@ PSP_MAIN_THREAD_ATTR(THREAD_ATTR_USER);
 static Physics physics;
 static Engine engine = Engine("Calamity Engine");
 static Graphics *graphics = nullptr;
+static Input *input = nullptr;
+static InputRegistry *inputRegistry = nullptr;
+static Audio *audio = nullptr;
 
-void loop()
+SDL_AppResult SDL_AppIterate(void *appstate)
 {
     engine.update();
     engine.render(*graphics);
+    return SDL_APP_CONTINUE;
 }
 
-int main()
+void SDL_AppQuit(void *appstate, SDL_AppResult result)
+{
+    engine.exit();
+}
+
+SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
+{
+    return input->processInput(event);
+}
+
+SDL_AppResult SDL_AppInit(void **appstate, int argc, char **argv)
 {
     Logger::init();
 
     auto window = std::make_shared<Window>("Audio Example", Rect({100, 100}, {480, 272}));
     engine.appendWindow(window);
     graphics = new Graphics();
+    input = new Input();
+    inputRegistry = new InputRegistry();
+    audio = new Audio();
 
-    Input input;
-    InputRegistry inputRegistry;
-    Audio audio;
+    Services::init(graphics, &physics, &engine, input, inputRegistry, audio);
 
-    Services::init(graphics, &physics, &engine, &input, &inputRegistry, &audio);
-
-    inputRegistry.addAction("play");
+    inputRegistry->addAction("play");
     auto event = std::make_unique<InputEventKey>(true, Keycode::SPACE);
-    inputRegistry.actionAddEvent("play", std::move(event));
+    inputRegistry->actionAddEvent("play", std::move(event));
 
     auto eventC = std::make_unique<InputEventControllerButton>(0, true, ControllerButton::SOUTH);
-    inputRegistry.actionAddEvent("play", std::move(eventC));
+    inputRegistry->actionAddEvent("play", std::move(eventC));
 
     auto cameraNode = std::make_shared<Node>();
     auto camera = std::make_shared<Camera>();
@@ -94,14 +109,5 @@ int main()
         Logger::info("Sound looped!");
         sound->looped.reset(); });
 
-#ifdef EMSCRIPTEN
-    emscripten_set_main_loop(loop, 0, 1);
-#else
-    while (!input.shouldQuit)
-    {
-        loop();
-    }
-#endif
-
-    engine.exit();
+    return SDL_APP_CONTINUE;
 }

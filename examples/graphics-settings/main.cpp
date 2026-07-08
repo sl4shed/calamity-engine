@@ -1,3 +1,5 @@
+#define SDL_MAIN_USE_CALLBACKS
+#include <SDL3/SDL_main.h>
 #include "backend/services/engine.hpp"
 #include "backend/core/node/node.hpp"
 #include "backend/core/definitions.hpp"
@@ -30,23 +32,44 @@ std::string formatMode(WindowMode mode) {
     return fmt::format("({}x{})*{}@{}", mode.size.x, mode.size.y, mode.scale, mode.refreshRate);
 }
 
-int main()
+static Physics physics;
+static Engine engine = Engine("Graphics Settings Example");
+static Graphics *graphics = nullptr;
+static Input *input = nullptr;
+static InputRegistry *inputRegistry = nullptr;
+static Audio *audio = nullptr;
+
+SDL_AppResult SDL_AppIterate(void *appstate)
+{
+    engine.update();
+    engine.render(*graphics);
+    return SDL_APP_CONTINUE;
+}
+
+void SDL_AppQuit(void *appstate, SDL_AppResult result)
+{
+    engine.exit();
+}
+
+SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
+{
+    return input->processInput(event);
+}
+
+SDL_AppResult SDL_AppInit(void **appstate, int argc, char **argv)
 {
     Logger::init();
-
-    Physics physics;
-    Engine engine = Engine("Graphics Settings Example");
-    Graphics graphics;
-    Input input;
-    InputRegistry inputRegistry;
-    Audio audio;
 
     engine.maxFps = 60.0f;
 
     auto window = std::make_shared<Window>("Graphics Settings Example", Rect({100, 100}, {800, 600}));
     engine.appendWindow(window);
+    graphics = new Graphics();
+    input = new Input();
+    inputRegistry = new InputRegistry();
+    audio = new Audio();
 
-    Services::init(&graphics, &physics, &engine, &input, &inputRegistry, &audio);
+    Services::init(graphics, &physics, &engine, input, inputRegistry, audio);
 
     auto cameraNode = std::make_shared<Node>();
     auto camera = std::make_shared<Camera>();
@@ -175,12 +198,5 @@ int main()
     window->root->addChild(fullscreenNode);
     engine.initialize();
 
-    while (!input.shouldQuit)
-    {
-        engine.update();
-        engine.render(graphics);
-    }
-
-    engine.exit();
-    return 0;
+    return SDL_APP_CONTINUE;
 }
