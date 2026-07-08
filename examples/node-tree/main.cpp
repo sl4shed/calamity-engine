@@ -1,3 +1,5 @@
+#define SDL_MAIN_USE_CALLBACKS
+#include <SDL3/SDL_main.h>
 #include "backend/services/engine.hpp"
 #include "backend/core/node/node.hpp"
 #include "backend/core/definitions.hpp"
@@ -30,75 +32,89 @@ PSP_MAIN_THREAD_ATTR(THREAD_ATTR_USER);
 static Physics physics = Physics({0, 9.81f});
 static Engine engine = Engine("Node Tree Example");
 static Graphics *graphics = nullptr;
+static Input *input = nullptr;
+static InputRegistry *inputRegistry = nullptr;
+static Audio *audio = nullptr;
 
-void loop()
+SDL_AppResult SDL_AppIterate(void *appstate)
 {
     engine.update();
     engine.render(*graphics);
+    return SDL_APP_CONTINUE;
 }
 
-int main()
+void SDL_AppQuit(void *appstate, SDL_AppResult result)
+{
+    engine.exit();
+}
+
+SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
+{
+    return input->processInput(event);
+}
+
+SDL_AppResult SDL_AppInit(void **appstate, int argc, char **argv)
 {
     Logger::init();
 
     auto window = std::make_shared<Window>("Node Tree Example", Rect({100, 100}, {480, 272}));
     engine.appendWindow(window);
     graphics = new Graphics();
-    Input input;
-    InputRegistry inputRegistry;
-    Audio audio;
+    input = new Input();
+    inputRegistry = new InputRegistry();
+    audio = new Audio();
 
-    Services::init(graphics, &physics, &engine, &input, &inputRegistry, &audio);
+    Services::init(graphics, &physics, &engine, input, inputRegistry, audio);
 
     // Action registry stuff //
 
-    inputRegistry.addAction("left");
+    inputRegistry->addAction("left");
     auto leftEvent = std::make_unique<InputEventControllerMotion>(0, -1.0f, ControllerAxis::LEFT_X);
-    inputRegistry.actionAddEvent("left", std::move(leftEvent));
+    inputRegistry->actionAddEvent("left", std::move(leftEvent));
 
-    inputRegistry.addAction("right");
+    inputRegistry->addAction("right");
     auto rightEvent = std::make_unique<InputEventControllerMotion>(0, 1.0f, ControllerAxis::LEFT_X);
-    inputRegistry.actionAddEvent("right", std::move(rightEvent));
+    inputRegistry->actionAddEvent("right", std::move(rightEvent));
 
-    inputRegistry.addAction("up");
+    inputRegistry->addAction("up");
     auto upEvent = std::make_unique<InputEventControllerMotion>(0, 1.0f, ControllerAxis::LEFT_Y);
-    inputRegistry.actionAddEvent("up", std::move(upEvent));
+    inputRegistry->actionAddEvent("up", std::move(upEvent));
 
-    inputRegistry.addAction("down");
+    inputRegistry->addAction("down");
     auto downEvent = std::make_unique<InputEventControllerMotion>(0, -1.0f, ControllerAxis::LEFT_Y);
-    inputRegistry.actionAddEvent("down", std::move(downEvent));
+    inputRegistry->actionAddEvent("down", std::move(downEvent));
 
     ///////////////////////// divider /////////////////////////////
 
-    inputRegistry.addAction("add");
+    inputRegistry->addAction("add");
     auto addEvent = std::make_unique<InputEventMouseButton>(true, MouseButton::LEFT);
-    inputRegistry.actionAddEvent("add", std::move(addEvent));
+    inputRegistry->actionAddEvent("add", std::move(addEvent));
 
     auto addEventC = std::make_unique<InputEventControllerButton>(0, true, ControllerButton::SOUTH);
-    inputRegistry.actionAddEvent("add", std::move(addEventC));
+    inputRegistry->actionAddEvent("add", std::move(addEventC));
 
-    inputRegistry.addAction("clear");
+    inputRegistry->addAction("clear");
     auto clearEvent = std::make_unique<InputEventMouseButton>(true, MouseButton::RIGHT);
-    inputRegistry.actionAddEvent("clear", std::move(clearEvent));
+    inputRegistry->actionAddEvent("clear", std::move(clearEvent));
 
     auto clearEventC = std::make_unique<InputEventControllerButton>(0, true, ControllerButton::EAST);
-    inputRegistry.actionAddEvent("clear", std::move(clearEventC));
+    inputRegistry->actionAddEvent("clear", std::move(clearEventC));
 
     // Save/load actions
 
-    inputRegistry.addAction("save");
+    inputRegistry->addAction("save");
     auto saveEvent = std::make_unique<InputEventControllerButton>(0, true, ControllerButton::LEFT_SHOULDER);
-    inputRegistry.actionAddEvent("save", std::move(saveEvent));
+    inputRegistry->actionAddEvent("save", std::move(saveEvent));
 
     auto saveEventK = std::make_unique<InputEventKey>(true, Keycode::Z);
-    inputRegistry.actionAddEvent("save", std::move(saveEventK));
+    inputRegistry->actionAddEvent("save", std::move(saveEventK));
 
-    inputRegistry.addAction("load");
+    inputRegistry->addAction("load");
     auto loadEvent = std::make_unique<InputEventControllerButton>(0, true, ControllerButton::RIGHT_SHOULDER);
-    inputRegistry.actionAddEvent("load", std::move(loadEvent));
+    inputRegistry->actionAddEvent("load", std::move(loadEvent));
 
     auto loadEventK = std::make_unique<InputEventKey>(true, Keycode::V);
-    inputRegistry.actionAddEvent("load", std::move(loadEventK));
+    inputRegistry->actionAddEvent("load", std::move(loadEventK));
 
     /////// Node setup /////////
 
@@ -156,15 +172,5 @@ int main()
     window->root->addChild(boxNode);
 
     engine.initialize();
-
-#ifdef EMSCRIPTEN
-    emscripten_set_main_loop(loop, 0, 1);
-#else
-    while (!input.shouldQuit)
-    {
-        loop();
-    }
-#endif
-
-    engine.exit();
+    return SDL_APP_CONTINUE;
 }

@@ -54,6 +54,7 @@ int main() {
 
     auto node = std::make_shared<Node>();
     auto label = std::make_shared<Label>("test text");
+    label->font->setOutline(10);
     label->size = {100, 500};
     node->transform.position = {-240, -136};
     node->addComponent(label);

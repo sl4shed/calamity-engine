@@ -125,6 +125,10 @@ void Engine::exit()
 #endif
 }
 
+SDL_AppResult processInput(SDL_Event *event) {
+    
+}
+
 void Engine::render(Graphics &graphics)
 {
 #if TRACY_ENABLE
