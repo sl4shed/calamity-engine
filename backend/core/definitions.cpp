@@ -220,6 +220,12 @@ void Texture::initialize(bool set)
 {
     this->handle = Services::graphics()->loadTexture(File::getAbsoluteFilePath(this->path), window.get(), this->scaling);
 
+    if (!this->handle)
+    {
+        spdlog::error("Texture::initialize failed to load '{}': {}", this->path, SDL_GetError());
+        return;
+    }
+
     if (set)
     {
         this->width = handle->w;

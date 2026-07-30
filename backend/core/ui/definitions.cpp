@@ -80,6 +80,7 @@ TTF_Font *Font::getHandle() const
 
 Font::~Font()
 {
+    Logger::debug("CLOSE FONT");
     TTF_CloseFont(handle);
 }
 

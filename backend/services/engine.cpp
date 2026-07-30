@@ -58,7 +58,8 @@ Engine::~Engine()
     // idk
 }
 
-void Engine::initialize() {
+void Engine::initialize()
+{
     for (auto &window : windows)
     {
         window->initialize();
@@ -74,12 +75,14 @@ void Engine::update()
 #endif
 
     // frame limiter
-    if (maxFps > 0.0f) {
+    if (maxFps > 0.0f)
+    {
         const float targetFrameTime = 1.0f / maxFps;
         const Uint64 targetNS = static_cast<Uint64>(targetFrameTime * 1e9f);
         const Uint64 elapsed = SDL_GetPerformanceCounter() - now;
         const Uint64 elapsedNS = elapsed * 1000000000ULL / SDL_GetPerformanceFrequency();
-        if (elapsedNS < targetNS) {
+        if (elapsedNS < targetNS)
+        {
             SDL_DelayNS(targetNS - elapsedNS);
         }
     }
@@ -89,12 +92,14 @@ void Engine::update()
     const float deltaTime = static_cast<float>(now - last) / SDL_GetPerformanceFrequency();
 
     Services::input()->update(deltaTime);
-    for(auto &window : windows) {
+    for (auto &window : windows)
+    {
         window->update(deltaTime);
     }
 
     accumulator += deltaTime;
-    while (accumulator >= physicsTimestep) {
+    while (accumulator >= physicsTimestep)
+    {
         Services::physics()->physicsUpdate(physicsTimestep);
 
         for (auto &window : windows)
@@ -112,7 +117,8 @@ void Engine::update()
 void Engine::exit()
 {
 
-    for(auto &window : windows) {
+    for (auto &window : windows)
+    {
         window->exit();
     }
 
@@ -131,29 +137,36 @@ void Engine::render(Graphics &graphics)
     ZoneScoped;
 #endif
 
-    for(auto &window : windows) {
+    for (auto &window : windows)
+    {
         window->render(graphics, this);
     }
 }
 
-int Engine::appendWindow(std::shared_ptr<Window> window) {
+int Engine::appendWindow(std::shared_ptr<Window> window)
+{
     int id = SDL_GetWindowID(window->window);
     window->id = id;
     windows.emplace_back(window);
     return id;
 }
 
-std::vector<std::shared_ptr<Window>> Engine::getWindows() {
+std::vector<std::shared_ptr<Window>> Engine::getWindows()
+{
     return windows;
 }
 
-void Engine::removeWindow(int id) {
+void Engine::removeWindow(int id)
+{
     // TODO: implement
 }
 
-std::shared_ptr<Window> Engine::getWindow(int id) {
-    for (auto &window : windows) {
-        if (window->id == id) return window;
+std::shared_ptr<Window> Engine::getWindow(int id)
+{
+    for (auto &window : windows)
+    {
+        if (window->id == id)
+            return window;
     }
     return nullptr;
 }

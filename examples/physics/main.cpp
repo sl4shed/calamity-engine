@@ -21,16 +21,6 @@
 #include <emscripten.h>
 #endif
 
-#ifdef PSP
-// if you want psp support you have to have the psp module info thing
-#include <pspuser.h>
-#include <pspctrl.h>
-#include <pspdisplay.h>
-#include <pspgu.h>
-PSP_MODULE_INFO("Physics Example", 0, 1, 0);
-PSP_MAIN_THREAD_ATTR(THREAD_ATTR_USER);
-#endif
-
 static Physics physics = Physics({0, 9.81f});
 static Engine engine = Engine("Physics Example");
 static Graphics *graphics = nullptr;

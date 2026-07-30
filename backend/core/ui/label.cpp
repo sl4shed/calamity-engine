@@ -25,6 +25,11 @@ SDL_Texture *Label::getTexture() const
 
 void Label::rebuildTexture()
 {
+    if (!font || !font->getHandle())
+    {
+        Logger::error("Label::rebuildTexture: font handle is null, skipping");
+        return;
+    }
     if (!dirty)
         return;
     if (!getNode() || !getNode()->getWindow())
@@ -64,6 +69,14 @@ Label::Label() {
     this->handle = TTF_CreateText(Services::graphics()->getTextEngine(), font->getHandle(), text.c_str(), text.size());
 }
 
+std::shared_ptr<Font> &Label::defaultFont()
+{
+    static std::shared_ptr<Font> font;
+    if (!font)
+        font = std::shared_ptr<Font>(new Font("res://calamity/default.ttf"));
+    return font;
+}
+
 Label::Label(const std::string &text, std::shared_ptr<Font> font)
 {
     this->font = font;
@@ -73,9 +86,7 @@ Label::Label(const std::string &text, std::shared_ptr<Font> font)
 
 Label::Label(const std::string &text)
 {
-    static auto dfont = std::shared_ptr<Font>(new Font("res://calamity/default.ttf"));
-    this->font = dfont;
-
+    this->font = defaultFont();
     this->handle = TTF_CreateText(Services::graphics()->getTextEngine(), font->getHandle(), text.c_str(), text.size());
     this->text = text;
     this->setColor({255, 255, 255, 255});
@@ -84,6 +95,11 @@ Label::Label(const std::string &text)
 Label::~Label()
 {
     TTF_DestroyText(handle);
+}
+
+void Label::exit() {
+    Logger::debug("RESET FONT POINTER");
+    defaultFont().reset();
 }
 
 Label *Label::setColor(Color _color)

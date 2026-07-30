@@ -52,8 +52,9 @@ public:
     Vector2 size;
     Vector2 origin;
 
-    void update(float dt);
-    void render(std::shared_ptr<Window> window); 
+    void update(float dt) override;
+    void render(std::shared_ptr<Window> window) override;
+    void exit() override; 
     std::shared_ptr<Font> font;
     bool wrap = true; // text wrap. yes or no?
     bool screenSpace = false;
@@ -95,6 +96,8 @@ private:
     TTF_Text* handle; // TTF_Text*
     SDL_Texture *texture = nullptr;
     Vector2 prevSize;
+
+    static std::shared_ptr<Font> &defaultFont();
 };
 
 CEREAL_REGISTER_TYPE(Label);

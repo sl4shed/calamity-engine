@@ -19,11 +19,20 @@ if(NOT TARGET calamity)
 endif()
 target_link_libraries(${PROJECT_NAME} PRIVATE calamity)
 
-add_custom_command(TARGET ${PROJECT_NAME} PRE_LINK
-        COMMAND ${CMAKE_COMMAND} -E copy_directory
-        ${CMAKE_CURRENT_LIST_DIR}/assets
-        $<TARGET_FILE_DIR:${PROJECT_NAME}>/assets
-)
+if(BUILD_TARGET STREQUAL "3DS")
+        add_custom_command(TARGET ${PROJECT_NAME} PRE_LINK
+                COMMAND ${CMAKE_COMMAND} -E copy_directory
+                ${CMAKE_CURRENT_LIST_DIR}/assets
+                $<TARGET_FILE_DIR:${PROJECT_NAME}>/romfs/assets
+        )
+else()
+        add_custom_command(TARGET ${PROJECT_NAME} PRE_LINK
+                COMMAND ${CMAKE_COMMAND} -E copy_directory
+                ${CMAKE_CURRENT_LIST_DIR}/assets
+                $<TARGET_FILE_DIR:${PROJECT_NAME}>/assets
+        )
+endif()
+
 
 calamity_apply_assets(${PROJECT_NAME})
 if(BUILD_TARGET STREQUAL "EMSCRIPTEN")
@@ -52,5 +61,16 @@ elseif(BUILD_TARGET STREQUAL "PSP")
                 PREVIEW_PATH NULL
                 TITLE ${PROJECT_NAME}
                 VERSION 01.00
+        )
+elseif(BUILD_TARGET STREQUAL "3DS")
+        ctr_generate_smdh(${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}.smdh
+                NAME "${PROJECT_NAME}"
+                DESCRIPTION "v01.00"
+                AUTHOR "Calamity Engine"
+        )
+
+        ctr_create_3dsx(${PROJECT_NAME}
+                ROMFS ${CMAKE_CURRENT_BINARY_DIR}/romfs
+                SMDH ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}.smdh
         )
 endif()

@@ -13,15 +13,6 @@
 #include "backend/services/physics/physics.hpp"
 #include "backend/core/ui/label.hpp"
 
-#ifdef PSP
-#include <pspuser.h>
-#include <pspctrl.h>
-#include <pspdisplay.h>
-#include <pspgu.h>
-PSP_MODULE_INFO("Animated Sprite Example", 0, 1, 0);
-PSP_MAIN_THREAD_ATTR(THREAD_ATTR_USER);
-#endif
-
 #ifdef EMSCRIPTEN
 #include <emscripten.h>
 #endif

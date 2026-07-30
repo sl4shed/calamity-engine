@@ -105,3 +105,21 @@ ninja # Yes, PSPSDK can build using Ninja!
 # To run the game, you need to have PPSSPP installed
 PPSSPPSDL $(pwd)
 ```
+
+### 3DS (EXPERIMENTAL)
+
+<a id="3ds"></a>
+The SDL3 port for the 3DS only has software rendering capabilities, which unfortunately means that actual games will NOT run well on the system. 
+You will need to have [devkitARM](https://devkitpro.org/wiki/Getting_Started) installed on your system.
+
+```bash
+cd path/to/project
+mkdir build-3ds
+cd build-3ds
+mkdir romfs
+arm-none-eabi-cmake -DBUILD_TARGET=3DS -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE="$DEVKITPRO/cmake/3DS.cmake" ..
+make
+
+# To run the game, use an emulator OR send it directly to your 3ds!
+3dslink -a 192.168.1.XXX game.3dsx
+```

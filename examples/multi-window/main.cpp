@@ -13,17 +13,6 @@
 #include "backend/core/ui/definitions.hpp"
 #include "backend/core/ui/label.hpp"
 
-#ifdef PSP
-// hello. i only added this here so that you can compile it to the psp but you are NOT supposed to run this example on the PSP!!!
-// you are also NOT supposed to run this example on emscripten!!!
-#include <pspuser.h>
-#include <pspctrl.h>
-#include <pspdisplay.h>
-#include <pspgu.h>
-PSP_MODULE_INFO("Example", 0, 1, 0);
-PSP_MAIN_THREAD_ATTR(THREAD_ATTR_USER);
-#endif
-
 static Physics physics;
 static Engine engine = Engine("Multi Window Example");
 static Graphics *graphics = nullptr;

@@ -245,7 +245,7 @@ public:
         saveCurrentAnimName = currentAnimName;
     }
 
-    void postLoad();
+    void postLoad() override;
 
 private:
     float elapsed = 0.0f;
@@ -309,7 +309,7 @@ public:
 
     void update();
     void render(std::shared_ptr<Window>) override;
-    void initialize() { bake(); };
+    void initialize() override { bake(); };
     void bake();
 
     template <class Archive>

@@ -67,7 +67,7 @@ add_library(${PROJECT_NAME} STATIC
 
 if(MSVC)
     # Hide console for release builds on Windows
-    set_target_properties(${PROJECT_NAME} PROPERTIES 
+    set_target_properties(${PROJECT_NAME} PROPERTIES
         WIN32_EXECUTABLE $<CONFIG:Release>
     )
 endif()
@@ -85,6 +85,16 @@ function(calamity_apply_assets target)
             --embed-file=${CALAMITY_ROOT}/vendored/SDL_GameControllerDB/gamecontrollerdb.txt@calamity/gamecontrollerdb.txt
             --embed-file=${CALAMITY_ROOT}/assets/default.ttf@calamity/default.ttf
         )
+    elseif(BUILD_TARGET STREQUAL "3DS")
+        # on the 3ds we want to have a separate "romfs" folder just so we don't copy over the junk cmake files
+        add_custom_command(TARGET ${target} POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            ${CALAMITY_ROOT}/vendored/SDL_GameControllerDB/gamecontrollerdb.txt
+            $<TARGET_FILE_DIR:${target}>/romfs/calamity/gamecontrollerdb.txt
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            ${CALAMITY_ROOT}/assets/default.ttf
+            $<TARGET_FILE_DIR:${target}>/romfs/calamity/default.ttf
+        )
     else()
         add_custom_command(TARGET ${target} POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy_if_different
@@ -97,20 +107,16 @@ function(calamity_apply_assets target)
     endif()
 endfunction()
 
-if(BUILD_TARGET STREQUAL "EMSCRIPTEN" OR MSVC OR BUILD_TARGET STREQUAL "3DS")
+if(BUILD_TARGET STREQUAL "EMSCRIPTEN" OR MSVC)
     message("Set build type to Release since Emscripten and Windows require the release build type.")
     set(CMAKE_BUILD_TYPE Release CACHE STRING "" FORCE)
     set(CALAMITY_VENDORED ON)
 endif()
 
 if(BUILD_TARGET STREQUAL "3DS")
-    # include("$ENV{DEVKITPRO}/cmake/3DS.cmake")
-
     set(CMAKE_PREFIX_PATH "$ENV{DEVKITPRO}/portlibs/3ds" ${CMAKE_PREFIX_PATH})
-    set(SDLTTF_PLUTOSVG OFF)
-    set(CALAMITY_FIND_SPDLOG ON)
-    set(CALAMITY_VENDORED ON)
-    set(CALAMITY_FIND_BOX2D ON)
+    list(APPEND CMAKE_MODULE_PATH "$ENV{DEVKITPRO}/cmake/Platform")
+    include(Nintendo3DS)
 endif()
 
 if(CALAMITY_VENDORED)
@@ -196,10 +202,15 @@ else()
     find_package(box2d)
     target_link_libraries(${PROJECT_NAME} PUBLIC box2d)
 
+    # target_link_libraries(${PROJECT_NAME} PUBLIC
+    #     SDL3::SDL3
+    #     SDL3_image::SDL3_image
+    #     SDL3_ttf::SDL3_ttf
+    # )
     target_link_libraries(${PROJECT_NAME} PUBLIC
-        SDL3::SDL3
         SDL3_image::SDL3_image
         SDL3_ttf::SDL3_ttf
+        SDL3::SDL3
     )
 
     find_package(fmt REQUIRED)

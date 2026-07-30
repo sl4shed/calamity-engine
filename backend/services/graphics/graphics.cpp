@@ -11,6 +11,7 @@
 #include "definitions.hpp"
 #include "../../utils/utils.hpp"
 #include "../physics/definitions.hpp"
+#include "../../utils/file.hpp"
 
 #if TRACY_ENABLE
 #include <tracy/Tracy.hpp>
@@ -20,12 +21,7 @@ Graphics::Graphics()
 {
     SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMEPAD | SDL_INIT_AUDIO | SDL_INIT_EVENTS);
     TTF_Init();
-
-#ifdef EMSCRIPTEN
-    SDL_AddGamepadMappingsFromFile("/calamity/gamecontrollerdb.txt");
-#else
-    SDL_AddGamepadMappingsFromFile("./calamity/gamecontrollerdb.txt");
-#endif
+    SDL_AddGamepadMappingsFromFile(File::getAbsoluteFilePath("res://calamity/gamecontrollerdb.txt").c_str());
 
     this->textEngine = TTF_CreateSurfaceTextEngine();
     if (!this->textEngine)

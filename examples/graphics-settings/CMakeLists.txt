@@ -43,4 +43,14 @@ elseif(BUILD_TARGET STREQUAL "PSP")
             TITLE ${PROJECT_NAME}
             VERSION 01.00
     )
+elseif(BUILD_TARGET STREQUAL "3DS")
+        ctr_generate_smdh(${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}.smdh
+                NAME "${PROJECT_NAME}"
+                DESCRIPTION "v01.00"
+                AUTHOR "Calamity Engine"
+        )
+
+        ctr_create_3dsx(${PROJECT_NAME}
+                SMDH ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}.smdh
+        )
 endif()

@@ -58,7 +58,7 @@ class PhysicsBody : public Component
 {
 public:
     void exit() override;
-    virtual void physicsUpdate() = 0;
+    virtual void physicsUpdate() override = 0;
     void initialize() override;
     virtual void initCompute();
 
